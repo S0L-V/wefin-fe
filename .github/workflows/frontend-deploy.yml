@@ -1,0 +1,68 @@
+name: Frontend Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Set deploy target
+        id: vars
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "REMOTE_TEMP_DIR=/home/ubuntu/deploy/wefin-fe-prod" >> $GITHUB_OUTPUT
+            echo "REMOTE_TARGET_DIR=/var/www/wefin-fe" >> $GITHUB_OUTPUT
+          else
+            echo "REMOTE_TEMP_DIR=/home/ubuntu/deploy/wefin-fe-dev" >> $GITHUB_OUTPUT
+            echo "REMOTE_TARGET_DIR=/var/www/wefin-fe-dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Prepare remote temp directory
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p ${{ steps.vars.outputs.REMOTE_TEMP_DIR }} && rm -rf ${{ steps.vars.outputs.REMOTE_TEMP_DIR }}/*"
+
+      - name: Upload dist to EC2
+        run: |
+          scp -i private_key.pem -o StrictHostKeyChecking=no -r dist/* \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ steps.vars.outputs.REMOTE_TEMP_DIR }}/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            TARGET_DIR="${{ steps.vars.outputs.REMOTE_TARGET_DIR }}"
+            TEMP_DIR="${{ steps.vars.outputs.REMOTE_TEMP_DIR }}"
+
+            mkdir -p "\$TARGET_DIR"
+            rm -rf "\$TARGET_DIR"/*
+            cp -r "\$TEMP_DIR"/* "\$TARGET_DIR"/
+          EOF
