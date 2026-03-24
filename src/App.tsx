@@ -1,6 +1,8 @@
-import { Route, Routes } from 'react-router-dom'
-import AppLayout from './components/AppLayout'
 import './App.css'
+
+import { Route, Routes } from 'react-router-dom'
+
+import AppLayout from './components/AppLayout'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage'
 import SectionPage from './pages/SectionPage'
