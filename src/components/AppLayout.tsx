@@ -5,7 +5,7 @@ const navigationItems = [
   { to: '/stocks', label: '실시간 주식' },
   { to: '/history', label: '과거 기반' },
   { to: '/chat', label: '채팅' },
-  { to: '/settings', label: '설정' },
+  { to: '/settings', label: '설정' }
 ]
 
 function AppLayout() {
@@ -25,9 +25,7 @@ function AppLayout() {
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    isActive
-                      ? 'app-nav-link app-nav-link-active'
-                      : 'app-nav-link'
+                    isActive ? 'app-nav-link app-nav-link-active' : 'app-nav-link'
                   }
                 >
                   <span>{label}</span>

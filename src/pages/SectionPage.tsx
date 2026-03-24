@@ -4,7 +4,11 @@ type SectionPageProps = {
   description: string
 }
 
-function SectionPage({ label: _label, title: _title, description: _description }: SectionPageProps) {
+function SectionPage({
+  label: _label,
+  title: _title,
+  description: _description
+}: SectionPageProps) {
   return null
 }
 
