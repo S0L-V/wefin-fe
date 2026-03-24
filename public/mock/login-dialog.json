@@ -1,0 +1,9 @@
+{
+  "title": "로그인 모달 기본 세팅",
+  "description": "Zustand로 열림 상태를 관리하고 있고, 이후 실제 로그인 폼을 여기에 붙이면 됩니다.",
+  "stack": [
+    { "label": "Data layer", "value": "Axios + Zod" },
+    { "label": "Server state", "value": "TanStack Query" },
+    { "label": "UI state", "value": "Zustand" }
+  ]
+}
