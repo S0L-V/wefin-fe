@@ -135,7 +135,7 @@ function AppLayout() {
         </div>
       </header>
 
-      <main className="mx-auto w-[min(1216px,calc(100%-32px))] max-md:w-[min(100%,calc(100%-24px))]">
+      <main className="mx-auto w-[min(1216px,calc(100%-32px))] pt-6 pb-8 max-md:w-[min(100%,calc(100%-24px))] max-md:pt-4">
         <Outlet />
       </main>
     </div>
