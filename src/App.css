@@ -1,130 +1,24 @@
-.app-shell {
-  min-height: 100vh;
-  background: #f7f9fc;
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(6px);
 }
 
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
+.dialog-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(28rem, calc(100vw - 2rem));
+  transform: translate(-50%, -50%);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.98);
+  padding: 1.5rem;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2);
 }
 
-.app-header-inner {
-  width: min(1216px, calc(100% - 32px));
-  min-height: 74px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.brand-group {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  min-width: 0;
-}
-
-.brand-mark {
-  color: #24a8ab;
-  text-decoration: none;
-  font-size: 37px;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.06em;
-}
-
-.app-nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.app-nav-link,
-.cta-link,
-.login-button {
-  display: inline-flex;
-  align-items: center;
-  height: 38px;
-  padding: 0 12px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: var(--text-h);
-  background: transparent;
-  border: 1px solid transparent;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background-color 0.2s ease;
-}
-
-.app-nav-link:hover,
-.cta-link:hover {
-  background: rgba(36, 168, 171, 0.08);
-}
-
-.app-nav-link-active {
-  color: #24a8ab;
-  background: #e8f7f7;
-  font-weight: 700;
-}
-
-.login-button {
-  justify-content: center;
-  min-width: 88px;
-  height: 34px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 9px;
-  background: #56c1c9;
-  color: #fff;
-  cursor: pointer;
-}
-
-.login-button:hover {
-  background: #48b4bc;
-}
-
-.app-main {
-  width: min(1216px, calc(100% - 32px));
-  margin: 0 auto;
-}
-
-@media (max-width: 720px) {
-  .app-header-inner {
-    width: min(100%, calc(100% - 24px));
-    min-height: auto;
-    padding: 12px 0;
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .brand-group {
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .brand-mark {
-    font-size: 32px;
-  }
-
-  .app-nav {
-    width: 100%;
-    gap: 8px;
-  }
-
-  .app-nav-link {
-    padding: 0 10px;
-  }
-
-  .login-button {
-    align-self: flex-end;
-  }
+.dialog-content:focus-visible {
+  outline: 2px solid rgba(20, 184, 166, 0.4);
+  outline-offset: 4px;
 }
