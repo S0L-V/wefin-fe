@@ -1,16 +1,18 @@
 import { z } from 'zod'
 
+export const roomStatusSchema = z.enum(['WAITING', 'IN_PROGRESS', 'FINISHED'])
+
 export const roomListItemSchema = z.object({
-  roomId: z.string(),
-  hostUserId: z.string(),
+  roomId: z.uuid(),
+  hostUserId: z.uuid(),
   seedMoney: z.number(),
   periodMonths: z.number(),
   moveDays: z.number(),
-  startDate: z.string(),
-  endDate: z.string(),
-  status: z.string(),
+  startDate: z.iso.date(),
+  endDate: z.iso.date(),
+  status: roomStatusSchema,
   currentPlayers: z.number(),
-  createdAt: z.string()
+  createdAt: z.iso.datetime()
 })
 
 export const roomListResponseSchema = z.object({
@@ -21,9 +23,9 @@ export const roomListResponseSchema = z.object({
 })
 
 export const createRoomRequestSchema = z.object({
-  seedMoney: z.number(),
-  periodMonths: z.number(),
-  moveDays: z.number()
+  seedMoney: z.number().int().min(1),
+  periodMonths: z.number().int().min(1),
+  moveDays: z.number().int().min(1)
 })
 
 export const createRoomResponseSchema = z.object({
@@ -31,8 +33,8 @@ export const createRoomResponseSchema = z.object({
   code: z.string().nullable(),
   message: z.string().nullable(),
   data: z.object({
-    roomId: z.string(),
-    status: z.string()
+    roomId: z.uuid(),
+    status: roomStatusSchema
   })
 })
 
