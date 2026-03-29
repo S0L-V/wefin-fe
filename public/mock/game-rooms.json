@@ -1,0 +1,43 @@
+{
+  "status": 200,
+  "code": null,
+  "message": null,
+  "data": [
+    {
+      "roomId": "550e8400-e29b-41d4-a716-446655440000",
+      "hostUserId": "00000000-0000-0000-0000-000000000001",
+      "seedMoney": 10000000,
+      "periodMonths": 6,
+      "moveDays": 7,
+      "startDate": "2022-03-15",
+      "endDate": "2022-09-15",
+      "status": "WAITING",
+      "currentPlayers": 3,
+      "createdAt": "2026-03-29T14:30:00"
+    },
+    {
+      "roomId": "660e8400-e29b-41d4-a716-446655440001",
+      "hostUserId": "00000000-0000-0000-0000-000000000001",
+      "seedMoney": 10000000,
+      "periodMonths": 6,
+      "moveDays": 7,
+      "startDate": "2024-03-12",
+      "endDate": "2024-09-08",
+      "status": "FINISHED",
+      "currentPlayers": 4,
+      "createdAt": "2026-03-20T10:00:00"
+    },
+    {
+      "roomId": "770e8400-e29b-41d4-a716-446655440002",
+      "hostUserId": "00000000-0000-0000-0000-000000000001",
+      "seedMoney": 10000000,
+      "periodMonths": 6,
+      "moveDays": 7,
+      "startDate": "2023-10-19",
+      "endDate": "2023-10-19",
+      "status": "FINISHED",
+      "currentPlayers": 3,
+      "createdAt": "2026-03-15T09:00:00"
+    }
+  ]
+}
