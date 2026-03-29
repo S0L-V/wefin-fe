@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 
+import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
 import HistoryPage from '@/pages/history/ui/history-page'
 import HomePage from '@/pages/home/ui/home-page'
@@ -17,6 +18,7 @@ function AppRouter() {
         <Route path="history" element={<HistoryPage />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="admin" element={<AdminPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
