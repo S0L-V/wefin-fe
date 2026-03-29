@@ -1,12 +1,12 @@
 import { Route, Routes } from 'react-router-dom'
 
-import ChatPage from '../../pages/chat/ui/chat-page'
-import HistoryPage from '../../pages/history/ui/history-page'
-import HomePage from '../../pages/home/ui/home-page'
-import NotFoundPage from '../../pages/not-found/ui/not-found-page'
-import SettingsPage from '../../pages/settings/ui/settings-page'
-import StocksPage from '../../pages/stocks/ui/stocks-page'
-import AppLayout from '../../widgets/app-layout/ui/app-layout'
+import ChatPage from '@/pages/chat/ui/chat-page'
+import HistoryPage from '@/pages/history/ui/history-page'
+import HomePage from '@/pages/home/ui/home-page'
+import NotFoundPage from '@/pages/not-found/ui/not-found-page'
+import SettingsPage from '@/pages/settings/ui/settings-page'
+import StocksPage from '@/pages/stocks/ui/stocks-page'
+import AppLayout from '@/widgets/app-layout/ui/app-layout'
 
 function AppRouter() {
   return (

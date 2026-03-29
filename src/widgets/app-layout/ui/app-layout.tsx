@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 
-import AppHeader from '../../header/ui/app-header'
+import AppHeader from '@/widgets/header/ui/app-header'
 
 function AppLayout() {
   return (
