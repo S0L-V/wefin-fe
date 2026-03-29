@@ -3,10 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createGameRoom, fetchGameRooms } from '../api/fetch-game-rooms'
 import type { CreateRoomRequest } from './game-room.schema'
 
-export function useGameRoomsQuery(status?: string) {
+export function useGameRoomsQuery() {
   return useQuery({
-    queryKey: ['game-rooms', status],
-    queryFn: () => fetchGameRooms(status)
+    queryKey: ['game-rooms'],
+    queryFn: () => fetchGameRooms()
   })
 }
 
