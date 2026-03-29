@@ -1,4 +1,5 @@
-import { baseApi } from '../../../shared/api/base-api'
+import { baseApi } from '@/shared/api/base-api'
+
 import type { CreateRoomRequest } from '../model/game-room.schema'
 import { createRoomResponseSchema, roomListResponseSchema } from '../model/game-room.schema'
 

@@ -1,41 +1,35 @@
+import { Play, TrendingUp } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 import type { RoomListItem } from '../model/game-room.schema'
-import { useGameRoomsQuery } from '../model/use-game-room-query'
+import { useGameLobby } from '../model/use-game-lobby'
 
 function GameLobby() {
-  const { data, isLoading } = useGameRoomsQuery()
+  const { activeRoom, finishedRooms, isLoading } = useGameLobby()
 
   if (isLoading) {
     return <div className="text-center py-20 text-wefin-subtle">로딩 중...</div>
   }
 
-  const rooms = data?.data ?? []
-  const activeRoom = rooms.find(
-    (room) => room.status === 'WAITING' || room.status === 'IN_PROGRESS'
-  )
-  const finishedRooms = rooms.filter((room) => room.status === 'FINISHED')
-
   return (
     <div className="space-y-8">
-      {/* 상단: 제목 + 방 만들기 버튼 */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-wefin-text">게임 로비</h1>
           <p className="text-wefin-subtle mt-1">그룹 멤버들과 함께 과거의 시장으로 떠나보세요</p>
         </div>
         {!activeRoom && (
-          <a
-            href="/history/create"
+          <Link
+            to="/history/create"
             className="flex items-center gap-2 bg-wefin-mint text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
           >
-            ▶ 방 만들기
-          </a>
+            <Play className="w-4 h-4" />방 만들기
+          </Link>
         )}
       </div>
 
-      {/* 활성 방 카드 */}
       {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <EmptyRoomCard />}
 
-      {/* 과거 게임 이력 */}
       {finishedRooms.length > 0 && <GameHistorySection rooms={finishedRooms} />}
     </div>
   )
@@ -49,7 +43,7 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-wefin-mint-soft rounded-xl flex items-center justify-center">
-            <span className="text-wefin-mint text-xl">📈</span>
+            <TrendingUp className="w-6 h-6 text-wefin-mint" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -63,12 +57,12 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
             </p>
           </div>
         </div>
-        <a
-          href={`/history/room/${room.roomId}`}
+        <Link
+          to={`/history/room/${room.roomId}`}
           className="bg-wefin-mint text-white px-8 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
         >
           입장하기
-        </a>
+        </Link>
       </div>
     </div>
   )
@@ -77,7 +71,7 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
 function EmptyRoomCard() {
   return (
     <div className="bg-white rounded-2xl border border-wefin-line border-dashed p-16 text-center">
-      <div className="text-4xl mb-4 opacity-30">▶</div>
+      <Play className="w-10 h-10 mx-auto mb-4 opacity-30 text-wefin-subtle" />
       <h3 className="text-lg font-semibold text-wefin-text">활성화된 게임이 없습니다</h3>
       <p className="text-wefin-subtle mt-1">새로운 방을 만들어 투자를 시작해보세요</p>
     </div>
