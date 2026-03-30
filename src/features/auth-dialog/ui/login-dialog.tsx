@@ -1,4 +1,4 @@
-import '@/app/styles/dialog.css'
+import '../../../app/styles/dialog.css'
 
 import * as Dialog from '@radix-ui/react-dialog'
 import { LockKeyhole, X } from 'lucide-react'
