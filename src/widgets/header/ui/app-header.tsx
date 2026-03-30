@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
-import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
-import { navigationItems, routes } from '@/shared/config/routes'
+import LoginDialog from '../../../features/auth-dialog/ui/login-dialog'
+import { navigationItems, routes } from '../../../shared/config/routes'
 
 function AppHeader() {
   return (
