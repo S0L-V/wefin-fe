@@ -230,7 +230,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
   // OAuth 로그인 URL 조회 및 팝업 열기
   const handleOAuth = async (provider: 'google' | 'kakao') => {
     try {
-      // 공통 baseApi를 사용해 base URL 정책 통일
       const response = await baseApi.get(`/auth/${provider}/url`)
       const url = response.data?.url
 
@@ -238,7 +237,12 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         throw new Error('OAuth 로그인 URL이 응답에 포함되어 있지 않습니다.')
       }
 
-      window.open(url, 'oauth_popup', 'width=600,height=700')
+      const popup = window.open(url, 'oauth_popup', 'width=600,height=700')
+
+      if (!popup) {
+        setError('팝업이 차단되었습니다. 브라우저 팝업 차단을 해제해주세요.')
+        return
+      }
     } catch {
       setError(`${provider} 로그인 URL을 가져오는 데 실패했습니다.`)
     }
