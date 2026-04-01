@@ -9,19 +9,6 @@ export type SignupFormData = {
 export type SignupFieldName = keyof SignupFormData
 export type SignupFieldErrors = Partial<Record<SignupFieldName, string>>
 
-export interface SignupResponseData {
-  userId: string
-  email: string
-  nickname: string
-}
-
-export interface ApiResponse<T> {
-  status: number
-  code: string
-  message: string
-  data: T | null
-}
-
 export const initialSignupFormData: SignupFormData = {
   nickname: '',
   email: '',
