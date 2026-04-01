@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
@@ -20,10 +21,16 @@ vi.mock('../../../features/auth-dialog/model/use-login-dialog-query', () => ({
 
 describe('AppHeader', () => {
   it('renders active navigation and login trigger', () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } }
+    })
+
     render(
-      <MemoryRouter initialEntries={['/stocks']}>
-        <AppHeader />
-      </MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/stocks']}>
+          <AppHeader />
+        </MemoryRouter>
+      </QueryClientProvider>
     )
 
     expect(screen.getByText('wefin')).toBeInTheDocument()
