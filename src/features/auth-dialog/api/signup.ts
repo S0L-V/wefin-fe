@@ -1,24 +1,38 @@
-import type { ApiResponse, SignupResponseData } from '../model/signup.schema'
+import { z } from 'zod'
 
+import { baseApi } from '@/shared/api/base-api'
+
+/**
+ * Zod schema (응답 검증)
+ */
+export const signupResponseSchema = z.object({
+  status: z.number(),
+  code: z.string(),
+  message: z.string(),
+  data: z.object({
+    userId: z.string(),
+    email: z.string(),
+    nickname: z.string()
+  })
+})
+
+export type SignupResponse = z.infer<typeof signupResponseSchema>
+
+/**
+ * 요청 타입
+ */
 type SignupRequest = {
   email: string
   nickname: string
   password: string
 }
 
+/**
+ * API 함수
+ */
 export async function signup(request: SignupRequest) {
-  const response = await fetch('/api/auth/signup', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(request)
-  })
+  const response = await baseApi.post('/api/auth/signup', request)
 
-  const result: ApiResponse<SignupResponseData | Record<string, string>> = await response.json()
-
-  return {
-    response,
-    result
-  }
+  // 응답 검증
+  return signupResponseSchema.parse(response.data)
 }
