@@ -19,7 +19,7 @@ export interface ApiResponse<T> {
   status: number
   code: string
   message: string
-  data: T
+  data: T | null
 }
 
 export const initialSignupFormData: SignupFormData = {

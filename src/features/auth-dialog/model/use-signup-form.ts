@@ -1,5 +1,6 @@
-import axios from 'axios'
 import { useState } from 'react'
+
+import { ApiError } from '@/shared/api/base-api'
 
 import {
   initialSignupFormData,
@@ -215,25 +216,18 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
 
       onSuccess()
     } catch (error) {
-      /*
-       axios 에러 처리
-       */
-      if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as
-          | {
-              code?: string
-              message?: string
-              data?: Record<string, string>
-            }
-          | undefined
-
-        /*
-         백엔드 validation 에러 처리
-         */
-        if (serverError?.code === 'AUTH_VALIDATION_FAILED' && serverError.data) {
+      // 인터셉터에서 변환한 서버 에러 처리
+      if (error instanceof ApiError) {
+        // 필드 검증 에러 처리
+        if (
+          error.code === 'AUTH_VALIDATION_FAILED' &&
+          error.data &&
+          typeof error.data === 'object'
+        ) {
+          const serverErrors = error.data as Record<string, string>
           const mappedErrors: SignupFieldErrors = {}
 
-          Object.entries(serverError.data).forEach(([key, message]) => {
+          Object.entries(serverErrors).forEach(([key, message]) => {
             if (key in initialSignupFormData) {
               mappedErrors[key as SignupFieldName] = message
             }
@@ -244,14 +238,18 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
             ...mappedErrors
           }))
 
-          const firstError = Object.values(serverError.data)[0]
-          setError(firstError || serverError.message || '입력값을 확인해주세요.')
-        } else {
-          setError(serverError?.message || '회원가입 중 오류가 발생했습니다.')
+          const firstError = Object.values(serverErrors)[0]
+          setError(firstError || error.message || '입력값을 확인해주세요.')
+          return
         }
-      } else {
-        setError('서버와 통신 중 오류가 발생했습니다.')
+
+        // 일반 서버 에러 처리
+        setError(error.message || '회원가입 중 오류가 발생했습니다.')
+        return
       }
+
+      // 네트워크 또는 알 수 없는 에러 처리
+      setError('서버와 통신 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
@@ -263,10 +261,19 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
   const handleOAuth = async (provider: 'google' | 'kakao') => {
     try {
       const response = await fetch(`/api/auth/${provider}/url`)
+
+      // 응답 상태 체크
+      if (!response.ok) {
+        throw new Error(`OAuth 로그인 URL 요청에 실패했습니다. (${response.status})`)
+      }
+
       const result = await response.json()
       const url = result?.url
 
-      if (!url) throw new Error()
+      // 에러 메세지
+      if (!url) {
+        throw new Error('OAuth 로그인 URL이 응답에 포함되어 있지 않습니다.')
+      }
 
       window.open(url, 'oauth_popup', 'width=600,height=700')
     } catch {
