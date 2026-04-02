@@ -1,8 +1,16 @@
-import { Outlet } from 'react-router-dom'
+﻿import { Outlet } from 'react-router-dom'
 
+import { useDemoUserId } from '@/features/chat/model/use-demo-user-id'
+import { useGlobalChatBoot } from '@/features/chat/model/use-global-chat-boot'
 import AppHeader from '@/widgets/header/ui/app-header'
 
 function AppLayout() {
+  const userId = useDemoUserId()
+
+  // AppLayout is a stable parent route, so it is the best place to keep one
+  // shared global-chat connection alive while child pages change underneath it.
+  useGlobalChatBoot(userId)
+
   return (
     <div className="min-h-screen bg-wefin-bg">
       <AppHeader />
