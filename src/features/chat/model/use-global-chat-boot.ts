@@ -1,9 +1,12 @@
 ﻿import { Client } from '@stomp/stompjs'
 import { useEffect, useRef } from 'react'
-import SockJS from 'sockjs-client'
 
-import { fetchGlobalChatMessages } from '@/features/chat/api/fetch-global-chat-messages'
+import {
+  fetchGlobalChatMessages,
+  globalChatMessageSchema
+} from '@/features/chat/api/fetch-global-chat-messages'
 import { useGlobalChatStore } from '@/features/chat/model/global-chat-store'
+import { connectStomp, disconnectStomp, stompClient } from '@/shared/api/stomp-client'
 
 type ChatErrorMessage = {
   code: string
@@ -22,6 +25,7 @@ export function useGlobalChatBoot(userId: string) {
   const resetConnectionState = useGlobalChatStore((state) => state.resetConnectionState)
 
   const hasBootstrappedRef = useRef(false)
+  const subscriptionsRef = useRef<{ unsubscribe: () => void }[]>([])
 
   useEffect(() => {
     setUserId(userId)
@@ -34,8 +38,8 @@ export function useGlobalChatBoot(userId: string) {
 
     hasBootstrappedRef.current = true
 
-    // AppLayout stays mounted while page routes switch,
-    // so we connect here once and share the same chat state.
+    // AppLayout은 라우트 전환 중에도 계속 마운트되어 있으므로
+    // 여기서 한 번만 연결해서 같은 채팅 상태를 공유
     setLoading(true)
     setErrorMessage(null)
 
@@ -54,49 +58,73 @@ export function useGlobalChatBoot(userId: string) {
         setLoading(false)
       })
 
-    // SockJS opens the physical websocket connection.
-    // STOMP adds topic subscription/publish on top of that socket.
-    const client = new Client({
-      webSocketFactory: () => new SockJS('/ws'),
-      connectHeaders: {
-        userId
-      },
-      reconnectDelay: 5000,
-      debug: (message) => {
-        console.log('[STOMP]', message)
-      },
-      onConnect: () => {
-        setConnected(true)
+    const client = stompClient as Client
 
-        // Global chat messages are broadcast by the backend to this topic.
+    client.connectHeaders = {
+      ...client.connectHeaders,
+      userId
+    }
+
+    client.debug = (message) => {
+      console.log('[STOMP]', message)
+    }
+
+    client.onConnect = () => {
+      setConnected(true)
+      setErrorMessage(null)
+
+      subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
+      subscriptionsRef.current = []
+
+      subscriptionsRef.current.push(
         client.subscribe('/topic/chat/global', (frame) => {
-          appendMessage(JSON.parse(frame.body))
-        })
+          try {
+            const parsed = globalChatMessageSchema.safeParse(JSON.parse(frame.body))
+            if (!parsed.success) {
+              console.error('전역 채팅 메시지 파싱 실패')
+              return
+            }
 
-        // Per-user websocket errors come through this queue.
-        client.subscribe('/user/queue/errors', (frame) => {
-          const error = JSON.parse(frame.body) as ChatErrorMessage
-          window.alert(error.message)
+            appendMessage(parsed.data)
+          } catch {
+            console.error('전역 채팅 메시지 처리 실패')
+          }
         })
-      },
-      onDisconnect: () => {
-        setConnected(false)
-      },
-      onStompError: (frame) => {
-        console.error('Broker error:', frame.headers['message'])
-        console.error('Details:', frame.body)
-      },
-      onWebSocketError: (event) => {
-        console.error('WebSocket error:', event)
-      }
-    })
+      )
+
+      subscriptionsRef.current.push(
+        client.subscribe('/user/queue/errors', (frame) => {
+          try {
+            const error = JSON.parse(frame.body) as ChatErrorMessage
+            setErrorMessage(error.message)
+          } catch {
+            console.error('전역 채팅 에러 메시지 파싱 실패')
+          }
+        })
+      )
+    }
+
+    client.onDisconnect = () => {
+      setConnected(false)
+    }
+
+    client.onStompError = (frame) => {
+      console.error('Broker error:', frame.headers['message'])
+      console.error('Details:', frame.body)
+    }
+
+    client.onWebSocketError = (event) => {
+      console.error('WebSocket error:', event)
+    }
 
     setClient(client)
-    client.activate()
+    connectStomp()
 
     return () => {
       active = false
-      client.deactivate()
+      subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
+      subscriptionsRef.current = []
+      disconnectStomp()
       resetConnectionState()
       hasBootstrappedRef.current = false
     }

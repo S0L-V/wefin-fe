@@ -35,10 +35,25 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
   setMessages: (messages) => set({ messages }),
   appendMessage: (message) =>
     set((state) => {
-      // STOMP reconnect can replay the latest event, so we dedupe by message id.
+      // STOMP 재연결 시 마지막 이벤트가 다시 들어올 수 있어서 messageId 기준으로 중복을 제거한다.
       if (
         message.messageId != null &&
         state.messages.some((item) => item.messageId === message.messageId)
+      ) {
+        return state
+      }
+
+      if (
+        message.messageId == null &&
+        state.messages.some(
+          (item) =>
+            item.messageId == null &&
+            item.role === message.role &&
+            item.userId === message.userId &&
+            item.sender === message.sender &&
+            item.content === message.content &&
+            item.createdAt === message.createdAt
+        )
       ) {
         return state
       }
@@ -52,13 +67,15 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
   setBootstrapped: (bootstrapped) => set({ bootstrapped }),
   sendMessage: (content) => {
     const client = get().client
-    if (!client?.connected) {
+    const trimmedContent = content.trim()
+
+    if (!client?.connected || !trimmedContent) {
       return
     }
 
     client.publish({
       destination: '/app/chat/global/send',
-      body: JSON.stringify({ content })
+      body: JSON.stringify({ content: trimmedContent })
     })
   },
   resetConnectionState: () =>

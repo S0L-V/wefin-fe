@@ -19,9 +19,10 @@ export default function GlobalChatRoom() {
   }, [chatMessages])
 
   const handleSendMessage = () => {
-    if (!message.trim() || !connected) return
+    const trimmedMessage = message.trim()
+    if (!trimmedMessage || !connected) return
 
-    sendMessage(message)
+    sendMessage(trimmedMessage)
     setMessage('')
   }
 
@@ -111,6 +112,7 @@ export default function GlobalChatRoom() {
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !connected}
+            aria-label="메시지 전송"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
           >
             <Send size={18} />

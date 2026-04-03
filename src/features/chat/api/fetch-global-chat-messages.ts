@@ -1,11 +1,12 @@
-import { z } from 'zod'
+﻿import { z } from 'zod'
 
-// import { apiResponseSchema } from "@/shared/api/api-response";
 import { baseApi } from '@/shared/api/base-api'
+
+const isDev = import.meta.env.DEV
 
 export const globalChatMessageSchema = z.object({
   messageId: z.number().nullable(),
-  userId: z.string().nullable(), // string() -> uuid() 추후 변경
+  userId: z.string().nullable(), // 추후 UUID 검증으로 변경 예정
   role: z.enum(['USER', 'SYSTEM']),
   sender: z.string().nullable().optional(),
   content: z.string(),
@@ -25,12 +26,14 @@ const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
 export async function fetchGlobalChatMessages(): Promise<GlobalChatMessage[]> {
   const response = await baseApi.get('/chat/global/messages')
 
-  console.log('raw chat response:', response.data)
-
   const parsed = apiResponseSchema(z.array(globalChatMessageSchema)).safeParse(response.data)
 
   if (!parsed.success) {
-    console.error('chat parse error: ', parsed.error.flatten())
+    if (isDev) {
+      console.error('전역 채팅 응답 파싱 실패:', parsed.error.flatten())
+    } else {
+      console.error('전역 채팅 응답 파싱 실패')
+    }
     throw parsed.error
   }
 
