@@ -1,8 +1,9 @@
 import { Play, TrendingUp } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import type { RoomListItem } from '../model/game-room.schema'
 import { useGameLobby } from '../model/use-game-lobby'
+import { useJoinGameRoomMutation } from '../model/use-game-room-query'
 
 function GameLobby() {
   const { activeRoom, finishedRooms, isLoading } = useGameLobby()
@@ -36,7 +37,21 @@ function GameLobby() {
 }
 
 function ActiveRoomCard({ room }: { room: RoomListItem }) {
+  const navigate = useNavigate()
+  const joinMutation = useJoinGameRoomMutation()
   const statusLabel = room.status === 'WAITING' ? '대기중' : '진행중'
+
+  function handleEnter() {
+    joinMutation.mutate(room.roomId, {
+      onSuccess: () => navigate(`/history/room/${room.roomId}`),
+      onError: (error) => {
+        // 이미 참가 중이면 바로 이동
+        if (error instanceof Error && 'code' in error && error.code === 'ROOM_ALREADY_JOINED') {
+          navigate(`/history/room/${room.roomId}`)
+        }
+      }
+    })
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-wefin-line p-6">
@@ -57,12 +72,13 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
             </p>
           </div>
         </div>
-        <Link
-          to={`/history/room/${room.roomId}`}
-          className="bg-wefin-mint text-white px-8 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
+        <button
+          onClick={handleEnter}
+          disabled={joinMutation.isPending}
+          className="bg-wefin-mint text-white px-8 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          입장하기
-        </Link>
+          {joinMutation.isPending ? '입장 중...' : '입장하기'}
+        </button>
       </div>
     </div>
   )
