@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useStockSearchQuery } from '@/features/stock-search/model/use-stock-search-query'
+import { routes } from '@/shared/config/routes'
 
 interface StockSearchModalProps {
   isOpen: boolean
@@ -44,7 +45,7 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
 
   function handleSelect(stockCode: string) {
     handleClose()
-    navigate(`/stocks/${stockCode}`)
+    navigate(routes.stockDetail(stockCode))
   }
 
   const trimmed = keyword.trim()

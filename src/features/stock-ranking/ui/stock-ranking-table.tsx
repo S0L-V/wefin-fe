@@ -2,6 +2,8 @@ import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { routes } from '@/shared/config/routes'
+
 type RankingTab = 'volume' | 'amount' | 'rising' | 'falling'
 
 const TABS: { key: RankingTab; label: string }[] = [
@@ -98,7 +100,7 @@ export default function StockRankingTable({ onSearchClick }: StockRankingTablePr
               <td className="py-3 font-medium text-gray-900">{stock.rank}</td>
               <td className="py-3">
                 <Link
-                  to={`/stocks/${stock.code}`}
+                  to={routes.stockDetail(stock.code)}
                   className="font-medium text-gray-900 hover:underline"
                 >
                   {stock.name}
