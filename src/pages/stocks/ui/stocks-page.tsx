@@ -1,21 +1,20 @@
-﻿import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
+import { useState } from 'react'
+
+import StockRankingTable from '@/features/stock-ranking/ui/stock-ranking-table'
+import StockSearchModal from '@/features/stock-search/ui/stock-search-modal'
+import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
 function StocksPage() {
+  const [searchOpen, setSearchOpen] = useState(false)
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <section className="min-h-[640px] rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Stocks</h1>
-          <p className="mt-2 text-sm text-gray-500">
-            This is the real-time stocks area. The same global chat is shared on the right.
-          </p>
-        </div>
+    <StockLayout>
+      <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+        <StockRankingTable onSearchClick={() => setSearchOpen(true)} />
       </section>
 
-      <aside className="min-h-[640px]">
-        <GlobalChatRoom />
-      </aside>
-    </div>
+      <StockSearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+    </StockLayout>
   )
 }
 

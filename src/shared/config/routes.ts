@@ -1,6 +1,7 @@
 export const routes = {
   home: '/',
   stocks: '/stocks',
+  stockDetail: (code: string) => `/stocks/${code}`,
   history: '/history',
   chat: '/chat',
   settings: '/settings'
