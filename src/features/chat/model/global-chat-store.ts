@@ -1,7 +1,7 @@
 ﻿import { Client } from '@stomp/stompjs'
 import { create } from 'zustand'
 
-import type { GlobalChatMessage } from '@/features/chat/api/fetch-global-chat-messages'
+import type { GlobalChatMessage } from '@/features/chat/api/global/fetch-global-chat-messages'
 
 type GlobalChatState = {
   userId: string
