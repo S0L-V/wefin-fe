@@ -84,7 +84,11 @@ function AuthDialog() {
             <>
               <form onSubmit={handleLoginSubmit} className="mt-6 space-y-4">
                 <div>
+                  <label htmlFor="login-email" className="sr-only">
+                    이메일
+                  </label>
                   <input
+                    id="login-email"
                     type="email"
                     placeholder="이메일"
                     required
@@ -95,7 +99,11 @@ function AuthDialog() {
                 </div>
 
                 <div>
+                  <label htmlFor="login-password" className="sr-only">
+                    비밀번호
+                  </label>
                   <input
+                    id="login-password"
                     type="password"
                     placeholder="비밀번호"
                     required
@@ -148,7 +156,11 @@ function AuthDialog() {
             <>
               <form onSubmit={handleSignupSubmit} className="mt-6 space-y-4">
                 <div>
+                  <label htmlFor="signup-nickname" className="sr-only">
+                    닉네임
+                  </label>
                   <input
+                    id="signup-nickname"
                     type="text"
                     placeholder="닉네임"
                     required
@@ -164,15 +176,21 @@ function AuthDialog() {
 
                 <div>
                   <div className="flex gap-2">
-                    <input
-                      type="email"
-                      placeholder="이메일"
-                      required
-                      value={signupFormData.email}
-                      onChange={handleSignupChange('email')}
-                      onBlur={handleBlur('email')}
-                      className={inputClassName('email')}
-                    />
+                    <div className="flex-1">
+                      <label htmlFor="signup-email" className="sr-only">
+                        이메일
+                      </label>
+                      <input
+                        id="signup-email"
+                        type="email"
+                        placeholder="이메일"
+                        required
+                        value={signupFormData.email}
+                        onChange={handleSignupChange('email')}
+                        onBlur={handleBlur('email')}
+                        className={inputClassName('email')}
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={handleVerifyEmail}
@@ -190,7 +208,11 @@ function AuthDialog() {
                 </div>
 
                 <div>
+                  <label htmlFor="signup-password" className="sr-only">
+                    비밀번호
+                  </label>
                   <input
+                    id="signup-password"
                     type="password"
                     placeholder="비밀번호"
                     required
@@ -205,7 +227,11 @@ function AuthDialog() {
                 </div>
 
                 <div>
+                  <label htmlFor="signup-confirm-password" className="sr-only">
+                    비밀번호 확인
+                  </label>
                   <input
+                    id="signup-confirm-password"
                     type="password"
                     placeholder="비밀번호 확인"
                     required
@@ -220,7 +246,11 @@ function AuthDialog() {
                 </div>
 
                 <div>
+                  <label htmlFor="signup-invite-code" className="sr-only">
+                    초대코드
+                  </label>
                   <input
+                    id="signup-invite-code"
                     type="text"
                     placeholder="초대코드 (선택)"
                     value={signupFormData.inviteCode}
