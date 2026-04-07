@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/shared/api/base-api'
 
@@ -6,6 +7,10 @@ import { useLoginMutation } from './use-login-mutation'
 
 type UseLoginFormParams = {
   onSuccess: () => void
+}
+
+type LocationState = {
+  from?: string
 }
 
 export function useLoginForm({ onSuccess }: UseLoginFormParams) {
@@ -16,6 +21,10 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
 
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as LocationState | null)?.from || '/'
 
   const { mutateAsync } = useLoginMutation()
 
@@ -47,6 +56,7 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
       window.dispatchEvent(new Event('auth-changed'))
 
       onSuccess()
+      navigate(from, { replace: true })
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message || '로그인 실패')

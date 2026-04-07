@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 
+import ProtectedRoute from '@/app/providers/protected-route'
 import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
 import HistoryPage from '@/pages/history/ui/history-page'
@@ -15,10 +16,43 @@ function AppRouter() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="stocks" element={<StocksPage />} />
-        <Route path="history" element={<HistoryPage />} />
-        <Route path="chat" element={<ChatPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="admin" element={<AdminPage />} />
+
+        <Route
+          path="history"
+          element={
+            <ProtectedRoute>
+              <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="chat"
+          element={
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="admin"
+          element={
+            <ProtectedRoute>
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
