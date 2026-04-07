@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 type RankingTab = 'volume' | 'amount' | 'rising' | 'falling'
 
@@ -11,6 +11,7 @@ const TABS: { key: RankingTab; label: string }[] = [
   { key: 'falling', label: '급락' }
 ]
 
+// TODO: 거래 랭킹 API 연동 시 탭별 데이터 소스 분리
 const MOCK_DATA = [
   { rank: 1, name: '삼성전자', code: '005930', price: 97500, changeRate: 1.2, volume: 13168563 },
   { rank: 2, name: 'SK하이닉스', code: '000660', price: 285000, changeRate: -0.3, volume: 5672343 },
@@ -44,7 +45,6 @@ interface StockRankingTableProps {
 
 export default function StockRankingTable({ onSearchClick }: StockRankingTableProps) {
   const [activeTab, setActiveTab] = useState<RankingTab>('volume')
-  const navigate = useNavigate()
 
   return (
     <div className="space-y-4">
@@ -93,12 +93,16 @@ export default function StockRankingTable({ onSearchClick }: StockRankingTablePr
           {MOCK_DATA.map((stock) => (
             <tr
               key={stock.code}
-              onClick={() => navigate(`/stocks/${stock.code}`)}
-              className="cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50"
+              className="border-b border-gray-100 transition-colors hover:bg-gray-50"
             >
               <td className="py-3 font-medium text-gray-900">{stock.rank}</td>
               <td className="py-3">
-                <span className="font-medium text-gray-900">{stock.name}</span>
+                <Link
+                  to={`/stocks/${stock.code}`}
+                  className="font-medium text-gray-900 hover:underline"
+                >
+                  {stock.name}
+                </Link>
                 <span className="ml-2 text-xs text-gray-400">{stock.code}</span>
               </td>
               <td className="py-3 text-right font-medium text-gray-900">
