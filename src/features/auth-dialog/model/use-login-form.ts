@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/shared/api/base-api'
@@ -28,17 +28,16 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
 
   const { mutateAsync } = useLoginMutation()
 
-  const handleChange =
-    (field: 'email' | 'password') => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: e.target.value
-      }))
+  const handleChange = (field: 'email' | 'password') => (e: ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: e.target.value
+    }))
 
-      if (error) setError('')
-    }
+    if (error) setError('')
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
