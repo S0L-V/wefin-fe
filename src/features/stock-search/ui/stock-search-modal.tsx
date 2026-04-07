@@ -17,9 +17,10 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
   const { data: results = [], isLoading, isError } = useStockSearchQuery(keyword)
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100)
-    }
+    if (!isOpen) return
+
+    const timer = setTimeout(() => inputRef.current?.focus(), 100)
+    return () => clearTimeout(timer)
   }, [isOpen])
 
   useEffect(() => {
