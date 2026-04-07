@@ -1,6 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
 
 const TEMP_USER_ID = '00000000-0000-4000-a000-000000000001'
+
 // 공통 axios 인스턴스
 export const baseApi = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -89,8 +90,19 @@ baseApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as RetryableRequestConfig | undefined
+    const requestUrl = originalRequest?.url ?? ''
 
-    if (axios.isAxiosError(error) && error.response?.status === 401 && originalRequest) {
+    const isAuthRequest =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/signup') ||
+      requestUrl.includes('/auth/refresh')
+
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      originalRequest &&
+      !isAuthRequest
+    ) {
       if (originalRequest._retry) {
         clearAuthStorage()
         return Promise.reject(error)
