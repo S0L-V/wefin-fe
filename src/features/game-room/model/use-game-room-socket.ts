@@ -13,23 +13,29 @@ export function useGameRoomSocket(roomId: string) {
 
     function subscribe() {
       subscription = stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
-        const eventType = JSON.parse(message.body)
+        try {
+          const eventType = JSON.parse(message.body)
 
-        if (eventType === 'PARTICIPANT_JOINED' || eventType === 'PARTICIPANT_LEFT') {
-          queryClient.invalidateQueries({ queryKey: ['game-room', 'detail', roomId] })
-        }
+          if (eventType === 'PARTICIPANT_JOINED' || eventType === 'PARTICIPANT_LEFT') {
+            queryClient.invalidateQueries({ queryKey: ['game-room', 'detail', roomId] })
+          }
 
-        if (eventType === 'GAME_STARTED') {
-          queryClient.invalidateQueries({ queryKey: ['game-room'] })
-          navigate(`/history/room/${roomId}/play`)
+          if (eventType === 'GAME_STARTED') {
+            queryClient.invalidateQueries({ queryKey: ['game-room'] })
+            navigate(`/history/room/${roomId}/play`)
+          }
+        } catch {
+          console.warn('[WebSocket] 메시지 파싱 실패:', message.body)
         }
       })
     }
 
+    let prevOnConnect: typeof stompClient.onConnect | null = null
+
     if (stompClient.connected) {
       subscribe()
     } else {
-      const prevOnConnect = stompClient.onConnect
+      prevOnConnect = stompClient.onConnect
       stompClient.onConnect = (frame) => {
         prevOnConnect?.(frame)
         subscribe()
@@ -38,6 +44,9 @@ export function useGameRoomSocket(roomId: string) {
 
     return () => {
       subscription?.unsubscribe()
+      if (prevOnConnect !== null) {
+        stompClient.onConnect = prevOnConnect
+      }
     }
   }, [roomId, queryClient, navigate])
 }

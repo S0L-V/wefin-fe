@@ -5,7 +5,8 @@ import GameWaitingRoom from '@/features/game-room/ui/game-waiting-room'
 
 function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>()
-  const { data, isLoading } = useGameRoomDetailQuery(roomId ?? '')
+  // enabled: !!roomId 로 roomId 없으면 API 호출하지 않음
+  const { data, isLoading, isError } = useGameRoomDetailQuery(roomId ?? '')
 
   if (!roomId) {
     return <div className="text-center py-20 text-wefin-subtle">잘못된 접근입니다</div>
@@ -15,7 +16,11 @@ function RoomPage() {
     return <div className="text-center py-20 text-wefin-subtle">로딩 중...</div>
   }
 
-  const status = data?.data?.status
+  if (isError || !data?.data) {
+    return <div className="text-center py-20 text-wefin-subtle">방을 찾을 수 없습니다</div>
+  }
+
+  const status = data.data.status
 
   if (status === 'IN_PROGRESS') {
     return <Navigate to={`/history/room/${roomId}/play`} replace />

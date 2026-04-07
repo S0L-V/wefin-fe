@@ -81,6 +81,7 @@ function Header({
         <button
           onClick={onLeave}
           disabled={isLeaving}
+          aria-label="방 나가기"
           className="w-10 h-10 flex items-center justify-center rounded-full border border-wefin-line hover:bg-wefin-bg transition-colors disabled:opacity-50"
         >
           <ArrowLeft className="w-5 h-5 text-wefin-text" />
