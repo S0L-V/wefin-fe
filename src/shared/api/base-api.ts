@@ -21,6 +21,17 @@ export class ApiError<T = unknown> extends Error {
   }
 }
 
+// 요청 시 access token 자동 첨부
+baseApi.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem('accessToken')
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`
+  }
+
+  return config
+})
+
 // 서버 에러를 ApiError로 변환
 baseApi.interceptors.response.use(
   (response) => response,
