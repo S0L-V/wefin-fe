@@ -51,6 +51,19 @@ function clearAuthStorage() {
   window.dispatchEvent(new Event('auth-changed'))
 }
 
+function getResponseErrorCode(error: unknown): string | undefined {
+  if (!axios.isAxiosError(error)) {
+    return undefined
+  }
+
+  const data = error.response?.data
+  if (!data || typeof data !== 'object') {
+    return undefined
+  }
+
+  return 'code' in data && typeof data.code === 'string' ? data.code : undefined
+}
+
 async function refreshAccessToken(): Promise<string> {
   const refreshToken = localStorage.getItem('refreshToken')
 
@@ -85,7 +98,7 @@ baseApi.interceptors.request.use((config) => {
   return config
 })
 
-// 서버 에러를 ApiError로 변환 + 401 시 refresh 처리
+// 서버 에러를 ApiError로 변환 + access token 만료 시에만 refresh 처리
 baseApi.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -97,12 +110,16 @@ baseApi.interceptors.response.use(
       requestUrl.includes('/auth/signup') ||
       requestUrl.includes('/auth/refresh')
 
-    if (
+    const errorCode = getResponseErrorCode(error)
+
+    const shouldRefresh =
       axios.isAxiosError(error) &&
       error.response?.status === 401 &&
-      originalRequest &&
+      errorCode === 'AUTH_TOKEN_EXPIRED' &&
+      !!originalRequest &&
       !isAuthRequest
-    ) {
+
+    if (shouldRefresh) {
       if (originalRequest._retry) {
         clearAuthStorage()
         return Promise.reject(error)
@@ -116,6 +133,7 @@ baseApi.interceptors.response.use(
               return
             }
 
+            originalRequest._retry = true
             originalRequest.headers = axios.AxiosHeaders.from(originalRequest.headers)
             originalRequest.headers.set('Authorization', `Bearer ${token}`)
             resolve(baseApi(originalRequest))
@@ -136,7 +154,17 @@ baseApi.interceptors.response.use(
         return baseApi(originalRequest)
       } catch (refreshError) {
         notifyPendingRequests(null)
-        clearAuthStorage()
+
+        const refreshErrorCode = getResponseErrorCode(refreshError)
+
+        if (
+          axios.isAxiosError(refreshError) &&
+          refreshError.response?.status === 401 &&
+          refreshErrorCode === 'AUTH_REFRESH_TOKEN_EXPIRED'
+        ) {
+          clearAuthStorage()
+        }
+
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
