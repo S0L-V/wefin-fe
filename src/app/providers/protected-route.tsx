@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
@@ -12,9 +12,13 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   const openLogin = useLoginDialogStore((state) => state.openLogin)
   const location = useLocation()
 
-  if (!token) {
-    openLogin()
+  useEffect(() => {
+    if (!token) {
+      openLogin()
+    }
+  }, [token, openLogin])
 
+  if (!token) {
     return <Navigate to="/" state={{ from: location.pathname }} replace />
   }
 
