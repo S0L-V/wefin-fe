@@ -1,7 +1,7 @@
 ﻿import { Globe, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { useGlobalChatStore } from '@/features/chat/model/global-chat-store'
+import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 
 export default function GlobalChatRoom() {
   const [message, setMessage] = useState('')
