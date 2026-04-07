@@ -68,6 +68,7 @@ async function refreshAccessToken(): Promise<string> {
   const refreshToken = localStorage.getItem('refreshToken')
 
   if (!refreshToken) {
+    clearAuthStorage()
     throw new Error('refresh token not found')
   }
 
@@ -158,9 +159,10 @@ baseApi.interceptors.response.use(
         const refreshErrorCode = getResponseErrorCode(refreshError)
 
         if (
-          axios.isAxiosError(refreshError) &&
-          refreshError.response?.status === 401 &&
-          refreshErrorCode === 'AUTH_REFRESH_TOKEN_EXPIRED'
+          !localStorage.getItem('refreshToken') ||
+          (axios.isAxiosError(refreshError) &&
+            refreshError.response?.status === 401 &&
+            refreshErrorCode === 'AUTH_REFRESH_TOKEN_EXPIRED')
         ) {
           clearAuthStorage()
         }
@@ -174,7 +176,7 @@ baseApi.interceptors.response.use(
     if (axios.isAxiosError(error) && error.response?.data) {
       const { status, code, message, data } = error.response.data
 
-      if (code && message) {
+      if (typeof status === 'number' && typeof code === 'string' && typeof message === 'string') {
         return Promise.reject(new ApiError(status, code, message, data ?? null))
       }
     }
