@@ -1,9 +1,13 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
 
+const TEMP_USER_ID = '00000000-0000-4000-a000-000000000001'
 // 공통 axios 인스턴스
 export const baseApi = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 5_000
+  timeout: 5_000,
+  headers: {
+    'X-User-Id': TEMP_USER_ID
+  }
 })
 
 // refresh 전용 인스턴스
