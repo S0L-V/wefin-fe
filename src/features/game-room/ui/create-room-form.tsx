@@ -22,6 +22,7 @@ function CreateRoomForm() {
     moveDays,
     setMoveDays,
     handleSubmit,
+    errorMessage,
     isSubmitting,
     seedOptions,
     periodOptions,
@@ -73,10 +74,17 @@ function CreateRoomForm() {
           ))}
         </OptionGroup>
 
+        {errorMessage && (
+          <p className="mt-4 text-center text-sm text-red-500" role="alert">
+            {errorMessage}
+          </p>
+        )}
+
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="mt-6 w-full rounded-xl bg-wefin-mint py-3.5 text-base font-semibold text-white transition-colors hover:bg-wefin-mint/90 disabled:opacity-50"
+          aria-busy={isSubmitting}
+          className="mt-4 w-full rounded-xl bg-wefin-mint py-3.5 text-base font-semibold text-white transition-colors hover:bg-wefin-mint/90 disabled:opacity-50"
         >
           {isSubmitting ? '생성 중...' : '게임 시작'}
         </button>
@@ -110,8 +118,12 @@ function Header({ onBack }: { onBack: () => void }) {
 function OptionGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-5">
-      <p className="mb-2 text-sm font-medium text-wefin-subtle">{label}</p>
-      <div className="flex gap-2">{children}</div>
+      <p className="mb-2 text-sm font-medium text-wefin-subtle" id={`label-${label}`}>
+        {label}
+      </p>
+      <div className="flex gap-2" role="radiogroup" aria-labelledby={`label-${label}`}>
+        {children}
+      </div>
     </div>
   )
 }
@@ -131,6 +143,8 @@ function OptionButton({
     return (
       <button
         disabled
+        role="radio"
+        aria-checked={false}
         className="flex-1 rounded-xl border border-wefin-line bg-gray-50 py-2.5 text-sm text-gray-300"
       >
         {children}
@@ -141,6 +155,8 @@ function OptionButton({
   return (
     <button
       onClick={onClick}
+      role="radio"
+      aria-checked={selected}
       className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-colors ${
         selected
           ? 'border-wefin-mint bg-wefin-mint-soft text-wefin-mint'
