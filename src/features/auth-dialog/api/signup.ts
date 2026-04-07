@@ -9,19 +9,18 @@ const signupRequestSchema = z.object({
   password: z.string().min(8)
 })
 
-export const signupResponseSchema = apiResponseSchema(
-  z.object({
-    userId: z.string(),
-    email: z.string(),
-    nickname: z.string()
-  })
-)
+const signupDataSchema = z.object({
+  userId: z.string(),
+  email: z.string(),
+  nickname: z.string()
+})
 
 export type SignupRequest = z.infer<typeof signupRequestSchema>
-export type SignupResponse = z.infer<typeof signupResponseSchema>
+export type SignupData = z.infer<typeof signupDataSchema>
 
-export async function signup(request: SignupRequest) {
+export async function signup(request: SignupRequest): Promise<SignupData> {
   const validatedRequest = signupRequestSchema.parse(request)
   const response = await baseApi.post('/auth/signup', validatedRequest)
-  return signupResponseSchema.parse(response.data)
+  const parsed = apiResponseSchema(signupDataSchema).parse(response.data)
+  return parsed.data
 }

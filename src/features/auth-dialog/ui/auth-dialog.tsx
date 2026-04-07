@@ -1,0 +1,279 @@
+import '@/app/styles/dialog.css'
+
+import * as Dialog from '@radix-ui/react-dialog'
+import { LockKeyhole, X } from 'lucide-react'
+
+import { useLoginDialogQuery } from '../model/use-login-dialog-query'
+import { useLoginDialogStore } from '../model/use-login-dialog-store'
+import { useLoginForm } from '../model/use-login-form'
+import { useSignupForm } from '../model/use-signup-form'
+
+function AuthDialog() {
+  const isOpen = useLoginDialogStore((state) => state.isOpen)
+  const mode = useLoginDialogStore((state) => state.mode)
+  const setOpen = useLoginDialogStore((state) => state.setOpen)
+  const switchMode = useLoginDialogStore((state) => state.switchMode)
+
+  const { data } = useLoginDialogQuery()
+
+  const {
+    formData: loginFormData,
+    error: loginError,
+    loading: loginLoading,
+    handleChange: handleLoginChange,
+    handleSubmit: handleLoginSubmit
+  } = useLoginForm({
+    onSuccess: () => setOpen(false)
+  })
+
+  const {
+    formData: signupFormData,
+    fieldErrors,
+    isEmailVerified,
+    error: signupError,
+    loading: signupLoading,
+    isVerifying,
+    handleChange: handleSignupChange,
+    handleBlur,
+    handleVerifyEmail,
+    handleSubmit: handleSignupSubmit,
+    handleOAuth,
+    inputClassName
+  } = useSignupForm({
+    onSuccess: () => {
+      switchMode('login')
+      setOpen(false)
+    }
+  })
+
+  const isLogin = mode === 'login'
+
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={setOpen}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Content className="dialog-content">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-wefin-mint-soft px-3 py-1 text-xs font-semibold text-wefin-mint">
+                <LockKeyhole className="size-3.5" />
+                Radix UI Dialog
+              </div>
+              <Dialog.Title className="text-xl font-semibold text-slate-900">
+                {isLogin ? (data?.title ?? '로그인') : '회원가입'}
+              </Dialog.Title>
+              <Dialog.Description className="text-sm text-slate-500">
+                {isLogin
+                  ? (data?.description ?? '이메일과 비밀번호를 입력하세요')
+                  : '새로운 계정을 만들고 시작하세요'}
+              </Dialog.Description>
+            </div>
+
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100"
+                aria-label="닫기"
+              >
+                <X className="size-4" />
+              </button>
+            </Dialog.Close>
+          </div>
+
+          {isLogin ? (
+            <>
+              <form onSubmit={handleLoginSubmit} className="mt-6 space-y-4">
+                <div>
+                  <input
+                    type="email"
+                    placeholder="이메일"
+                    required
+                    value={loginFormData.email}
+                    onChange={handleLoginChange('email')}
+                    className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="비밀번호"
+                    required
+                    value={loginFormData.password}
+                    onChange={handleLoginChange('password')}
+                    className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                  />
+                </div>
+
+                {loginError ? <p className="text-sm text-red-500">{loginError}</p> : null}
+
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loginLoading ? '로그인 중...' : '로그인'}
+                </button>
+              </form>
+
+              <div className="mt-6 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('google')}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('kakao')}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  Kakao
+                </button>
+              </div>
+
+              <p className="mt-6 text-center text-sm text-slate-500">
+                계정이 없으신가요?
+                <button
+                  type="button"
+                  onClick={() => switchMode('signup')}
+                  className="ml-2 font-semibold text-[#56c1c9] hover:underline"
+                >
+                  회원가입
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <form onSubmit={handleSignupSubmit} className="mt-6 space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="닉네임"
+                    required
+                    value={signupFormData.nickname}
+                    onChange={handleSignupChange('nickname')}
+                    onBlur={handleBlur('nickname')}
+                    className={inputClassName('nickname')}
+                  />
+                  {fieldErrors.nickname ? (
+                    <p className="mt-1 text-sm text-red-500">{fieldErrors.nickname}</p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      placeholder="이메일"
+                      required
+                      value={signupFormData.email}
+                      onChange={handleSignupChange('email')}
+                      onBlur={handleBlur('email')}
+                      className={inputClassName('email')}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerifyEmail}
+                      disabled={isEmailVerified || isVerifying}
+                      className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isVerifying ? '확인 중...' : isEmailVerified ? '인증됨' : '인증하기'}
+                    </button>
+                  </div>
+                  {fieldErrors.email ? (
+                    <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
+                  ) : isEmailVerified ? (
+                    <p className="mt-1 text-sm text-emerald-600">이메일 인증이 완료되었습니다.</p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="비밀번호"
+                    required
+                    value={signupFormData.password}
+                    onChange={handleSignupChange('password')}
+                    onBlur={handleBlur('password')}
+                    className={inputClassName('password')}
+                  />
+                  {fieldErrors.password ? (
+                    <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="비밀번호 확인"
+                    required
+                    value={signupFormData.confirmPassword}
+                    onChange={handleSignupChange('confirmPassword')}
+                    onBlur={handleBlur('confirmPassword')}
+                    className={inputClassName('confirmPassword')}
+                  />
+                  {fieldErrors.confirmPassword ? (
+                    <p className="mt-1 text-sm text-red-500">{fieldErrors.confirmPassword}</p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="초대코드 (선택)"
+                    value={signupFormData.inviteCode}
+                    onChange={handleSignupChange('inviteCode')}
+                    onBlur={handleBlur('inviteCode')}
+                    className={inputClassName('inviteCode')}
+                  />
+                </div>
+
+                {signupError ? <p className="text-sm text-red-500">{signupError}</p> : null}
+
+                <button
+                  type="submit"
+                  disabled={signupLoading}
+                  className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {signupLoading ? '처리 중...' : '회원가입'}
+                </button>
+              </form>
+
+              <div className="mt-6 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('google')}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('kakao')}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  Kakao
+                </button>
+              </div>
+
+              <p className="mt-6 text-center text-sm text-slate-500">
+                이미 계정이 있으신가요?
+                <button
+                  type="button"
+                  onClick={() => switchMode('login')}
+                  className="ml-2 font-semibold text-[#56c1c9] hover:underline"
+                >
+                  로그인
+                </button>
+              </p>
+            </>
+          )}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+
+export default AuthDialog

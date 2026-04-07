@@ -40,9 +40,11 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
         password: formData.password
       })
 
-      // 토큰 저장
-      localStorage.setItem('accessToken', result.data.accessToken)
-      localStorage.setItem('refreshToken', result.data.refreshToken)
+      localStorage.setItem('nickname', result.nickname)
+      localStorage.setItem('accessToken', result.accessToken)
+      localStorage.setItem('refreshToken', result.refreshToken)
+
+      window.dispatchEvent(new Event('auth-changed'))
 
       onSuccess()
     } catch (error) {
