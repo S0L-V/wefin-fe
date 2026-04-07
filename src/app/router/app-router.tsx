@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
+import CreateRoomPage from '@/pages/history/ui/create-room-page'
 import HistoryPage from '@/pages/history/ui/history-page'
 import PlayPage from '@/pages/history/ui/play-page'
 import ResultPage from '@/pages/history/ui/result-page'
@@ -19,6 +20,7 @@ function AppRouter() {
         <Route index element={<HomePage />} />
         <Route path="stocks" element={<StocksPage />} />
         <Route path="history" element={<HistoryPage />} />
+        <Route path="history/create" element={<CreateRoomPage />} />
         <Route path="history/room/:roomId" element={<RoomPage />} />
         <Route path="history/room/:roomId/play" element={<PlayPage />} />
         <Route path="history/room/:roomId/result" element={<ResultPage />} />
