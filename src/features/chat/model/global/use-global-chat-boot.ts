@@ -1,11 +1,11 @@
 ﻿import { Client } from '@stomp/stompjs'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   fetchGlobalChatMessages,
   globalChatMessageSchema
-} from '@/features/chat/api/fetch-global-chat-messages'
-import { useGlobalChatStore } from '@/features/chat/model/global-chat-store'
+} from '@/features/chat/api/global/fetch-global-chat-messages'
+import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { connectStomp, disconnectStomp, stompClient } from '@/shared/api/stomp-client'
 
 type ChatErrorMessage = {
@@ -14,9 +14,19 @@ type ChatErrorMessage = {
   remainingSeconds?: number
 }
 
+const FALLBACK_ERROR_TIMEOUT_MS = 3000
+
+function getAccessToken(): string {
+  if (typeof window === 'undefined') {
+    return ''
+  }
+
+  return window.localStorage.getItem('accessToken') ?? ''
+}
+
 export function useGlobalChatBoot(userId: string) {
   const setUserId = useGlobalChatStore((state) => state.setUserId)
-  const setMessages = useGlobalChatStore((state) => state.setMessages)
+  const setInitialPage = useGlobalChatStore((state) => state.setInitialPage)
   const appendMessage = useGlobalChatStore((state) => state.appendMessage)
   const setConnected = useGlobalChatStore((state) => state.setConnected)
   const setLoading = useGlobalChatStore((state) => state.setLoading)
@@ -24,45 +34,60 @@ export function useGlobalChatBoot(userId: string) {
   const setClient = useGlobalChatStore((state) => state.setClient)
   const resetConnectionState = useGlobalChatStore((state) => state.resetConnectionState)
 
+  const [accessToken, setAccessToken] = useState(() => getAccessToken())
   const hasBootstrappedRef = useRef(false)
   const subscriptionsRef = useRef<{ unsubscribe: () => void }[]>([])
+  const errorTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     setUserId(userId)
   }, [setUserId, userId])
 
   useEffect(() => {
-    if (!userId || hasBootstrappedRef.current) {
+    const syncAccessToken = () => {
+      setAccessToken(getAccessToken())
+    }
+
+    window.addEventListener('auth-changed', syncAccessToken)
+    window.addEventListener('storage', syncAccessToken)
+
+    return () => {
+      window.removeEventListener('auth-changed', syncAccessToken)
+      window.removeEventListener('storage', syncAccessToken)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!userId || !accessToken || hasBootstrappedRef.current) {
       return
     }
 
     hasBootstrappedRef.current = true
 
-    // AppLayout은 라우트 전환 중에도 계속 마운트되어 있으므로
-    // 여기서 한 번만 연결해서 같은 채팅 상태를 공유
+    // AppLayout은 라우트 전환 중에도 유지되므로 글로벌 채팅 연결과 초기 히스토리를 여기서 함께 관리한다.
     setLoading(true)
     setErrorMessage(null)
 
     let active = true
 
     fetchGlobalChatMessages()
-      .then((messages) => {
+      .then((page) => {
         if (!active) return
-        setMessages(messages)
+        setInitialPage(page)
         setLoading(false)
       })
       .catch((error) => {
         if (!active) return
         console.error('Failed to load global chat history:', error)
-        setErrorMessage('Failed to load global chat history.')
+        setErrorMessage('전체 채팅 이력을 불러오지 못했습니다.')
         setLoading(false)
       })
 
     const client = stompClient as Client
 
+    // 토큰이 갱신되면 effect가 다시 돌면서 최신 access token으로 CONNECT 헤더를 교체한다.
     client.connectHeaders = {
-      ...client.connectHeaders,
-      userId
+      Authorization: `Bearer ${accessToken}`
     }
 
     client.debug = (message) => {
@@ -71,7 +96,6 @@ export function useGlobalChatBoot(userId: string) {
 
     client.onConnect = () => {
       setConnected(true)
-      setErrorMessage(null)
 
       subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
       subscriptionsRef.current = []
@@ -81,13 +105,13 @@ export function useGlobalChatBoot(userId: string) {
           try {
             const parsed = globalChatMessageSchema.safeParse(JSON.parse(frame.body))
             if (!parsed.success) {
-              console.error('전역 채팅 메시지 파싱 실패')
+              console.error('전체 채팅 메시지 파싱 실패')
               return
             }
 
             appendMessage(parsed.data)
           } catch {
-            console.error('전역 채팅 메시지 처리 실패')
+            console.error('전체 채팅 메시지 처리 실패')
           }
         })
       )
@@ -96,9 +120,24 @@ export function useGlobalChatBoot(userId: string) {
         client.subscribe('/user/queue/errors', (frame) => {
           try {
             const error = JSON.parse(frame.body) as ChatErrorMessage
+            const timeoutMs = (error.remainingSeconds ?? 3) * 1000
+
+            // 도배 감지나 전송 실패는 채팅 화면을 없애지 않고 배너로만 보여준 뒤 자동으로 숨긴다.
             setErrorMessage(error.message)
+
+            if (errorTimeoutRef.current != null) {
+              window.clearTimeout(errorTimeoutRef.current)
+            }
+
+            errorTimeoutRef.current = window.setTimeout(
+              () => {
+                setErrorMessage(null)
+                errorTimeoutRef.current = null
+              },
+              Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
+            )
           } catch {
-            console.error('전역 채팅 에러 메시지 파싱 실패')
+            console.error('전체 채팅 에러 메시지 파싱 실패')
           }
         })
       )
@@ -124,18 +163,25 @@ export function useGlobalChatBoot(userId: string) {
       active = false
       subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
       subscriptionsRef.current = []
+
+      if (errorTimeoutRef.current != null) {
+        window.clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = null
+      }
+
       disconnectStomp()
       resetConnectionState()
       hasBootstrappedRef.current = false
     }
   }, [
+    accessToken,
     appendMessage,
     resetConnectionState,
     setClient,
     setConnected,
     setErrorMessage,
+    setInitialPage,
     setLoading,
-    setMessages,
     userId
   ])
 }

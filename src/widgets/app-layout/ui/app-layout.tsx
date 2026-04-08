@@ -1,7 +1,7 @@
 ﻿import { Outlet } from 'react-router-dom'
 
-import { useDemoUserId } from '@/features/chat/model/use-demo-user-id'
-import { useGlobalChatBoot } from '@/features/chat/model/use-global-chat-boot'
+import { useDemoUserId } from '@/features/chat/model/global/use-demo-user-id'
+import { useGlobalChatBoot } from '@/features/chat/model/global/use-global-chat-boot'
 import AppHeader from '@/widgets/header/ui/app-header'
 
 function AppLayout() {
