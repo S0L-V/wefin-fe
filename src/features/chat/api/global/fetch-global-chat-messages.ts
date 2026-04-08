@@ -1,4 +1,4 @@
-import { z } from 'zod'
+﻿import { z } from 'zod'
 
 import { baseApi } from '@/shared/api/base-api'
 
@@ -45,9 +45,9 @@ export async function fetchGlobalChatMessages(
 
   if (!parsed.success) {
     if (isDev) {
-      console.error('전역 채팅 응답 파싱 실패:', parsed.error.flatten())
+      console.error('전체 채팅 응답 파싱 실패:', parsed.error.flatten())
     } else {
-      console.error('전역 채팅 응답 파싱 실패')
+      console.error('전체 채팅 응답 파싱 실패')
     }
     throw parsed.error
   }

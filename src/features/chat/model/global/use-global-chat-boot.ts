@@ -1,4 +1,4 @@
-import { Client } from '@stomp/stompjs'
+﻿import { Client } from '@stomp/stompjs'
 import { useEffect, useRef, useState } from 'react'
 
 import {
@@ -64,7 +64,7 @@ export function useGlobalChatBoot(userId: string) {
 
     hasBootstrappedRef.current = true
 
-    // AppLayout�� ���Ʈ ��ȯ �߿��� �����ǹǷ� �۷ι� ä�� ����� �ʱ� �����丮�� ���⼭ �Բ� �����Ѵ�.
+    // AppLayout은 라우트 전환 중에도 유지되므로 글로벌 채팅 연결과 초기 히스토리를 여기서 함께 관리한다.
     setLoading(true)
     setErrorMessage(null)
 
@@ -79,13 +79,13 @@ export function useGlobalChatBoot(userId: string) {
       .catch((error) => {
         if (!active) return
         console.error('Failed to load global chat history:', error)
-        setErrorMessage('��ü ä�� �̷��� �ҷ����� ���߽��ϴ�.')
+        setErrorMessage('전체 채팅 이력을 불러오지 못했습니다.')
         setLoading(false)
       })
 
     const client = stompClient as Client
 
-    // ��ū�� ���ŵǸ� effect�� �ٽ� ���鼭 �ֽ� access token���� CONNECT ����� ��ü�Ѵ�.
+    // 토큰이 갱신되면 effect가 다시 돌면서 최신 access token으로 CONNECT 헤더를 교체한다.
     client.connectHeaders = {
       Authorization: `Bearer ${accessToken}`
     }
@@ -105,13 +105,13 @@ export function useGlobalChatBoot(userId: string) {
           try {
             const parsed = globalChatMessageSchema.safeParse(JSON.parse(frame.body))
             if (!parsed.success) {
-              console.error('��ü ä�� �޽��� �Ľ� ����')
+              console.error('전체 채팅 메시지 파싱 실패')
               return
             }
 
             appendMessage(parsed.data)
           } catch {
-            console.error('��ü ä�� �޽��� ó�� ����')
+            console.error('전체 채팅 메시지 처리 실패')
           }
         })
       )
@@ -122,7 +122,7 @@ export function useGlobalChatBoot(userId: string) {
             const error = JSON.parse(frame.body) as ChatErrorMessage
             const timeoutMs = (error.remainingSeconds ?? 3) * 1000
 
-            // ���� ������ ���� ���д� ä�� ȭ���� ������ �ʰ� ��ʷθ� ������ �� �ڵ����� �����.
+            // 도배 감지나 전송 실패는 채팅 화면을 없애지 않고 배너로만 보여준 뒤 자동으로 숨긴다.
             setErrorMessage(error.message)
 
             if (errorTimeoutRef.current != null) {
@@ -137,7 +137,7 @@ export function useGlobalChatBoot(userId: string) {
               Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
             )
           } catch {
-            console.error('��ü ä�� ���� �޽��� �Ľ� ����')
+            console.error('전체 채팅 에러 메시지 파싱 실패')
           }
         })
       )

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+﻿import { useEffect, useRef } from 'react'
 
 import {
   fetchGroupChatMessages,
@@ -28,6 +28,7 @@ export function useGroupChatSocket(userId: string) {
   const setConnected = useGroupChatStore((state) => state.setConnected)
   const setLoading = useGroupChatStore((state) => state.setLoading)
   const setErrorMessage = useGroupChatStore((state) => state.setErrorMessage)
+  const resetSessionState = useGroupChatStore((state) => state.resetSessionState)
 
   const messageSubscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
   const errorSubscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
@@ -57,14 +58,15 @@ export function useGroupChatSocket(userId: string) {
       .catch((error) => {
         if (!active) return
         console.error('Failed to load group chat data:', error)
-        setErrorMessage('�׷� ä�� �����͸� �ҷ����� ���߽��ϴ�.')
+        setErrorMessage('그룹 채팅 데이터를 불러오지 못했습니다.')
         setLoading(false)
       })
 
     return () => {
       active = false
+      resetSessionState()
     }
-  }, [setErrorMessage, setGroupMeta, setInitialPage, setLoading, userId])
+  }, [resetSessionState, setErrorMessage, setGroupMeta, setInitialPage, setLoading, userId])
 
   useEffect(() => {
     setConnected(globalConnected)
@@ -79,7 +81,7 @@ export function useGroupChatSocket(userId: string) {
       return
     }
 
-    // AppLayout���� �ϳ��� STOMP ������ �����ϰ� �����Ƿ� �׷� ä���� ������ �����ϰ� ������ �߰��Ѵ�.
+    // AppLayout에서 하나의 STOMP 연결을 유지하고 있으므로 그룹 채팅은 연결을 재사용하고 구독만 추가한다.
     messageSubscriptionRef.current?.unsubscribe()
     messageSubscriptionRef.current = client.subscribe(
       `/topic/chat/group/${groupMeta.groupId}`,
@@ -87,18 +89,18 @@ export function useGroupChatSocket(userId: string) {
         try {
           const parsed = groupChatMessageSchema.safeParse(JSON.parse(frame.body))
           if (!parsed.success) {
-            console.error('�׷� ä�� �޽��� �Ľ� ����')
+            console.error('그룹 채팅 메시지 파싱 실패')
             return
           }
 
           appendMessage(parsed.data)
         } catch {
-          console.error('�׷� ä�� �޽��� ó�� ����')
+          console.error('그룹 채팅 메시지 처리 실패')
         }
       }
     )
 
-    // ����� ���� ���� ť�� �Բ� �����ؼ� ���� ������ ���� ���и� ��ʷ� �ȳ��ϰ� �ڵ����� �����.
+    // 사용자 전용 에러 큐를 함께 구독해서 도배 감지나 전송 실패를 배너로 안내하고 자동으로 숨긴다.
     errorSubscriptionRef.current?.unsubscribe()
     errorSubscriptionRef.current = client.subscribe('/user/queue/errors', (frame) => {
       try {
@@ -119,7 +121,7 @@ export function useGroupChatSocket(userId: string) {
           Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
         )
       } catch {
-        console.error('�׷� ä�� ���� �޽��� �Ľ� ����')
+        console.error('그룹 채팅 에러 메시지 파싱 실패')
       }
     })
 

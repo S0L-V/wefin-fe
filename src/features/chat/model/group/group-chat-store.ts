@@ -1,4 +1,4 @@
-import { Client } from '@stomp/stompjs'
+﻿import { Client } from '@stomp/stompjs'
 import { create } from 'zustand'
 
 import {
@@ -14,6 +14,7 @@ type GroupChatState = {
   messages: GroupChatMessage[]
   nextCursor: number | null
   hasNext: boolean
+  sessionVersion: number
   connected: boolean
   loading: boolean
   loadingOlder: boolean
@@ -31,6 +32,7 @@ type GroupChatState = {
   clearReplyTarget: () => void
   sendMessage: (client: Client | null, content: string) => boolean
   loadOlderMessages: () => Promise<boolean>
+  resetSessionState: () => void
 }
 
 function isSameMessage(left: GroupChatMessage, right: GroupChatMessage): boolean {
@@ -60,6 +62,7 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
   messages: [],
   nextCursor: null,
   hasNext: false,
+  sessionVersion: 0,
   connected: false,
   loading: false,
   loadingOlder: false,
@@ -69,7 +72,7 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
   setGroupMeta: (groupMeta) => set({ groupMeta }),
   setInitialPage: (page) =>
     set((state) => ({
-      // �ʱ� ��ȸ�� �ǽð� �޽������� �ʰ� �����ص� �̹� ���� �޽����� ����� �ʵ��� �����Ѵ�.
+      // 초기 조회가 늦게 끝나도 먼저 반영된 실시간 메시지를 덮어쓰지 않도록 병합한다.
       messages: mergeMessages(state.messages, page.messages),
       nextCursor: page.nextCursor,
       hasNext: page.hasNext
@@ -108,7 +111,7 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
     return true
   },
   loadOlderMessages: async () => {
-    const { nextCursor, hasNext, loadingOlder } = get()
+    const { nextCursor, hasNext, loadingOlder, sessionVersion } = get()
 
     if (!hasNext || nextCursor == null || loadingOlder) {
       return false
@@ -117,8 +120,12 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
     set({ loadingOlder: true })
 
     try {
-      // �׷� ä���� ���� �ֻ�� ���� ������ �̾� �ٿ� ���� �����丮�� Ȯ���Ѵ�.
+      // 그룹 채팅의 현재 최상단 이전 구간을 이어 붙여 과거 히스토리를 확장한다.
       const page = await fetchGroupChatMessages(nextCursor)
+
+      if (get().sessionVersion !== sessionVersion) {
+        return false
+      }
 
       set((state) => ({
         messages: mergeMessages(state.messages, page.messages),
@@ -130,8 +137,23 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
       return true
     } catch (error) {
       console.error('Failed to load older group chat messages:', error)
-      set({ loadingOlder: false })
+      if (get().sessionVersion === sessionVersion) {
+        set({ loadingOlder: false })
+      }
       return false
     }
-  }
+  },
+  resetSessionState: () =>
+    set((state) => ({
+      groupMeta: null,
+      messages: [],
+      nextCursor: null,
+      hasNext: false,
+      connected: false,
+      loading: false,
+      loadingOlder: false,
+      errorMessage: null,
+      replyTarget: null,
+      sessionVersion: state.sessionVersion + 1
+    }))
 }))

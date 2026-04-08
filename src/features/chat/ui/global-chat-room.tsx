@@ -1,4 +1,4 @@
-import { Globe, Send } from 'lucide-react'
+﻿import { Globe, Send } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
@@ -97,7 +97,7 @@ export default function GlobalChatRoom() {
       return
     }
 
-    // ���� �޽����� �տ� ���̱� ���� ���� ���̸� ����� �ΰ�, �������� ���� scrollTop�� �����Ѵ�.
+    // 이전 메시지를 붙이기 전에 현재 높이를 기록해 두고, 성공했을 때만 scrollTop을 보정한다.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 
@@ -144,7 +144,7 @@ export default function GlobalChatRoom() {
         className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-gray-400">���� �޽����� �ҷ����� ��...</div>
+          <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
         )}
 
         {chatMessages.map((msg) => {
@@ -215,7 +215,7 @@ export default function GlobalChatRoom() {
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
-            aria-label="�޽��� ����"
+            aria-label="메시지 전송"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
           >
             <Send size={18} />

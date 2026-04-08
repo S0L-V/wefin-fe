@@ -1,4 +1,4 @@
-import { Client } from '@stomp/stompjs'
+﻿import { Client } from '@stomp/stompjs'
 import { create } from 'zustand'
 
 import {
@@ -81,14 +81,14 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
   setUserId: (userId) => set({ userId }),
   setInitialPage: (page) =>
     set((state) => ({
-      // �ʱ� �����丮 ��û�� �ʰ� ������, ���� ���� �ǽð� �޽����� ����� �ʵ��� �����Ѵ�.
+      // 초기 히스토리 요청이 늦게 끝나도, 먼저 들어온 실시간 메시지를 덮어쓰지 않도록 병합한다.
       messages: mergeMessages(state.messages, page.messages),
       nextCursor: page.nextCursor,
       hasNext: page.hasNext
     })),
   appendMessage: (message) =>
     set((state) => {
-      // STOMP �翬���̳� �ߺ� ���� ��Ȳ������ ���� �޽����� ���� �� ������ �ʵ��� ���´�.
+      // STOMP 재연결이나 중복 구독 상황에서도 같은 메시지가 여러 번 쌓이지 않도록 막는다.
       if (state.messages.some((item) => isSameMessage(item, message))) {
         return state
       }
@@ -124,7 +124,7 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
     set({ loadingOlder: true })
 
     try {
-      // ���� ���� ������ �޽��� ���� ������ �̾� �ٿ��� ���� �����丮�� Ȯ���Ѵ�.
+      // 현재 가장 오래된 메시지 이전 구간을 이어 붙여 과거 히스토리를 확장한다.
       const page = await fetchGlobalChatMessages(nextCursor)
 
       if (get().sessionVersion !== sessionVersion) {

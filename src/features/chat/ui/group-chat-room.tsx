@@ -1,4 +1,4 @@
-import { MessageSquareReply, Send, Users, X } from 'lucide-react'
+﻿import { MessageSquareReply, Send, Users, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
@@ -106,7 +106,7 @@ export default function GroupChatRoom() {
       return
     }
 
-    // ���� �޽����� �տ� ���� �ڿ��� ����ڰ� �д� ��ġ�� ��鸮�� �ʰ� ���� ���� ���̸� ����Ѵ�.
+    // 과거 메시지를 앞에 붙인 뒤에도 사용자가 읽던 위치가 흔들리지 않게 복원 기준 높이를 기록한다.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 
@@ -130,8 +130,8 @@ export default function GroupChatRoom() {
             <Users size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-gray-900">{groupMeta?.groupName ?? '�׷� ä��'}</h3>
-            <p className="text-xs text-gray-500">���� �׷� ����� ������ �� �ִ� ��ȭ��</p>
+            <h3 className="font-bold text-gray-900">{groupMeta?.groupName ?? '그룹 채팅'}</h3>
+            <p className="text-xs text-gray-500">현재 그룹 멤버만 참여할 수 있는 대화방</p>
           </div>
         </div>
         <div className="text-sm font-medium text-gray-500">
@@ -153,7 +153,7 @@ export default function GroupChatRoom() {
         className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6 pr-20"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-gray-400">���� �޽����� �ҷ����� ��...</div>
+          <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
         )}
 
         {chatMessages.map((msg) => {
@@ -215,7 +215,7 @@ export default function GroupChatRoom() {
                   className="absolute right-[-56px] bottom-0 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-600 shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]"
                 >
                   <MessageSquareReply size={12} />
-                  ����
+                  답장
                 </button>
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function GroupChatRoom() {
           <div className="mb-3 flex items-start justify-between rounded-xl border border-[#3db9b9]/20 bg-[#3db9b9]/5 px-4 py-3">
             <div className="min-w-0">
               <div className="mb-1 text-xs font-bold text-[#2a8282]">
-                {replyTarget.sender}���� ����
+                {replyTarget.sender}에게 답장
               </div>
               <div className="truncate text-sm text-gray-600">{replyTarget.content}</div>
             </div>
@@ -238,7 +238,7 @@ export default function GroupChatRoom() {
               type="button"
               onClick={clearReplyTarget}
               className="ml-3 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition hover:bg-white hover:text-gray-600"
-              aria-label="���� ���"
+              aria-label="답장 취소"
             >
               <X size={16} />
             </button>
@@ -259,13 +259,13 @@ export default function GroupChatRoom() {
                 handleSendMessage()
               }
             }}
-            placeholder="�޽����� �Է��ϼ���..."
+            placeholder="메시지를 입력하세요..."
             className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-gray-900 focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
-            aria-label="�޽��� ����"
+            aria-label="메시지 전송"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
           >
             <Send size={18} />
