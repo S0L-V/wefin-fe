@@ -156,6 +156,7 @@ export default function WefinyChatWidget() {
   const [hasAccessToken, setHasAccessToken] = useState(readHasAccessToken)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const syncRequestIdRef = useRef(0)
+  const sessionVersionRef = useRef(0)
 
   useEffect(() => {
     const syncAuthState = () => {
@@ -168,6 +169,7 @@ export default function WefinyChatWidget() {
     return () => {
       window.removeEventListener('auth-changed', syncAuthState)
       window.removeEventListener('storage', syncAuthState)
+      sessionVersionRef.current += 1
     }
   }, [])
 
@@ -176,6 +178,7 @@ export default function WefinyChatWidget() {
       return
     }
 
+    sessionVersionRef.current += 1
     setMessages([])
     setMessage('')
     setErrorMessage(null)
@@ -189,21 +192,22 @@ export default function WefinyChatWidget() {
       return
     }
 
+    const sessionVersion = sessionVersionRef.current
     let active = true
     setIsLoading(true)
     setErrorMessage(null)
 
     fetchAiChatMessages()
       .then((page) => {
-        if (!active) {
+        if (!active || sessionVersionRef.current !== sessionVersion) {
           return
         }
 
-        setMessages(page.messages)
+        setMessages((current) => mergeMessages(current, page.messages))
         setIsLoading(false)
       })
       .catch((error) => {
-        if (!active) {
+        if (!active || sessionVersionRef.current !== sessionVersion) {
           return
         }
 
@@ -225,13 +229,13 @@ export default function WefinyChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [isOpen, messages, pendingStatus])
 
-  const syncAiHistory = async (options?: { preserveError?: boolean }) => {
+  const syncAiHistory = async (sessionVersion: number, options?: { preserveError?: boolean }) => {
     const requestId = ++syncRequestIdRef.current
 
     try {
       const page = await fetchAiChatMessages()
 
-      if (syncRequestIdRef.current !== requestId) {
+      if (syncRequestIdRef.current !== requestId || sessionVersionRef.current !== sessionVersion) {
         return null
       }
 
@@ -250,23 +254,40 @@ export default function WefinyChatWidget() {
 
   const recoverAiResponseAfterTimeout = async (
     previousAiMarker: string | null,
-    userMessageSignature: UserMessageSignature
+    userMessageSignature: UserMessageSignature,
+    sessionVersion: number
   ) => {
+    if (sessionVersionRef.current !== sessionVersion) {
+      return
+    }
+
     setPendingStatus('syncing')
 
     for (let attempt = 0; attempt < AI_POLL_MAX_ATTEMPTS; attempt += 1) {
       await wait(AI_POLL_DELAY_MS)
 
-      const syncedMessages = await syncAiHistory({ preserveError: true })
+      if (sessionVersionRef.current !== sessionVersion) {
+        return
+      }
+
+      const syncedMessages = await syncAiHistory(sessionVersion, { preserveError: true })
 
       if (
         syncedMessages != null &&
         hasRecoveredAiReply(syncedMessages, previousAiMarker, userMessageSignature)
       ) {
+        if (sessionVersionRef.current !== sessionVersion) {
+          return
+        }
+
         setPendingStatus('idle')
         setErrorMessage(null)
         return
       }
+    }
+
+    if (sessionVersionRef.current !== sessionVersion) {
+      return
     }
 
     setPendingStatus('idle')
@@ -280,6 +301,7 @@ export default function WefinyChatWidget() {
       return
     }
 
+    const sessionVersion = sessionVersionRef.current
     const optimisticUserMessage: AiChatMessage = {
       messageId: null,
       userId,
@@ -303,21 +325,32 @@ export default function WefinyChatWidget() {
 
     try {
       const aiMessage = await sendAiChatMessage(trimmedMessage)
+
+      if (sessionVersionRef.current !== sessionVersion) {
+        return
+      }
+
       setMessages((current) => mergeMessages(current, [aiMessage]))
       setPendingStatus('idle')
     } catch (error) {
       console.error('Failed to send AI chat message:', error)
 
+      if (sessionVersionRef.current !== sessionVersion) {
+        return
+      }
+
       if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
         setErrorMessage('답변 생성이 조금 길어지고 있어요. 대화 내역을 다시 확인하는 중입니다.')
-        void recoverAiResponseAfterTimeout(previousAiMarker, userMessageSignature)
+        void recoverAiResponseAfterTimeout(previousAiMarker, userMessageSignature, sessionVersion)
       } else {
         setMessages((current) => current.filter((item) => item !== optimisticUserMessage))
         setPendingStatus('idle')
         setErrorMessage('위피니 채팅 전송에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
     } finally {
-      setIsSending(false)
+      if (sessionVersionRef.current === sessionVersion) {
+        setIsSending(false)
+      }
     }
   }
 
@@ -466,6 +499,7 @@ export default function WefinyChatWidget() {
 
             <div className="flex items-end gap-2 rounded-[24px] border border-[#d7f2ee] bg-[#f9fcfc] p-2">
               <textarea
+                aria-label="위피니 채팅 메시지 입력"
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 onKeyDown={(event) => {
