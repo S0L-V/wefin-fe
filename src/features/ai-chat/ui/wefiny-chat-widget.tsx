@@ -7,180 +7,22 @@ import {
   fetchAiChatMessages
 } from '@/features/ai-chat/api/fetch-ai-chat-messages'
 import { sendAiChatMessage } from '@/features/ai-chat/api/send-ai-chat-message'
+import {
+  getLatestAiMarker,
+  getLatestPersistedUserMessage,
+  getMessageKey,
+  hasRecoveredAiReply,
+  mergeMessages,
+  readHasAccessToken,
+  type UserMessageSignature,
+  wait
+} from '@/features/ai-chat/lib/wefiny-chat-utils'
 import { useDemoUserId } from '@/features/chat/model/global/use-demo-user-id'
 
 const AI_POLL_DELAY_MS = 2500
 const AI_POLL_MAX_ATTEMPTS = 6
-const SAME_MESSAGE_WINDOW_MS = 15000
 
 type PendingStatus = 'idle' | 'thinking' | 'syncing'
-
-type UserMessageSignature = {
-  userId: string | null
-  content: string
-  createdAt: string
-  afterMessageId: number | null
-  afterCreatedAt: string | null
-}
-
-function getMessageKey(message: AiChatMessage, index: number): string {
-  return [
-    message.messageId ?? `temp-${index}`,
-    message.userId ?? 'anonymous',
-    message.role,
-    message.content,
-    message.createdAt
-  ].join(':')
-}
-
-function getAiMarker(message: AiChatMessage): string | null {
-  if (message.role !== 'AI') {
-    return null
-  }
-
-  return message.messageId != null
-    ? `id:${message.messageId}`
-    : `temp:${message.content}:${message.createdAt}`
-}
-
-function getLatestAiMarker(messages: AiChatMessage[]): string | null {
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const marker = getAiMarker(messages[index])
-
-    if (marker != null) {
-      return marker
-    }
-  }
-
-  return null
-}
-
-function getLatestPersistedUserMessage(messages: AiChatMessage[]): AiChatMessage | null {
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const message = messages[index]
-
-    if (message.role === 'USER' && message.messageId != null) {
-      return message
-    }
-  }
-
-  return null
-}
-
-function toTimestamp(value: string | null): number {
-  if (!value) {
-    return 0
-  }
-
-  const parsed = Date.parse(value)
-  return Number.isNaN(parsed) ? 0 : parsed
-}
-
-function isAfterReference(message: AiChatMessage, signature: UserMessageSignature): boolean {
-  if (signature.afterMessageId != null) {
-    return message.messageId != null && message.messageId > signature.afterMessageId
-  }
-
-  if (signature.afterCreatedAt != null) {
-    return toTimestamp(message.createdAt) > toTimestamp(signature.afterCreatedAt)
-  }
-
-  return true
-}
-
-function isLikelyPersistedUserMessage(
-  message: AiChatMessage,
-  signature: UserMessageSignature
-): boolean {
-  if (message.role !== 'USER') {
-    return false
-  }
-
-  return (
-    isAfterReference(message, signature) &&
-    message.userId === signature.userId &&
-    message.content === signature.content &&
-    Math.abs(toTimestamp(message.createdAt) - toTimestamp(signature.createdAt)) <=
-      SAME_MESSAGE_WINDOW_MS
-  )
-}
-
-function isSameMessage(left: AiChatMessage, right: AiChatMessage): boolean {
-  if (left.messageId != null && right.messageId != null) {
-    return left.messageId === right.messageId
-  }
-
-  return (
-    left.userId === right.userId &&
-    left.role === right.role &&
-    left.content === right.content &&
-    left.createdAt === right.createdAt
-  )
-}
-
-function mergeMessages(currentMessages: AiChatMessage[], incomingMessages: AiChatMessage[]) {
-  const mergedMessages = [...incomingMessages]
-
-  currentMessages.forEach((message) => {
-    const alreadyExists = mergedMessages.some((item) => {
-      if (isSameMessage(item, message)) {
-        return true
-      }
-
-      return (
-        message.messageId == null &&
-        isLikelyPersistedUserMessage(item, {
-          userId: message.userId,
-          content: message.content,
-          createdAt: message.createdAt,
-          afterMessageId: null,
-          afterCreatedAt: null
-        })
-      )
-    })
-
-    if (!alreadyExists) {
-      mergedMessages.push(message)
-    }
-  })
-
-  return mergedMessages.sort(
-    (left, right) => toTimestamp(left.createdAt) - toTimestamp(right.createdAt)
-  )
-}
-
-function hasRecoveredAiReply(
-  messages: AiChatMessage[],
-  previousAiMarker: string | null,
-  userMessageSignature: UserMessageSignature
-): boolean {
-  let matchedUserIndex = -1
-
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    if (isLikelyPersistedUserMessage(messages[index], userMessageSignature)) {
-      matchedUserIndex = index
-      break
-    }
-  }
-
-  if (matchedUserIndex < 0) {
-    return false
-  }
-
-  return messages.slice(matchedUserIndex + 1).some((message) => {
-    const marker = getAiMarker(message)
-
-    return marker != null && marker !== previousAiMarker
-  })
-}
-
-function wait(ms: number) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms))
-}
-
-function readHasAccessToken() {
-  return typeof window !== 'undefined' && !!window.localStorage.getItem('accessToken')
-}
 
 export default function WefinyChatWidget() {
   const userId = useDemoUserId()
