@@ -1,27 +1,27 @@
+import { z } from 'zod'
+
+import { baseApi } from '@/shared/api/base-api'
+
 export type GroupChatMeta = {
   groupId: number
   groupName: string
 }
 
-type ApiResponse<T> = {
-  status: number
-  code: string | null
-  message: string | null
-  data: T
-}
+const groupChatMetaSchema = z.object({
+  groupId: z.number(),
+  groupName: z.string()
+})
 
-export async function fetchGroupChatMeta(userId: string): Promise<GroupChatMeta> {
-  const response = await fetch('/api/chat/group/me', {
-    method: 'GET',
-    headers: {
-      'X-User-Id': userId
-    }
+const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
+  z.object({
+    status: z.number(),
+    code: z.string().nullable().optional(),
+    message: z.string().nullable().optional(),
+    data: schema
   })
 
-  if (!response.ok) {
-    throw new Error('그룹 메타 정보를 불러오지 못했습니다.')
-  }
-
-  const result = (await response.json()) as ApiResponse<GroupChatMeta>
-  return result.data
+export async function fetchGroupChatMeta(): Promise<GroupChatMeta> {
+  const response = await baseApi.get('/chat/group/me')
+  const parsed = apiResponseSchema(groupChatMetaSchema).parse(response.data)
+  return parsed.data
 }

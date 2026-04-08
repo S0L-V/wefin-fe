@@ -1,8 +1,9 @@
-﻿import { z } from 'zod'
+import { z } from 'zod'
 
 import { baseApi } from '@/shared/api/base-api'
 
 const isDev = import.meta.env.DEV
+const PAGE_SIZE = 30
 
 export const replyMessageSchema = z.object({
   messageId: z.number(),
@@ -21,8 +22,15 @@ export const groupChatMessageSchema = z.object({
   replyTo: replyMessageSchema.nullable()
 })
 
+const groupChatMessagesPageSchema = z.object({
+  messages: z.array(groupChatMessageSchema),
+  nextCursor: z.number().nullable(),
+  hasNext: z.boolean()
+})
+
 export type ReplyMessage = z.infer<typeof replyMessageSchema>
 export type GroupChatMessage = z.infer<typeof groupChatMessageSchema>
+export type GroupChatMessagesPage = z.infer<typeof groupChatMessagesPageSchema>
 
 const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
   z.object({
@@ -33,17 +41,16 @@ const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
   })
 
 export async function fetchGroupChatMessages(
-  userId: string,
-  limit = 50
-): Promise<GroupChatMessage[]> {
+  beforeMessageId?: number | null
+): Promise<GroupChatMessagesPage> {
   const response = await baseApi.get('/chat/group/messages', {
-    params: { limit },
-    headers: {
-      'X-User-Id': userId
+    params: {
+      size: PAGE_SIZE,
+      ...(beforeMessageId != null ? { beforeMessageId } : {})
     }
   })
 
-  const parsed = apiResponseSchema(z.array(groupChatMessageSchema)).safeParse(response.data)
+  const parsed = apiResponseSchema(groupChatMessagesPageSchema).safeParse(response.data)
 
   if (!parsed.success) {
     if (isDev) {

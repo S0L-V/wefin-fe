@@ -1,4 +1,4 @@
-﻿import { Client } from '@stomp/stompjs'
+import { Client } from '@stomp/stompjs'
 import { useEffect, useRef } from 'react'
 
 import {
@@ -14,9 +14,11 @@ type ChatErrorMessage = {
   remainingSeconds?: number
 }
 
+const FALLBACK_ERROR_TIMEOUT_MS = 3000
+
 export function useGlobalChatBoot(userId: string) {
   const setUserId = useGlobalChatStore((state) => state.setUserId)
-  const setMessages = useGlobalChatStore((state) => state.setMessages)
+  const setInitialPage = useGlobalChatStore((state) => state.setInitialPage)
   const appendMessage = useGlobalChatStore((state) => state.appendMessage)
   const setConnected = useGlobalChatStore((state) => state.setConnected)
   const setLoading = useGlobalChatStore((state) => state.setLoading)
@@ -26,43 +28,46 @@ export function useGlobalChatBoot(userId: string) {
 
   const hasBootstrappedRef = useRef(false)
   const subscriptionsRef = useRef<{ unsubscribe: () => void }[]>([])
+  const errorTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     setUserId(userId)
   }, [setUserId, userId])
 
   useEffect(() => {
-    if (!userId || hasBootstrappedRef.current) {
+    const accessToken = localStorage.getItem('accessToken')
+
+    if (!userId || !accessToken || hasBootstrappedRef.current) {
       return
     }
 
     hasBootstrappedRef.current = true
 
-    // AppLayout은 라우트 전환 중에도 계속 마운트되어 있으므로
-    // 여기서 한 번만 연결해서 같은 채팅 상태를 공유
+    // AppLayout은 라우트 전환 중에도 계속 마운트되므로,
+    // 여기서 한 번만 연결해서 전역 채팅 연결과 상태를 재사용한다.
     setLoading(true)
     setErrorMessage(null)
 
     let active = true
 
     fetchGlobalChatMessages()
-      .then((messages) => {
+      .then((page) => {
         if (!active) return
-        setMessages(messages)
+        setInitialPage(page)
         setLoading(false)
       })
       .catch((error) => {
         if (!active) return
         console.error('Failed to load global chat history:', error)
-        setErrorMessage('Failed to load global chat history.')
+        setErrorMessage('전체 채팅 내역을 불러오지 못했습니다.')
         setLoading(false)
       })
 
     const client = stompClient as Client
 
+    // 웹소켓 CONNECT 시에도 REST와 동일한 access token을 보내서 로그인 사용자를 식별한다.
     client.connectHeaders = {
-      ...client.connectHeaders,
-      userId
+      Authorization: `Bearer ${accessToken}`
     }
 
     client.debug = (message) => {
@@ -71,7 +76,6 @@ export function useGlobalChatBoot(userId: string) {
 
     client.onConnect = () => {
       setConnected(true)
-      setErrorMessage(null)
 
       subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
       subscriptionsRef.current = []
@@ -96,7 +100,23 @@ export function useGlobalChatBoot(userId: string) {
         client.subscribe('/user/queue/errors', (frame) => {
           try {
             const error = JSON.parse(frame.body) as ChatErrorMessage
+            const timeoutMs = (error.remainingSeconds ?? 3) * 1000
+
+            // 도배 감지 등 사용자별 오류는 화면 배너로만 보여주고,
+            // 일정 시간이 지나면 자동으로 지워서 채팅 흐름을 방해하지 않게 한다.
             setErrorMessage(error.message)
+
+            if (errorTimeoutRef.current != null) {
+              window.clearTimeout(errorTimeoutRef.current)
+            }
+
+            errorTimeoutRef.current = window.setTimeout(
+              () => {
+                setErrorMessage(null)
+                errorTimeoutRef.current = null
+              },
+              Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
+            )
           } catch {
             console.error('전역 채팅 에러 메시지 파싱 실패')
           }
@@ -124,6 +144,12 @@ export function useGlobalChatBoot(userId: string) {
       active = false
       subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
       subscriptionsRef.current = []
+
+      if (errorTimeoutRef.current != null) {
+        window.clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = null
+      }
+
       disconnectStomp()
       resetConnectionState()
       hasBootstrappedRef.current = false
@@ -134,8 +160,8 @@ export function useGlobalChatBoot(userId: string) {
     setClient,
     setConnected,
     setErrorMessage,
+    setInitialPage,
     setLoading,
-    setMessages,
     userId
   ])
 }

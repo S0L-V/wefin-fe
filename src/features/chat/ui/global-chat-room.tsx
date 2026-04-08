@@ -1,21 +1,72 @@
-﻿import { Globe, Send } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Globe, Send } from 'lucide-react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
+
+function getLastMessageKey(messages: ReturnType<typeof useGlobalChatStore.getState>['messages']) {
+  const lastMessage = messages[messages.length - 1]
+
+  if (!lastMessage) {
+    return ''
+  }
+
+  return [
+    lastMessage.messageId ?? 'temp',
+    lastMessage.userId ?? 'anonymous',
+    lastMessage.role,
+    lastMessage.content,
+    lastMessage.createdAt
+  ].join(':')
+}
 
 export default function GlobalChatRoom() {
   const [message, setMessage] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const previousHeightRef = useRef<number | null>(null)
+  const shouldRestoreScrollRef = useRef(false)
+  const previousLastMessageKeyRef = useRef('')
 
   const userId = useGlobalChatStore((state) => state.userId)
   const chatMessages = useGlobalChatStore((state) => state.messages)
   const connected = useGlobalChatStore((state) => state.connected)
   const isLoading = useGlobalChatStore((state) => state.loading)
+  const isLoadingOlder = useGlobalChatStore((state) => state.loadingOlder)
+  const hasNext = useGlobalChatStore((state) => state.hasNext)
   const errorMessage = useGlobalChatStore((state) => state.errorMessage)
   const sendMessage = useGlobalChatStore((state) => state.sendMessage)
+  const loadOlderMessages = useGlobalChatStore((state) => state.loadOlderMessages)
+
+  const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const shouldScrollToBottom =
+      !shouldRestoreScrollRef.current &&
+      !!lastMessageKey &&
+      previousLastMessageKeyRef.current !== lastMessageKey
+
+    if (shouldScrollToBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    previousLastMessageKeyRef.current = lastMessageKey
+  }, [lastMessageKey])
+
+  useLayoutEffect(() => {
+    if (
+      !shouldRestoreScrollRef.current ||
+      !scrollContainerRef.current ||
+      previousHeightRef.current == null
+    ) {
+      return
+    }
+
+    const container = scrollContainerRef.current
+    const heightDiff = container.scrollHeight - previousHeightRef.current
+    container.scrollTop += heightDiff
+
+    shouldRestoreScrollRef.current = false
+    previousHeightRef.current = null
   }, [chatMessages])
 
   const handleSendMessage = () => {
@@ -26,12 +77,23 @@ export default function GlobalChatRoom() {
     setMessage('')
   }
 
-  if (isLoading) {
-    return <div className="h-[640px] p-6 text-sm text-gray-500">Loading global chat...</div>
+  const handleScroll = async () => {
+    const container = scrollContainerRef.current
+
+    if (!container || container.scrollTop > 80 || !hasNext || isLoadingOlder) {
+      return
+    }
+
+    // 이전 메시지를 앞에 붙인 뒤에도 사용자가 보고 있던 위치를 유지하기 위해
+    // 불러오기 전 높이를 저장해두고 렌더링 후 scrollTop을 보정한다.
+    previousHeightRef.current = container.scrollHeight
+    shouldRestoreScrollRef.current = true
+
+    await loadOlderMessages()
   }
 
-  if (errorMessage) {
-    return <div className="h-[640px] p-6 text-sm text-red-500">{errorMessage}</div>
+  if (isLoading) {
+    return <div className="h-[640px] p-6 text-sm text-gray-500">Loading global chat...</div>
   }
 
   return (
@@ -51,7 +113,23 @@ export default function GlobalChatRoom() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto bg-white p-6 space-y-6">
+      {errorMessage && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {errorMessage}
+        </div>
+      )}
+
+      <div
+        ref={scrollContainerRef}
+        onScroll={() => {
+          void handleScroll()
+        }}
+        className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6"
+      >
+        {isLoadingOlder && (
+          <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
+        )}
+
         {chatMessages.map((msg, index) => {
           const isMine = msg.userId === userId
           const isSystem = msg.role === 'SYSTEM'

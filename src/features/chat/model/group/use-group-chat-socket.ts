@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import {
   fetchGroupChatMessages,
@@ -14,6 +14,8 @@ type ChatErrorMessage = {
   remainingSeconds?: number
 }
 
+const FALLBACK_ERROR_TIMEOUT_MS = 3000
+
 export function useGroupChatSocket(userId: string) {
   const client = useGlobalChatStore((state) => state.client)
   const globalConnected = useGlobalChatStore((state) => state.connected)
@@ -21,7 +23,7 @@ export function useGroupChatSocket(userId: string) {
   const setUserId = useGroupChatStore((state) => state.setUserId)
   const groupMeta = useGroupChatStore((state) => state.groupMeta)
   const setGroupMeta = useGroupChatStore((state) => state.setGroupMeta)
-  const setMessages = useGroupChatStore((state) => state.setMessages)
+  const setInitialPage = useGroupChatStore((state) => state.setInitialPage)
   const appendMessage = useGroupChatStore((state) => state.appendMessage)
   const setConnected = useGroupChatStore((state) => state.setConnected)
   const setLoading = useGroupChatStore((state) => state.setLoading)
@@ -29,6 +31,7 @@ export function useGroupChatSocket(userId: string) {
 
   const messageSubscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
   const errorSubscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
+  const errorTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     setUserId(userId)
@@ -44,11 +47,11 @@ export function useGroupChatSocket(userId: string) {
     setLoading(true)
     setErrorMessage(null)
 
-    Promise.all([fetchGroupChatMeta(userId), fetchGroupChatMessages(userId)])
-      .then(([meta, messages]) => {
+    Promise.all([fetchGroupChatMeta(), fetchGroupChatMessages()])
+      .then(([meta, page]) => {
         if (!active) return
         setGroupMeta(meta)
-        setMessages(messages)
+        setInitialPage(page)
         setLoading(false)
       })
       .catch((error) => {
@@ -61,7 +64,7 @@ export function useGroupChatSocket(userId: string) {
     return () => {
       active = false
     }
-  }, [setErrorMessage, setGroupMeta, setLoading, setMessages, userId])
+  }, [setErrorMessage, setGroupMeta, setInitialPage, setLoading, userId])
 
   useEffect(() => {
     setConnected(globalConnected)
@@ -77,7 +80,7 @@ export function useGroupChatSocket(userId: string) {
     }
 
     // AppLayout에서 이미 하나의 STOMP 연결을 유지하고 있으므로
-    // 그룹 채팅은 별도 소켓을 새로 열지 않고 같은 연결에 구독만 추가한다.
+    // 그룹 채팅은 같은 연결에 구독만 추가해서 재사용한다.
     messageSubscriptionRef.current?.unsubscribe()
     messageSubscriptionRef.current = client.subscribe(
       `/topic/chat/group/${groupMeta.groupId}`,
@@ -96,12 +99,27 @@ export function useGroupChatSocket(userId: string) {
       }
     )
 
-    // 사용자 전용 에러 큐를 함께 구독해서 그룹 채팅 전송 실패도 같은 화면에서 안내한다.
+    // 사용자 전용 에러 큐를 함께 구독해서 도배 감지나 전송 실패를 배너로 안내하고,
+    // 일정 시간이 지나면 자동으로 지워서 계속 남지 않게 한다.
     errorSubscriptionRef.current?.unsubscribe()
     errorSubscriptionRef.current = client.subscribe('/user/queue/errors', (frame) => {
       try {
         const error = JSON.parse(frame.body) as ChatErrorMessage
+        const timeoutMs = (error.remainingSeconds ?? 3) * 1000
+
         setErrorMessage(error.message)
+
+        if (errorTimeoutRef.current != null) {
+          window.clearTimeout(errorTimeoutRef.current)
+        }
+
+        errorTimeoutRef.current = window.setTimeout(
+          () => {
+            setErrorMessage(null)
+            errorTimeoutRef.current = null
+          },
+          Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
+        )
       } catch {
         console.error('그룹 채팅 에러 메시지 파싱 실패')
       }
@@ -112,6 +130,11 @@ export function useGroupChatSocket(userId: string) {
       messageSubscriptionRef.current = null
       errorSubscriptionRef.current?.unsubscribe()
       errorSubscriptionRef.current = null
+
+      if (errorTimeoutRef.current != null) {
+        window.clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = null
+      }
     }
   }, [appendMessage, client, groupMeta?.groupId, setErrorMessage])
 }

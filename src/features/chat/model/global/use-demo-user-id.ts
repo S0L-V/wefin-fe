@@ -1,35 +1,54 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const FALLBACK_USER_ID = '11111111-1111-1111-1111-111111111111'
-const STORAGE_KEY = 'wefin-demo-user-id'
+function decodeUserIdFromToken(token: string): string {
+  try {
+    const payload = token.split('.')[1]
+
+    if (!payload) {
+      return ''
+    }
+
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const decoded = window.atob(normalized)
+    const parsed = JSON.parse(decoded) as { sub?: string }
+
+    return typeof parsed.sub === 'string' ? parsed.sub : ''
+  } catch {
+    return ''
+  }
+}
+
+function getLoggedInUserId(): string {
+  if (typeof window === 'undefined') {
+    return ''
+  }
+
+  const token = window.localStorage.getItem('accessToken')
+
+  if (!token) {
+    return ''
+  }
+
+  // 로그인 후에는 access token의 subject를 채팅 사용자 식별값으로 사용한다.
+  return decodeUserIdFromToken(token)
+}
 
 export function useDemoUserId() {
-  const [userId, setUserId] = useState(() => {
-    if (typeof window === 'undefined') {
-      return FALLBACK_USER_ID
-    }
-
-    return window.sessionStorage.getItem(STORAGE_KEY) ?? ''
-  })
+  const [userId, setUserId] = useState(() => getLoggedInUserId())
 
   useEffect(() => {
-    if (typeof window === 'undefined' || userId) {
-      return
+    const syncUserId = () => {
+      setUserId(getLoggedInUserId())
     }
 
-    // 데모용 사용자 ID를 세션에 보관해서
-    // 같은 탭 안에서는 재사용하고 새로 열면 다시 입력받는다.
-    const inputUserId = window
-      .prompt('채팅에 사용할 userId를 입력하세요. 비워두면 자동으로 생성합니다.')
-      ?.trim()
-    const generatedUserId = window.crypto?.randomUUID?.() ?? FALLBACK_USER_ID
-    const nextUserId = inputUserId || generatedUserId
+    window.addEventListener('auth-changed', syncUserId)
+    window.addEventListener('storage', syncUserId)
 
-    window.sessionStorage.setItem(STORAGE_KEY, nextUserId)
-    queueMicrotask(() => {
-      setUserId(nextUserId)
-    })
-  }, [userId])
+    return () => {
+      window.removeEventListener('auth-changed', syncUserId)
+      window.removeEventListener('storage', syncUserId)
+    }
+  }, [])
 
-  return userId || FALLBACK_USER_ID
+  return userId
 }
