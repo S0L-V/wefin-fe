@@ -19,6 +19,8 @@ type UserMessageSignature = {
   userId: string | null
   content: string
   createdAt: string
+  afterMessageId: number | null
+  afterCreatedAt: string | null
 }
 
 function getMessageKey(message: AiChatMessage, index: number): string {
@@ -53,9 +55,37 @@ function getLatestAiMarker(messages: AiChatMessage[]): string | null {
   return null
 }
 
-function toTimestamp(value: string): number {
+function getLatestPersistedUserMessage(messages: AiChatMessage[]): AiChatMessage | null {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index]
+
+    if (message.role === 'USER' && message.messageId != null) {
+      return message
+    }
+  }
+
+  return null
+}
+
+function toTimestamp(value: string | null): number {
+  if (!value) {
+    return 0
+  }
+
   const parsed = Date.parse(value)
   return Number.isNaN(parsed) ? 0 : parsed
+}
+
+function isAfterReference(message: AiChatMessage, signature: UserMessageSignature): boolean {
+  if (signature.afterMessageId != null) {
+    return message.messageId != null && message.messageId > signature.afterMessageId
+  }
+
+  if (signature.afterCreatedAt != null) {
+    return toTimestamp(message.createdAt) > toTimestamp(signature.afterCreatedAt)
+  }
+
+  return true
 }
 
 function isLikelyPersistedUserMessage(
@@ -67,6 +97,7 @@ function isLikelyPersistedUserMessage(
   }
 
   return (
+    isAfterReference(message, signature) &&
     message.userId === signature.userId &&
     message.content === signature.content &&
     Math.abs(toTimestamp(message.createdAt) - toTimestamp(signature.createdAt)) <=
@@ -101,7 +132,9 @@ function mergeMessages(currentMessages: AiChatMessage[], incomingMessages: AiCha
         isLikelyPersistedUserMessage(item, {
           userId: message.userId,
           content: message.content,
-          createdAt: message.createdAt
+          createdAt: message.createdAt,
+          afterMessageId: null,
+          afterCreatedAt: null
         })
       )
     })
@@ -121,9 +154,14 @@ function hasRecoveredAiReply(
   previousAiMarker: string | null,
   userMessageSignature: UserMessageSignature
 ): boolean {
-  const matchedUserIndex = messages.findIndex((message) =>
-    isLikelyPersistedUserMessage(message, userMessageSignature)
-  )
+  let matchedUserIndex = -1
+
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (isLikelyPersistedUserMessage(messages[index], userMessageSignature)) {
+      matchedUserIndex = index
+      break
+    }
+  }
 
   if (matchedUserIndex < 0) {
     return false
@@ -302,6 +340,7 @@ export default function WefinyChatWidget() {
     }
 
     const sessionVersion = sessionVersionRef.current
+    const latestPersistedUserMessage = getLatestPersistedUserMessage(messages)
     const optimisticUserMessage: AiChatMessage = {
       messageId: null,
       userId,
@@ -314,7 +353,9 @@ export default function WefinyChatWidget() {
     const userMessageSignature: UserMessageSignature = {
       userId,
       content: trimmedMessage,
-      createdAt: optimisticUserMessage.createdAt
+      createdAt: optimisticUserMessage.createdAt,
+      afterMessageId: latestPersistedUserMessage?.messageId ?? null,
+      afterCreatedAt: latestPersistedUserMessage?.createdAt ?? null
     }
 
     setMessages((current) => [...current, optimisticUserMessage])
@@ -412,7 +453,13 @@ export default function WefinyChatWidget() {
             ) : isLoading ? (
               <div className="mt-10 text-center text-sm text-gray-500">대화를 불러오는 중...</div>
             ) : (
-              <div className="space-y-4">
+              <div
+                className="space-y-4"
+                role="log"
+                aria-live="polite"
+                aria-relevant="additions text"
+                aria-atomic="false"
+              >
                 {messages.length === 0 && (
                   <div className="rounded-2xl border border-[#d7f2ee] bg-white/90 px-4 py-4 text-sm leading-6 text-gray-600">
                     안녕하세요! 종목 전망, 재무 지표, 시장 흐름처럼 궁금한 내용을 편하게 물어보세요.
@@ -451,7 +498,9 @@ export default function WefinyChatWidget() {
                           {!isMine && (
                             <div className="mb-1 text-[11px] font-bold text-[#1d9f8d]">위피니</div>
                           )}
-                          <div>{chatMessage.content}</div>
+                          <div className="whitespace-pre-wrap break-words">
+                            {chatMessage.content}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -459,7 +508,7 @@ export default function WefinyChatWidget() {
                 })}
 
                 {pendingLabel && (
-                  <div className="flex justify-start">
+                  <div className="flex justify-start" role="status" aria-live="polite">
                     <div className="flex max-w-[82%] items-end gap-2">
                       <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-[#9fe0d5] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[1px]">
                         <div className="h-full w-full overflow-hidden rounded-full bg-white">
@@ -492,7 +541,10 @@ export default function WefinyChatWidget() {
 
           <div className="border-t border-[#d7f2ee] bg-white px-4 py-4">
             {errorMessage && (
-              <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <div
+                className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                role="alert"
+              >
                 {errorMessage}
               </div>
             )}
