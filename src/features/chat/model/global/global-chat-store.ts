@@ -12,6 +12,7 @@ type GlobalChatState = {
   messages: GlobalChatMessage[]
   nextCursor: number | null
   hasNext: boolean
+  sessionVersion: number
   connected: boolean
   loading: boolean
   loadingOlder: boolean
@@ -28,29 +29,41 @@ type GlobalChatState = {
   setClient: (client: Client | null) => void
   setBootstrapped: (bootstrapped: boolean) => void
   sendMessage: (content: string) => void
-  loadOlderMessages: () => Promise<void>
+  loadOlderMessages: () => Promise<boolean>
   resetConnectionState: () => void
 }
 
-function mergeOlderMessages(
-  currentMessages: GlobalChatMessage[],
-  olderMessages: GlobalChatMessage[]
-): GlobalChatMessage[] {
-  const existingIds = new Set(
-    currentMessages
-      .map((message) => message.messageId)
-      .filter((messageId): messageId is number => messageId != null)
-  )
+function isSameMessage(left: GlobalChatMessage, right: GlobalChatMessage): boolean {
+  if (left.messageId != null && right.messageId != null) {
+    return left.messageId === right.messageId
+  }
 
-  const filteredOlderMessages = olderMessages.filter((message) => {
-    if (message.messageId == null) {
-      return true
+  return (
+    left.messageId == null &&
+    right.messageId == null &&
+    left.role === right.role &&
+    left.userId === right.userId &&
+    left.sender === right.sender &&
+    left.content === right.content &&
+    left.createdAt === right.createdAt
+  )
+}
+
+function mergeMessages(
+  currentMessages: GlobalChatMessage[],
+  incomingMessages: GlobalChatMessage[]
+): GlobalChatMessage[] {
+  const mergedMessages = [...incomingMessages]
+
+  currentMessages.forEach((message) => {
+    if (mergedMessages.some((item) => isSameMessage(item, message))) {
+      return
     }
 
-    return !existingIds.has(message.messageId)
+    mergedMessages.push(message)
   })
 
-  return [...filteredOlderMessages, ...currentMessages]
+  return mergedMessages
 }
 
 export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
@@ -58,6 +71,7 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
   messages: [],
   nextCursor: null,
   hasNext: false,
+  sessionVersion: 0,
   connected: false,
   loading: false,
   loadingOlder: false,
@@ -66,33 +80,16 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
   bootstrapped: false,
   setUserId: (userId) => set({ userId }),
   setInitialPage: (page) =>
-    set({
-      messages: page.messages,
+    set((state) => ({
+      // �ʱ� �����丮 ��û�� �ʰ� ������, ���� ���� �ǽð� �޽����� ����� �ʵ��� �����Ѵ�.
+      messages: mergeMessages(state.messages, page.messages),
       nextCursor: page.nextCursor,
       hasNext: page.hasNext
-    }),
+    })),
   appendMessage: (message) =>
     set((state) => {
-      // STOMP 재연결 시 마지막 이벤트가 다시 들어올 수 있어서 messageId 기준으로 중복을 제거한다.
-      if (
-        message.messageId != null &&
-        state.messages.some((item) => item.messageId === message.messageId)
-      ) {
-        return state
-      }
-
-      if (
-        message.messageId == null &&
-        state.messages.some(
-          (item) =>
-            item.messageId == null &&
-            item.role === message.role &&
-            item.userId === message.userId &&
-            item.sender === message.sender &&
-            item.content === message.content &&
-            item.createdAt === message.createdAt
-        )
-      ) {
+      // STOMP �翬���̳� �ߺ� ���� ��Ȳ������ ���� �޽����� ���� �� ������ �ʵ��� ���´�.
+      if (state.messages.some((item) => isSameMessage(item, message))) {
         return state
       }
 
@@ -118,36 +115,48 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
     })
   },
   loadOlderMessages: async () => {
-    const { nextCursor, hasNext, loadingOlder } = get()
+    const { nextCursor, hasNext, loadingOlder, sessionVersion } = get()
 
     if (!hasNext || nextCursor == null || loadingOlder) {
-      return
+      return false
     }
 
     set({ loadingOlder: true })
 
     try {
-      // 현재 가장 오래된 메시지 이전 구간을 이어 붙여서 과거 히스토리를 확장한다.
+      // ���� ���� ������ �޽��� ���� ������ �̾� �ٿ��� ���� �����丮�� Ȯ���Ѵ�.
       const page = await fetchGlobalChatMessages(nextCursor)
 
+      if (get().sessionVersion !== sessionVersion) {
+        return false
+      }
+
       set((state) => ({
-        messages: mergeOlderMessages(state.messages, page.messages),
+        messages: mergeMessages(state.messages, page.messages),
         nextCursor: page.nextCursor,
         hasNext: page.hasNext,
         loadingOlder: false
       }))
+      return true
     } catch (error) {
       console.error('Failed to load older global chat messages:', error)
-      set({ loadingOlder: false })
+
+      if (get().sessionVersion === sessionVersion) {
+        set({ loadingOlder: false })
+      }
+
+      return false
     }
   },
   resetConnectionState: () =>
     set({
+      messages: [],
       connected: false,
       client: null,
       bootstrapped: false,
       nextCursor: null,
       hasNext: false,
-      loadingOlder: false
+      loadingOlder: false,
+      sessionVersion: get().sessionVersion + 1
     })
 }))

@@ -57,7 +57,7 @@ export function useGroupChatSocket(userId: string) {
       .catch((error) => {
         if (!active) return
         console.error('Failed to load group chat data:', error)
-        setErrorMessage('그룹 채팅 데이터를 불러오지 못했습니다.')
+        setErrorMessage('�׷� ä�� �����͸� �ҷ����� ���߽��ϴ�.')
         setLoading(false)
       })
 
@@ -71,7 +71,7 @@ export function useGroupChatSocket(userId: string) {
   }, [globalConnected, setConnected])
 
   useEffect(() => {
-    if (!client?.connected || !groupMeta?.groupId) {
+    if (!client || !globalConnected || !groupMeta?.groupId) {
       messageSubscriptionRef.current?.unsubscribe()
       messageSubscriptionRef.current = null
       errorSubscriptionRef.current?.unsubscribe()
@@ -79,8 +79,7 @@ export function useGroupChatSocket(userId: string) {
       return
     }
 
-    // AppLayout에서 이미 하나의 STOMP 연결을 유지하고 있으므로
-    // 그룹 채팅은 같은 연결에 구독만 추가해서 재사용한다.
+    // AppLayout���� �ϳ��� STOMP ������ �����ϰ� �����Ƿ� �׷� ä���� ������ �����ϰ� ������ �߰��Ѵ�.
     messageSubscriptionRef.current?.unsubscribe()
     messageSubscriptionRef.current = client.subscribe(
       `/topic/chat/group/${groupMeta.groupId}`,
@@ -88,19 +87,18 @@ export function useGroupChatSocket(userId: string) {
         try {
           const parsed = groupChatMessageSchema.safeParse(JSON.parse(frame.body))
           if (!parsed.success) {
-            console.error('그룹 채팅 메시지 파싱 실패')
+            console.error('�׷� ä�� �޽��� �Ľ� ����')
             return
           }
 
           appendMessage(parsed.data)
         } catch {
-          console.error('그룹 채팅 메시지 처리 실패')
+          console.error('�׷� ä�� �޽��� ó�� ����')
         }
       }
     )
 
-    // 사용자 전용 에러 큐를 함께 구독해서 도배 감지나 전송 실패를 배너로 안내하고,
-    // 일정 시간이 지나면 자동으로 지워서 계속 남지 않게 한다.
+    // ����� ���� ���� ť�� �Բ� �����ؼ� ���� ������ ���� ���и� ��ʷ� �ȳ��ϰ� �ڵ����� �����.
     errorSubscriptionRef.current?.unsubscribe()
     errorSubscriptionRef.current = client.subscribe('/user/queue/errors', (frame) => {
       try {
@@ -121,7 +119,7 @@ export function useGroupChatSocket(userId: string) {
           Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
         )
       } catch {
-        console.error('그룹 채팅 에러 메시지 파싱 실패')
+        console.error('�׷� ä�� ���� �޽��� �Ľ� ����')
       }
     })
 
@@ -136,5 +134,5 @@ export function useGroupChatSocket(userId: string) {
         errorTimeoutRef.current = null
       }
     }
-  }, [appendMessage, client, groupMeta?.groupId, setErrorMessage])
+  }, [appendMessage, client, globalConnected, groupMeta?.groupId, setErrorMessage])
 }

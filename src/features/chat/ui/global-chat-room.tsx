@@ -19,6 +19,18 @@ function getLastMessageKey(messages: ReturnType<typeof useGlobalChatStore.getSta
   ].join(':')
 }
 
+function getMessageKey(
+  message: ReturnType<typeof useGlobalChatStore.getState>['messages'][number]
+): string {
+  return [
+    message.messageId ?? 'temp',
+    message.userId ?? 'anonymous',
+    message.role,
+    message.content,
+    message.createdAt
+  ].join(':')
+}
+
 export default function GlobalChatRoom() {
   const [message, setMessage] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -28,6 +40,7 @@ export default function GlobalChatRoom() {
   const previousLastMessageKeyRef = useRef('')
 
   const userId = useGlobalChatStore((state) => state.userId)
+  const client = useGlobalChatStore((state) => state.client)
   const chatMessages = useGlobalChatStore((state) => state.messages)
   const connected = useGlobalChatStore((state) => state.connected)
   const isLoading = useGlobalChatStore((state) => state.loading)
@@ -71,7 +84,7 @@ export default function GlobalChatRoom() {
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()
-    if (!trimmedMessage || !connected) return
+    if (!trimmedMessage || !client?.connected) return
 
     sendMessage(trimmedMessage)
     setMessage('')
@@ -84,12 +97,16 @@ export default function GlobalChatRoom() {
       return
     }
 
-    // 이전 메시지를 앞에 붙인 뒤에도 사용자가 보고 있던 위치를 유지하기 위해
-    // 불러오기 전 높이를 저장해두고 렌더링 후 scrollTop을 보정한다.
+    // ���� �޽����� �տ� ���̱� ���� ���� ���̸� ����� �ΰ�, �������� ���� scrollTop�� �����Ѵ�.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 
-    await loadOlderMessages()
+    const didLoadOlderMessages = await loadOlderMessages()
+
+    if (!didLoadOlderMessages) {
+      shouldRestoreScrollRef.current = false
+      previousHeightRef.current = null
+    }
   }
 
   if (isLoading) {
@@ -127,16 +144,16 @@ export default function GlobalChatRoom() {
         className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
+          <div className="text-center text-xs text-gray-400">���� �޽����� �ҷ����� ��...</div>
         )}
 
-        {chatMessages.map((msg, index) => {
+        {chatMessages.map((msg) => {
           const isMine = msg.userId === userId
           const isSystem = msg.role === 'SYSTEM'
 
           if (isSystem) {
             return (
-              <div key={`${msg.messageId ?? 'temp'}-${index}`} className="flex justify-center">
+              <div key={getMessageKey(msg)} className="flex justify-center">
                 <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                   {msg.content}
                 </div>
@@ -146,7 +163,7 @@ export default function GlobalChatRoom() {
 
           return (
             <div
-              key={`${msg.messageId ?? 'temp'}-${index}`}
+              key={getMessageKey(msg)}
               className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
             >
               <div className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}>
@@ -183,14 +200,22 @@ export default function GlobalChatRoom() {
             type="text"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => event.key === 'Enter' && handleSendMessage()}
+            onKeyDown={(event) => {
+              if (event.nativeEvent.isComposing) {
+                return
+              }
+
+              if (event.key === 'Enter') {
+                handleSendMessage()
+              }
+            }}
             placeholder="Type a message..."
             className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-gray-900 focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
-            disabled={!message.trim() || !connected}
-            aria-label="메시지 전송"
+            disabled={!message.trim() || !client?.connected}
+            aria-label="�޽��� ����"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
           >
             <Send size={18} />

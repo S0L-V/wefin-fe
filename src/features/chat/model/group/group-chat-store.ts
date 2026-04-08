@@ -30,19 +30,28 @@ type GroupChatState = {
   setReplyTarget: (message: GroupChatMessage | null) => void
   clearReplyTarget: () => void
   sendMessage: (client: Client | null, content: string) => boolean
-  loadOlderMessages: () => Promise<void>
+  loadOlderMessages: () => Promise<boolean>
 }
 
-function mergeOlderMessages(
-  currentMessages: GroupChatMessage[],
-  olderMessages: GroupChatMessage[]
-): GroupChatMessage[] {
-  const existingIds = new Set(currentMessages.map((message) => message.messageId))
-  const filteredOlderMessages = olderMessages.filter(
-    (message) => !existingIds.has(message.messageId)
-  )
+function isSameMessage(left: GroupChatMessage, right: GroupChatMessage): boolean {
+  return left.messageId === right.messageId
+}
 
-  return [...filteredOlderMessages, ...currentMessages]
+function mergeMessages(
+  currentMessages: GroupChatMessage[],
+  incomingMessages: GroupChatMessage[]
+): GroupChatMessage[] {
+  const mergedMessages = [...incomingMessages]
+
+  currentMessages.forEach((message) => {
+    if (mergedMessages.some((item) => isSameMessage(item, message))) {
+      return
+    }
+
+    mergedMessages.push(message)
+  })
+
+  return mergedMessages
 }
 
 export const useGroupChatStore = create<GroupChatState>((set, get) => ({
@@ -59,14 +68,15 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
   setUserId: (userId) => set({ userId }),
   setGroupMeta: (groupMeta) => set({ groupMeta }),
   setInitialPage: (page) =>
-    set({
-      messages: page.messages,
+    set((state) => ({
+      // �ʱ� ��ȸ�� �ǽð� �޽������� �ʰ� �����ص� �̹� ���� �޽����� ����� �ʵ��� �����Ѵ�.
+      messages: mergeMessages(state.messages, page.messages),
       nextCursor: page.nextCursor,
       hasNext: page.hasNext
-    }),
+    })),
   appendMessage: (message) =>
     set((state) => {
-      if (state.messages.some((item) => item.messageId === message.messageId)) {
+      if (state.messages.some((item) => isSameMessage(item, message))) {
         return state
       }
 
@@ -101,24 +111,27 @@ export const useGroupChatStore = create<GroupChatState>((set, get) => ({
     const { nextCursor, hasNext, loadingOlder } = get()
 
     if (!hasNext || nextCursor == null || loadingOlder) {
-      return
+      return false
     }
 
     set({ loadingOlder: true })
 
     try {
-      // 그룹 채팅도 현재 가장 오래된 메시지 이전 구간을 받아 앞쪽에 이어 붙인다.
+      // �׷� ä���� ���� �ֻ�� ���� ������ �̾� �ٿ� ���� �����丮�� Ȯ���Ѵ�.
       const page = await fetchGroupChatMessages(nextCursor)
 
       set((state) => ({
-        messages: mergeOlderMessages(state.messages, page.messages),
+        messages: mergeMessages(state.messages, page.messages),
         nextCursor: page.nextCursor,
         hasNext: page.hasNext,
         loadingOlder: false
       }))
+
+      return true
     } catch (error) {
       console.error('Failed to load older group chat messages:', error)
       set({ loadingOlder: false })
+      return false
     }
   }
 }))

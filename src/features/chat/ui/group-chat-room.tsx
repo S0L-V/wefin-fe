@@ -21,6 +21,18 @@ function getLastMessageKey(messages: ReturnType<typeof useGroupChatStore.getStat
   ].join(':')
 }
 
+function getMessageKey(
+  message: ReturnType<typeof useGroupChatStore.getState>['messages'][number]
+): string {
+  return [
+    message.messageId,
+    message.userId ?? 'anonymous',
+    message.messageType,
+    message.content,
+    message.createdAt
+  ].join(':')
+}
+
 export default function GroupChatRoom() {
   const [message, setMessage] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -94,11 +106,16 @@ export default function GroupChatRoom() {
       return
     }
 
-    // 과거 메시지를 앞에 붙인 뒤에도 현재 읽던 위치가 흔들리지 않게 높이 차이만큼 보정한다.
+    // ���� �޽����� �տ� ���� �ڿ��� ����ڰ� �д� ��ġ�� ��鸮�� �ʰ� ���� ���� ���̸� ����Ѵ�.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 
-    await loadOlderMessages()
+    const didLoadOlderMessages = await loadOlderMessages()
+
+    if (!didLoadOlderMessages) {
+      shouldRestoreScrollRef.current = false
+      previousHeightRef.current = null
+    }
   }
 
   if (isLoading) {
@@ -113,8 +130,8 @@ export default function GroupChatRoom() {
             <Users size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-gray-900">{groupMeta?.groupName ?? '그룹 채팅'}</h3>
-            <p className="text-xs text-gray-500">내 그룹 멤버만 참여할 수 있는 대화방</p>
+            <h3 className="font-bold text-gray-900">{groupMeta?.groupName ?? '�׷� ä��'}</h3>
+            <p className="text-xs text-gray-500">���� �׷� ����� ������ �� �ִ� ��ȭ��</p>
           </div>
         </div>
         <div className="text-sm font-medium text-gray-500">
@@ -136,16 +153,16 @@ export default function GroupChatRoom() {
         className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6 pr-20"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
+          <div className="text-center text-xs text-gray-400">���� �޽����� �ҷ����� ��...</div>
         )}
 
-        {chatMessages.map((msg, index) => {
+        {chatMessages.map((msg) => {
           const isMine = msg.userId === userId
           const isSystem = msg.messageType === 'SYSTEM'
 
           if (isSystem) {
             return (
-              <div key={`${msg.messageId}-${index}`} className="flex justify-center">
+              <div key={getMessageKey(msg)} className="flex justify-center">
                 <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                   {msg.content}
                 </div>
@@ -155,7 +172,7 @@ export default function GroupChatRoom() {
 
           return (
             <div
-              key={`${msg.messageId}-${index}`}
+              key={getMessageKey(msg)}
               className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
             >
               <div className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}>
@@ -198,7 +215,7 @@ export default function GroupChatRoom() {
                   className="absolute right-[-56px] bottom-0 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-600 shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]"
                 >
                   <MessageSquareReply size={12} />
-                  답장
+                  ����
                 </button>
               </div>
             </div>
@@ -213,7 +230,7 @@ export default function GroupChatRoom() {
           <div className="mb-3 flex items-start justify-between rounded-xl border border-[#3db9b9]/20 bg-[#3db9b9]/5 px-4 py-3">
             <div className="min-w-0">
               <div className="mb-1 text-xs font-bold text-[#2a8282]">
-                {replyTarget.sender}에게 답장
+                {replyTarget.sender}���� ����
               </div>
               <div className="truncate text-sm text-gray-600">{replyTarget.content}</div>
             </div>
@@ -221,7 +238,7 @@ export default function GroupChatRoom() {
               type="button"
               onClick={clearReplyTarget}
               className="ml-3 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition hover:bg-white hover:text-gray-600"
-              aria-label="답장 취소"
+              aria-label="���� ���"
             >
               <X size={16} />
             </button>
@@ -233,14 +250,22 @@ export default function GroupChatRoom() {
             type="text"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => event.key === 'Enter' && handleSendMessage()}
-            placeholder="메시지를 입력하세요..."
+            onKeyDown={(event) => {
+              if (event.nativeEvent.isComposing) {
+                return
+              }
+
+              if (event.key === 'Enter') {
+                handleSendMessage()
+              }
+            }}
+            placeholder="�޽����� �Է��ϼ���..."
             className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-gray-900 focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
-            disabled={!message.trim() || !connected}
-            aria-label="메시지 전송"
+            disabled={!message.trim() || !client?.connected}
+            aria-label="�޽��� ����"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
           >
             <Send size={18} />

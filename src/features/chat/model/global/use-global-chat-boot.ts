@@ -1,5 +1,5 @@
 import { Client } from '@stomp/stompjs'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   fetchGlobalChatMessages,
@@ -16,6 +16,14 @@ type ChatErrorMessage = {
 
 const FALLBACK_ERROR_TIMEOUT_MS = 3000
 
+function getAccessToken(): string {
+  if (typeof window === 'undefined') {
+    return ''
+  }
+
+  return window.localStorage.getItem('accessToken') ?? ''
+}
+
 export function useGlobalChatBoot(userId: string) {
   const setUserId = useGlobalChatStore((state) => state.setUserId)
   const setInitialPage = useGlobalChatStore((state) => state.setInitialPage)
@@ -26,6 +34,7 @@ export function useGlobalChatBoot(userId: string) {
   const setClient = useGlobalChatStore((state) => state.setClient)
   const resetConnectionState = useGlobalChatStore((state) => state.resetConnectionState)
 
+  const [accessToken, setAccessToken] = useState(() => getAccessToken())
   const hasBootstrappedRef = useRef(false)
   const subscriptionsRef = useRef<{ unsubscribe: () => void }[]>([])
   const errorTimeoutRef = useRef<number | null>(null)
@@ -35,16 +44,27 @@ export function useGlobalChatBoot(userId: string) {
   }, [setUserId, userId])
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken')
+    const syncAccessToken = () => {
+      setAccessToken(getAccessToken())
+    }
 
+    window.addEventListener('auth-changed', syncAccessToken)
+    window.addEventListener('storage', syncAccessToken)
+
+    return () => {
+      window.removeEventListener('auth-changed', syncAccessToken)
+      window.removeEventListener('storage', syncAccessToken)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!userId || !accessToken || hasBootstrappedRef.current) {
       return
     }
 
     hasBootstrappedRef.current = true
 
-    // AppLayout은 라우트 전환 중에도 계속 마운트되므로,
-    // 여기서 한 번만 연결해서 전역 채팅 연결과 상태를 재사용한다.
+    // AppLayout�� ���Ʈ ��ȯ �߿��� �����ǹǷ� �۷ι� ä�� ����� �ʱ� �����丮�� ���⼭ �Բ� �����Ѵ�.
     setLoading(true)
     setErrorMessage(null)
 
@@ -59,13 +79,13 @@ export function useGlobalChatBoot(userId: string) {
       .catch((error) => {
         if (!active) return
         console.error('Failed to load global chat history:', error)
-        setErrorMessage('전체 채팅 내역을 불러오지 못했습니다.')
+        setErrorMessage('��ü ä�� �̷��� �ҷ����� ���߽��ϴ�.')
         setLoading(false)
       })
 
     const client = stompClient as Client
 
-    // 웹소켓 CONNECT 시에도 REST와 동일한 access token을 보내서 로그인 사용자를 식별한다.
+    // ��ū�� ���ŵǸ� effect�� �ٽ� ���鼭 �ֽ� access token���� CONNECT ����� ��ü�Ѵ�.
     client.connectHeaders = {
       Authorization: `Bearer ${accessToken}`
     }
@@ -85,13 +105,13 @@ export function useGlobalChatBoot(userId: string) {
           try {
             const parsed = globalChatMessageSchema.safeParse(JSON.parse(frame.body))
             if (!parsed.success) {
-              console.error('전역 채팅 메시지 파싱 실패')
+              console.error('��ü ä�� �޽��� �Ľ� ����')
               return
             }
 
             appendMessage(parsed.data)
           } catch {
-            console.error('전역 채팅 메시지 처리 실패')
+            console.error('��ü ä�� �޽��� ó�� ����')
           }
         })
       )
@@ -102,8 +122,7 @@ export function useGlobalChatBoot(userId: string) {
             const error = JSON.parse(frame.body) as ChatErrorMessage
             const timeoutMs = (error.remainingSeconds ?? 3) * 1000
 
-            // 도배 감지 등 사용자별 오류는 화면 배너로만 보여주고,
-            // 일정 시간이 지나면 자동으로 지워서 채팅 흐름을 방해하지 않게 한다.
+            // ���� ������ ���� ���д� ä�� ȭ���� ������ �ʰ� ��ʷθ� ������ �� �ڵ����� �����.
             setErrorMessage(error.message)
 
             if (errorTimeoutRef.current != null) {
@@ -118,7 +137,7 @@ export function useGlobalChatBoot(userId: string) {
               Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
             )
           } catch {
-            console.error('전역 채팅 에러 메시지 파싱 실패')
+            console.error('��ü ä�� ���� �޽��� �Ľ� ����')
           }
         })
       )
@@ -155,6 +174,7 @@ export function useGlobalChatBoot(userId: string) {
       hasBootstrappedRef.current = false
     }
   }, [
+    accessToken,
     appendMessage,
     resetConnectionState,
     setClient,
