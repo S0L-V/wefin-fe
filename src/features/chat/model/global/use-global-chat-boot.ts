@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react'
 import {
   fetchGlobalChatMessages,
   globalChatMessageSchema
-} from '@/features/chat/api/fetch-global-chat-messages'
-import { useGlobalChatStore } from '@/features/chat/model/global-chat-store'
+} from '@/features/chat/api/global/fetch-global-chat-messages'
+import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { connectStomp, disconnectStomp, stompClient } from '@/shared/api/stomp-client'
 
 type ChatErrorMessage = {

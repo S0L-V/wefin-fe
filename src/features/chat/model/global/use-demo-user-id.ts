@@ -9,7 +9,10 @@ function decodeUserIdFromToken(token: string): string {
     }
 
     const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const decoded = window.atob(normalized)
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')
+
+    // �α��� access token�� subject�� ���� ä�� ����� �ĺ������� ����Ѵ�.
+    const decoded = window.atob(padded)
     const parsed = JSON.parse(decoded) as { sub?: string }
 
     return typeof parsed.sub === 'string' ? parsed.sub : ''
@@ -29,7 +32,6 @@ function getLoggedInUserId(): string {
     return ''
   }
 
-  // 로그인 후에는 access token의 subject를 채팅 사용자 식별값으로 사용한다.
   return decodeUserIdFromToken(token)
 }
 

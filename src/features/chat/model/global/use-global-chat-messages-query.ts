@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { fetchGlobalChatMessages } from '../api/fetch-global-chat-messages'
+import { fetchGlobalChatMessages } from '@/features/chat/api/global/fetch-global-chat-messages'
 
 export function useGlobalChatMessagesQuery() {
   return useQuery({
