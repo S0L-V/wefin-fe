@@ -1,6 +1,6 @@
 ﻿import axios from 'axios'
 import { Send, Sparkles, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   type AiChatMessage,
@@ -15,6 +15,12 @@ const SAME_MESSAGE_WINDOW_MS = 15000
 
 type PendingStatus = 'idle' | 'thinking' | 'syncing'
 
+type UserMessageSignature = {
+  userId: string | null
+  content: string
+  createdAt: string
+}
+
 function getMessageKey(message: AiChatMessage, index: number): string {
   return [
     message.messageId ?? `temp-${index}`,
@@ -25,20 +31,46 @@ function getMessageKey(message: AiChatMessage, index: number): string {
   ].join(':')
 }
 
+function getAiMarker(message: AiChatMessage): string | null {
+  if (message.role !== 'AI') {
+    return null
+  }
+
+  return message.messageId != null
+    ? `id:${message.messageId}`
+    : `temp:${message.content}:${message.createdAt}`
+}
+
+function getLatestAiMarker(messages: AiChatMessage[]): string | null {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const marker = getAiMarker(messages[index])
+
+    if (marker != null) {
+      return marker
+    }
+  }
+
+  return null
+}
+
 function toTimestamp(value: string): number {
   const parsed = Date.parse(value)
   return Number.isNaN(parsed) ? 0 : parsed
 }
 
-function isLikelyPersistedUserMessage(left: AiChatMessage, right: AiChatMessage): boolean {
-  if (left.role !== 'USER' || right.role !== 'USER') {
+function isLikelyPersistedUserMessage(
+  message: AiChatMessage,
+  signature: UserMessageSignature
+): boolean {
+  if (message.role !== 'USER') {
     return false
   }
 
   return (
-    left.userId === right.userId &&
-    left.content === right.content &&
-    Math.abs(toTimestamp(left.createdAt) - toTimestamp(right.createdAt)) <= SAME_MESSAGE_WINDOW_MS
+    message.userId === signature.userId &&
+    message.content === signature.content &&
+    Math.abs(toTimestamp(message.createdAt) - toTimestamp(signature.createdAt)) <=
+      SAME_MESSAGE_WINDOW_MS
   )
 }
 
@@ -64,7 +96,14 @@ function mergeMessages(currentMessages: AiChatMessage[], incomingMessages: AiCha
         return true
       }
 
-      return message.messageId == null && isLikelyPersistedUserMessage(item, message)
+      return (
+        message.messageId == null &&
+        isLikelyPersistedUserMessage(item, {
+          userId: message.userId,
+          content: message.content,
+          createdAt: message.createdAt
+        })
+      )
     })
 
     if (!alreadyExists) {
@@ -77,16 +116,32 @@ function mergeMessages(currentMessages: AiChatMessage[], incomingMessages: AiCha
   )
 }
 
-function hasAiReplyAfter(messages: AiChatMessage[], sentAt: string): boolean {
-  const sentAtMs = toTimestamp(sentAt)
-
-  return messages.some(
-    (message) => message.role === 'AI' && toTimestamp(message.createdAt) >= sentAtMs
+function hasRecoveredAiReply(
+  messages: AiChatMessage[],
+  previousAiMarker: string | null,
+  userMessageSignature: UserMessageSignature
+): boolean {
+  const matchedUserIndex = messages.findIndex((message) =>
+    isLikelyPersistedUserMessage(message, userMessageSignature)
   )
+
+  if (matchedUserIndex < 0) {
+    return false
+  }
+
+  return messages.slice(matchedUserIndex + 1).some((message) => {
+    const marker = getAiMarker(message)
+
+    return marker != null && marker !== previousAiMarker
+  })
 }
 
 function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms))
+}
+
+function readHasAccessToken() {
+  return typeof window !== 'undefined' && !!window.localStorage.getItem('accessToken')
 }
 
 export default function WefinyChatWidget() {
@@ -98,16 +153,36 @@ export default function WefinyChatWidget() {
   const [isSending, setIsSending] = useState(false)
   const [pendingStatus, setPendingStatus] = useState<PendingStatus>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [hasAccessToken, setHasAccessToken] = useState(readHasAccessToken)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const syncRequestIdRef = useRef(0)
 
-  const hasAccessToken = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return false
+  useEffect(() => {
+    const syncAuthState = () => {
+      setHasAccessToken(readHasAccessToken())
     }
 
-    return !!window.localStorage.getItem('accessToken')
+    window.addEventListener('auth-changed', syncAuthState)
+    window.addEventListener('storage', syncAuthState)
+
+    return () => {
+      window.removeEventListener('auth-changed', syncAuthState)
+      window.removeEventListener('storage', syncAuthState)
+    }
   }, [])
+
+  useEffect(() => {
+    if (hasAccessToken) {
+      return
+    }
+
+    setMessages([])
+    setMessage('')
+    setErrorMessage(null)
+    setPendingStatus('idle')
+    setIsLoading(false)
+    setIsSending(false)
+  }, [hasAccessToken])
 
   useEffect(() => {
     if (!isOpen || !hasAccessToken) {
@@ -173,7 +248,10 @@ export default function WefinyChatWidget() {
     }
   }
 
-  const recoverAiResponseAfterTimeout = async (sentAt: string) => {
+  const recoverAiResponseAfterTimeout = async (
+    previousAiMarker: string | null,
+    userMessageSignature: UserMessageSignature
+  ) => {
     setPendingStatus('syncing')
 
     for (let attempt = 0; attempt < AI_POLL_MAX_ATTEMPTS; attempt += 1) {
@@ -181,7 +259,10 @@ export default function WefinyChatWidget() {
 
       const syncedMessages = await syncAiHistory({ preserveError: true })
 
-      if (syncedMessages != null && hasAiReplyAfter(syncedMessages, sentAt)) {
+      if (
+        syncedMessages != null &&
+        hasRecoveredAiReply(syncedMessages, previousAiMarker, userMessageSignature)
+      ) {
         setPendingStatus('idle')
         setErrorMessage(null)
         return
@@ -207,6 +288,13 @@ export default function WefinyChatWidget() {
       createdAt: new Date().toISOString()
     }
 
+    const previousAiMarker = getLatestAiMarker(messages)
+    const userMessageSignature: UserMessageSignature = {
+      userId,
+      content: trimmedMessage,
+      createdAt: optimisticUserMessage.createdAt
+    }
+
     setMessages((current) => [...current, optimisticUserMessage])
     setMessage('')
     setIsSending(true)
@@ -222,7 +310,7 @@ export default function WefinyChatWidget() {
 
       if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
         setErrorMessage('답변 생성이 조금 길어지고 있어요. 대화 내역을 다시 확인하는 중입니다.')
-        void recoverAiResponseAfterTimeout(optimisticUserMessage.createdAt)
+        void recoverAiResponseAfterTimeout(previousAiMarker, userMessageSignature)
       } else {
         setMessages((current) => current.filter((item) => item !== optimisticUserMessage))
         setPendingStatus('idle')
@@ -246,7 +334,7 @@ export default function WefinyChatWidget() {
         type="button"
         onClick={() => setIsOpen((current) => !current)}
         className="fixed right-6 bottom-6 z-30 flex h-17 w-17 items-center justify-center overflow-hidden rounded-full border border-[#b8efe7] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[3px] shadow-[0_24px_60px_rgba(24,122,112,0.26)] transition-transform hover:scale-[1.03]"
-        aria-label="위피니 채팅 열기"
+        aria-label={isOpen ? '위피니 채팅 닫기' : '위피니 채팅 열기'}
       >
         <div className="h-full w-full overflow-hidden rounded-full border border-white/80 bg-white">
           <img src="/wefini.png" alt="위피니 아이콘" className="h-full w-full object-cover" />
