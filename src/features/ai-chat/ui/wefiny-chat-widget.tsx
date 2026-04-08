@@ -177,7 +177,7 @@ export default function WefinyChatWidget() {
   const handleSendMessage = async () => {
     const trimmedMessage = message.trim()
 
-    if (!trimmedMessage || isSending || pendingStatus !== 'idle' || !hasAccessToken) {
+    if (!trimmedMessage || isLoading || isSending || pendingStatus !== 'idle' || !hasAccessToken) {
       return
     }
 
@@ -409,7 +409,7 @@ export default function WefinyChatWidget() {
                 placeholder={
                   hasAccessToken ? '예: 삼성전자 전망 알려줘' : '로그인 후 이용할 수 있어요'
                 }
-                disabled={!hasAccessToken || isSending || pendingStatus !== 'idle'}
+                disabled={!hasAccessToken || isLoading || isSending || pendingStatus !== 'idle'}
                 rows={1}
                 className="max-h-32 min-h-[48px] flex-1 resize-none border-none bg-transparent px-3 py-2 text-sm text-gray-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-gray-400"
               />
@@ -419,7 +419,11 @@ export default function WefinyChatWidget() {
                   void handleSendMessage()
                 }}
                 disabled={
-                  !message.trim() || !hasAccessToken || isSending || pendingStatus !== 'idle'
+                  !message.trim() ||
+                  !hasAccessToken ||
+                  isLoading ||
+                  isSending ||
+                  pendingStatus !== 'idle'
                 }
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1d9f8d] text-white transition hover:bg-[#16786b] disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="위피니 채팅 전송"
