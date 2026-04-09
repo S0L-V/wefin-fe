@@ -1,4 +1,5 @@
 import { Layers } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 import type { ClusterItem } from '../api/fetch-news-clusters'
 
@@ -30,7 +31,7 @@ function getTimeAgo(dateStr: string): string {
 
 export default function NewsCard({ cluster }: NewsCardProps) {
   return (
-    <article className="group flex cursor-pointer gap-4 rounded-2xl bg-white p-3">
+    <Link to={`/news/${cluster.clusterId}`} className="group flex gap-4 rounded-2xl bg-white p-3">
       {/* Thumbnail */}
       <div className="h-[120px] w-[180px] shrink-0 overflow-hidden rounded-xl bg-gray-100">
         {cluster.thumbnailUrl ? (
@@ -63,7 +64,7 @@ export default function NewsCard({ cluster }: NewsCardProps) {
           <SourceBadge sources={cluster.sources} sourceCount={cluster.sourceCount} />
         </div>
       </div>
-    </article>
+    </Link>
   )
 }
 

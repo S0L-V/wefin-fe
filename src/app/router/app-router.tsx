@@ -5,6 +5,7 @@ import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
 import HistoryPage from '@/pages/history/ui/history-page'
 import HomePage from '@/pages/home/ui/home-page'
+import ClusterDetailPage from '@/pages/news/ui/cluster-detail-page'
 import NotFoundPage from '@/pages/not-found/ui/not-found-page'
 import SettingsPage from '@/pages/settings/ui/settings-page'
 import StockDetailPage from '@/pages/stocks/ui/stock-detail-page'
@@ -17,6 +18,7 @@ function AppRouter() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="news" element={<HomePage />} />
+        <Route path="news/:clusterId" element={<ClusterDetailPage />} />
         <Route path="stocks" element={<StocksPage />} />
         <Route path="stocks/:code" element={<StockDetailPage />} />
 
