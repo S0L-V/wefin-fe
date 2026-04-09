@@ -11,7 +11,7 @@
 
 @layer base {
   :root {
-    --app-header-height: 74px;
+    --app-header-height: 52px;
     font-family:
       'Segoe UI',
       Roboto,

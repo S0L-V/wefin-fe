@@ -78,7 +78,7 @@ function PriceTab({
       </thead>
       <tbody>
         {candles.map((c, i) => {
-          const prevClose = i < candles.length - 1 ? candles[i + 1].closePrice : c.openPrice
+          const prevClose = i > 0 ? candles[i - 1].closePrice : c.openPrice
           const changeRate = prevClose !== 0 ? ((c.closePrice - prevClose) / prevClose) * 100 : 0
           const isPositive = changeRate > 0
           const isNegative = changeRate < 0

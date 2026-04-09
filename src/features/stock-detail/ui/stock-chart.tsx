@@ -53,6 +53,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const loadingMore = useRef(false)
   const oldestDate = useRef<string | null>(null)
   const hasMoreData = useRef(true)
+  const loadMoreRef = useRef<() => void>(() => {})
 
   // 초기 데이터 로딩
   const loadInitialData = useCallback(async () => {
@@ -139,6 +140,11 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     }
   }, [code, periodCode])
 
+  // ref에 최신 loadMoreData 유지
+  useEffect(() => {
+    loadMoreRef.current = loadMoreData
+  }, [loadMoreData])
+
   // periodCode나 code 변경 시 초기 로딩
   useEffect(() => {
     loadInitialData()
@@ -188,7 +194,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
       if (!range) return
       if (range.from < 5) {
-        loadMoreData()
+        loadMoreRef.current()
       }
     })
 

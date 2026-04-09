@@ -42,6 +42,8 @@ export default function ResizeHandle({ direction = 'horizontal', onResize }: Res
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
     }
   }, [direction, onResize])
 

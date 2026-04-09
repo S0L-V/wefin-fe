@@ -88,10 +88,7 @@ export async function fetchOrderbook(code: string): Promise<OrderbookData> {
 }
 
 function formatDate(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(date)
 }
 
 function getDefaultDateRange(periodCode: string): { start: string; end: string } {
