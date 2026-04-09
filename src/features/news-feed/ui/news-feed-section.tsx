@@ -23,10 +23,8 @@ export default function NewsFeedSection() {
     latestCursor
   )
 
-  const currentItems =
-    cursors.length === 1
-      ? (data?.items ?? [])
-      : [...loadedItems, ...(isPlaceholderData ? [] : (data?.items ?? []))]
+  const freshItems = isPlaceholderData ? [] : (data?.items ?? [])
+  const currentItems = cursors.length === 1 ? freshItems : [...loadedItems, ...freshItems]
 
   const visibleItems = expanded ? currentItems : currentItems.slice(0, INITIAL_VISIBLE)
   const canExpand = !expanded && currentItems.length > INITIAL_VISIBLE

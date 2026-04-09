@@ -29,12 +29,11 @@ export default function NewsListSection() {
       : {})
   }
 
-  const { data, isLoading, isFetching, isPlaceholderData } = useFilteredFeedQuery(feedParams)
+  const { data, isLoading, isError, isFetching, isPlaceholderData } =
+    useFilteredFeedQuery(feedParams)
 
-  const currentItems =
-    cursors.length === 1
-      ? (data?.items ?? [])
-      : [...loadedItems, ...(isPlaceholderData ? [] : (data?.items ?? []))]
+  const freshItems = isPlaceholderData ? [] : (data?.items ?? [])
+  const currentItems = cursors.length === 1 ? freshItems : [...loadedItems, ...freshItems]
 
   function handleModeChange(newMode: FilterMode) {
     setMode(newMode)
@@ -83,6 +82,8 @@ export default function NewsListSection() {
               </div>
             ))}
           </div>
+        ) : isError && currentItems.length === 0 ? (
+          <p className="py-16 text-center text-sm text-wefin-subtle">뉴스를 불러오지 못했습니다</p>
         ) : !currentItems.length ? (
           <p className="py-16 text-center text-sm text-wefin-subtle">뉴스가 없습니다</p>
         ) : (

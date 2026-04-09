@@ -7,6 +7,10 @@ interface ClusterDetailHeaderProps {
   cluster: ClusterDetail
 }
 
+function isAllowedUrl(url: string): boolean {
+  return url.startsWith('https://') || url.startsWith('http://')
+}
+
 function getTimeAgo(dateStr: string): string {
   const published = new Date(dateStr).getTime()
   if (Number.isNaN(published)) return '알 수 없음'
@@ -32,7 +36,7 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
       {/* Top bar */}
       <div className="mb-6 flex items-center justify-between">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/news'))}
           className="inline-flex cursor-pointer items-center gap-1 text-sm text-wefin-subtle hover:text-wefin-text"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -64,28 +68,31 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
             <span className="text-wefin-mint">✦</span> AI 요약 출처
           </h3>
           <div className="flex gap-3 overflow-x-auto pb-1">
-            {cluster.sources.map((src) => (
-              <a
-                key={src.articleId}
-                href={src.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex w-[200px] shrink-0 flex-col gap-2.5 rounded-2xl border border-gray-100 p-4 transition-colors hover:bg-gray-50"
-              >
-                <span className="inline-flex items-center gap-1.5 text-xs text-wefin-subtle">
-                  <span
-                    className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                    style={{ backgroundColor: '#24a8ab' }}
-                  >
-                    {src.publisherName.charAt(0).toUpperCase()}
+            {cluster.sources.map((src) => {
+              const safe = isAllowedUrl(src.url)
+              return (
+                <a
+                  key={src.articleId}
+                  {...(safe
+                    ? { href: src.url, target: '_blank', rel: 'noopener noreferrer' }
+                    : { 'aria-disabled': true, tabIndex: -1 })}
+                  className={`flex w-[200px] shrink-0 flex-col gap-2.5 rounded-2xl border border-gray-100 p-4 transition-colors ${safe ? 'hover:bg-gray-50' : 'cursor-not-allowed opacity-50'}`}
+                >
+                  <span className="inline-flex items-center gap-1.5 text-xs text-wefin-subtle">
+                    <span
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                      style={{ backgroundColor: '#24a8ab' }}
+                    >
+                      {src.publisherName.charAt(0).toUpperCase()}
+                    </span>
+                    {src.publisherName}
                   </span>
-                  {src.publisherName}
-                </span>
-                <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-wefin-text">
-                  {src.title}
-                </span>
-              </a>
-            ))}
+                  <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-wefin-text">
+                    {src.title}
+                  </span>
+                </a>
+              )
+            })}
           </div>
         </div>
       )}
