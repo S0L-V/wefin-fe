@@ -104,10 +104,6 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
           break
       }
 
-      const data = await fetchCandles(code, periodCode)
-      // fetchCandles는 내부에서 start/end를 자동 계산하므로,
-      // 직접 범위를 지정하는 별도 fetch가 필요
-      // 임시: baseApi를 직접 호출
       const { baseApi } = await import('@/shared/api/base-api')
       const { apiResponseSchema } = await import('@/shared/api/api-response')
       const { z } = await import('zod')
