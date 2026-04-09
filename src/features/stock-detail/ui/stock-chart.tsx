@@ -54,15 +54,20 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const oldestDate = useRef<string | null>(null)
   const hasMoreData = useRef(true)
   const loadMoreRef = useRef<() => void>(() => {})
+  const requestId = useRef(0)
+  const isInitialLoad = useRef(true)
 
   // 초기 데이터 로딩
   const loadInitialData = useCallback(async () => {
+    const currentRequestId = ++requestId.current
+    isInitialLoad.current = true
     setIsLoading(true)
     setAllCandles([])
     oldestDate.current = null
     hasMoreData.current = true
     try {
       const data = await fetchCandles(code, periodCode)
+      if (currentRequestId !== requestId.current) return
       const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date))
       setAllCandles(sorted)
       if (sorted.length > 0) {
@@ -71,7 +76,9 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     } catch {
       // 에러 시 빈 상태 유지
     } finally {
-      setIsLoading(false)
+      if (currentRequestId === requestId.current) {
+        setIsLoading(false)
+      }
     }
   }, [code, periodCode])
 
@@ -225,7 +232,13 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
 
   // 데이터 업데이트
   useEffect(() => {
-    if (!candleSeriesRef.current || !volumeSeriesRef.current || allCandles.length === 0) return
+    if (!candleSeriesRef.current || !volumeSeriesRef.current) return
+
+    if (allCandles.length === 0) {
+      candleSeriesRef.current.setData([])
+      volumeSeriesRef.current.setData([])
+      return
+    }
 
     const candleData = allCandles.map((c) => ({
       time: c.date as string,
@@ -244,9 +257,9 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     candleSeriesRef.current.setData(candleData)
     volumeSeriesRef.current.setData(volumeData)
 
-    // 초기 로딩일 때만 fitContent
-    if (allCandles.length <= 100) {
+    if (isInitialLoad.current) {
       chartRef.current?.timeScale().fitContent()
+      isInitialLoad.current = false
     }
   }, [allCandles])
 
