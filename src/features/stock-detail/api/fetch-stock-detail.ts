@@ -87,7 +87,7 @@ export async function fetchOrderbook(code: string): Promise<OrderbookData> {
   return parsed.data
 }
 
-function formatDate(date: Date): string {
+export function formatSeoulDate(date: Date): string {
   return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(date)
 }
 
@@ -116,7 +116,7 @@ function getDefaultDateRange(periodCode: string): { start: string; end: string }
       start.setMonth(end.getMonth() - 3)
   }
 
-  return { start: formatDate(start), end: formatDate(end) }
+  return { start: formatSeoulDate(start), end: formatSeoulDate(end) }
 }
 
 export async function fetchCandles(code: string, periodCode: string = 'D'): Promise<CandleData[]> {

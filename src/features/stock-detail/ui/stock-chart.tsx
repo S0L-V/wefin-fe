@@ -9,7 +9,11 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { CandleData } from '@/features/stock-detail/api/fetch-stock-detail'
-import { fetchCandles, fetchCandlesByRange } from '@/features/stock-detail/api/fetch-stock-detail'
+import {
+  fetchCandles,
+  fetchCandlesByRange,
+  formatSeoulDate
+} from '@/features/stock-detail/api/fetch-stock-detail'
 
 interface StockChartProps {
   code: string
@@ -33,13 +37,6 @@ const datePeriods: PeriodTab[] = [
 ]
 
 const TOOLBAR_HEIGHT = 32
-
-function formatDate(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
 
 export default function StockChart({ code, height = 340 }: StockChartProps) {
   const [periodCode, setPeriodCode] = useState('D')
@@ -86,10 +83,12 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const loadMoreData = useCallback(async () => {
     if (loadingMore.current || !oldestDate.current || !hasMoreData.current) return
     loadingMore.current = true
+    const currentRequestId = requestId.current
 
     try {
-      const endDate = new Date(oldestDate.current)
-      endDate.setDate(endDate.getDate() - 1)
+      // YYYY-MM-DD 문자열을 로컬 날짜로 파싱 (UTC 해석 방지)
+      const [year, month, day] = oldestDate.current.split('-').map(Number)
+      const endDate = new Date(year, month - 1, day - 1)
       const startDate = new Date(endDate)
 
       // periodCode에 따라 추가 로딩 범위 결정
@@ -115,9 +114,11 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       const newData = await fetchCandlesByRange(
         code,
         periodCode,
-        formatDate(startDate),
-        formatDate(endDate)
+        formatSeoulDate(startDate),
+        formatSeoulDate(endDate)
       )
+
+      if (currentRequestId !== requestId.current) return
 
       if (newData.length === 0) {
         hasMoreData.current = false
