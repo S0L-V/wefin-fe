@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { CandleData } from '@/features/stock-detail/api/fetch-stock-detail'
-import { fetchCandles } from '@/features/stock-detail/api/fetch-stock-detail'
+import { fetchCandles, fetchCandlesByRange } from '@/features/stock-detail/api/fetch-stock-detail'
 
 interface StockChartProps {
   code: string
@@ -112,20 +112,12 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
           break
       }
 
-      const { baseApi } = await import('@/shared/api/base-api')
-      const { apiResponseSchema } = await import('@/shared/api/api-response')
-      const { z } = await import('zod')
-      const { candleSchema } = await import('@/features/stock-detail/api/fetch-stock-detail')
-
-      const response = await baseApi.get(`/stocks/${code}/candles`, {
-        params: {
-          periodCode,
-          start: formatDate(startDate),
-          end: formatDate(endDate)
-        }
-      })
-      const parsed = apiResponseSchema(z.array(candleSchema)).parse(response.data)
-      const newData = parsed.data
+      const newData = await fetchCandlesByRange(
+        code,
+        periodCode,
+        formatDate(startDate),
+        formatDate(endDate)
+      )
 
       if (newData.length === 0) {
         hasMoreData.current = false

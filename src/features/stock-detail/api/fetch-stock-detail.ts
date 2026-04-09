@@ -128,6 +128,19 @@ export async function fetchCandles(code: string, periodCode: string = 'D'): Prom
   return parsed.data
 }
 
+export async function fetchCandlesByRange(
+  code: string,
+  periodCode: string,
+  start: string,
+  end: string
+): Promise<CandleData[]> {
+  const response = await baseApi.get(`/stocks/${code}/candles`, {
+    params: { periodCode, start, end }
+  })
+  const parsed = apiResponseSchema(z.array(candleSchema)).parse(response.data)
+  return parsed.data
+}
+
 export async function fetchRecentTrades(code: string): Promise<RecentTradeData[]> {
   const response = await baseApi.get(`/stocks/${code}/trades/recent`)
   const parsed = apiResponseSchema(z.array(recentTradeSchema)).parse(response.data)
