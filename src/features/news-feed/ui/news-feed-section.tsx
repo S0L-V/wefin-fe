@@ -45,15 +45,15 @@ export default function NewsFeedSection() {
 
   if (isError) {
     return (
-      <Section>
+      <div>
         <SectionHeader activeTab={tab} onTabChange={handleTabChange} />
         <p className="py-12 text-center text-sm text-wefin-subtle">뉴스를 불러오지 못했습니다</p>
-      </Section>
+      </div>
     )
   }
 
   return (
-    <Section>
+    <div>
       <SectionHeader activeTab={tab} onTabChange={handleTabChange} />
 
       {isLoading ? (
@@ -90,15 +90,7 @@ export default function NewsFeedSection() {
           )}
         </>
       )}
-    </Section>
-  )
-}
-
-function Section({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="rounded-3xl border border-wefin-line bg-white p-6 shadow-sm">
-      {children}
-    </section>
+    </div>
   )
 }
 

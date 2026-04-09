@@ -37,16 +37,35 @@ export type ClusterFeedResponse = z.infer<typeof clusterFeedSchema>
 
 export type ClusterTab = 'ALL' | 'FINANCE' | 'TECH' | 'INDUSTRY' | 'ENERGY' | 'BIO' | 'CRYPTO'
 
+export interface ClusterFeedParams {
+  tab?: ClusterTab
+  tagType?: 'SECTOR' | 'STOCK'
+  tagCode?: string
+  size: number
+  cursor?: string | null
+}
+
 export async function fetchNewsClusters(
   tab: ClusterTab,
   size: number,
   cursor?: string | null
 ): Promise<ClusterFeedResponse> {
-  const params: Record<string, string | number> = { size }
-  if (tab !== 'ALL') params.tab = tab
-  if (cursor) params.cursor = cursor
+  return fetchNewsClustersWithFilter({ tab, size, cursor })
+}
 
-  const response = await baseApi.get('/news/clusters', { params })
+export async function fetchNewsClustersWithFilter(
+  params: ClusterFeedParams
+): Promise<ClusterFeedResponse> {
+  const query: Record<string, string | number> = { size: params.size }
+  if (params.tagType && params.tagCode) {
+    query.tagType = params.tagType
+    query.tagCode = params.tagCode
+  } else if (params.tab && params.tab !== 'ALL') {
+    query.tab = params.tab
+  }
+  if (params.cursor) query.cursor = params.cursor
+
+  const response = await baseApi.get('/news/clusters', { params: query })
   const parsed = apiResponseSchema(clusterFeedSchema).parse(response.data)
   return parsed.data
 }

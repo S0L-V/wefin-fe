@@ -16,6 +16,7 @@ function AppRouter() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="news" element={<HomePage />} />
         <Route path="stocks" element={<StocksPage />} />
         <Route path="stocks/:code" element={<StockDetailPage />} />
 
