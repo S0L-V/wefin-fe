@@ -40,7 +40,7 @@ export type ClusterTab = 'ALL' | 'FINANCE' | 'TECH' | 'INDUSTRY' | 'ENERGY' | 'B
 export interface ClusterFeedParams {
   tab?: ClusterTab
   tagType?: 'SECTOR' | 'STOCK'
-  tagCode?: string
+  tagCodes?: string[]
   size: number
   cursor?: string | null
 }
@@ -56,10 +56,10 @@ export async function fetchNewsClusters(
 export async function fetchNewsClustersWithFilter(
   params: ClusterFeedParams
 ): Promise<ClusterFeedResponse> {
-  const query: Record<string, string | number> = { size: params.size }
-  if (params.tagType && params.tagCode) {
+  const query: Record<string, string | number | string[]> = { size: params.size }
+  if (params.tagType && params.tagCodes && params.tagCodes.length > 0) {
     query.tagType = params.tagType
-    query.tagCode = params.tagCode
+    query.tagCodes = params.tagCodes
   } else if (params.tab && params.tab !== 'ALL') {
     query.tab = params.tab
   }

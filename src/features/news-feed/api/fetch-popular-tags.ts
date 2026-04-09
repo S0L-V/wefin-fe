@@ -6,17 +6,14 @@ import { baseApi } from '@/shared/api/base-api'
 const popularTagSchema = z.object({
   code: z.string(),
   name: z.string(),
-  articleCount: z.number()
+  clusterCount: z.number()
 })
 
 export type PopularTag = z.infer<typeof popularTagSchema>
 
-export async function fetchPopularTags(
-  type: 'SECTOR' | 'STOCK',
-  limit = 10
-): Promise<PopularTag[]> {
+export async function fetchPopularTags(type: 'SECTOR' | 'STOCK'): Promise<PopularTag[]> {
   const response = await baseApi.get('/news/tags/popular', {
-    params: { type, limit }
+    params: { type, limit: 0 }
   })
   const parsed = apiResponseSchema(z.array(popularTagSchema)).parse(response.data)
   return parsed.data

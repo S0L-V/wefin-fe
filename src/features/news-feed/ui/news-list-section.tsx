@@ -13,7 +13,7 @@ const PAGE_SIZE = 10
 
 export default function NewsListSection() {
   const [mode, setMode] = useState<FilterMode>('ALL')
-  const [selectedTag, setSelectedTag] = useState<PopularTag | null>(null)
+  const [selectedTags, setSelectedTags] = useState<PopularTag[]>([])
   const [cursors, setCursors] = useState<(string | null)[]>([null])
   const [loadedItems, setLoadedItems] = useState<ClusterItem[]>([])
 
@@ -24,8 +24,8 @@ export default function NewsListSection() {
   const feedParams = {
     size: PAGE_SIZE,
     cursor: latestCursor,
-    ...(selectedTag && mode !== 'ALL'
-      ? { tagType: mode as 'SECTOR' | 'STOCK', tagCode: selectedTag.code }
+    ...(selectedTags.length > 0 && mode !== 'ALL'
+      ? { tagType: mode as 'SECTOR' | 'STOCK', tagCodes: selectedTags.map((t) => t.code) }
       : {})
   }
 
@@ -36,12 +36,12 @@ export default function NewsListSection() {
 
   function handleModeChange(newMode: FilterMode) {
     setMode(newMode)
-    setSelectedTag(null)
+    setSelectedTags([])
     resetPagination()
   }
 
-  function handleTagChange(tag: PopularTag | null) {
-    setSelectedTag(tag)
+  function handleTagsChange(tags: PopularTag[]) {
+    setSelectedTags(tags)
     resetPagination()
   }
 
@@ -61,8 +61,8 @@ export default function NewsListSection() {
       <NewsFilterBar
         mode={mode}
         onModeChange={handleModeChange}
-        selectedTag={selectedTag}
-        onTagChange={handleTagChange}
+        selectedTags={selectedTags}
+        onTagsChange={handleTagsChange}
         sectorTags={sectorTags}
         stockTags={stockTags}
       />
