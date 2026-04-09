@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ApiError } from '@/shared/api/base-api'
+
 import { useLeaveGameRoomMutation } from './use-game-room-query'
 import { useLeaveGuardStore } from './use-leave-guard-store'
 
@@ -41,8 +43,20 @@ export function useLeaveRoomGuard(roomId: string) {
 
   const confirmLeave = useCallback(() => {
     pendingPathRef.current = getPendingPath()
-    leaveMutation.mutate(roomId)
-  }, [roomId, leaveMutation, getPendingPath])
+    leaveMutation.mutate(roomId, {
+      onError: (err) => {
+        // 실패 시: 다이얼로그 닫고 사용자에게 에러 표시
+        // 재시도는 다시 로고/메뉴 클릭으로 유도. 다이얼로그를 열어두면
+        // 사용자가 뭐가 실패했는지 모른 채 같은 버튼을 반복 누르게 됨.
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : '방 나가기에 실패했습니다. 잠시 후 다시 시도해주세요.'
+        cancelLeave()
+        window.alert(message)
+      }
+    })
+  }, [roomId, leaveMutation, getPendingPath, cancelLeave])
 
   return {
     showDialog,

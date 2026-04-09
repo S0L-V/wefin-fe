@@ -116,6 +116,7 @@ function IntervalTabs({ value, onChange }: IntervalTabsProps) {
           <button
             key={opt.value}
             type="button"
+            aria-pressed={isActive}
             onClick={() => onChange(opt.value)}
             className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${className}`}
           >

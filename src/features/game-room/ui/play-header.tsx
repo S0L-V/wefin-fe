@@ -82,8 +82,11 @@ function MetaField({ label, value }: { label: string; value: string }) {
 }
 
 function ProfitField({ profitRate }: { profitRate: number }) {
-  const colorClass = profitRate >= 0 ? 'text-red-500' : 'text-blue-500'
-  const sign = profitRate >= 0 ? '+' : ''
+  // 보합(0%)은 중립 — 빨강/파랑 모두 부적절. 부호(+)도 붙이지 않음.
+  // 음수는 toFixed가 '-'를 직접 붙여주므로 sign에는 양수일 때만 '+'를 지정.
+  const colorClass =
+    profitRate > 0 ? 'text-red-500' : profitRate < 0 ? 'text-blue-500' : 'text-wefin-subtle'
+  const sign = profitRate > 0 ? '+' : ''
   return (
     <div className="flex flex-col">
       <dt className="text-[10px] font-bold uppercase text-wefin-subtle">수익률</dt>
