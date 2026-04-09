@@ -8,9 +8,10 @@ interface ClusterDetailHeaderProps {
 }
 
 function getTimeAgo(dateStr: string): string {
-  const now = Date.now()
   const published = new Date(dateStr).getTime()
-  const diffMs = now - published
+  if (Number.isNaN(published)) return '알 수 없음'
+
+  const diffMs = Math.max(0, Date.now() - published)
 
   const diffMins = Math.floor(diffMs / 60_000)
   if (diffMins < 1) return '방금 전'
@@ -37,7 +38,11 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
           <ArrowLeft className="h-4 w-4" />
           목록으로
         </button>
-        <button className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-wefin-mint px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-wefin-mint/90">
+        <button
+          disabled
+          className="inline-flex items-center gap-1.5 rounded-full bg-wefin-mint/50 px-4 py-2 text-sm font-medium text-white/70 cursor-not-allowed"
+          title="준비 중"
+        >
           <Share2 className="h-3.5 w-3.5" />
           채팅방 공유
         </button>

@@ -17,10 +17,16 @@ export default function NewsFeedSection() {
   const [expanded, setExpanded] = useState(false)
 
   const latestCursor = cursors[cursors.length - 1] ?? null
-  const { data, isLoading, isError, isFetching } = useNewsFeedQuery(tab, PAGE_SIZE, latestCursor)
+  const { data, isLoading, isError, isFetching, isPlaceholderData } = useNewsFeedQuery(
+    tab,
+    PAGE_SIZE,
+    latestCursor
+  )
 
   const currentItems =
-    cursors.length === 1 ? (data?.items ?? []) : [...loadedItems, ...(data?.items ?? [])]
+    cursors.length === 1
+      ? (data?.items ?? [])
+      : [...loadedItems, ...(isPlaceholderData ? [] : (data?.items ?? []))]
 
   const visibleItems = expanded ? currentItems : currentItems.slice(0, INITIAL_VISIBLE)
   const canExpand = !expanded && currentItems.length > INITIAL_VISIBLE
@@ -43,7 +49,8 @@ export default function NewsFeedSection() {
     setCursors((prev) => [...prev, data.nextCursor])
   }
 
-  if (isError) {
+  const newsItems = currentItems
+  if (isError && newsItems.length === 0) {
     return (
       <div>
         <SectionHeader activeTab={tab} onTabChange={handleTabChange} />

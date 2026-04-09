@@ -29,10 +29,12 @@ export default function NewsListSection() {
       : {})
   }
 
-  const { data, isLoading, isFetching } = useFilteredFeedQuery(feedParams)
+  const { data, isLoading, isFetching, isPlaceholderData } = useFilteredFeedQuery(feedParams)
 
   const currentItems =
-    cursors.length === 1 ? (data?.items ?? []) : [...loadedItems, ...(data?.items ?? [])]
+    cursors.length === 1
+      ? (data?.items ?? [])
+      : [...loadedItems, ...(isPlaceholderData ? [] : (data?.items ?? []))]
 
   function handleModeChange(newMode: FilterMode) {
     setMode(newMode)

@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import type { ArticleSource } from '../api/fetch-cluster-detail'
 
@@ -12,6 +12,12 @@ interface SourceListModalProps {
 }
 
 export default function SourceListModal({ heading, sources, onClose }: SourceListModalProps) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    closeRef.current?.focus()
+  }, [])
+
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -26,15 +32,25 @@ export default function SourceListModal({ heading, sources, onClose }: SourceLis
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="source-modal-title"
+        className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+      >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="flex items-center gap-1.5 text-base font-bold text-wefin-text">
+          <h3
+            id="source-modal-title"
+            className="flex items-center gap-1.5 text-base font-bold text-wefin-text"
+          >
             <span className="text-wefin-mint">✦</span>
             출처 {sources.length}개
           </h3>
           <button
+            ref={closeRef}
             onClick={onClose}
+            aria-label="닫기"
             className="cursor-pointer rounded-lg p-1 text-wefin-subtle hover:bg-gray-100"
           >
             <X className="h-4 w-4" />

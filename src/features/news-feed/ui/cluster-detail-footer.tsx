@@ -41,7 +41,11 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
             전체 채팅방에 공유하고 다른 투자자들과 의견을 나누어보세요.
           </p>
         </div>
-        <button className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-[#3db9b9] px-6 py-3 font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-[#2a8282] hover:shadow-lg">
+        <button
+          disabled
+          title="준비 중"
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-[#3db9b9]/50 px-6 py-3 font-bold text-white/70 cursor-not-allowed"
+        >
           <Share2 size={18} />
           <span>채팅방에 공유하기</span>
         </button>
@@ -57,7 +61,9 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
           {getSuggestedQuestions(cluster).map((q, i) => (
             <button
               key={i}
-              className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-100 px-4 py-3 text-left text-sm text-wefin-text transition-colors hover:bg-gray-50"
+              disabled
+              title="준비 중"
+              className="flex w-full items-center justify-between rounded-xl border border-gray-100 px-4 py-3 text-left text-sm text-wefin-text cursor-not-allowed opacity-60"
             >
               <span className="line-clamp-1">{q}</span>
               <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
@@ -80,7 +86,11 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
               <p className="text-sm text-gray-600">관심 분야로 등록하고 맞춤 뉴스를 받아보세요.</p>
             </div>
           </div>
-          <button className="shrink-0 cursor-pointer rounded-lg bg-[#3db9b9] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#2a8282]">
+          <button
+            disabled
+            title="준비 중"
+            className="shrink-0 rounded-lg bg-[#3db9b9]/50 px-5 py-2.5 text-sm font-bold text-white/70 cursor-not-allowed"
+          >
             관심 등록
           </button>
         </div>
@@ -121,7 +131,11 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
 
 function FeedbackButton({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-wefin-subtle transition-colors hover:border-wefin-mint hover:text-wefin-mint">
+    <button
+      disabled
+      title="준비 중"
+      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-wefin-subtle cursor-not-allowed opacity-60"
+    >
       {icon}
       {label}
     </button>

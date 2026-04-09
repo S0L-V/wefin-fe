@@ -56,7 +56,8 @@ export async function fetchNewsClusters(
 export async function fetchNewsClustersWithFilter(
   params: ClusterFeedParams
 ): Promise<ClusterFeedResponse> {
-  const query: Record<string, string | number | string[]> = { size: params.size }
+  const validSize = Number.isInteger(params.size) && params.size > 0 ? params.size : 10
+  const query: Record<string, string | number | string[]> = { size: validSize }
   if (params.tagType && params.tagCodes && params.tagCodes.length > 0) {
     query.tagType = params.tagType
     query.tagCodes = params.tagCodes

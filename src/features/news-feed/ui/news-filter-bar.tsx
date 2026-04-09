@@ -181,6 +181,7 @@ export default function NewsFilterBar({
               {tag.name}
               <button
                 onClick={() => removeTag(tag)}
+                aria-label={`${tag.name} 필터 제거`}
                 className="cursor-pointer hover:text-wefin-text"
               >
                 <X className="h-3 w-3" />
