@@ -25,11 +25,17 @@ export interface AggregatedCandle {
  * 주봉 버킷 키: ISO 주(월요일 시작) → 'YYYY-WW'
  * 월봉 버킷 키: 'YYYY-MM'
  *
- * 입력은 tradeDate 오름차순으로 정렬되어 있다고 가정한다 (백엔드가 ASC로 반환).
+ * 입력 정렬 가정에 의존하지 않고 함수 내부에서 tradeDate 오름차순으로 강제 정렬한다.
+ * 백엔드 쿼리(ORDER BY tradeDate ASC)에 의존하면 쿼리 변경/캐시 레이어 추가 시
+ * 조용히 깨져 주봉/월봉의 open·close·time이 틀어지기 때문.
  */
 export function aggregateCandles(daily: ChartItem[], interval: ChartInterval): AggregatedCandle[] {
+  // 입력 배열을 mutate하지 않도록 얕은 복사 후 정렬
+  // 'YYYY-MM-DD' 포맷은 사전식 비교가 곧 시간순 비교
+  const sorted = [...daily].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
+
   if (interval === 'day') {
-    return daily.map((d) => ({
+    return sorted.map((d) => ({
       time: d.tradeDate,
       open: d.openPrice,
       high: d.highPrice,
@@ -42,7 +48,7 @@ export function aggregateCandles(daily: ChartItem[], interval: ChartInterval): A
   const bucketKeyOf = interval === 'week' ? isoWeekKey : monthKey
   const byKey = new Map<string, ChartItem[]>()
 
-  for (const row of daily) {
+  for (const row of sorted) {
     const key = bucketKeyOf(row.tradeDate)
     const bucket = byKey.get(key)
     if (bucket) {
@@ -74,7 +80,7 @@ export function aggregateCandles(daily: ChartItem[], interval: ChartInterval): A
     })
   }
 
-  // 버킷 삽입 순서가 곧 시간 순서 (입력이 ASC이므로)
+  // sorted가 ASC이므로 Map 삽입 순서(= 버킷 첫 등장 순)가 곧 시간 순서
   return result
 }
 
