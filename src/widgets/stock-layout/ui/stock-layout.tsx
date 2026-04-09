@@ -1,11 +1,28 @@
+import { useCallback, useState } from 'react'
+
+import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
 import StockSidebar from '@/widgets/stock-layout/ui/stock-sidebar'
 
-export default function StockLayout({ children }: { children: React.ReactNode }) {
+interface StockLayoutProps {
+  children: React.ReactNode
+  sidebarWidth?: 'default' | 'narrow'
+}
+
+export default function StockLayout({ children, sidebarWidth = 'default' }: StockLayoutProps) {
+  const defaultW = sidebarWidth === 'narrow' ? 270 : 380
+  const [sideW, setSideW] = useState(defaultW)
+
+  const handleResize = useCallback(
+    (delta: number) => setSideW((w) => Math.max(200, Math.min(420, w - delta))),
+    []
+  )
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <main>{children}</main>
-      <aside>
-        <StockSidebar />
+    <div className="flex gap-0">
+      <main className="min-w-0 flex-1">{children}</main>
+      <ResizeHandle onResize={handleResize} />
+      <aside className="shrink-0" style={{ width: sideW }}>
+        <StockSidebar matchHeight />
       </aside>
     </div>
   )
