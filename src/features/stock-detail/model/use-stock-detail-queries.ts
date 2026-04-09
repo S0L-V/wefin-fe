@@ -22,7 +22,12 @@ export function useStockPriceQuery(code: string) {
     queryKey: ['stocks', code, 'price'],
     queryFn: () => fetchStockPrice(code),
     enabled: !!code,
-    staleTime: 5_000
+    staleTime: 5_000,
+    // WS push가 도착하지 않는 종목/시간대(장외, 비활성 종목, BE→한투 일시 단절)에도
+    // 베이스라인이 stale해지지 않도록 5초 폴링. WS 메시지가 들어오면 그 위에 덮어씌워진다.
+    // 백그라운드 탭에서는 polling 중단해 불필요한 트래픽을 피한다.
+    refetchInterval: 5_000,
+    refetchIntervalInBackground: false
   })
 }
 
@@ -31,7 +36,9 @@ export function useOrderbookQuery(code: string) {
     queryKey: ['stocks', code, 'orderbook'],
     queryFn: () => fetchOrderbook(code),
     enabled: !!code,
-    staleTime: 5_000
+    staleTime: 5_000,
+    refetchInterval: 5_000,
+    refetchIntervalInBackground: false
   })
 }
 
