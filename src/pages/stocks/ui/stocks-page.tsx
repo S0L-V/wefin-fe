@@ -9,7 +9,7 @@ function StocksPage() {
 
   return (
     <StockLayout>
-      <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+      <section className="h-[calc(100vh-80px)] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-5 shadow-sm scrollbar-thin">
         <StockRankingTable onSearchClick={() => setSearchOpen(true)} />
       </section>
 
