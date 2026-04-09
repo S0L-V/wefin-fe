@@ -47,11 +47,11 @@ function AppHeader() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-wefin-line bg-white/92 backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[74px] w-[min(1216px,calc(100%-32px))] items-center justify-between gap-4 max-md:w-[min(100%,calc(100%-24px))] max-md:flex-col max-md:items-start max-md:py-3">
+      <div className="mx-auto flex min-h-[52px] w-[min(1400px,calc(100%-32px))] items-center justify-between gap-4 max-md:w-[min(100%,calc(100%-24px))] max-md:flex-col max-md:items-start max-md:py-2">
         <div className="flex min-w-0 items-center gap-5 max-md:w-full max-md:flex-col max-md:items-start max-md:gap-3.5">
           <NavLink
             to={routes.home}
-            className="text-[2.3rem] leading-none font-extrabold tracking-[-0.06em] text-wefin-mint max-md:text-[2rem]"
+            className="text-[1.6rem] leading-none font-extrabold tracking-[-0.06em] text-wefin-mint max-md:text-[1.4rem]"
             aria-label="wefin 홈"
           >
             wefin

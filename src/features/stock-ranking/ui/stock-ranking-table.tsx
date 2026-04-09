@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { routes } from '@/shared/config/routes'
 
@@ -46,23 +46,24 @@ interface StockRankingTableProps {
 }
 
 export default function StockRankingTable({ onSearchClick }: StockRankingTableProps) {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<RankingTab>('volume')
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-gray-900">실시간 거래 랭킹</h2>
+          <h2 className="text-base font-bold text-wefin-text">실시간 거래 랭킹</h2>
           <div className="flex gap-1">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
                   activeTab === tab.key
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    ? 'bg-wefin-text text-white'
+                    : 'bg-gray-100 text-wefin-subtle hover:bg-gray-200'
                 }`}
               >
                 {tab.label}
@@ -73,17 +74,17 @@ export default function StockRankingTable({ onSearchClick }: StockRankingTablePr
 
         <button
           onClick={onSearchClick}
-          className="flex w-72 items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-400 transition-colors hover:border-gray-300"
+          className="flex w-60 items-center gap-1.5 rounded-md bg-gray-100 px-3 py-1.5 text-xs text-wefin-subtle transition-colors hover:bg-gray-200"
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-3.5 w-3.5" />
           종목명, 코드, 분야를 검색하세요
         </button>
       </div>
 
       {/* 테이블 */}
-      <table className="w-full text-sm">
+      <table className="w-full text-xs">
         <thead>
-          <tr className="border-b border-gray-200 text-left text-xs text-gray-400">
+          <tr className="border-b border-gray-200 text-left text-[10px] text-wefin-subtle">
             <th className="pb-2 font-medium">순위</th>
             <th className="pb-2 font-medium">종목</th>
             <th className="pb-2 text-right font-medium">현재가</th>
@@ -95,34 +96,32 @@ export default function StockRankingTable({ onSearchClick }: StockRankingTablePr
           {MOCK_DATA.map((stock) => (
             <tr
               key={stock.code}
-              className="border-b border-gray-100 transition-colors hover:bg-gray-50"
+              onClick={() => navigate(routes.stockDetail(stock.code))}
+              className="cursor-pointer border-b border-gray-50 transition-colors hover:bg-gray-50"
             >
-              <td className="py-3 font-medium text-gray-900">{stock.rank}</td>
-              <td className="py-3">
-                <Link
-                  to={routes.stockDetail(stock.code)}
-                  className="font-medium text-gray-900 hover:underline"
-                >
-                  {stock.name}
-                </Link>
-                <span className="ml-2 text-xs text-gray-400">{stock.code}</span>
+              <td className="py-2.5 font-medium text-wefin-text">{stock.rank}</td>
+              <td className="py-2.5">
+                <span className="font-medium text-wefin-text">{stock.name}</span>
+                <span className="ml-1.5 text-[10px] text-wefin-subtle">{stock.code}</span>
               </td>
-              <td className="py-3 text-right font-medium text-gray-900">
+              <td className="py-2.5 text-right font-medium text-wefin-text">
                 {stock.price.toLocaleString()}
               </td>
               <td
-                className={`py-3 text-right font-medium ${
+                className={`py-2.5 text-right font-medium ${
                   stock.changeRate > 0
                     ? 'text-red-500'
                     : stock.changeRate < 0
                       ? 'text-blue-500'
-                      : 'text-gray-500'
+                      : 'text-wefin-subtle'
                 }`}
               >
                 {stock.changeRate > 0 ? '▲' : stock.changeRate < 0 ? '▼' : ''}
                 {Math.abs(stock.changeRate)}%
               </td>
-              <td className="py-3 text-right text-gray-500">{stock.volume.toLocaleString()}</td>
+              <td className="py-2.5 text-right text-wefin-subtle">
+                {stock.volume.toLocaleString()}
+              </td>
             </tr>
           ))}
         </tbody>
