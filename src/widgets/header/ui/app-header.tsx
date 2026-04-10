@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { type MouseEvent, useCallback, useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
+import { useLeaveGuardStore } from '@/features/game-room/model/use-leave-guard-store'
 import { navigationItems, routes } from '@/shared/config/routes'
 
 type AuthUser = {
@@ -22,6 +23,18 @@ function getAuthUser(): AuthUser {
 
 function AppHeader() {
   const [authUser, setAuthUser] = useState<AuthUser>(() => getAuthUser())
+  const guardActive = useLeaveGuardStore((s) => s.active)
+  const requestLeave = useLeaveGuardStore((s) => s.requestLeave)
+
+  const handleNavClick = useCallback(
+    (e: MouseEvent, to: string) => {
+      if (guardActive) {
+        e.preventDefault()
+        requestLeave(to)
+      }
+    },
+    [guardActive, requestLeave]
+  )
 
   useEffect(() => {
     const syncAuthUser = () => {
@@ -51,6 +64,7 @@ function AppHeader() {
         <div className="flex min-w-0 items-center gap-5 max-md:w-full max-md:flex-col max-md:items-start max-md:gap-3.5">
           <NavLink
             to={routes.home}
+            onClick={(e) => handleNavClick(e, routes.home)}
             className="text-[1.6rem] leading-none font-extrabold tracking-[-0.06em] text-wefin-mint max-md:text-[1.4rem]"
             aria-label="wefin 홈"
           >
@@ -66,6 +80,7 @@ function AppHeader() {
                 key={to}
                 to={to}
                 end={end}
+                onClick={(e) => handleNavClick(e, to)}
                 className={({ isActive }) =>
                   [
                     'inline-flex h-9 items-center rounded-[10px] border border-transparent px-3 text-sm font-semibold whitespace-nowrap transition-colors',

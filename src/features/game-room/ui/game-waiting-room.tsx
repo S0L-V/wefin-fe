@@ -4,7 +4,13 @@ import type { ParticipantDetail } from '../model/game-room.schema'
 import { useGameRoomSocket } from '../model/use-game-room-socket'
 import { useWaitingRoom } from '../model/use-waiting-room'
 
-function GameWaitingRoom({ roomId }: { roomId: string }) {
+function GameWaitingRoom({
+  roomId,
+  onLeaveRequest
+}: {
+  roomId: string
+  onLeaveRequest: () => void
+}) {
   useGameRoomSocket(roomId)
   const {
     room,
@@ -13,9 +19,7 @@ function GameWaitingRoom({ roomId }: { roomId: string }) {
     canStart,
     isLoading,
     currentUserId,
-    handleLeave,
     handleStart,
-    isLeaving,
     isStarting
   } = useWaitingRoom(roomId)
 
@@ -35,8 +39,7 @@ function GameWaitingRoom({ roomId }: { roomId: string }) {
         statusLabel={statusLabel}
         seed={room.seed}
         periodMonths={room.periodMonths}
-        onLeave={handleLeave}
-        isLeaving={isLeaving}
+        onLeave={onLeaveRequest}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -66,23 +69,20 @@ function Header({
   statusLabel,
   seed,
   periodMonths,
-  onLeave,
-  isLeaving
+  onLeave
 }: {
   statusLabel: string
   seed: number
   periodMonths: number
   onLeave: () => void
-  isLeaving: boolean
 }) {
   return (
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-3">
         <button
-          onClick={onLeave}
-          disabled={isLeaving}
+          onClick={() => onLeave()}
           aria-label="방 나가기"
-          className="w-10 h-10 flex items-center justify-center rounded-full border border-wefin-line hover:bg-wefin-bg transition-colors disabled:opacity-50"
+          className="w-10 h-10 flex items-center justify-center rounded-full border border-wefin-line hover:bg-wefin-bg transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-wefin-text" />
         </button>
