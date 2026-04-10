@@ -26,33 +26,33 @@ function StockChart({ roomId }: StockChartProps) {
   )
 
   // 차트 라이브러리 관련 imperative 로직은 전부 이 훅 안으로 은닉됨
+  // ⚠️ 중요: 이 훅의 mount effect는 `[]` deps로 딱 한 번만 실행된다.
+  //          따라서 containerRef가 붙은 <div>는 반드시 "항상" 마운트되어 있어야 한다.
+  //          (selectedStock 유무로 early return하면 첫 마운트 때 ref가 null이라
+  //           차트 인스턴스가 생성되지 않고, 이후에는 effect가 재실행되지 않아 영원히 빈 박스가 됨)
   const { containerRef } = useLightweightChart({
     data: aggregated,
     interval: chartInterval,
     symbol: selectedStock?.symbol ?? null
   })
 
-  if (!selectedStock) {
-    return (
-      <div className="flex min-h-[350px] items-center justify-center rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-        <span className="text-sm font-bold text-wefin-subtle">
-          종목을 선택하면 차트가 표시됩니다
-        </span>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-[350px] rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-wefin-text">{selectedStock.stockName}</h3>
-            <span className="text-[10px] text-wefin-subtle">{selectedStock.symbol}</span>
-          </div>
-          <div className="text-xs font-bold text-wefin-text">
-            {selectedStock.price.toLocaleString('ko-KR')}원
-          </div>
+          {selectedStock ? (
+            <>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-wefin-text">{selectedStock.stockName}</h3>
+                <span className="text-[10px] text-wefin-subtle">{selectedStock.symbol}</span>
+              </div>
+              <div className="text-xs font-bold text-wefin-text">
+                {selectedStock.price.toLocaleString('ko-KR')}원
+              </div>
+            </>
+          ) : (
+            <h3 className="text-base font-bold text-wefin-subtle">종목 차트</h3>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <IntervalTabs value={chartInterval} onChange={setChartInterval} />
@@ -68,14 +68,25 @@ function StockChart({ roomId }: StockChartProps) {
         </div>
       </div>
 
+      {/*
+        차트 컨테이너는 항상 렌더링된다 (ref 보장).
+        종목 선택/로딩/에러/빈데이터 상태는 전부 오버레이로 얹는다.
+      */}
       <div className="relative h-[280px] w-full">
         <div ref={containerRef} className="absolute inset-0" />
-        {isLoading && (
+        {!selectedStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white">
+            <span className="text-sm font-bold text-wefin-subtle">
+              종목을 선택하면 차트가 표시됩니다
+            </span>
+          </div>
+        )}
+        {selectedStock && isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/60">
             <span className="text-sm text-wefin-subtle">차트 로딩 중...</span>
           </div>
         )}
-        {!isLoading && isError && (
+        {selectedStock && !isLoading && isError && (
           <div className="absolute inset-0 flex items-center justify-center bg-white">
             <span className="text-sm text-red-500">
               차트를 불러오지 못했습니다:{' '}
@@ -83,7 +94,7 @@ function StockChart({ roomId }: StockChartProps) {
             </span>
           </div>
         )}
-        {!isLoading && !isError && aggregated && aggregated.length === 0 && (
+        {selectedStock && !isLoading && !isError && aggregated && aggregated.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center bg-white">
             <span className="text-sm text-wefin-subtle">차트 데이터가 없습니다</span>
           </div>

@@ -48,7 +48,7 @@ function PlayPage() {
 
         <div className="mx-auto flex max-w-[1400px] items-stretch gap-4 p-4">
           <aside className="flex w-80 flex-col gap-4">
-            <MarketBriefing />
+            <MarketBriefing roomId={roomId} />
             <HoldingsPanel cash={cash} evaluationAmount={0} evaluationProfit={0} />
           </aside>
 
