@@ -7,6 +7,7 @@ import {
   fetchStockInfo,
   fetchStockPrice
 } from '@/features/stock-detail/api/fetch-stock-detail'
+import { isWsActive } from '@/features/stock-detail/model/use-stock-socket'
 
 export function useStockInfoQuery(code: string) {
   return useQuery({
@@ -22,7 +23,11 @@ export function useStockPriceQuery(code: string) {
     queryKey: ['stocks', code, 'price'],
     queryFn: () => fetchStockPrice(code),
     enabled: !!code,
-    staleTime: 5_000
+    staleTime: 5_000,
+    // WS가 활성 상태면 polling을 꺼서 불필요한 트래픽을 줄인다.
+    // WS가 10초 이상 수신되지 않으면 5초 폴링으로 폴백한다.
+    refetchInterval: () => (isWsActive() ? 30_000 : 5_000),
+    refetchIntervalInBackground: false
   })
 }
 
@@ -31,7 +36,9 @@ export function useOrderbookQuery(code: string) {
     queryKey: ['stocks', code, 'orderbook'],
     queryFn: () => fetchOrderbook(code),
     enabled: !!code,
-    staleTime: 5_000
+    staleTime: 5_000,
+    refetchInterval: () => (isWsActive() ? 30_000 : 5_000),
+    refetchIntervalInBackground: false
   })
 }
 

@@ -1,6 +1,7 @@
 import type { OrderbookEntry } from '@/features/stock-detail/api/fetch-stock-detail'
 import {
   useOrderbookQuery,
+  useRecentTradesQuery,
   useStockPriceQuery
 } from '@/features/stock-detail/model/use-stock-detail-queries'
 
@@ -11,6 +12,8 @@ interface OrderbookPanelProps {
 export default function OrderbookPanel({ code }: OrderbookPanelProps) {
   const { data: orderbook, isLoading: obLoading } = useOrderbookQuery(code)
   const { data: price } = useStockPriceQuery(code)
+  const { data: trades } = useRecentTradesQuery(code)
+  const tradeStrength = trades?.[0]?.tradeStrength
 
   if (obLoading) {
     return (
@@ -70,8 +73,18 @@ export default function OrderbookPanel({ code }: OrderbookPanelProps) {
         </div>
       </div>
 
-      {/* 하단 비율 바 */}
+      {/* 하단 체결강도 + 비율 바 */}
       <div className="border-t border-gray-200 px-2 py-1.5">
+        {tradeStrength != null && (
+          <div className="mb-1 flex items-center justify-between text-[9px]">
+            <span className="text-wefin-subtle">체결강도</span>
+            <span
+              className={`font-medium ${tradeStrength >= 100 ? 'text-red-500' : 'text-blue-500'}`}
+            >
+              {tradeStrength.toFixed(2)}%
+            </span>
+          </div>
+        )}
         <div className="flex items-center justify-between text-[9px] text-wefin-subtle">
           <span>판매대기 {totalAskQuantity.toLocaleString()}</span>
           <span>구매대기 {totalBidQuantity.toLocaleString()}</span>

@@ -1,16 +1,22 @@
 import { useState } from 'react'
 
-import { useCandlesQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
+import {
+  useCandlesQuery,
+  useRecentTradesQuery
+} from '@/features/stock-detail/model/use-stock-detail-queries'
 
 interface StockPriceTableProps {
   code: string
 }
 
 type TableTab = 'price' | 'investor'
+type PriceSubTab = 'realtime' | 'daily'
 
 export default function StockPriceTable({ code }: StockPriceTableProps) {
   const [activeTab, setActiveTab] = useState<TableTab>('price')
-  const { data: candles = [], isLoading } = useCandlesQuery(code, 'D')
+  const [priceSubTab, setPriceSubTab] = useState<PriceSubTab>('realtime')
+  const { data: candles = [], isLoading: candlesLoading } = useCandlesQuery(code, 'D')
+  const { data: trades = [], isLoading: tradesLoading } = useRecentTradesQuery(code)
 
   return (
     <div className="flex h-full flex-col rounded-xl border border-gray-100">
@@ -30,7 +36,29 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
 
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
         {activeTab === 'price' ? (
-          <PriceTab candles={candles} isLoading={isLoading} />
+          <div className="flex h-full flex-col">
+            {/* 실시간 / 일별 서브탭 */}
+            <div className="flex shrink-0 border-b border-gray-100">
+              <SubTabButton
+                label="실시간"
+                active={priceSubTab === 'realtime'}
+                onClick={() => setPriceSubTab('realtime')}
+              />
+              <SubTabButton
+                label="일별"
+                active={priceSubTab === 'daily'}
+                onClick={() => setPriceSubTab('daily')}
+              />
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {priceSubTab === 'realtime' ? (
+                <RealtimeTab trades={trades} isLoading={tradesLoading} />
+              ) : (
+                <DailyTab candles={candles} isLoading={candlesLoading} />
+              )}
+            </div>
+          </div>
         ) : (
           <div className="px-3 py-6 text-center text-[10px] text-gray-400">
             투자자 매매동향 (추후 연동)
@@ -41,7 +69,66 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
   )
 }
 
-function PriceTab({
+function RealtimeTab({
+  trades,
+  isLoading
+}: {
+  trades: {
+    tradeTime: string
+    price: number
+    changePrice: number
+    changeSign: string
+    changeRate: number
+    volume: number
+    tradeStrength: number
+  }[]
+  isLoading: boolean
+}) {
+  if (isLoading) {
+    return <div className="px-3 py-6 text-center text-[10px] text-gray-400">로딩 중...</div>
+  }
+
+  if (trades.length === 0) {
+    return <div className="px-3 py-6 text-center text-[10px] text-gray-400">체결 내역 없음</div>
+  }
+
+  return (
+    <table className="w-full text-[10px]">
+      <thead className="sticky top-0 bg-gray-50">
+        <tr className="text-wefin-subtle">
+          <th className="px-2 py-1.5 text-left font-medium">체결가</th>
+          <th className="px-2 py-1.5 text-right font-medium">체결량(주)</th>
+          <th className="px-2 py-1.5 text-right font-medium">등락률</th>
+          <th className="px-2 py-1.5 text-right font-medium">시간</th>
+        </tr>
+      </thead>
+      <tbody>
+        {trades.map((t, i) => {
+          const isPositive = t.changeRate > 0
+          const isNegative = t.changeRate < 0
+          const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : ''
+          const timeDisplay = formatTradeTime(t.tradeTime)
+
+          return (
+            <tr key={`${t.tradeTime}-${i}`} className="border-t border-gray-50 hover:bg-gray-50">
+              <td className={`px-2 py-1 font-medium ${colorClass}`}>
+                {t.price.toLocaleString()}원
+              </td>
+              <td className={`px-2 py-1 text-right ${colorClass}`}>{t.volume.toLocaleString()}</td>
+              <td className={`px-2 py-1 text-right ${colorClass}`}>
+                {isPositive ? '+' : ''}
+                {t.changeRate.toFixed(2)}%
+              </td>
+              <td className="px-2 py-1 text-right text-wefin-subtle">{timeDisplay}</td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  )
+}
+
+function DailyTab({
   candles,
   isLoading
 }: {
@@ -127,4 +214,34 @@ function TabButton({
       {label}
     </button>
   )
+}
+
+function SubTabButton({
+  label,
+  active,
+  onClick
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 py-1.5 text-center text-[10px] font-medium transition-colors ${
+        active
+          ? 'border-b-2 border-wefin-text text-wefin-text'
+          : 'text-wefin-subtle hover:text-wefin-text'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
+function formatTradeTime(tradeTime: string): string {
+  if (tradeTime.length >= 6) {
+    return `${tradeTime.slice(0, 2)}:${tradeTime.slice(2, 4)}:${tradeTime.slice(4, 6)}`
+  }
+  return tradeTime
 }

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { useStockSocket } from '@/features/stock-detail/model/use-stock-socket'
 import HoldingsPanel from '@/features/stock-detail/ui/holdings-panel'
 import OrderForm from '@/features/stock-detail/ui/order-form'
 import OrderHistoryPanel from '@/features/stock-detail/ui/order-history-panel'
@@ -18,6 +19,8 @@ function StockDetailPage() {
   const [orderbookW, setOrderbookW] = useState(220)
   const [orderW, setOrderW] = useState(200)
   const [chartH, setChartH] = useState(340)
+
+  useStockSocket(code)
 
   // 드래그 오른쪽 → 왼쪽 패널 커짐 → 오른쪽 패널 줄어듦 (w - delta)
   const handleResize1 = useCallback(
