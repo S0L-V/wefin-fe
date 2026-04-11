@@ -9,10 +9,13 @@ import {
 } from '@/features/stock-detail/api/stock-socket-messages'
 import { stompClient } from '@/shared/api/stomp-client'
 
-/** WS 메시지 마지막 수신 시각. polling 필요 여부를 판단하는 데 사용한다. */
+/** WS 메시지 마지막 수신 시각. polling 간격을 동적으로 조절하는 데 사용한다. */
 let lastWsReceiveTime = 0
 
-/** WS가 최근 10초 이내에 메시지를 수신했으면 true */
+/**
+ * WS가 최근 10초 이내에 메시지를 수신했으면 true.
+ * polling을 완전히 끄지 않고 간격만 늘리는 용도로 사용한다.
+ */
 export function isWsActive(): boolean {
   return Date.now() - lastWsReceiveTime < 10_000
 }
@@ -34,11 +37,17 @@ export function useStockSocket(stockCode: string | undefined): void {
     const subscriptions: StompSubscription[] = []
     let prevOnConnect: typeof stompClient.onConnect | null = null
     let didSendSubscribe = false
-    let didSetup = false
 
     function setupSubscriptions() {
-      if (didSetup) return
-      didSetup = true
+      // 재연결 시 이전 구독은 STOMP 세션과 함께 소멸되므로 배열만 비운다.
+      subscriptions.forEach((sub) => {
+        try {
+          sub.unsubscribe()
+        } catch {
+          /* 이전 세션 구독은 이미 무효 */
+        }
+      })
+      subscriptions.length = 0
 
       // 1) 실시간 체결 → price 캐시 replace
       subscriptions.push(
@@ -121,6 +130,7 @@ export function useStockSocket(stockCode: string | undefined): void {
         })
       }
       subscriptions.forEach((sub) => sub.unsubscribe())
+      lastWsReceiveTime = 0
       if (prevOnConnect !== null) {
         stompClient.onConnect = prevOnConnect
       }

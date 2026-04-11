@@ -26,7 +26,7 @@ export function useStockPriceQuery(code: string) {
     staleTime: 5_000,
     // WS가 활성 상태면 polling을 꺼서 불필요한 트래픽을 줄인다.
     // WS가 10초 이상 수신되지 않으면 5초 폴링으로 폴백한다.
-    refetchInterval: () => (isWsActive() ? false : 5_000),
+    refetchInterval: () => (isWsActive() ? 30_000 : 5_000),
     refetchIntervalInBackground: false
   })
 }
@@ -37,7 +37,7 @@ export function useOrderbookQuery(code: string) {
     queryFn: () => fetchOrderbook(code),
     enabled: !!code,
     staleTime: 5_000,
-    refetchInterval: () => (isWsActive() ? false : 5_000),
+    refetchInterval: () => (isWsActive() ? 30_000 : 5_000),
     refetchIntervalInBackground: false
   })
 }
