@@ -33,10 +33,17 @@ jobs:
             API_URL="${{ secrets.DEV_API_URL }}"
           fi
 
+          if [ -z "$API_URL" ]; then
+            echo "ERROR: API_URL secret is missing for branch ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+
           API_URL="${API_URL%/}"
 
-          echo "VITE_API_BASE_URL=$API_URL" >> .env.production
-          echo "VITE_WS_URL=$API_URL/ws" >> .env.production
+          {
+            echo "VITE_API_BASE_URL=$API_URL"
+            echo "VITE_WS_URL=$API_URL/ws"
+          } > .env.production
 
       - name: Build
         run: pnpm build
