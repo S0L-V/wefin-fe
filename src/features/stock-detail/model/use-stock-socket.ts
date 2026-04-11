@@ -9,6 +9,14 @@ import {
 } from '@/features/stock-detail/api/stock-socket-messages'
 import { stompClient } from '@/shared/api/stomp-client'
 
+/** WS 메시지 마지막 수신 시각. polling 필요 여부를 판단하는 데 사용한다. */
+let lastWsReceiveTime = 0
+
+/** WS가 최근 10초 이내에 메시지를 수신했으면 true */
+export function isWsActive(): boolean {
+  return Date.now() - lastWsReceiveTime < 10_000
+}
+
 /**
  * /stocks/{code} 페이지가 마운트되면 해당 종목의 실시간 체결/호가를 구독하고,
  * 들어오는 WS 메시지를 React Query 캐시(['stocks', code, 'price' | 'orderbook'])에
@@ -26,8 +34,12 @@ export function useStockSocket(stockCode: string | undefined): void {
     const subscriptions: StompSubscription[] = []
     let prevOnConnect: typeof stompClient.onConnect | null = null
     let didSendSubscribe = false
+    let didSetup = false
 
     function setupSubscriptions() {
+      if (didSetup) return
+      didSetup = true
+
       // 1) 실시간 체결 → price 캐시 replace
       subscriptions.push(
         stompClient.subscribe(`/topic/stocks/${stockCode}`, (frame) => {
@@ -38,6 +50,7 @@ export function useStockSocket(stockCode: string | undefined): void {
               return
             }
             const msg = parsed.data
+            lastWsReceiveTime = Date.now()
             queryClient.setQueryData<PriceData>(['stocks', stockCode, 'price'], {
               stockCode: msg.stockCode,
               currentPrice: msg.currentPrice,
@@ -64,6 +77,7 @@ export function useStockSocket(stockCode: string | undefined): void {
               return
             }
             const msg = parsed.data
+            lastWsReceiveTime = Date.now()
             queryClient.setQueryData<OrderbookData>(['stocks', stockCode, 'orderbook'], {
               asks: msg.asks,
               bids: msg.bids,
