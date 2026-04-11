@@ -57,6 +57,7 @@ export function useOrderForm({ roomId, cash }: UseOrderFormArgs) {
 
   function submit() {
     if (!selectedStock || quantity <= 0) return
+    if (orderMutation.isPending) return
 
     setErrorMessage(null)
 
