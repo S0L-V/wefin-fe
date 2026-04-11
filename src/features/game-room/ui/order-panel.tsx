@@ -9,7 +9,7 @@ interface OrderPanelProps {
 }
 
 function OrderPanel({ roomId, cash }: OrderPanelProps) {
-  const form = useOrderForm({ cash })
+  const form = useOrderForm({ roomId, cash })
   const isDisabled = !form.selectedStock || form.quantity === 0
   const sideAccent =
     form.side === 'buy' ? 'bg-red-500 shadow-red-500/20' : 'bg-blue-500 shadow-blue-500/20'
@@ -47,14 +47,28 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
           cash={cash}
         />
 
+        {form.errorMessage && (
+          <div className="flex items-center justify-between rounded-xl bg-red-50 px-3 py-2">
+            <span className="text-xs font-medium text-red-500">{form.errorMessage}</span>
+            <button
+              type="button"
+              onClick={form.clearError}
+              className="text-xs text-red-400 hover:text-red-600"
+            >
+              닫기
+            </button>
+          </div>
+        )}
+
         <button
           type="button"
-          disabled={isDisabled}
+          disabled={isDisabled || form.isSubmitting}
+          onClick={form.submit}
           className={`w-full rounded-2xl py-3.5 text-base font-bold shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 ${
             !form.selectedStock ? 'bg-wefin-line text-wefin-subtle' : `${sideAccent} text-white`
           }`}
         >
-          {submitLabel}
+          {form.isSubmitting ? '주문 중...' : submitLabel}
         </button>
       </div>
     </section>
