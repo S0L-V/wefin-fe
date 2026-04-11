@@ -10,8 +10,6 @@ function decodeUserIdFromToken(token: string): string {
 
     const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
     const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')
-
-    // �α��� access token�� subject�� ���� ä�� ����� �ĺ������� ����Ѵ�.
     const decoded = window.atob(padded)
     const parsed = JSON.parse(decoded) as { sub?: string }
 
@@ -35,7 +33,7 @@ function getLoggedInUserId(): string {
   return decodeUserIdFromToken(token)
 }
 
-export function useDemoUserId() {
+export function useAuthUserId() {
   const [userId, setUserId] = useState(() => getLoggedInUserId())
 
   useEffect(() => {

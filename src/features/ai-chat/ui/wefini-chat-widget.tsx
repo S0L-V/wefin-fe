@@ -16,8 +16,8 @@ import {
   readHasAccessToken,
   type UserMessageSignature,
   wait
-} from '@/features/ai-chat/lib/wefiny-chat-utils'
-import { useDemoUserId } from '@/features/chat/model/global/use-demo-user-id'
+} from '@/features/ai-chat/lib/wefini-chat-utils'
+import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 
 const AI_POLL_DELAY_MS = 2500
 const AI_POLL_MAX_ATTEMPTS = 6
@@ -25,7 +25,7 @@ const AI_POLL_MAX_ATTEMPTS = 6
 type PendingStatus = 'idle' | 'thinking' | 'syncing'
 
 export default function WefinyChatWidget() {
-  const userId = useDemoUserId()
+  const userId = useAuthUserId()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<AiChatMessage[]>([])
   const [message, setMessage] = useState('')
