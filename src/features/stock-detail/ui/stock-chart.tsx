@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import {
   CandlestickSeries,
   ColorType,
@@ -14,6 +15,8 @@ import {
   fetchCandlesByRange,
   formatSeoulDate
 } from '@/features/stock-detail/api/fetch-stock-detail'
+import type { CandleMessage } from '@/features/stock-detail/api/stock-socket-messages'
+import { useStockPriceQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
 
 interface StockChartProps {
   code: string
@@ -42,6 +45,12 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const [periodCode, setPeriodCode] = useState('D')
   const [allCandles, setAllCandles] = useState<CandleData[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const { data: price } = useStockPriceQuery(code)
+  const { data: latestCandle } = useQuery<CandleMessage>({
+    queryKey: ['stocks', code, 'candle', 'latest'],
+    queryFn: () => undefined as never,
+    enabled: false // WS push로만 갱신, fetch 안 함
+  })
 
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
@@ -255,6 +264,63 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       isInitialLoad.current = false
     }
   }, [allCandles])
+
+  // 실시간 체결가로 마지막 캔들 업데이트
+  useEffect(() => {
+    if (!candleSeriesRef.current || !volumeSeriesRef.current || !price || allCandles.length === 0)
+      return
+
+    const lastCandle = allCandles[allCandles.length - 1]
+    const currentPrice = price.currentPrice
+
+    // 분봉일 때: 현재 시각이 마지막 캔들의 시간대에 속하는지 확인
+    // 일봉/주봉/월봉일 때: 오늘 날짜가 마지막 캔들 날짜와 같으면 업데이트
+    const updatedCandle = {
+      time: lastCandle.date as string,
+      open: lastCandle.openPrice,
+      high: Math.max(lastCandle.highPrice, currentPrice),
+      low: Math.min(lastCandle.lowPrice, currentPrice),
+      close: currentPrice
+    }
+
+    candleSeriesRef.current.update(updatedCandle)
+
+    // 거래량도 업데이트
+    volumeSeriesRef.current.update({
+      time: lastCandle.date as string,
+      value: price.volume,
+      color: currentPrice >= lastCandle.openPrice ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
+    })
+  }, [price, allCandles])
+
+  // 분봉 WS 메시지로 새 캔들 추가 / 현재 캔들 업데이트
+  useEffect(() => {
+    if (!candleSeriesRef.current || !volumeSeriesRef.current || !latestCandle) return
+
+    const isMinutePeriod = ['1', '5', '15', '30', '60'].includes(periodCode)
+    if (!isMinutePeriod) return
+    if (latestCandle.periodCode !== periodCode) return
+
+    // "2026-04-13T01:30:00" → Unix timestamp (초 단위)
+    const utcTimestamp = Math.floor(new Date(latestCandle.time).getTime() / 1000)
+
+    candleSeriesRef.current.update({
+      time: utcTimestamp,
+      open: latestCandle.openPrice,
+      high: latestCandle.highPrice,
+      low: latestCandle.lowPrice,
+      close: latestCandle.closePrice
+    })
+
+    volumeSeriesRef.current.update({
+      time: utcTimestamp,
+      value: latestCandle.volume,
+      color:
+        latestCandle.closePrice >= latestCandle.openPrice
+          ? 'rgba(239,68,68,0.3)'
+          : 'rgba(59,130,246,0.3)'
+    })
+  }, [latestCandle, periodCode])
 
   return (
     <div className="flex h-full flex-col">

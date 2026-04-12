@@ -3,7 +3,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import type { OrderbookData, PriceData } from '@/features/stock-detail/api/fetch-stock-detail'
+import type { CandleMessage } from '@/features/stock-detail/api/stock-socket-messages'
 import {
+  candleMessageSchema,
   orderbookMessageSchema,
   tradeMessageSchema
 } from '@/features/stock-detail/api/stock-socket-messages'
@@ -99,7 +101,26 @@ export function useStockSocket(stockCode: string | undefined): void {
         })
       )
 
-      // 3) 서버에 종목 구독 요청 → BE가 한투 WS에 H0STCNT0/H0STASP0 등록을 트리거
+      // 3) 실시간 분봉 → candle 캐시에 append
+      subscriptions.push(
+        stompClient.subscribe(`/topic/stocks/${stockCode}/candle`, (frame) => {
+          try {
+            const parsed = candleMessageSchema.safeParse(JSON.parse(frame.body))
+            if (!parsed.success) {
+              console.warn('[useStockSocket] CANDLE 파싱 실패:', parsed.error)
+              return
+            }
+            const msg = parsed.data
+            lastWsReceiveTime = Date.now()
+            // candle 메시지를 개별 캐시 키에 저장 — 차트에서 구독
+            queryClient.setQueryData<CandleMessage>(['stocks', stockCode, 'candle', 'latest'], msg)
+          } catch (err) {
+            console.warn('[useStockSocket] CANDLE 처리 실패:', err)
+          }
+        })
+      )
+
+      // 4) 서버에 종목 구독 요청 → BE가 한투 WS에 H0STCNT0/H0STASP0 등록을 트리거
       stompClient.publish({
         destination: '/app/stocks/subscribe',
         body: JSON.stringify({ stockCode })

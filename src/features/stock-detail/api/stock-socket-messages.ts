@@ -34,3 +34,17 @@ export const orderbookMessageSchema = z.object({
 })
 
 export type OrderbookMessage = z.infer<typeof orderbookMessageSchema>
+
+export const candleMessageSchema = z.object({
+  type: z.literal('CANDLE'),
+  stockCode: z.string(),
+  time: z.string(),
+  openPrice: z.number().finite(),
+  highPrice: z.number().finite(),
+  lowPrice: z.number().finite(),
+  closePrice: z.number().finite(),
+  volume: z.number().finite(),
+  periodCode: z.string()
+})
+
+export type CandleMessage = z.infer<typeof candleMessageSchema>
