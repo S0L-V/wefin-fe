@@ -40,6 +40,16 @@ const datePeriods: PeriodTab[] = [
 ]
 
 const TOOLBAR_HEIGHT = 32
+const MINUTE_PERIODS = new Set(['1', '5', '15', '30', '60'])
+
+/** 분봉이면 Unix timestamp, 일봉이면 "YYYY-MM-DD" 문자열 반환 */
+function toChartTime(date: string, periodCode: string): string | number {
+  if (MINUTE_PERIODS.has(periodCode)) {
+    return Math.floor(new Date(date).getTime() / 1000)
+  }
+  // 일봉: "2026-04-13T00:00:00" → "2026-04-13"
+  return date.substring(0, 10)
+}
 
 export default function StockChart({ code, height = 340 }: StockChartProps) {
   const [periodCode, setPeriodCode] = useState('D')
@@ -243,7 +253,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     }
 
     const candleData = allCandles.map((c) => ({
-      time: c.date as string,
+      time: toChartTime(c.date, periodCode),
       open: c.openPrice,
       high: c.highPrice,
       low: c.lowPrice,
@@ -251,7 +261,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     }))
 
     const volumeData = allCandles.map((c) => ({
-      time: c.date as string,
+      time: toChartTime(c.date, periodCode),
       value: c.volume,
       color: c.closePrice >= c.openPrice ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
     }))
@@ -275,19 +285,18 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
 
     // 분봉일 때: 현재 시각이 마지막 캔들의 시간대에 속하는지 확인
     // 일봉/주봉/월봉일 때: 오늘 날짜가 마지막 캔들 날짜와 같으면 업데이트
-    const updatedCandle = {
-      time: lastCandle.date as string,
+    const time = toChartTime(lastCandle.date, periodCode)
+
+    candleSeriesRef.current.update({
+      time,
       open: lastCandle.openPrice,
       high: Math.max(lastCandle.highPrice, currentPrice),
       low: Math.min(lastCandle.lowPrice, currentPrice),
       close: currentPrice
-    }
+    })
 
-    candleSeriesRef.current.update(updatedCandle)
-
-    // 거래량도 업데이트
     volumeSeriesRef.current.update({
-      time: lastCandle.date as string,
+      time,
       value: price.volume,
       color: currentPrice >= lastCandle.openPrice ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
     })
