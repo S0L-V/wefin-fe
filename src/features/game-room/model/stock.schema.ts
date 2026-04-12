@@ -40,9 +40,34 @@ export const chartResponseSchema = z.object({
   data: z.array(chartItemSchema)
 })
 
+// === 매수/매도 주문 ===
+
+export const orderTypeSchema = z.enum(['BUY', 'SELL'])
+
+export const orderResponseDataSchema = z.object({
+  orderId: z.string().uuid(),
+  symbol: z.string(),
+  stockName: z.string(),
+  orderType: orderTypeSchema,
+  quantity: z.number().int().positive(),
+  price: nonNegativeSafeNumber,
+  fee: nonNegativeSafeNumber,
+  tax: nonNegativeSafeNumber
+})
+
+export const orderResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: orderResponseDataSchema
+})
+
 // === Type exports ===
 
 export type StockSearchItem = z.infer<typeof stockSearchItemSchema>
 export type StockSearchResponse = z.infer<typeof stockSearchResponseSchema>
 export type ChartItem = z.infer<typeof chartItemSchema>
 export type ChartResponse = z.infer<typeof chartResponseSchema>
+export type OrderType = z.infer<typeof orderTypeSchema>
+export type OrderResponseData = z.infer<typeof orderResponseDataSchema>
+export type OrderResponse = z.infer<typeof orderResponseSchema>
