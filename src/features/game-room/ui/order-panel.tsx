@@ -178,11 +178,15 @@ function QuantityControl({
           -
         </StepButton>
         <input
-          type="number"
-          min={0}
+          type="text"
+          inputMode="numeric"
           className="flex-1 rounded-xl border border-wefin-line bg-wefin-bg py-2 text-center text-sm font-bold text-wefin-text focus:outline-none"
-          value={quantity}
-          onChange={(e) => onChange(parseInt(e.target.value, 10))}
+          value={quantity === 0 ? '' : quantity}
+          placeholder="0"
+          onChange={(e) => {
+            const raw = e.target.value.replace(/[^0-9]/g, '')
+            onChange(raw === '' ? 0 : parseInt(raw, 10))
+          }}
         />
         <StepButton onClick={onIncrement} label="증가">
           +
