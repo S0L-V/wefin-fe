@@ -1,14 +1,13 @@
-import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { connectStomp, disconnectStomp } from '@/shared/api/stomp-client'
+import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
+import { useGlobalChatBoot } from '@/features/chat/model/global/use-global-chat-boot'
 import AppHeader from '@/widgets/header/ui/app-header'
 
 function AppLayout() {
-  useEffect(() => {
-    connectStomp()
-    return () => disconnectStomp()
-  }, [])
+  const userId = useAuthUserId()
+
+  useGlobalChatBoot(userId)
 
   return (
     <div className="min-h-screen bg-wefin-bg">

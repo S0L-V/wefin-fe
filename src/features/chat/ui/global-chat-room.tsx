@@ -97,7 +97,6 @@ export default function GlobalChatRoom() {
       return
     }
 
-    // 이전 메시지를 붙이기 전에 현재 높이를 기록해 두고, 성공했을 때만 scrollTop을 보정한다.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 

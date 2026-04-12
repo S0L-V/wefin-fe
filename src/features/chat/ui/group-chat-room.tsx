@@ -106,7 +106,7 @@ export default function GroupChatRoom() {
       return
     }
 
-    // 과거 메시지를 앞에 붙인 뒤에도 사용자가 읽던 위치가 흔들리지 않게 복원 기준 높이를 기록한다.
+    // 이전 메시지를 붙이기 전에 현재 높이를 기록해 두고, 성공했을 때만 scrollTop을 보정한다.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 
@@ -259,7 +259,7 @@ export default function GroupChatRoom() {
                 handleSendMessage()
               }
             }}
-            placeholder="메시지를 입력하세요..."
+            placeholder="메시지를 입력하세요... (/slow, /rename 등 명령어 사용 가능)"
             className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-gray-900 focus:outline-none"
           />
           <button
