@@ -4,7 +4,7 @@ import SockJS from 'sockjs-client'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const WS_URL =
   import.meta.env.VITE_WS_URL ||
-  (API_BASE_URL ? `${API_BASE_URL.replace(/\/api\/?$/, '')}/ws` : '/ws')
+  (API_BASE_URL ? `${API_BASE_URL.replace(/\/+$/, '').replace(/\/api$/, '')}/ws` : '/ws')
 
 export const stompClient = new Client({
   webSocketFactory: () => new SockJS(WS_URL),
