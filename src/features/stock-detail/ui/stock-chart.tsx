@@ -280,6 +280,38 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     }
   }, [height])
 
+  // periodCode 변경 시 x축 시간 포맷 업데이트
+  useEffect(() => {
+    if (!chartRef.current) return
+
+    if (MINUTE_PERIODS.has(periodCode)) {
+      chartRef.current.applyOptions({
+        timeScale: { timeVisible: true, secondsVisible: false },
+        localization: {
+          timeFormatter: (time: number) => {
+            const d = new Date(time * 1000)
+            const Y = d.getUTCFullYear()
+            const M = String(d.getUTCMonth() + 1).padStart(2, '0')
+            const D = String(d.getUTCDate()).padStart(2, '0')
+            const h = String(d.getUTCHours()).padStart(2, '0')
+            const m = String(d.getUTCMinutes()).padStart(2, '0')
+            return `${Y}-${M}-${D} ${h}:${m}`
+          }
+        }
+      })
+    } else {
+      chartRef.current.applyOptions({
+        timeScale: { timeVisible: false, secondsVisible: false },
+        localization: {
+          timeFormatter: (time: string) => {
+            // 일봉: "2026-04-13" 그대로 반환
+            return String(time)
+          }
+        }
+      })
+    }
+  }, [periodCode])
+
   // 데이터 업데이트
   useEffect(() => {
     if (!candleSeriesRef.current || !volumeSeriesRef.current) return
