@@ -333,7 +333,16 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       return
     }
 
-    const candleData = allCandles.map((c) => ({
+    // 중복 시간 제거 (마지막 값 유지)
+    const seen = new Set<string>()
+    const deduped = allCandles.filter((c) => {
+      const key = String(toChartTime(c.date, periodCode))
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+
+    const candleData = deduped.map((c) => ({
       time: toChartTime(c.date, periodCode),
       open: c.openPrice,
       high: c.highPrice,
@@ -341,14 +350,18 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       close: c.closePrice
     }))
 
-    const volumeData = allCandles.map((c) => ({
+    const volumeData = deduped.map((c) => ({
       time: toChartTime(c.date, periodCode),
       value: c.volume,
       color: c.closePrice >= c.openPrice ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
     }))
 
-    candleSeriesRef.current.setData(candleData)
-    volumeSeriesRef.current.setData(volumeData)
+    try {
+      candleSeriesRef.current.setData(candleData)
+      volumeSeriesRef.current.setData(volumeData)
+    } catch {
+      // 시간 순서 충돌 시 무시
+    }
 
     if (isInitialLoad.current) {
       chartRef.current?.timeScale().fitContent()
