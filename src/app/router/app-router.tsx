@@ -9,6 +9,7 @@ import PlayPage from '@/pages/history/ui/play-page'
 import ResultPage from '@/pages/history/ui/result-page'
 import RoomPage from '@/pages/history/ui/room-page'
 import HomePage from '@/pages/home/ui/home-page'
+import ClusterDetailPage from '@/pages/news/ui/cluster-detail-page'
 import NotFoundPage from '@/pages/not-found/ui/not-found-page'
 import SettingsPage from '@/pages/settings/ui/settings-page'
 import StockDetailPage from '@/pages/stocks/ui/stock-detail-page'
@@ -20,6 +21,8 @@ function AppRouter() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="news" element={<HomePage />} />
+        <Route path="news/:clusterId" element={<ClusterDetailPage />} />
         <Route path="stocks" element={<StocksPage />} />
         <Route path="stocks/:code" element={<StockDetailPage />} />
 
