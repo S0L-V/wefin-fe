@@ -72,12 +72,18 @@ async function refreshAccessToken(): Promise<string> {
   })
 
   const newAccessToken = response.data?.data?.accessToken
+  const newRefreshToken = response.data?.data?.refreshToken
 
   if (!newAccessToken || typeof newAccessToken !== 'string') {
     throw new Error('invalid refresh response')
   }
 
   localStorage.setItem('accessToken', newAccessToken)
+
+  if (typeof newRefreshToken === 'string') {
+    localStorage.setItem('refreshToken', newRefreshToken)
+  }
+
   window.dispatchEvent(new Event('auth-changed'))
 
   return newAccessToken
@@ -94,7 +100,7 @@ baseApi.interceptors.request.use((config) => {
   return config
 })
 
-// 서버 에러를 ApiError로 변환 + access token 만료 시에만 refresh 처리
+// 서버 에러를 ApiError로 변환 + 인증 401 응답 시 refresh 처리
 baseApi.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -111,9 +117,9 @@ baseApi.interceptors.response.use(
     const shouldRefresh =
       axios.isAxiosError(error) &&
       error.response?.status === 401 &&
-      errorCode === 'AUTH_TOKEN_EXPIRED' &&
       !!originalRequest &&
-      !isAuthRequest
+      !isAuthRequest &&
+      errorCode !== 'AUTH_REFRESH_TOKEN_EXPIRED'
 
     if (shouldRefresh) {
       if (originalRequest._retry) {

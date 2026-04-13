@@ -1,6 +1,5 @@
 import { CreditCard, Crown, Lock, Mail, Settings, User, Users } from 'lucide-react'
-
-import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
+import { useEffect, useState } from 'react'
 
 import SettingsGroupSection from './settings-group-section'
 import SettingsPaymentSection from './settings-payment-section'
@@ -8,8 +7,19 @@ import SettingsProfileSection from './settings-profile-section'
 import SettingsSubscriptionSection from './settings-subscription-section'
 
 function SettingsView() {
-  const userId = useAuthUserId()
-  const isLoggedIn = !!userId
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
+
+  useEffect(() => {
+    const syncAuthState = () => {
+      setIsLoggedIn(!!localStorage.getItem('accessToken'))
+    }
+
+    window.addEventListener('auth-changed', syncAuthState)
+
+    return () => {
+      window.removeEventListener('auth-changed', syncAuthState)
+    }
+  }, [])
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
