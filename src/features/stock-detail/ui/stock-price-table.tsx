@@ -173,7 +173,7 @@ function DailyTab({
 
           return (
             <tr key={c.date} className="border-t border-gray-50 hover:bg-gray-50">
-              <td className="px-2 py-1 text-wefin-subtle">{c.date}</td>
+              <td className="px-2 py-1 text-wefin-subtle">{c.date.substring(5, 10)}</td>
               <td className={`px-2 py-1 text-right font-medium ${colorClass}`}>
                 {c.closePrice.toLocaleString()}
               </td>
