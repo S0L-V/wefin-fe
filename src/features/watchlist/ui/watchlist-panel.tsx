@@ -5,7 +5,7 @@ import { useWatchlistQuery } from '@/features/watchlist/model/use-watchlist-quer
 import { routes } from '@/shared/config/routes'
 
 export default function WatchlistPanel() {
-  const { data: items, isLoading } = useWatchlistQuery()
+  const { data: items, isLoading, isError, refetch } = useWatchlistQuery()
 
   if (isLoading) {
     return (
@@ -13,6 +13,20 @@ export default function WatchlistPanel() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />
         ))}
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 text-center">
+        <p className="text-xs text-gray-400">관심 종목을 불러오지 못했습니다.</p>
+        <button
+          onClick={() => refetch()}
+          className="mt-2 text-xs font-medium text-wefin-mint hover:underline"
+        >
+          다시 시도
+        </button>
       </div>
     )
   }

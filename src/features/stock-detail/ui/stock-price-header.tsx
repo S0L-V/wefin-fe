@@ -65,6 +65,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
                   : 'text-gray-300 hover:text-red-400'
               } ${isPending ? 'opacity-50' : ''}`}
               aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
+              aria-pressed={isWatchlisted}
             >
               <Heart className={`h-4 w-4 ${isWatchlisted ? 'fill-current' : ''}`} />
             </button>

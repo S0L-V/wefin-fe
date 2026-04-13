@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addWatchlistItem,
   deleteWatchlistItem,
-  fetchWatchlist
+  fetchWatchlist,
+  type WatchlistItem
 } from '@/features/watchlist/api/fetch-watchlist'
 import { ApiError } from '@/shared/api/base-api'
 
@@ -27,13 +28,25 @@ export function useAddWatchlist() {
 
   return useMutation({
     mutationFn: addWatchlistItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: WATCHLIST_KEY })
+    onMutate: async (code) => {
+      await queryClient.cancelQueries({ queryKey: WATCHLIST_KEY })
+      const previous = queryClient.getQueryData<WatchlistItem[]>(WATCHLIST_KEY)
+      queryClient.setQueryData<WatchlistItem[]>(WATCHLIST_KEY, (old) => [
+        ...(old ?? []),
+        { stockCode: code, stockName: '', currentPrice: 0, changeRate: 0 }
+      ])
+      return { previous }
     },
-    onError: (error) => {
+    onError: (error, _code, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(WATCHLIST_KEY, context.previous)
+      }
       if (error instanceof ApiError) {
         window.alert(error.message)
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: WATCHLIST_KEY })
     }
   })
 }
@@ -43,7 +56,24 @@ export function useDeleteWatchlist() {
 
   return useMutation({
     mutationFn: deleteWatchlistItem,
-    onSuccess: () => {
+    onMutate: async (code) => {
+      await queryClient.cancelQueries({ queryKey: WATCHLIST_KEY })
+      const previous = queryClient.getQueryData<WatchlistItem[]>(WATCHLIST_KEY)
+      queryClient.setQueryData<WatchlistItem[]>(
+        WATCHLIST_KEY,
+        (old) => old?.filter((item) => item.stockCode !== code) ?? []
+      )
+      return { previous }
+    },
+    onError: (error, _code, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(WATCHLIST_KEY, context.previous)
+      }
+      if (error instanceof ApiError) {
+        window.alert(error.message)
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: WATCHLIST_KEY })
     }
   })
