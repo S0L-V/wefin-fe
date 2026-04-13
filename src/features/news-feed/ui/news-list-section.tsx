@@ -1,5 +1,5 @@
 import { ChevronDown, RefreshCw } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import type { ClusterItem } from '../api/fetch-news-clusters'
 import type { PopularTag } from '../api/fetch-popular-tags'
@@ -21,13 +21,17 @@ export default function NewsListSection() {
   const { data: stockTags = [] } = usePopularTagsQuery('STOCK')
 
   const latestCursor = cursors[cursors.length - 1] ?? null
-  const feedParams = {
-    size: PAGE_SIZE,
-    cursor: latestCursor,
-    ...(selectedTags.length > 0 && mode !== 'ALL'
-      ? { tagType: mode as 'SECTOR' | 'STOCK', tagCodes: selectedTags.map((t) => t.code) }
-      : {})
-  }
+  const tagCodesKey = selectedTags.map((t) => t.code).join(',')
+  const feedParams = useMemo(
+    () => ({
+      size: PAGE_SIZE,
+      cursor: latestCursor,
+      ...(tagCodesKey && mode !== 'ALL'
+        ? { tagType: mode as 'SECTOR' | 'STOCK', tagCodes: tagCodesKey.split(',') }
+        : {})
+    }),
+    [latestCursor, mode, tagCodesKey]
+  )
 
   const { data, isLoading, isError, isFetching, isPlaceholderData } =
     useFilteredFeedQuery(feedParams)

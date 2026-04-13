@@ -2,28 +2,13 @@ import { Layers } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import type { ClusterItem } from '../api/fetch-news-clusters'
+import { getTimeAgo } from '../lib/get-time-ago'
 
 interface NewsListCardProps {
   cluster: ClusterItem
 }
 
 const INITIAL_COLORS = ['#2b3a4a', '#24a8ab', '#6b7b8d', '#3b82f6', '#8b5cf6']
-
-function getTimeAgo(dateStr: string): string {
-  const now = Date.now()
-  const published = new Date(dateStr).getTime()
-  const diffMs = now - published
-
-  const diffMins = Math.floor(diffMs / 60_000)
-  if (diffMins < 1) return '방금 전'
-  if (diffMins < 60) return `${diffMins}분 전`
-
-  const diffHours = Math.floor(diffMs / 3_600_000)
-  if (diffHours < 24) return `${diffHours}시간 전`
-
-  const diffDays = Math.floor(diffMs / 86_400_000)
-  return `${diffDays}일 전`
-}
 
 export default function NewsListCard({ cluster }: NewsListCardProps) {
   return (
