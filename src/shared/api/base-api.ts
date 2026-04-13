@@ -124,6 +124,7 @@ baseApi.interceptors.response.use(
     if (shouldRefresh) {
       if (originalRequest._retry) {
         clearAuthStorage()
+        window.location.href = '/'
         return Promise.reject(error)
       }
 
@@ -157,15 +158,13 @@ baseApi.interceptors.response.use(
       } catch (refreshError) {
         notifyPendingRequests(null)
 
-        const refreshErrorCode = getResponseErrorCode(refreshError)
-
-        if (
+        const shouldLogout =
           !localStorage.getItem('refreshToken') ||
-          (axios.isAxiosError(refreshError) &&
-            refreshError.response?.status === 401 &&
-            refreshErrorCode === 'AUTH_REFRESH_TOKEN_EXPIRED')
-        ) {
+          (axios.isAxiosError(refreshError) && refreshError.response?.status === 401)
+
+        if (shouldLogout) {
           clearAuthStorage()
+          window.location.href = '/'
         }
 
         return Promise.reject(refreshError)
