@@ -5,7 +5,8 @@ import {
   createChart,
   HistogramSeries,
   type IChartApi,
-  type ISeriesApi
+  type ISeriesApi,
+  type Time
 } from 'lightweight-charts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -43,7 +44,7 @@ const TOOLBAR_HEIGHT = 32
 const MINUTE_PERIODS = new Set(['1', '5', '15', '30', '60'])
 
 /** 분봉이면 Unix timestamp (KST 보정), 일봉이면 "YYYY-MM-DD" 문자열 반환 */
-function toChartTime(date: string, periodCode: string): string | number {
+function toChartTime(date: string, periodCode: string): Time {
   if (MINUTE_PERIODS.has(periodCode)) {
     // "2026-04-13T15:01:00" → KST 시간을 UTC인 것처럼 취급하여 차트에 KST로 표시
     const utcString = date.length >= 19 ? date.substring(0, 19) + 'Z' : date + 'Z'
@@ -81,6 +82,15 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const hasMoreData = useRef(true)
   const loadMoreRef = useRef<() => void>(() => {})
   const requestId = useRef(0)
+  // 진행 중인 분봉 캔들의 OHLCV 추적
+  const liveCandle = useRef<{
+    time: number
+    open: number
+    high: number
+    low: number
+    close: number
+    volume: number
+  } | null>(null)
   const isInitialLoad = useRef(true)
 
   // 초기 데이터 로딩
@@ -91,6 +101,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     setAllCandles([])
     oldestDate.current = null
     hasMoreData.current = true
+    liveCandle.current = null
     try {
       const data = await fetchCandles(code, periodCode)
       if (currentRequestId !== requestId.current) return
@@ -286,7 +297,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
 
     if (MINUTE_PERIODS.has(periodCode)) {
       chartRef.current.applyOptions({
-        timeScale: { timeVisible: true, secondsVisible: false },
+        timeScale: { timeVisible: true, secondsVisible: false, barSpacing: 44, rightOffset: 2 },
         localization: {
           timeFormatter: (time: number) => {
             const d = new Date(time * 1000)
@@ -301,7 +312,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       })
     } else {
       chartRef.current.applyOptions({
-        timeScale: { timeVisible: false, secondsVisible: false },
+        timeScale: { timeVisible: false, secondsVisible: false, barSpacing: 8, rightOffset: 5 },
         localization: {
           timeFormatter: (time: string) => {
             // 일봉: "2026-04-13" 그대로 반환
@@ -353,20 +364,44 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     const currentPrice = price.currentPrice
 
     if (MINUTE_PERIODS.has(periodCode)) {
-      // 분봉: 현재 KST 시간 기준으로 진행 중인 캔들을 실시간 업데이트
-      // KST 시간을 UTC처럼 취급하는 오프셋 (lightweight-charts용)
+      // 분봉: 현재 KST 시간 기준으로 진행 중인 캔들의 OHLCV를 추적
       const KST_OFFSET = 9 * 60 * 60
       const nowSec = Math.floor(Date.now() / 1000) + KST_OFFSET
       const periodSec = parseInt(periodCode) * 60
       const time = Math.floor(nowSec / periodSec) * periodSec
 
-      try {
-        candleSeriesRef.current.update({
+      const live = liveCandle.current
+      if (!live || live.time !== time) {
+        // 새 분봉 시작 — open 설정
+        liveCandle.current = {
           time,
           open: currentPrice,
           high: currentPrice,
           low: currentPrice,
-          close: currentPrice
+          close: currentPrice,
+          volume: price.volume
+        }
+      } else {
+        // 기존 분봉 업데이트
+        live.high = Math.max(live.high, currentPrice)
+        live.low = Math.min(live.low, currentPrice)
+        live.close = currentPrice
+        live.volume = price.volume
+      }
+
+      const candle = liveCandle.current
+      try {
+        candleSeriesRef.current.update({
+          time: candle.time as Time,
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close
+        })
+        volumeSeriesRef.current.update({
+          time: candle.time as Time,
+          value: candle.volume,
+          color: candle.close >= candle.open ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
         })
       } catch {
         // 시간 순서 충돌 시 무시
@@ -407,7 +442,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
 
     try {
       candleSeriesRef.current.update({
-        time: utcTimestamp,
+        time: utcTimestamp as Time,
         open: latestCandle.openPrice,
         high: latestCandle.highPrice,
         low: latestCandle.lowPrice,
@@ -415,7 +450,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       })
 
       volumeSeriesRef.current.update({
-        time: utcTimestamp,
+        time: utcTimestamp as Time,
         value: latestCandle.volume,
         color:
           latestCandle.closePrice >= latestCandle.openPrice
