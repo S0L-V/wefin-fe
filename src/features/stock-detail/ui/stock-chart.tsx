@@ -91,6 +91,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     close: number
     volume: number
   } | null>(null)
+  const prevTotalVolume = useRef<number>(0)
   const isInitialLoad = useRef(true)
 
   // 초기 데이터 로딩
@@ -383,6 +384,10 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       const periodSec = parseInt(periodCode) * 60
       const time = Math.floor(nowSec / periodSec) * periodSec
 
+      // 개별 체결량 = 현재 누적 거래량 - 이전 누적 거래량
+      const tradeVolume = Math.max(0, price.volume - prevTotalVolume.current)
+      prevTotalVolume.current = price.volume
+
       const live = liveCandle.current
       if (!live || live.time !== time) {
         // 새 분봉 시작 — open 설정
@@ -392,14 +397,14 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
           high: currentPrice,
           low: currentPrice,
           close: currentPrice,
-          volume: price.volume
+          volume: tradeVolume
         }
       } else {
         // 기존 분봉 업데이트
         live.high = Math.max(live.high, currentPrice)
         live.low = Math.min(live.low, currentPrice)
         live.close = currentPrice
-        live.volume = price.volume
+        live.volume += tradeVolume
       }
 
       const candle = liveCandle.current
