@@ -33,9 +33,20 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
         )}
 
         {data && (
-          <p className="whitespace-pre-wrap break-words text-xs leading-relaxed text-wefin-text">
-            {data.briefingText}
-          </p>
+          <div className="space-y-4 text-xs leading-relaxed text-wefin-text">
+            <div>
+              <h4 className="mb-1 font-bold text-wefin-mint">시장 개요</h4>
+              <p className="whitespace-pre-wrap break-words">{data.marketOverview}</p>
+            </div>
+            <div>
+              <h4 className="mb-1 font-bold text-wefin-mint">주요 이슈</h4>
+              <p className="whitespace-pre-wrap break-words">{data.keyIssues}</p>
+            </div>
+            <div>
+              <h4 className="mb-1 font-bold text-wefin-mint">투자 힌트</h4>
+              <p className="whitespace-pre-wrap break-words">{data.investmentHint}</p>
+            </div>
+          </div>
         )}
       </div>
     </section>
