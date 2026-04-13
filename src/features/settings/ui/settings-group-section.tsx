@@ -224,11 +224,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
 
   return (
     <section className="rounded-3xl border border-wefin-line bg-white p-6 shadow-sm">
-      <SettingsSectionHeader
-        icon={<Users size={20} />}
-        title="그룹 설정"
-        description="현재 활성 그룹 조회, 그룹 탈퇴, 초대 코드 생성, 그룹 참여, 새 그룹 생성 API를 연결했습니다."
-      />
+      <SettingsSectionHeader icon={<Users size={20} />} title="그룹 설정" />
 
       <div className="space-y-6">
         <div className="rounded-2xl border border-wefin-line bg-wefin-bg p-5">
@@ -291,113 +287,118 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <label htmlFor="invite-code-input" className="text-sm font-semibold text-wefin-text">
-                초대 코드
-              </label>
-
-              {statusDisplay ? (
-                <span
-                  className={[
-                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-                    statusDisplay.className
-                  ].join(' ')}
+        {!isHomeGroup && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <label
+                  htmlFor="invite-code-input"
+                  className="text-sm font-semibold text-wefin-text"
                 >
-                  {statusDisplay.label}
-                </span>
-              ) : null}
+                  초대 코드
+                </label>
 
-              {canCreateInvite ? (
+                {statusDisplay ? (
+                  <span
+                    className={[
+                      'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                      statusDisplay.className
+                    ].join(' ')}
+                  >
+                    {statusDisplay.label}
+                  </span>
+                ) : null}
+
+                {canCreateInvite ? (
+                  <button
+                    type="button"
+                    onClick={() => void inviteCodeQuery.refetch()}
+                    disabled={inviteCodeQuery.isFetching}
+                    title="상태 새로고침"
+                    className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      size={12}
+                      className={inviteCodeQuery.isFetching ? 'animate-spin' : ''}
+                    />
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  id="invite-code-input"
+                  type="text"
+                  readOnly
+                  value={
+                    hasInviteCode
+                      ? inviteCode
+                      : !isLoggedIn
+                        ? '로그인 후 확인 가능'
+                        : isLoading
+                          ? '불러오는 중...'
+                          : isHomeGroup
+                            ? '홈 그룹은 초대 코드를 생성할 수 없어요'
+                            : inviteCodeQuery.isLoading
+                              ? '초대 코드 확인 중...'
+                              : '생성 버튼을 눌러 초대 코드를 발급하세요'
+                  }
+                  className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
+                />
                 <button
                   type="button"
-                  onClick={() => void inviteCodeQuery.refetch()}
-                  disabled={inviteCodeQuery.isFetching}
-                  title="상태 새로고침"
-                  className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:opacity-50"
+                  onClick={() => handleCopy(inviteCode, '초대 코드')}
+                  disabled={!hasInviteCode || isCodeConsumed}
+                  className={[
+                    'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
+                    hasInviteCode && !isCodeConsumed
+                      ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
+                      : 'border-wefin-line text-wefin-text opacity-50'
+                  ].join(' ')}
                 >
-                  <RefreshCw
-                    size={12}
-                    className={inviteCodeQuery.isFetching ? 'animate-spin' : ''}
-                  />
+                  <Copy size={16} />
+                  복사
                 </button>
-              ) : null}
+              </div>
             </div>
 
-            <div className="flex gap-2">
-              <input
-                id="invite-code-input"
-                type="text"
-                readOnly
-                value={
-                  hasInviteCode
-                    ? inviteCode
-                    : !isLoggedIn
-                      ? '로그인 후 확인 가능'
-                      : isLoading
-                        ? '불러오는 중...'
-                        : isHomeGroup
-                          ? '홈 그룹은 초대 코드를 생성할 수 없어요'
-                          : inviteCodeQuery.isLoading
-                            ? '초대 코드 확인 중...'
-                            : '생성 버튼을 눌러 초대 코드를 발급하세요'
-                }
-                className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => handleCopy(inviteCode, '초대 코드')}
-                disabled={!hasInviteCode || isCodeConsumed}
-                className={[
-                  'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
-                  hasInviteCode && !isCodeConsumed
-                    ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
-                    : 'border-wefin-line text-wefin-text opacity-50'
-                ].join(' ')}
-              >
-                <Copy size={16} />
-                복사
-              </button>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-wefin-text">초대 링크</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    hasInviteCode && inviteLink
+                      ? inviteLink
+                      : !isLoggedIn
+                        ? '로그인 후 확인 가능'
+                        : isLoading
+                          ? '불러오는 중...'
+                          : isHomeGroup
+                            ? '홈 그룹은 초대 링크를 생성할 수 없어요'
+                            : '초대 코드 생성 시 링크가 표시돼요'
+                  }
+                  className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(inviteLink, '초대 링크')}
+                  disabled={!hasInviteCode || !inviteLink || isCodeConsumed}
+                  className={[
+                    'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
+                    hasInviteCode && inviteLink && !isCodeConsumed
+                      ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
+                      : 'border-wefin-line text-wefin-text opacity-50'
+                  ].join(' ')}
+                >
+                  <Copy size={16} />
+                  복사
+                </button>
+              </div>
             </div>
           </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-wefin-text">초대 링크</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value={
-                  hasInviteCode && inviteLink
-                    ? inviteLink
-                    : !isLoggedIn
-                      ? '로그인 후 확인 가능'
-                      : isLoading
-                        ? '불러오는 중...'
-                        : isHomeGroup
-                          ? '홈 그룹은 초대 링크를 생성할 수 없어요'
-                          : '초대 코드 생성 시 링크가 표시돼요'
-                }
-                className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => handleCopy(inviteLink, '초대 링크')}
-                disabled={!hasInviteCode || !inviteLink || isCodeConsumed}
-                className={[
-                  'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
-                  hasInviteCode && inviteLink && !isCodeConsumed
-                    ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
-                    : 'border-wefin-line text-wefin-text opacity-50'
-                ].join(' ')}
-              >
-                <Copy size={16} />
-                복사
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
 
         {copyMessage ? <p className="text-sm font-medium text-wefin-mint">{copyMessage}</p> : null}
 
@@ -412,10 +413,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
               <div>
                 <h3 className="text-base font-bold text-wefin-text">초대 코드 생성</h3>
                 <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-                  현재 참여 중인 공유 그룹의 초대 코드를 발급할 수 있어요.
-                </p>
-                <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-                  초대 코드는 1회용이므로 사용 후에는 새로 생성해서 공유해 주세요.
+                  1회용 초대 코드를 발급해 멤버를 초대할 수 있어요. 사용 후에는 새로 생성해주세요.
                 </p>
 
                 {isCodeConsumed ? (
@@ -461,7 +459,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
           </div>
         ) : null}
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className={isHomeGroup ? 'grid gap-6 md:grid-cols-2' : ''}>
           <div className="rounded-2xl border border-wefin-line p-5">
             <h3 className="text-base font-bold text-wefin-text">기존 그룹 참여</h3>
             <p className="mt-1 text-sm leading-6 text-wefin-subtle">
@@ -491,41 +489,48 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-wefin-line p-5">
-            <h3 className="text-base font-bold text-wefin-text">새 그룹 만들기</h3>
-            <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-              홈 그룹 상태에서 새 공유 그룹을 생성할 수 있어요.
-            </p>
+          {isHomeGroup ? (
+            <div className="rounded-2xl border border-wefin-line p-5">
+              <h3 className="text-base font-bold text-wefin-text">새 그룹 만들기</h3>
+              <p className="mt-1 text-sm leading-6 text-wefin-subtle">
+                홈 그룹 상태에서 새 공유 그룹을 생성할 수 있어요.
+              </p>
 
-            <div className="mt-4 flex gap-2 max-md:flex-col">
-              <input
-                type="text"
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                disabled={!isLoggedIn || isCreatingGroup || !isHomeGroup}
-                placeholder={
-                  !isLoggedIn
-                    ? '로그인 후 이용할 수 있어요'
-                    : !isHomeGroup
-                      ? '공유 그룹에 참여 중이면 새 그룹을 만들 수 없어요'
-                      : '새 그룹 이름 입력'
-                }
-                className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none placeholder:text-wefin-subtle disabled:bg-gray-50"
-              />
-              <button
-                type="button"
-                onClick={handleCreateGroup}
-                disabled={!canCreateGroup}
-                className={[
-                  'inline-flex h-11 min-w-[112px] items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white transition-colors',
-                  canCreateGroup ? 'bg-wefin-mint hover:bg-[#2a8282]' : 'bg-wefin-mint opacity-50'
-                ].join(' ')}
-              >
-                <Plus size={16} />
-                {isCreatingGroup ? '생성 중...' : '생성하기'}
-              </button>
+              <div className="mt-4 space-y-2">
+                <input
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  disabled={!isLoggedIn || isCreatingGroup || !isHomeGroup}
+                  placeholder={
+                    !isLoggedIn
+                      ? '로그인 후 이용할 수 있어요'
+                      : !isHomeGroup
+                        ? '공유 그룹에 참여 중이면 새 그룹을 만들 수 없어요'
+                        : '그룹 이름을 입력해주세요'
+                  }
+                  className="h-11 w-full rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-gray-50"
+                />
+
+                {newGroupName.trim() ? (
+                  <button
+                    type="button"
+                    onClick={handleCreateGroup}
+                    disabled={!canCreateGroup}
+                    className={[
+                      'inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white transition-colors',
+                      canCreateGroup
+                        ? 'bg-wefin-mint hover:bg-[#2a8282]'
+                        : 'bg-wefin-mint opacity-50'
+                    ].join(' ')}
+                  >
+                    <Plus size={16} />
+                    {isCreatingGroup ? '생성 중...' : '생성하기'}
+                  </button>
+                ) : null}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </section>

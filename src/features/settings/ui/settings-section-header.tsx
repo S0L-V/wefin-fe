@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 type SettingsSectionHeaderProps = {
   icon: ReactNode
   title: string
-  description: string
+  description?: string
 }
 
 function SettingsSectionHeader({ icon, title, description }: SettingsSectionHeaderProps) {
@@ -15,7 +15,9 @@ function SettingsSectionHeader({ icon, title, description }: SettingsSectionHead
 
       <div>
         <h2 className="text-lg font-bold text-wefin-text">{title}</h2>
-        <p className="mt-1 text-sm leading-6 text-wefin-subtle">{description}</p>
+        {description ? (
+          <p className="mt-1 text-sm leading-6 text-wefin-subtle">{description}</p>
+        ) : null}
       </div>
     </div>
   )
