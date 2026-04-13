@@ -53,10 +53,18 @@ function toChartTime(date: string, periodCode: string): string | number {
   return date.substring(0, 10)
 }
 
+interface OhlcInfo {
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
 export default function StockChart({ code, height = 340 }: StockChartProps) {
   const [periodCode, setPeriodCode] = useState('D')
   const [allCandles, setAllCandles] = useState<CandleData[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [ohlc, setOhlc] = useState<OhlcInfo | null>(null)
   const { data: price } = useStockPriceQuery(code)
   const { data: latestCandle } = useQuery<CandleMessage>({
     queryKey: ['stocks', code, 'candle', 'latest'],
@@ -189,7 +197,13 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       width: chartContainerRef.current.clientWidth,
       height: Math.max(100, height - TOOLBAR_HEIGHT),
       crosshair: { mode: 0 },
-      timeScale: { borderColor: '#e0e0e0', timeVisible: true, rightOffset: 5, fixRightEdge: true },
+      timeScale: {
+        borderColor: '#e0e0e0',
+        timeVisible: true,
+        secondsVisible: false,
+        rightOffset: 5,
+        fixRightEdge: true
+      },
       rightPriceScale: { borderColor: '#e0e0e0' }
     })
 
@@ -199,7 +213,8 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       borderDownColor: '#3b82f6',
       borderUpColor: '#ef4444',
       wickDownColor: '#3b82f6',
-      wickUpColor: '#ef4444'
+      wickUpColor: '#ef4444',
+      priceFormat: { type: 'price', precision: 0, minMove: 1 }
     })
 
     const volumeSeries = chart.addSeries(HistogramSeries, {
@@ -216,6 +231,27 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       if (!range) return
       if (range.from < 5) {
         loadMoreRef.current()
+      }
+    })
+
+    // 커서 이동 시 OHLC 정보 표시
+    chart.subscribeCrosshairMove((param) => {
+      if (!param.time || !param.seriesData) {
+        setOhlc(null)
+        return
+      }
+      const data = param.seriesData.get(candleSeries) as
+        | {
+            open: number
+            high: number
+            low: number
+            close: number
+          }
+        | undefined
+      if (data) {
+        setOhlc({ open: data.open, high: data.high, low: data.low, close: data.close })
+      } else {
+        setOhlc(null)
       }
     })
 
@@ -272,11 +308,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     volumeSeriesRef.current.setData(volumeData)
 
     if (isInitialLoad.current) {
-      if (MINUTE_PERIODS.has(periodCode)) {
-        chartRef.current?.timeScale().scrollToRealTime()
-      } else {
-        chartRef.current?.timeScale().fitContent()
-      }
+      chartRef.current?.timeScale().fitContent()
       isInitialLoad.current = false
     }
   }, [allCandles])
@@ -388,6 +420,28 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
 
       {/* 차트 */}
       <div className="relative min-h-0 flex-1">
+        {/* OHLC 정보 — 차트 위에 겹쳐서 표시 */}
+        {ohlc && (
+          <div className="absolute left-1 top-1 z-10 flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 text-[10px]">
+            <span className="text-wefin-subtle">
+              시 <span className="font-medium text-wefin-text">{ohlc.open.toLocaleString()}</span>
+            </span>
+            <span className="text-wefin-subtle">
+              고 <span className="font-medium text-red-500">{ohlc.high.toLocaleString()}</span>
+            </span>
+            <span className="text-wefin-subtle">
+              저 <span className="font-medium text-blue-500">{ohlc.low.toLocaleString()}</span>
+            </span>
+            <span className="text-wefin-subtle">
+              종{' '}
+              <span
+                className={`font-medium ${ohlc.close >= ohlc.open ? 'text-red-500' : 'text-blue-500'}`}
+              >
+                {ohlc.close.toLocaleString()}
+              </span>
+            </span>
+          </div>
+        )}
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
             <span className="text-xs text-gray-400">로딩 중...</span>
