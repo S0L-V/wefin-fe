@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
+import WatchlistPanel from '@/features/watchlist/ui/watchlist-panel'
 
 type Tab = 'watchlist' | 'chat'
 
@@ -53,8 +54,4 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
       </div>
     </div>
   )
-}
-
-function WatchlistPanel() {
-  return <div className="p-4 text-center text-xs text-gray-400">관심 종목이 없습니다.</div>
 }

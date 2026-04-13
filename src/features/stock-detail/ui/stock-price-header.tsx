@@ -8,6 +8,7 @@ import {
   useStockPriceQuery
 } from '@/features/stock-detail/model/use-stock-detail-queries'
 import StockSearchModal from '@/features/stock-search/ui/stock-search-modal'
+import { useToggleWatchlist } from '@/features/watchlist/model/use-watchlist-queries'
 
 export type DetailTab = 'chart' | 'info' | 'news'
 
@@ -28,6 +29,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
   const { data: stockInfo } = useStockInfoQuery(code)
   const { data: price, isLoading } = useStockPriceQuery(code)
   const [searchOpen, setSearchOpen] = useState(false)
+  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(code)
 
   return (
     <>
@@ -55,10 +57,17 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
             )}
 
             <button
-              className="rounded-md p-0.5 text-gray-300 transition-colors hover:text-red-400"
-              aria-label="관심종목 추가"
+              onClick={toggle}
+              disabled={isPending}
+              className={`rounded-md p-0.5 transition-colors ${
+                isWatchlisted
+                  ? 'text-red-500 hover:text-red-600'
+                  : 'text-gray-300 hover:text-red-400'
+              } ${isPending ? 'opacity-50' : ''}`}
+              aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
+              aria-pressed={isWatchlisted}
             >
-              <Heart className="h-4 w-4" />
+              <Heart className={`h-4 w-4 ${isWatchlisted ? 'fill-current' : ''}`} />
             </button>
           </div>
 
