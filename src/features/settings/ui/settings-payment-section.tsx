@@ -48,7 +48,7 @@ function SettingsPaymentSection({ isLoggedIn }: SettingsPaymentSectionProps) {
                 </p>
               </div>
             </div>
-
+            // TODO: 로그인 상태에 따라 카드 정보 input 값도 숨기도록 수정 필요
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <input
                 type="text"
@@ -65,7 +65,6 @@ function SettingsPaymentSection({ isLoggedIn }: SettingsPaymentSectionProps) {
                 readOnly
               />
             </div>
-
             <input
               type="text"
               disabled
@@ -73,7 +72,6 @@ function SettingsPaymentSection({ isLoggedIn }: SettingsPaymentSectionProps) {
               className="mt-3 h-11 w-full rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-subtle outline-none"
               readOnly
             />
-
             <button
               type="button"
               disabled

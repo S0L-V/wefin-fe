@@ -9,20 +9,20 @@ import { routes } from '@/shared/config/routes'
 function JoinPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const hasRequestedRef = useRef(false)
+  const requestedInviteCodeRef = useRef<string | null>(null)
+
+  const inviteCode = searchParams.get('code')?.trim() ?? ''
 
   const joinGroupMutation = useJoinGroupMutation(() => {
     navigate(routes.settings, { replace: true })
   })
 
-  const inviteCode = searchParams.get('code')?.trim() ?? ''
-
   useEffect(() => {
-    if (!inviteCode || hasRequestedRef.current) {
+    if (!inviteCode || requestedInviteCodeRef.current === inviteCode) {
       return
     }
 
-    hasRequestedRef.current = true
+    requestedInviteCodeRef.current = inviteCode
     joinGroupMutation.mutate({ inviteCode })
   }, [inviteCode, joinGroupMutation])
 
@@ -32,15 +32,16 @@ function JoinPage() {
     }
 
     joinGroupMutation.reset()
-    hasRequestedRef.current = true
-    joinGroupMutation.mutate({ inviteCode })
+    requestedInviteCodeRef.current = null
   }
 
   const errorMessage =
-    joinGroupMutation.isError && joinGroupMutation.error instanceof ApiError
+    joinGroupMutation.error instanceof ApiError
       ? joinGroupMutation.error.code === 'GROUP_ALREADY_JOINED'
         ? '이미 참여 중인 그룹이에요. 설정 페이지에서 현재 그룹을 확인해 주세요.'
-        : joinGroupMutation.error.message
+        : joinGroupMutation.error.code === 'GROUP_INVITE_ALREADY_USED'
+          ? '이미 사용된 초대 코드예요. 새 초대 코드를 받아 다시 시도해 주세요.'
+          : joinGroupMutation.error.message
       : '그룹 참여 중 오류가 발생했어요.'
 
   if (!inviteCode) {

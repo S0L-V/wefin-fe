@@ -62,11 +62,9 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     enabled: isLoggedIn && !isHomeGroup && !isLoading && !isError
   })
 
-  // Prefer the freshly-generated code from mutation; fall back to queried status
-  const currentInviteCodeData = createInviteMutation.data ?? inviteCodeQuery.data ?? null
+  const currentInviteCodeData = inviteCodeQuery.data ?? createInviteMutation.data ?? null
   const inviteCode = currentInviteCodeData?.inviteCode ?? ''
   const inviteStatus = currentInviteCodeData?.status ?? null
-  const inviteLink = inviteCode ? `${window.location.origin}/join?code=${inviteCode}` : ''
   const hasInviteCode = !!inviteCode
   const isCodeConsumed = inviteStatus === 'USED' || inviteStatus === 'EXPIRED'
 
@@ -158,7 +156,11 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     createInviteMutation.reset()
     setCopyMessage('')
 
-    createInviteMutation.mutate(group.groupId)
+    createInviteMutation.mutate(group.groupId, {
+      onSuccess: () => {
+        void inviteCodeQuery.refetch()
+      }
+    })
   }
 
   const handleJoinGroup = () => {
@@ -201,8 +203,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     )
   }
 
-  const handleCopy = async (text: string, label: '초대 코드' | '초대 링크') => {
-    if (!text || !hasInviteCode) {
+  const handleCopy = async (text: string, label: string) => {
+    if (!text || !hasInviteCode || isCodeConsumed) {
       return
     }
 
@@ -288,114 +290,73 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
         </div>
 
         {!isHomeGroup && (
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <label
-                  htmlFor="invite-code-input"
-                  className="text-sm font-semibold text-wefin-text"
-                >
-                  초대 코드
-                </label>
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <label htmlFor="invite-code-input" className="text-sm font-semibold text-wefin-text">
+                초대 코드
+              </label>
 
-                {statusDisplay ? (
-                  <span
-                    className={[
-                      'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-                      statusDisplay.className
-                    ].join(' ')}
-                  >
-                    {statusDisplay.label}
-                  </span>
-                ) : null}
-
-                {canCreateInvite ? (
-                  <button
-                    type="button"
-                    onClick={() => void inviteCodeQuery.refetch()}
-                    disabled={inviteCodeQuery.isFetching}
-                    title="상태 새로고침"
-                    className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:opacity-50"
-                  >
-                    <RefreshCw
-                      size={12}
-                      className={inviteCodeQuery.isFetching ? 'animate-spin' : ''}
-                    />
-                  </button>
-                ) : null}
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  id="invite-code-input"
-                  type="text"
-                  readOnly
-                  value={
-                    hasInviteCode
-                      ? inviteCode
-                      : !isLoggedIn
-                        ? '로그인 후 확인 가능'
-                        : isLoading
-                          ? '불러오는 중...'
-                          : isHomeGroup
-                            ? '홈 그룹은 초대 코드를 생성할 수 없어요'
-                            : inviteCodeQuery.isLoading
-                              ? '초대 코드 확인 중...'
-                              : '생성 버튼을 눌러 초대 코드를 발급하세요'
-                  }
-                  className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleCopy(inviteCode, '초대 코드')}
-                  disabled={!hasInviteCode || isCodeConsumed}
+              {statusDisplay ? (
+                <span
                   className={[
-                    'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
-                    hasInviteCode && !isCodeConsumed
-                      ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
-                      : 'border-wefin-line text-wefin-text opacity-50'
+                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                    statusDisplay.className
                   ].join(' ')}
                 >
-                  <Copy size={16} />
-                  복사
+                  {statusDisplay.label}
+                </span>
+              ) : null}
+
+              {canCreateInvite ? (
+                <button
+                  type="button"
+                  onClick={() => void inviteCodeQuery.refetch()}
+                  disabled={inviteCodeQuery.isFetching}
+                  title="상태 새로고침"
+                  className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:opacity-50"
+                >
+                  <RefreshCw
+                    size={12}
+                    className={inviteCodeQuery.isFetching ? 'animate-spin' : ''}
+                  />
                 </button>
-              </div>
+              ) : null}
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-wefin-text">초대 링크</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={
-                    hasInviteCode && inviteLink
-                      ? inviteLink
-                      : !isLoggedIn
-                        ? '로그인 후 확인 가능'
-                        : isLoading
-                          ? '불러오는 중...'
-                          : isHomeGroup
-                            ? '홈 그룹은 초대 링크를 생성할 수 없어요'
-                            : '초대 코드 생성 시 링크가 표시돼요'
-                  }
-                  className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleCopy(inviteLink, '초대 링크')}
-                  disabled={!hasInviteCode || !inviteLink || isCodeConsumed}
-                  className={[
-                    'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
-                    hasInviteCode && inviteLink && !isCodeConsumed
-                      ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
-                      : 'border-wefin-line text-wefin-text opacity-50'
-                  ].join(' ')}
-                >
-                  <Copy size={16} />
-                  복사
-                </button>
-              </div>
+            <div className="flex gap-2">
+              <input
+                id="invite-code-input"
+                type="text"
+                readOnly
+                value={
+                  hasInviteCode
+                    ? inviteCode
+                    : !isLoggedIn
+                      ? '로그인 후 확인 가능'
+                      : isLoading
+                        ? '불러오는 중...'
+                        : isHomeGroup
+                          ? '홈 그룹은 초대 코드를 생성할 수 없어요'
+                          : inviteCodeQuery.isLoading
+                            ? '초대 코드 확인 중...'
+                            : '생성 버튼을 눌러 초대 코드를 발급하세요'
+                }
+                className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => handleCopy(inviteCode, '초대 코드')}
+                disabled={!hasInviteCode || isCodeConsumed}
+                className={[
+                  'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
+                  hasInviteCode && !isCodeConsumed
+                    ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
+                    : 'border-wefin-line text-wefin-text opacity-50'
+                ].join(' ')}
+              >
+                <Copy size={16} />
+                복사
+              </button>
             </div>
           </div>
         )}

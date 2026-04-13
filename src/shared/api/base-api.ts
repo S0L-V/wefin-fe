@@ -124,7 +124,6 @@ baseApi.interceptors.response.use(
     if (shouldRefresh) {
       if (originalRequest._retry) {
         clearAuthStorage()
-        window.location.href = '/'
         return Promise.reject(error)
       }
 
@@ -164,7 +163,6 @@ baseApi.interceptors.response.use(
 
         if (shouldLogout) {
           clearAuthStorage()
-          window.location.href = '/'
         }
 
         return Promise.reject(refreshError)

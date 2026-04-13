@@ -15,9 +15,11 @@ function SettingsView() {
     }
 
     window.addEventListener('auth-changed', syncAuthState)
+    window.addEventListener('storage', syncAuthState)
 
     return () => {
       window.removeEventListener('auth-changed', syncAuthState)
+      window.removeEventListener('storage', syncAuthState)
     }
   }, [])
 

@@ -18,9 +18,15 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
 
       <div className="space-y-5">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-wefin-text">닉네임 변경</label>
+          <label
+            htmlFor="settings-nickname"
+            className="mb-2 block text-sm font-semibold text-wefin-text"
+          >
+            닉네임 변경
+          </label>
           <div className="flex gap-2 max-md:flex-col">
             <input
+              id="settings-nickname"
               type="text"
               disabled={!isLoggedIn}
               placeholder={isLoggedIn ? '새 닉네임 입력' : '로그인 후 이용할 수 있어요'}
@@ -37,9 +43,15 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-wefin-text">비밀번호 변경</label>
+          <label
+            htmlFor="settings-password"
+            className="mb-2 block text-sm font-semibold text-wefin-text"
+          >
+            비밀번호 변경
+          </label>
           <div className="flex gap-2 max-md:flex-col">
             <input
+              id="settings-password"
               type="password"
               disabled={!isLoggedIn}
               placeholder={isLoggedIn ? '새 비밀번호 입력' : '로그인 후 이용할 수 있어요'}
@@ -56,11 +68,15 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
         </div>
 
         <div>
-          <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-wefin-text">
+          <label
+            htmlFor="settings-email"
+            className="mb-2 flex items-center gap-2 text-sm font-semibold text-wefin-text"
+          >
             <Mail size={16} />
             이메일
           </label>
           <input
+            id="settings-email"
             type="text"
             readOnly
             value={isLoggedIn ? emailPlaceholder : '로그인 후 표시됩니다'}
