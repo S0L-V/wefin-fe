@@ -208,9 +208,12 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       return
     }
 
-    await navigator.clipboard.writeText(text)
-
-    setCopyMessage(`${label}가 복사되었습니다.`)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopyMessage(`${label}가 복사되었습니다.`)
+    } catch {
+      setCopyMessage('복사에 실패했어요. 직접 선택해서 복사해주세요.')
+    }
 
     if (copyTimeoutRef.current) {
       window.clearTimeout(copyTimeoutRef.current)
