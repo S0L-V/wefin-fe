@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
 import { useLeaveRoomGuard } from '@/features/game-room/model/use-leave-room-guard'
+import { usePortfolioQuery } from '@/features/game-room/model/use-portfolio-query'
 import GroupChat from '@/features/game-room/ui/group-chat'
 import GroupRanking from '@/features/game-room/ui/group-ranking'
 import HoldingsPanel from '@/features/game-room/ui/holdings-panel'
@@ -16,18 +17,18 @@ function PlayPage() {
   const navigate = useNavigate()
   const guard = useLeaveRoomGuard(roomId ?? '')
   const { data: roomDetail } = useGameRoomDetailQuery(roomId ?? '')
+  const { data: portfolio } = usePortfolioQuery(roomId ?? '')
 
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
   }
 
-  // TODO: 턴 진행/포트폴리오 API 연동 전까지 임시값 사용
-  const seed = roomDetail?.data.seed ?? 10_000_000
+  const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = roomDetail?.data.startDate ?? '2023-10-19'
-  const currentRound = 1
-  const totalAssets = seed
-  const profitRate = 0
-  const cash = seed
+  const currentRound = 1 // TODO: 턴 API 연동
+  const totalAssets = portfolio?.data.totalAsset ?? seed
+  const profitRate = portfolio?.data.profitRate ?? 0
+  const cash = portfolio?.data.cash ?? seed
 
   return (
     <>
@@ -49,7 +50,7 @@ function PlayPage() {
         <div className="mx-auto flex max-w-[1400px] items-stretch gap-4 p-4">
           <aside className="flex w-80 flex-col gap-4">
             <MarketBriefing roomId={roomId} />
-            <HoldingsPanel cash={cash} evaluationAmount={0} evaluationProfit={0} />
+            <HoldingsPanel roomId={roomId} />
           </aside>
 
           <main className="flex min-w-0 flex-1 flex-col gap-4">

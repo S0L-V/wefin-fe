@@ -1,14 +1,23 @@
 import { Wallet } from 'lucide-react'
 
+import type { HoldingItem } from '../model/portfolio.schema'
+import { useHoldingsQuery, usePortfolioQuery } from '../model/use-portfolio-query'
+
 interface HoldingsPanelProps {
-  cash: number
-  evaluationAmount: number
-  evaluationProfit: number
+  roomId: string
 }
 
-function HoldingsPanel({ cash, evaluationAmount, evaluationProfit }: HoldingsPanelProps) {
-  const profitColor = evaluationProfit >= 0 ? 'text-red-500' : 'text-blue-500'
-  const sign = evaluationProfit >= 0 ? '+' : ''
+function HoldingsPanel({ roomId }: HoldingsPanelProps) {
+  const { data: portfolio } = usePortfolioQuery(roomId)
+  const { data: holdings } = useHoldingsQuery(roomId)
+
+  const cash = portfolio?.data.cash ?? 0
+  const stockValue = portfolio?.data.stockValue ?? 0
+  const profitAmount = (portfolio?.data.totalAsset ?? 0) - (portfolio?.data.seedMoney ?? 0)
+  const profitColor = profitAmount >= 0 ? 'text-red-500' : 'text-blue-500'
+  const sign = profitAmount >= 0 ? '+' : ''
+
+  const holdingItems = holdings?.data ?? []
 
   return (
     <section className="flex h-[380px] flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
@@ -31,7 +40,7 @@ function HoldingsPanel({ cash, evaluationAmount, evaluationProfit }: HoldingsPan
             <div className="flex flex-col text-right">
               <span>평가 금액</span>
               <span className="mt-1 text-xs font-bold text-wefin-text">
-                {evaluationAmount.toLocaleString()}원
+                {stockValue.toLocaleString()}원
               </span>
             </div>
           </div>
@@ -39,14 +48,45 @@ function HoldingsPanel({ cash, evaluationAmount, evaluationProfit }: HoldingsPan
             <span className="text-[10px] text-wefin-subtle">평가손익</span>
             <span className={`text-xs font-bold ${profitColor}`}>
               {sign}
-              {evaluationProfit.toLocaleString()}원
+              {Math.round(profitAmount).toLocaleString()}원
             </span>
           </div>
         </div>
 
-        <p className="py-12 text-center text-[10px] text-wefin-subtle">보유 종목이 없습니다</p>
+        {holdingItems.length === 0 ? (
+          <p className="py-12 text-center text-[10px] text-wefin-subtle">보유 종목이 없습니다</p>
+        ) : (
+          <div className="space-y-2">
+            {holdingItems.map((item) => (
+              <HoldingRow key={item.symbol} item={item} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
+  )
+}
+
+function HoldingRow({ item }: { item: HoldingItem }) {
+  const profitColor = item.profitRate >= 0 ? 'text-red-500' : 'text-blue-500'
+  const sign = item.profitRate >= 0 ? '+' : ''
+
+  return (
+    <div className="flex items-center justify-between rounded-xl bg-wefin-bg px-4 py-3">
+      <div className="flex flex-col">
+        <span className="text-xs font-bold text-wefin-text">{item.stockName}</span>
+        <span className="text-[10px] text-wefin-subtle">{item.quantity}주</span>
+      </div>
+      <div className="flex flex-col text-right">
+        <span className="text-xs font-bold text-wefin-text">
+          {item.evalAmount.toLocaleString()}원
+        </span>
+        <span className={`text-[10px] font-medium ${profitColor}`}>
+          {sign}
+          {item.profitRate.toFixed(2)}%
+        </span>
+      </div>
+    </div>
   )
 }
 

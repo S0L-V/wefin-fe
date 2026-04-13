@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { ApiError } from '@/shared/api/base-api'
 
 import { useOrderMutation } from './use-order-mutation'
+import { useHoldingsQuery } from './use-portfolio-query'
 import { useSelectedStockStore } from './use-selected-stock-store'
 
 export type OrderSide = 'buy' | 'sell'
@@ -22,11 +23,25 @@ export function useOrderForm({ roomId, cash }: UseOrderFormArgs) {
   const { selectedStock } = useSelectedStockStore()
   const currentPrice = selectedStock?.price ?? 0
   const orderMutation = useOrderMutation()
+  const { data: holdings } = useHoldingsQuery(roomId)
+
+  const prevSymbolRef = useRef(selectedStock?.symbol)
+  if (prevSymbolRef.current !== selectedStock?.symbol) {
+    prevSymbolRef.current = selectedStock?.symbol
+    if (quantity !== 0) setQuantity(0)
+  }
+
+  const holdingQuantity = useMemo(() => {
+    if (!selectedStock || !holdings?.data) return 0
+    const found = holdings.data.find((h) => h.symbol === selectedStock.symbol)
+    return found?.quantity ?? 0
+  }, [selectedStock, holdings])
 
   const maxQuantity = useMemo(() => {
     if (!selectedStock || currentPrice <= 0) return 0
+    if (side === 'sell') return holdingQuantity
     return Math.floor(cash / currentPrice)
-  }, [selectedStock, currentPrice, cash])
+  }, [selectedStock, currentPrice, cash, side, holdingQuantity])
 
   const totalAmount = quantity * currentPrice
 
@@ -93,7 +108,10 @@ export function useOrderForm({ roomId, cash }: UseOrderFormArgs) {
     selectedStock,
     errorMessage,
     isSubmitting: orderMutation.isPending,
-    setSide,
+    setSide: (newSide: OrderSide) => {
+      setSide(newSide)
+      setQuantity(0)
+    },
     setType,
     increment,
     decrement,
