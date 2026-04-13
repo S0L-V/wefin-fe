@@ -343,7 +343,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       chartRef.current?.timeScale().fitContent()
       isInitialLoad.current = false
     }
-  }, [allCandles])
+  }, [allCandles, periodCode])
 
   // 실시간 체결가로 캔들 업데이트
   useEffect(() => {
