@@ -1,9 +1,9 @@
 import { ChevronDown, RefreshCw } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
-import type { ClusterItem } from '../api/fetch-news-clusters'
 import type { PopularTag } from '../api/fetch-popular-tags'
 import { useFilteredFeedQuery } from '../model/use-filtered-feed-query'
+import { useNewsListStore } from '../model/use-news-list-store'
 import { usePopularTagsQuery } from '../model/use-popular-tags-query'
 import type { FilterMode } from './news-filter-bar'
 import NewsFilterBar from './news-filter-bar'
@@ -12,10 +12,15 @@ import NewsListCard from './news-list-card'
 const PAGE_SIZE = 10
 
 export default function NewsListSection() {
-  const [mode, setMode] = useState<FilterMode>('ALL')
-  const [selectedTags, setSelectedTags] = useState<PopularTag[]>([])
-  const [cursors, setCursors] = useState<(string | null)[]>([null])
-  const [loadedItems, setLoadedItems] = useState<ClusterItem[]>([])
+  const mode = useNewsListStore((s) => s.mode)
+  const selectedTags = useNewsListStore((s) => s.selectedTags)
+  const cursors = useNewsListStore((s) => s.cursors)
+  const loadedItems = useNewsListStore((s) => s.loadedItems)
+  const setMode = useNewsListStore((s) => s.setMode)
+  const setSelectedTags = useNewsListStore((s) => s.setSelectedTags)
+  const setCursors = useNewsListStore((s) => s.setCursors)
+  const setLoadedItems = useNewsListStore((s) => s.setLoadedItems)
+  const resetPagination = useNewsListStore((s) => s.resetPagination)
 
   const { data: sectorTags = [] } = usePopularTagsQuery('SECTOR')
   const { data: stockTags = [] } = usePopularTagsQuery('STOCK')
@@ -50,15 +55,11 @@ export default function NewsListSection() {
     resetPagination()
   }
 
-  function resetPagination() {
-    setCursors([null])
-    setLoadedItems([])
-  }
-
   function handleLoadMore() {
     if (!data?.hasNext || !data.nextCursor) return
+    const nextCursor = data.nextCursor
     setLoadedItems(currentItems)
-    setCursors((prev) => [...prev, data.nextCursor])
+    setCursors((prev) => [...prev, nextCursor])
   }
 
   return (

@@ -1,7 +1,5 @@
 import { ChevronDown, RefreshCw } from 'lucide-react'
-import { useState } from 'react'
 
-import type { ClusterItem } from '../api/fetch-news-clusters'
 import { useNewsFeedQuery } from '../model/use-news-feed-query'
 import { useNewsFeedStore } from '../model/use-news-feed-store'
 import NewsCard from './news-card'
@@ -11,10 +9,15 @@ const PAGE_SIZE = 6
 const INITIAL_VISIBLE = 2
 
 export default function NewsFeedSection() {
-  const { tab, setTab } = useNewsFeedStore()
-  const [cursors, setCursors] = useState<(string | null)[]>([null])
-  const [loadedItems, setLoadedItems] = useState<ClusterItem[]>([])
-  const [expanded, setExpanded] = useState(false)
+  const tab = useNewsFeedStore((s) => s.tab)
+  const cursors = useNewsFeedStore((s) => s.cursors)
+  const loadedItems = useNewsFeedStore((s) => s.loadedItems)
+  const expanded = useNewsFeedStore((s) => s.expanded)
+  const setTab = useNewsFeedStore((s) => s.setTab)
+  const setCursors = useNewsFeedStore((s) => s.setCursors)
+  const setLoadedItems = useNewsFeedStore((s) => s.setLoadedItems)
+  const setExpanded = useNewsFeedStore((s) => s.setExpanded)
+  const resetPagination = useNewsFeedStore((s) => s.resetPagination)
 
   const latestCursor = cursors[cursors.length - 1] ?? null
   const { data, isLoading, isError, isFetching, isPlaceholderData } = useNewsFeedQuery(
@@ -32,9 +35,7 @@ export default function NewsFeedSection() {
 
   function handleTabChange(newTab: typeof tab) {
     setTab(newTab)
-    setCursors([null])
-    setLoadedItems([])
-    setExpanded(false)
+    resetPagination()
   }
 
   function handleExpand() {
@@ -43,8 +44,9 @@ export default function NewsFeedSection() {
 
   function handleLoadMore() {
     if (!data?.hasNext || !data.nextCursor) return
+    const nextCursor = data.nextCursor
     setLoadedItems(currentItems)
-    setCursors((prev) => [...prev, data.nextCursor])
+    setCursors((prev) => [...prev, nextCursor])
   }
 
   const newsItems = currentItems
