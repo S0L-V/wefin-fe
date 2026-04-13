@@ -2,7 +2,11 @@ import type { IFrame, StompSubscription } from '@stomp/stompjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
-import type { OrderbookData, PriceData } from '@/features/stock-detail/api/fetch-stock-detail'
+import type {
+  OrderbookData,
+  PriceData,
+  RecentTradeData
+} from '@/features/stock-detail/api/fetch-stock-detail'
 import type { CandleMessage } from '@/features/stock-detail/api/stock-socket-messages'
 import {
   candleMessageSchema,
@@ -72,6 +76,24 @@ export function useStockSocket(stockCode: string | undefined): void {
               highPrice: msg.highPrice,
               lowPrice: msg.lowPrice
             })
+
+            // 최근 체결내역 리스트 앞에 추가 (최대 50건 유지)
+            queryClient.setQueryData<RecentTradeData[]>(
+              ['stocks', stockCode, 'trades', 'recent'],
+              (prev) => {
+                const newTrade: RecentTradeData = {
+                  tradeTime: msg.tradeTime,
+                  price: msg.currentPrice,
+                  changePrice: msg.changePrice,
+                  changeSign: msg.changePrice >= 0 ? '2' : '5',
+                  changeRate: msg.changeRate,
+                  volume: msg.tradeVolume,
+                  tradeStrength: 0
+                }
+                const list = prev ? [newTrade, ...prev] : [newTrade]
+                return list.slice(0, 50)
+              }
+            )
           } catch (err) {
             console.warn('[useStockSocket] TRADE 처리 실패:', err)
           }
