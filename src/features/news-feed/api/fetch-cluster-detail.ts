@@ -35,8 +35,12 @@ const clusterDetailSchema = z.object({
   marketTags: z.array(z.string()),
   isRead: z.boolean(),
   sections: z.array(sectionSchema),
+  suggestedQuestions: z.array(z.string()).optional().default([]),
+  feedbackType: z.enum(['HELPFUL', 'NOT_HELPFUL']).nullable().optional(),
   articleContent: z.string().nullable().optional()
 })
+
+export type FeedbackType = 'HELPFUL' | 'NOT_HELPFUL'
 
 export type ClusterDetail = z.infer<typeof clusterDetailSchema>
 export type ArticleSource = z.infer<typeof articleSourceSchema>

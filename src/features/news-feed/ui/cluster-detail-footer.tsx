@@ -10,7 +10,13 @@ import {
   TrendingUp
 } from 'lucide-react'
 
-import type { ClusterDetail } from '../api/fetch-cluster-detail'
+import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
+import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
+import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
+import { ApiError } from '@/shared/api/base-api'
+
+import type { ClusterDetail, FeedbackType } from '../api/fetch-cluster-detail'
+import { useClusterFeedbackMutation } from '../model/use-cluster-feedback-mutation'
 
 interface ClusterDetailFooterProps {
   cluster: ClusterDetail
@@ -18,15 +24,59 @@ interface ClusterDetailFooterProps {
 
 export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProps) {
   const sectorTag = cluster.marketTags[0]
+  const userId = useAuthUserId()
+  const openLogin = useLoginDialogStore((s) => s.openLogin)
+  const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
+  const feedbackMutation = useClusterFeedbackMutation(cluster.clusterId)
+  const currentFeedback = cluster.feedbackType ?? null
+
+  function handleQuestionClick(question: string) {
+    if (!userId) {
+      openLogin()
+      return
+    }
+    openChatWithPrompt(question)
+  }
+
+  function handleFeedback(type: FeedbackType) {
+    if (!userId) {
+      openLogin()
+      return
+    }
+    if (currentFeedback || feedbackMutation.isPending) return
+
+    feedbackMutation.mutate(type, {
+      onError: (error) => {
+        if (error instanceof ApiError && error.status === 409) return
+        window.alert('피드백 전송에 실패했습니다. 잠시 후 다시 시도해주세요.')
+      }
+    })
+  }
 
   return (
     <div className="mt-10 space-y-12">
       {/* Feedback */}
       <div className="rounded-2xl bg-gray-50 py-6 text-center">
-        <p className="text-sm font-semibold text-wefin-text">도움이 되셨나요?</p>
+        <p className="text-sm font-semibold text-wefin-text">
+          {currentFeedback ? '피드백을 남겨주셨어요' : '도움이 되셨나요?'}
+        </p>
         <div className="mt-3 flex justify-center gap-3">
-          <FeedbackButton icon={<ThumbsUp className="h-3.5 w-3.5" />} label="도움돼요" />
-          <FeedbackButton icon={<ThumbsDown className="h-3.5 w-3.5" />} label="아쉬워요" />
+          <FeedbackButton
+            icon={<ThumbsUp className="h-3.5 w-3.5" />}
+            label="도움돼요"
+            active={currentFeedback === 'HELPFUL'}
+            dimmed={currentFeedback !== null && currentFeedback !== 'HELPFUL'}
+            disabled={currentFeedback !== null || feedbackMutation.isPending}
+            onClick={() => handleFeedback('HELPFUL')}
+          />
+          <FeedbackButton
+            icon={<ThumbsDown className="h-3.5 w-3.5" />}
+            label="아쉬워요"
+            active={currentFeedback === 'NOT_HELPFUL'}
+            dimmed={currentFeedback !== null && currentFeedback !== 'NOT_HELPFUL'}
+            disabled={currentFeedback !== null || feedbackMutation.isPending}
+            onClick={() => handleFeedback('NOT_HELPFUL')}
+          />
         </div>
       </div>
 
@@ -52,25 +102,27 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
       </div>
 
       {/* AI Questions */}
-      <div>
-        <div className="mb-4 flex items-center gap-2">
-          <Sparkles size={20} className="text-[#3db9b9]" />
-          <h3 className="text-lg font-bold text-gray-900">AI에게 더 물어보기</h3>
+      {cluster.suggestedQuestions.length > 0 && (
+        <div>
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles size={20} className="text-[#3db9b9]" />
+            <h3 className="text-lg font-bold text-gray-900">AI에게 더 물어보기</h3>
+          </div>
+          <div className="space-y-2">
+            {cluster.suggestedQuestions.map((q, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleQuestionClick(q)}
+                className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-100 px-4 py-3 text-left text-sm text-wefin-text transition-colors hover:border-[#3db9b9]/40 hover:bg-[#3db9b9]/5"
+              >
+                <span className="line-clamp-1">{q}</span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="space-y-2">
-          {getSuggestedQuestions(cluster).map((q, i) => (
-            <button
-              key={i}
-              disabled
-              title="준비 중"
-              className="flex w-full items-center justify-between rounded-xl border border-gray-100 px-4 py-3 text-left text-sm text-wefin-text cursor-not-allowed opacity-60"
-            >
-              <span className="line-clamp-1">{q}</span>
-              <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Related sector interest */}
       {sectorTag && (
@@ -129,30 +181,36 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   )
 }
 
-function FeedbackButton({ icon, label }: { icon: React.ReactNode; label: string }) {
+function FeedbackButton({
+  icon,
+  label,
+  active,
+  dimmed,
+  disabled,
+  onClick
+}: {
+  icon: React.ReactNode
+  label: string
+  active: boolean
+  dimmed: boolean
+  disabled: boolean
+  onClick: () => void
+}) {
+  const activeClass = 'border-[#3db9b9] bg-[#3db9b9]/10 text-[#2a8282]'
+  const idleClass = 'border-gray-200 bg-white text-wefin-subtle hover:bg-gray-50'
+  const dimmedClass = 'opacity-50'
+
   return (
     <button
-      disabled
-      title="준비 중"
-      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-wefin-subtle cursor-not-allowed opacity-60"
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition-colors ${
+        active ? activeClass : idleClass
+      } ${dimmed ? dimmedClass : ''} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
     >
       {icon}
       {label}
     </button>
   )
-}
-
-function getSuggestedQuestions(cluster: ClusterDetail): string[] {
-  const questions: string[] = []
-  const stockNames = cluster.relatedStocks.map((s) => s.name)
-
-  if (stockNames.length > 0) {
-    questions.push(`${stockNames[0]}의 최근 실적과 전망은 어떤가요?`)
-  }
-  if (cluster.marketTags.length > 0) {
-    questions.push(`${cluster.marketTags[0]} 분야의 투자 전망은 어떤가요?`)
-  }
-  questions.push('이 뉴스가 일반 투자자에게 미치는 영향은 무엇인가요?')
-
-  return questions.slice(0, 3)
 }
