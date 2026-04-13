@@ -48,10 +48,10 @@ function toChartTime(date: string, periodCode: string): Time {
   if (MINUTE_PERIODS.has(periodCode)) {
     // "2026-04-13T15:01:00" → KST 시간을 UTC인 것처럼 취급하여 차트에 KST로 표시
     const utcString = date.length >= 19 ? date.substring(0, 19) + 'Z' : date + 'Z'
-    return Math.floor(new Date(utcString).getTime() / 1000)
+    return Math.floor(new Date(utcString).getTime() / 1000) as Time
   }
   // 일봉: "2026-04-13T00:00:00" → "2026-04-13"
-  return date.substring(0, 10)
+  return date.substring(0, 10) as Time
 }
 
 interface OhlcInfo {
@@ -390,6 +390,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       }
 
       const candle = liveCandle.current
+      if (!candle) return
       try {
         candleSeriesRef.current.update({
           time: candle.time as Time,
