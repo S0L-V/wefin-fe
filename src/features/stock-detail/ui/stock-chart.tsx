@@ -42,10 +42,12 @@ const datePeriods: PeriodTab[] = [
 const TOOLBAR_HEIGHT = 32
 const MINUTE_PERIODS = new Set(['1', '5', '15', '30', '60'])
 
-/** 분봉이면 Unix timestamp, 일봉이면 "YYYY-MM-DD" 문자열 반환 */
+/** 분봉이면 Unix timestamp (KST 보정), 일봉이면 "YYYY-MM-DD" 문자열 반환 */
 function toChartTime(date: string, periodCode: string): string | number {
   if (MINUTE_PERIODS.has(periodCode)) {
-    return Math.floor(new Date(date).getTime() / 1000)
+    // "2026-04-13T15:01:00" → KST 시간을 UTC인 것처럼 취급하여 차트에 KST로 표시
+    const utcString = date.length >= 19 ? date.substring(0, 19) + 'Z' : date + 'Z'
+    return Math.floor(new Date(utcString).getTime() / 1000)
   }
   // 일봉: "2026-04-13T00:00:00" → "2026-04-13"
   return date.substring(0, 10)
@@ -270,37 +272,61 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     volumeSeriesRef.current.setData(volumeData)
 
     if (isInitialLoad.current) {
-      chartRef.current?.timeScale().fitContent()
+      if (MINUTE_PERIODS.has(periodCode)) {
+        chartRef.current?.timeScale().scrollToRealTime()
+      } else {
+        chartRef.current?.timeScale().fitContent()
+      }
       isInitialLoad.current = false
     }
   }, [allCandles])
 
-  // 실시간 체결가로 마지막 캔들 업데이트
+  // 실시간 체결가로 캔들 업데이트
   useEffect(() => {
     if (!candleSeriesRef.current || !volumeSeriesRef.current || !price || allCandles.length === 0)
       return
 
-    const lastCandle = allCandles[allCandles.length - 1]
     const currentPrice = price.currentPrice
 
-    // 분봉일 때: 현재 시각이 마지막 캔들의 시간대에 속하는지 확인
-    // 일봉/주봉/월봉일 때: 오늘 날짜가 마지막 캔들 날짜와 같으면 업데이트
-    const time = toChartTime(lastCandle.date, periodCode)
+    if (MINUTE_PERIODS.has(periodCode)) {
+      // 분봉: 현재 KST 시간 기준으로 진행 중인 캔들을 실시간 업데이트
+      // KST 시간을 UTC처럼 취급하는 오프셋 (lightweight-charts용)
+      const KST_OFFSET = 9 * 60 * 60
+      const nowSec = Math.floor(Date.now() / 1000) + KST_OFFSET
+      const periodSec = parseInt(periodCode) * 60
+      const time = Math.floor(nowSec / periodSec) * periodSec
 
-    candleSeriesRef.current.update({
-      time,
-      open: lastCandle.openPrice,
-      high: Math.max(lastCandle.highPrice, currentPrice),
-      low: Math.min(lastCandle.lowPrice, currentPrice),
-      close: currentPrice
-    })
+      try {
+        candleSeriesRef.current.update({
+          time,
+          open: currentPrice,
+          high: currentPrice,
+          low: currentPrice,
+          close: currentPrice
+        })
+      } catch {
+        // 시간 순서 충돌 시 무시
+      }
+    } else {
+      // 일봉/주봉/월봉: REST 데이터의 마지막 캔들 기준
+      const lastCandle = allCandles[allCandles.length - 1]
+      const time = toChartTime(lastCandle.date, periodCode)
 
-    volumeSeriesRef.current.update({
-      time,
-      value: price.volume,
-      color: currentPrice >= lastCandle.openPrice ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
-    })
-  }, [price, allCandles])
+      candleSeriesRef.current.update({
+        time,
+        open: lastCandle.openPrice,
+        high: Math.max(lastCandle.highPrice, currentPrice),
+        low: Math.min(lastCandle.lowPrice, currentPrice),
+        close: currentPrice
+      })
+
+      volumeSeriesRef.current.update({
+        time,
+        value: price.volume,
+        color: currentPrice >= lastCandle.openPrice ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'
+      })
+    }
+  }, [price, allCandles, periodCode])
 
   // 분봉 WS 메시지로 새 캔들 추가 / 현재 캔들 업데이트
   useEffect(() => {
@@ -310,25 +336,31 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     if (!isMinutePeriod) return
     if (latestCandle.periodCode !== periodCode) return
 
-    // "2026-04-13T01:30:00" → Unix timestamp (초 단위)
-    const utcTimestamp = Math.floor(new Date(latestCandle.time).getTime() / 1000)
+    // KST 시간을 UTC인 것처럼 취급하여 차트에 KST로 표시
+    const timeStr = latestCandle.time
+    const utcString = timeStr.length >= 19 ? timeStr.substring(0, 19) + 'Z' : timeStr + 'Z'
+    const utcTimestamp = Math.floor(new Date(utcString).getTime() / 1000)
 
-    candleSeriesRef.current.update({
-      time: utcTimestamp,
-      open: latestCandle.openPrice,
-      high: latestCandle.highPrice,
-      low: latestCandle.lowPrice,
-      close: latestCandle.closePrice
-    })
+    try {
+      candleSeriesRef.current.update({
+        time: utcTimestamp,
+        open: latestCandle.openPrice,
+        high: latestCandle.highPrice,
+        low: latestCandle.lowPrice,
+        close: latestCandle.closePrice
+      })
 
-    volumeSeriesRef.current.update({
-      time: utcTimestamp,
-      value: latestCandle.volume,
-      color:
-        latestCandle.closePrice >= latestCandle.openPrice
-          ? 'rgba(239,68,68,0.3)'
-          : 'rgba(59,130,246,0.3)'
-    })
+      volumeSeriesRef.current.update({
+        time: utcTimestamp,
+        value: latestCandle.volume,
+        color:
+          latestCandle.closePrice >= latestCandle.openPrice
+            ? 'rgba(239,68,68,0.3)'
+            : 'rgba(59,130,246,0.3)'
+      })
+    } catch {
+      // 시간 순서 충돌 시 무시 — 다음 폴링/WS에서 정상화됨
+    }
   }, [latestCandle, periodCode])
 
   return (

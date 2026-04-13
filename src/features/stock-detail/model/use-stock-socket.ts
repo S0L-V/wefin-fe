@@ -112,6 +112,7 @@ export function useStockSocket(stockCode: string | undefined): void {
             }
             const msg = parsed.data
             lastWsReceiveTime = Date.now()
+            console.log('[CANDLE WS]', msg.periodCode, msg.time, msg.closePrice)
             // candle 메시지를 개별 캐시 키에 저장 — 차트에서 구독
             queryClient.setQueryData<CandleMessage>(['stocks', stockCode, 'candle', 'latest'], msg)
           } catch (err) {
