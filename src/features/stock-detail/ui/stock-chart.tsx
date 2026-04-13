@@ -46,8 +46,8 @@ const MINUTE_PERIODS = new Set(['1', '5', '15', '30', '60'])
 /** 분봉이면 Unix timestamp (KST 보정), 일봉이면 "YYYY-MM-DD" 문자열 반환 */
 function toChartTime(date: string, periodCode: string): Time {
   if (MINUTE_PERIODS.has(periodCode)) {
-    // "2026-04-13T15:01:00" → KST 시간을 UTC인 것처럼 취급하여 차트에 KST로 표시
-    const utcString = date.length >= 19 ? date.substring(0, 19) + 'Z' : date + 'Z'
+    // "2026-04-13T15:01:00" → KST 시간을 UTC 기준 변환 후 offset 적용하여 차트에 KST로 표시
+    const utcString = date.length >= 19 ? date.substring(0, 19) + '+00:00' : date + '+00:00'
     return Math.floor(new Date(utcString).getTime() / 1000) as Time
   }
   // 일봉: "2026-04-13T00:00:00" → "2026-04-13"
@@ -333,7 +333,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       return
     }
 
-    // 중복 시간 제거 (마지막 값 유지)
+    // 중복 시간 제거 (첫 번째 값 유지)
     const seen = new Set<string>()
     const deduped = allCandles.filter((c) => {
       const key = String(toChartTime(c.date, periodCode))
@@ -449,9 +449,10 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     if (!isMinutePeriod) return
     if (latestCandle.periodCode !== periodCode) return
 
-    // KST 시간을 UTC인 것처럼 취급하여 차트에 KST로 표시
+    // KST 시간을 UTC 기준 변환 후 offset 적용하여 차트에 KST로 표시
     const timeStr = latestCandle.time
-    const utcString = timeStr.length >= 19 ? timeStr.substring(0, 19) + 'Z' : timeStr + 'Z'
+    const utcString =
+      timeStr.length >= 19 ? timeStr.substring(0, 19) + '+00:00' : timeStr + '+00:00'
     const utcTimestamp = Math.floor(new Date(utcString).getTime() / 1000)
 
     try {
