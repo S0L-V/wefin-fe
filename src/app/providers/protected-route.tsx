@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
@@ -8,9 +8,21 @@ type ProtectedRouteProps = {
 }
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const token = localStorage.getItem('accessToken')
+  const [token, setToken] = useState(() => localStorage.getItem('accessToken'))
   const openLogin = useLoginDialogStore((state) => state.openLogin)
   const location = useLocation()
+
+  useEffect(() => {
+    const syncAuthState = () => {
+      setToken(localStorage.getItem('accessToken'))
+    }
+
+    window.addEventListener('auth-changed', syncAuthState)
+
+    return () => {
+      window.removeEventListener('auth-changed', syncAuthState)
+    }
+  }, [])
 
   useEffect(() => {
     if (!token) {
