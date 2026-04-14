@@ -6,6 +6,7 @@ interface PlayHeaderProps {
   seed: number
   totalAssets: number
   profitRate: number
+  isAdvancing: boolean
   onNextTurn: () => void
   onLeave: () => void
   onEndGame: () => void
@@ -17,6 +18,7 @@ function PlayHeader({
   seed,
   totalAssets,
   profitRate,
+  isAdvancing,
   onNextTurn,
   onLeave,
   onEndGame
@@ -48,10 +50,11 @@ function PlayHeader({
         <button
           type="button"
           onClick={onNextTurn}
-          className="flex items-center gap-2 rounded-xl bg-wefin-mint px-5 py-2 text-sm font-bold text-white shadow-lg shadow-wefin-mint/20 transition-opacity hover:opacity-90"
+          disabled={isAdvancing}
+          className="flex items-center gap-2 rounded-xl bg-wefin-mint px-5 py-2 text-sm font-bold text-white shadow-lg shadow-wefin-mint/20 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Play size={14} fill="currentColor" />
-          다음으로 이동
+          {isAdvancing ? '전환 중…' : '다음으로 이동'}
         </button>
         <button
           type="button"

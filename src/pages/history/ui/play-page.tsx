@@ -1,8 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
 import { useLeaveRoomGuard } from '@/features/game-room/model/use-leave-room-guard'
 import { usePortfolioQuery } from '@/features/game-room/model/use-portfolio-query'
+import { useTurnAdvanceMutation } from '@/features/game-room/model/use-turn-advance-mutation'
+import { useTurnChangeSocket } from '@/features/game-room/model/use-turn-change-socket'
 import GroupChat from '@/features/game-room/ui/group-chat'
 import GroupRanking from '@/features/game-room/ui/group-ranking'
 import HoldingsPanel from '@/features/game-room/ui/holdings-panel'
@@ -18,14 +21,17 @@ function PlayPage() {
   const guard = useLeaveRoomGuard(roomId ?? '')
   const { data: roomDetail } = useGameRoomDetailQuery(roomId ?? '')
   const { data: portfolio } = usePortfolioQuery(roomId ?? '')
+  const { data: currentTurn } = useCurrentTurnQuery(roomId ?? '')
+  const turnAdvance = useTurnAdvanceMutation(roomId ?? '')
+  useTurnChangeSocket(roomId ?? '')
 
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
   }
 
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
-  const currentDate = roomDetail?.data.startDate ?? '2023-10-19'
-  const currentRound = 1 // TODO: 턴 API 연동
+  const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
+  const currentRound = currentTurn?.turnNumber ?? 1
   const totalAssets = portfolio?.data.totalAsset ?? seed
   const profitRate = portfolio?.data.profitRate ?? 0
   const cash = portfolio?.data.cash ?? seed
@@ -40,9 +46,8 @@ function PlayPage() {
           seed={seed}
           totalAssets={totalAssets}
           profitRate={profitRate}
-          onNextTurn={() => {
-            /* TODO: 턴 진행 API 연결 */
-          }}
+          isAdvancing={turnAdvance.isPending}
+          onNextTurn={() => turnAdvance.mutate()}
           onLeave={() => guard.requestLeave('/history')}
           onEndGame={() => navigate(`/history/room/${roomId}/result`)}
         />

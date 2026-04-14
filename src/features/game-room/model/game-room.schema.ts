@@ -111,8 +111,57 @@ export const startRoomResponseSchema = z.object({
   })
 })
 
+// === API: 현재 턴 조회 ===
+
+export const turnStatusSchema = z.enum(['ACTIVE', 'COMPLETED'])
+
+export const currentTurnDataSchema = z.object({
+  turnId: z.uuid(),
+  turnNumber: z.number().int().min(1),
+  turnDate: z.iso.date(),
+  status: turnStatusSchema,
+  briefingId: z.uuid().nullable()
+})
+
+export const currentTurnResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: currentTurnDataSchema
+})
+
+// === API: 턴 전환 ===
+
+export const turnAdvanceDataSchema = z.discriminatedUnion('gameFinished', [
+  z.object({
+    gameFinished: z.literal(false),
+    turnId: z.uuid(),
+    turnNumber: z.number().int().min(1),
+    turnDate: z.iso.date(),
+    briefingId: z.uuid().nullable()
+  }),
+  z.object({
+    gameFinished: z.literal(true),
+    turnId: z.null(),
+    turnNumber: z.null(),
+    turnDate: z.null(),
+    briefingId: z.null()
+  })
+])
+
+export const turnAdvanceResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: turnAdvanceDataSchema
+})
+
 // === Type exports ===
 
+export type TurnAdvanceData = z.infer<typeof turnAdvanceDataSchema>
+export type TurnAdvanceResponse = z.infer<typeof turnAdvanceResponseSchema>
+export type CurrentTurnData = z.infer<typeof currentTurnDataSchema>
+export type CurrentTurnResponse = z.infer<typeof currentTurnResponseSchema>
 export type RoomListItem = z.infer<typeof roomListItemSchema>
 export type RoomListResponse = z.infer<typeof roomListResponseSchema>
 export type CreateRoomRequest = z.infer<typeof createRoomRequestSchema>

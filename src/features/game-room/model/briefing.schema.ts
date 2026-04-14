@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 export const briefingDataSchema = z.object({
   targetDate: z.iso.date(),
-  briefingText: z.string().min(1)
+  marketOverview: z.string().min(1),
+  keyIssues: z.string().min(1),
+  investmentHint: z.string().min(1)
 })
 
 export const briefingResponseSchema = z.object({
