@@ -52,6 +52,10 @@ export type MarketTrendsOverview = z.infer<typeof overviewSchema>
 
 export async function fetchMarketTrendsOverview(): Promise<MarketTrendsOverview> {
   const response = await baseApi.get('/market-trends/overview')
-  const parsed = apiResponseSchema(overviewSchema).parse(response.data)
-  return parsed.data
+  const parsed = apiResponseSchema(overviewSchema).safeParse(response.data)
+  if (!parsed.success) {
+    console.error('시장 동향 응답 파싱 실패:', parsed.error.flatten())
+    throw parsed.error
+  }
+  return parsed.data.data
 }
