@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 
 import { stompClient } from '@/shared/api/stomp-client'
 
+import { gameRoomKeys, gameTurnKeys } from './query-keys'
+
 /**
  * 턴 전환 WebSocket 구독.
  * 다른 참가자가 턴을 전���하면 TURN_CHANGE 이벤트를 수신하여
@@ -12,6 +14,8 @@ export function useTurnChangeSocket(roomId: string) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
+    if (!roomId) return
+
     let subscription: { unsubscribe: () => void } | null = null
 
     function subscribe() {
@@ -20,10 +24,10 @@ export function useTurnChangeSocket(roomId: string) {
           const data = JSON.parse(message.body)
 
           if (data.type === 'TURN_CHANGE') {
-            queryClient.invalidateQueries({ queryKey: ['game-turn', 'current', roomId] })
-            queryClient.invalidateQueries({ queryKey: ['game-room', 'portfolio', roomId] })
-            queryClient.invalidateQueries({ queryKey: ['game-room', 'holdings', roomId] })
-            queryClient.invalidateQueries({ queryKey: ['game-room', 'briefing', roomId] })
+            queryClient.invalidateQueries({ queryKey: gameTurnKeys.current(roomId) })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
           }
         } catch {
           console.warn('[WebSocket] 턴 전환 메시지 파싱 실패:', message.body)

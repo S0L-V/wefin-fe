@@ -9,19 +9,20 @@ import {
   startGameRoom
 } from '../api/fetch-game-rooms'
 import type { CreateRoomRequest } from './game-room.schema'
+import { gameRoomKeys } from './query-keys'
 
 // === Query ===
 
 export function useGameRoomsQuery() {
   return useQuery({
-    queryKey: ['game-room', 'list'],
+    queryKey: gameRoomKeys.list(),
     queryFn: fetchGameRooms
   })
 }
 
 export function useGameRoomDetailQuery(roomId: string) {
   return useQuery({
-    queryKey: ['game-room', 'detail', roomId],
+    queryKey: gameRoomKeys.detail(roomId),
     queryFn: () => fetchGameRoomDetail(roomId),
     enabled: !!roomId
   })
@@ -35,7 +36,7 @@ export function useCreateGameRoomMutation() {
   return useMutation({
     mutationFn: (request: CreateRoomRequest) => createGameRoom(request),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['game-room', 'list'] })
+      queryClient.invalidateQueries({ queryKey: gameRoomKeys.list() })
     }
   })
 }
@@ -46,7 +47,7 @@ export function useJoinGameRoomMutation() {
   return useMutation({
     mutationFn: (roomId: string) => joinGameRoom(roomId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['game-room'] })
+      queryClient.invalidateQueries({ queryKey: gameRoomKeys.all })
     }
   })
 }
@@ -57,7 +58,7 @@ export function useLeaveGameRoomMutation() {
   return useMutation({
     mutationFn: (roomId: string) => leaveGameRoom(roomId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['game-room'] })
+      queryClient.invalidateQueries({ queryKey: gameRoomKeys.all })
     }
   })
 }
@@ -68,7 +69,7 @@ export function useStartGameRoomMutation() {
   return useMutation({
     mutationFn: (roomId: string) => startGameRoom(roomId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['game-room'] })
+      queryClient.invalidateQueries({ queryKey: gameRoomKeys.all })
     }
   })
 }

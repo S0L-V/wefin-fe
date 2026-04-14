@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { stompClient } from '@/shared/api/stomp-client'
 
+import { gameRoomKeys } from './query-keys'
+
 export function useGameRoomSocket(roomId: string) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -17,11 +19,11 @@ export function useGameRoomSocket(roomId: string) {
           const eventType = JSON.parse(message.body)
 
           if (eventType === 'PARTICIPANT_JOINED' || eventType === 'PARTICIPANT_LEFT') {
-            queryClient.invalidateQueries({ queryKey: ['game-room', 'detail', roomId] })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.detail(roomId) })
           }
 
           if (eventType === 'GAME_STARTED') {
-            queryClient.invalidateQueries({ queryKey: ['game-room'] })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.all })
             navigate(`/history/room/${roomId}/play`)
           }
         } catch {
