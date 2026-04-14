@@ -15,6 +15,7 @@ export function useShareClusterNewsAction(clusterId: number) {
   })
 
   function handleShareNews() {
+    if (shareClusterNews.isPending) return
     shareClusterNews.mutate(clusterId)
   }
 
