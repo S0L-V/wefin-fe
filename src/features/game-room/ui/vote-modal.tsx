@@ -66,7 +66,11 @@ function VoteModal({ roomId }: VoteModalProps) {
 
   function handleVote(agree: boolean) {
     markVoted()
-    voteMutation.mutate(agree)
+    voteMutation.mutate(agree, {
+      onError: () => {
+        useVoteStore.setState({ hasVoted: false })
+      }
+    })
   }
 
   const open = isVoting || result !== null

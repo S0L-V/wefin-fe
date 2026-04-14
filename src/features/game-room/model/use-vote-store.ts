@@ -32,7 +32,7 @@ export const useVoteStore = create<VoteState>((set) => ({
   ...initialState,
 
   startVote: (initiator, totalCount, timeoutSeconds) =>
-    set((state) => ({
+    set({
       isVoting: true,
       initiator,
       totalCount,
@@ -40,8 +40,8 @@ export const useVoteStore = create<VoteState>((set) => ({
       agreeCount: 0,
       disagreeCount: 0,
       result: null,
-      hasVoted: state.hasVoted
-    })),
+      hasVoted: false
+    }),
 
   updateVote: (agreeCount, disagreeCount, totalCount) =>
     set({ agreeCount, disagreeCount, totalCount }),

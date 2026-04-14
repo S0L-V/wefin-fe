@@ -23,7 +23,13 @@ export const stompClient = new Client({
   },
   reconnectDelay: 5000,
   onConnect: () => {
-    connectListeners.forEach((fn) => fn())
+    connectListeners.forEach((fn) => {
+      try {
+        fn()
+      } catch (e) {
+        console.error('[STOMP] connect listener error:', e)
+      }
+    })
   }
 })
 
