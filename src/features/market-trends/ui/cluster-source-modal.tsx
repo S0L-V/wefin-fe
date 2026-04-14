@@ -7,7 +7,8 @@ import type { SourceCluster } from '../api/fetch-market-trends-overview'
 const INITIAL_COLORS = ['#2b3a4a', '#24a8ab', '#6b7b8d', '#3b82f6', '#8b5cf6']
 
 interface ClusterSourceModalProps {
-  articleCount: number
+  /** 총 기사 수. 전체 시장 개요 등 기사 수 집계가 있는 경우에만 전달. 생략 시 클러스터 개수만 노출 */
+  articleCount?: number
   clusters: SourceCluster[]
   onClose: () => void
 }
@@ -47,7 +48,9 @@ export default function ClusterSourceModal({
             className="flex items-center gap-1.5 text-base font-bold text-wefin-text"
           >
             <span className="text-wefin-mint">✦</span>
-            출처 {articleCount}개 · 클러스터 {clusters.length}개
+            {articleCount != null
+              ? `출처 ${articleCount}개 · 클러스터 ${clusters.length}개`
+              : `관련 클러스터 ${clusters.length}개`}
           </h3>
           <button
             ref={closeRef}

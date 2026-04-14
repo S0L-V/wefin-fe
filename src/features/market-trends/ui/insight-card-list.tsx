@@ -68,11 +68,7 @@ function InsightCardItem({
         </div>
       )}
       {isModalOpen && (
-        <ClusterSourceModal
-          articleCount={sourceCount}
-          clusters={cardClusters}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <ClusterSourceModal clusters={cardClusters} onClose={() => setIsModalOpen(false)} />
       )}
     </article>
   )
