@@ -44,7 +44,6 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
   const [newGroupName, setNewGroupName] = useState('')
   const [copyMessage, setCopyMessage] = useState('')
   const copyTimeoutRef = useRef<number | null>(null)
-  const previousGroupIdRef = useRef<number | null>(null)
 
   const isHomeGroup = group?.isHomeGroup ?? true
 
@@ -125,10 +124,6 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       }
     }
   }, [])
-
-  useEffect(() => {
-    previousGroupIdRef.current = group?.groupId ?? null
-  }, [group?.groupId])
 
   const handleLeaveGroup = () => {
     if (!group || !canLeaveGroup || isLeaving) {
