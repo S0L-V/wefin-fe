@@ -33,7 +33,6 @@ function getMessageKey(
 
 export default function GlobalChatRoom() {
   const [message, setMessage] = useState('')
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
   const shouldRestoreScrollRef = useRef(false)
@@ -58,29 +57,24 @@ export default function GlobalChatRoom() {
       !!lastMessageKey &&
       previousLastMessageKeyRef.current !== lastMessageKey
 
-    if (shouldScrollToBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (shouldScrollToBottom && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
     }
 
     previousLastMessageKeyRef.current = lastMessageKey
   }, [lastMessageKey])
 
   useLayoutEffect(() => {
-    if (
-      !shouldRestoreScrollRef.current ||
-      !scrollContainerRef.current ||
-      previousHeightRef.current == null
-    ) {
+    if (isLoading || chatMessages.length === 0 || !scrollContainerRef.current) {
       return
     }
 
     const container = scrollContainerRef.current
-    const heightDiff = container.scrollHeight - previousHeightRef.current
-    container.scrollTop += heightDiff
-
-    shouldRestoreScrollRef.current = false
-    previousHeightRef.current = null
-  }, [chatMessages])
+    container.scrollTop = container.scrollHeight
+  }, [isLoading, chatMessages.length])
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()
@@ -189,8 +183,6 @@ export default function GlobalChatRoom() {
             </div>
           )
         })}
-
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="border-t border-gray-200 bg-white p-4">
