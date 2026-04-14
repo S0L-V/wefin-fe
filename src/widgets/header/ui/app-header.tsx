@@ -1,5 +1,5 @@
 import { type MouseEvent, useCallback, useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
@@ -25,6 +25,7 @@ function AppHeader() {
   const [authUser, setAuthUser] = useState<AuthUser>(() => getAuthUser())
   const guardActive = useLeaveGuardStore((s) => s.active)
   const requestLeave = useLeaveGuardStore((s) => s.requestLeave)
+  const navigate = useNavigate()
 
   const handleNavClick = useCallback(
     (e: MouseEvent, to: string) => {
@@ -100,6 +101,13 @@ function AppHeader() {
           {authUser.isLoggedIn ? (
             <>
               <span className="text-sm font-semibold text-wefin-text">{authUser.nickname}님</span>
+              <button
+                type="button"
+                onClick={() => navigate(routes.account)}
+                className="inline-flex h-[34px] min-w-[88px] items-center justify-center rounded-[9px] bg-wefin-mint px-4 text-sm font-semibold text-white transition-colors hover:bg-wefin-mint/90"
+              >
+                내 계좌
+              </button>
               <button
                 type="button"
                 onClick={handleLogout}

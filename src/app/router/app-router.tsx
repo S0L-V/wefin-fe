@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
 import ProtectedRoute from '@/app/providers/protected-route'
+import AccountPage from '@/pages/account/ui/account-page'
 import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
 import CreateRoomPage from '@/pages/history/ui/create-room-page'
@@ -81,6 +82,15 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="account"
+          element={
+            <ProtectedRoute>
+              <AccountPage />
             </ProtectedRoute>
           }
         />

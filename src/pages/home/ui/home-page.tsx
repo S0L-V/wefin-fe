@@ -1,7 +1,7 @@
-import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
 import MarketTrendsSection from '@/features/market-trends/ui/market-trends-section'
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
+import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
 
 function HomePage() {
   return (
@@ -12,8 +12,8 @@ function HomePage() {
         <NewsListSection />
       </section>
 
-      <aside className="min-h-[640px]">
-        <GlobalChatRoom />
+      <aside>
+        <HomeSidebar />
       </aside>
     </div>
   )
