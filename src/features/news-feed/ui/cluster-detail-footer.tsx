@@ -10,6 +10,7 @@ import {
   ThumbsUp,
   TrendingUp
 } from 'lucide-react'
+import { useState } from 'react'
 
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
@@ -31,7 +32,9 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
   const feedbackMutation = useClusterFeedbackMutation(cluster.clusterId)
   const queryClient = useQueryClient()
-  const currentFeedback = cluster.feedbackType ?? null
+  // 낙관적 상태: mutate 시점에 즉시 반영해 refetch가 완료되기 전에도 버튼이 다시 활성화되지 않도록 한다
+  const [optimisticFeedback, setOptimisticFeedback] = useState<FeedbackType | null>(null)
+  const currentFeedback = optimisticFeedback ?? cluster.feedbackType ?? null
 
   function handleQuestionClick(question: string) {
     if (!userId) {
@@ -48,13 +51,20 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
     }
     if (currentFeedback || feedbackMutation.isPending) return
 
+    setOptimisticFeedback(type)
     feedbackMutation.mutate(type, {
+      onSuccess: () => {
+        // 서버 확정 후 cluster.feedbackType이 채워지면 옵티미스틱 상태는 해제
+        setOptimisticFeedback(null)
+      },
       onError: (error) => {
-        // 409 = 이미 피드백을 남긴 경우. 서버 상태가 이미 반영돼 있으므로 클러스터 재조회로 UI 동기화
+        // 409 = 이미 피드백을 남긴 경우. 서버 상태가 이미 반영돼 있으므로 낙관 상태 유지 + 클러스터 재조회로 동기화
         if (error instanceof ApiError && error.status === 409) {
           queryClient.invalidateQueries({ queryKey: ['news', 'cluster', cluster.clusterId] })
           return
         }
+        // 그 외 실패는 롤백 후 안내
+        setOptimisticFeedback(null)
         window.alert('피드백 전송에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
     })
