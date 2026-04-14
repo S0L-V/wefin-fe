@@ -13,6 +13,7 @@ import {
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
+import StockPriceCard from '@/features/stock-price/ui/stock-price-card'
 import { ApiError } from '@/shared/api/base-api'
 
 import type { ClusterDetail, FeedbackType } from '../api/fetch-cluster-detail'
@@ -157,13 +158,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {cluster.relatedStocks.map((stock) => (
-              <div
-                key={stock.code}
-                className="flex cursor-pointer flex-col gap-1 rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-[#3db9b9]/50"
-              >
-                <span className="font-bold text-gray-900">{stock.name}</span>
-                <span className="text-sm text-gray-500">{stock.code}</span>
-              </div>
+              <StockPriceCard key={stock.code} code={stock.code} name={stock.name} />
             ))}
           </div>
         </div>
