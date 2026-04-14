@@ -1,14 +1,19 @@
 import { Link } from 'react-router-dom'
 
+import { useStockPriceQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
 import { routes } from '@/shared/config/routes'
-
-import { useStockPriceQuery } from '../model/use-stock-price-query'
 
 type Props = {
   code: string
   name: string
 }
 
+/**
+ * 뉴스 상세 "AI 추천 관련 종목" 등에서 사용하는 종목 시세 프리뷰 카드.
+ *
+ * 캐시는 stock-detail의 useStockPriceQuery(`['stocks', code, 'price']`)를 재사용하므로
+ * 종목 상세 페이지 및 WS 업데이트와 동일한 가격이 노출된다.
+ */
 export default function StockPriceCard({ code, name }: Props) {
   const { data, isLoading, isError } = useStockPriceQuery(code)
 
@@ -20,11 +25,9 @@ export default function StockPriceCard({ code, name }: Props) {
       <span className="font-bold text-gray-900">{name}</span>
       <div className="flex items-center gap-1.5">
         <span className="text-sm text-gray-500">
-          {isLoading && '···'}
-          {isError && code}
-          {data && !isLoading && !isError && formatPrice(data.currentPrice)}
+          {data ? formatPrice(data.currentPrice) : isLoading ? '···' : isError ? '조회 실패' : '—'}
         </span>
-        {data && !isLoading && !isError && <ChangeBadge changeRate={data.changeRate} />}
+        {data && <ChangeBadge changeRate={data.changeRate} />}
       </div>
     </Link>
   )

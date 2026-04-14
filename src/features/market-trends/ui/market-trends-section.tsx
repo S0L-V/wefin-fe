@@ -109,7 +109,8 @@ function PersonalizedTrendButton() {
       openLogin()
       return
     }
-    // TODO: 로그인 사용자 맞춤 동향 분석 연동
+    // 맞춤 동향 API 연동 전 임시 피드백 — 아무 반응도 없으면 버튼이 고장 난 것처럼 보이므로 안내
+    window.alert('맞춤 동향 분석 기능은 준비 중입니다. 곧 만나보실 수 있어요!')
   }
 
   return (
@@ -139,7 +140,12 @@ function formatUpdatedAt(iso: string) {
 }
 
 function formatTrendDate(date: string) {
-  const d = new Date(date)
+  // ISO date-only(YYYY-MM-DD)는 new Date()로 파싱하면 UTC 기준 00:00로 해석돼
+  // KST(UTC+9) 환경에서 하루 밀릴 수 있어 수동 파싱한다
+  const isoDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  const d = isoDateOnly
+    ? new Date(Number(isoDateOnly[1]), Number(isoDateOnly[2]) - 1, Number(isoDateOnly[3]))
+    : new Date(date)
   if (Number.isNaN(d.getTime())) return date
   return d.toLocaleDateString('ko-KR', {
     month: 'long',

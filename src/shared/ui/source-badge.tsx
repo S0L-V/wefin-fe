@@ -44,8 +44,9 @@ function SourceBadge({ sourceCount, sources, size = 'sm' }: Props) {
 }
 
 function getInitial(name: string): string {
-  if (!name) return '?'
-  return name.charAt(0).toUpperCase()
+  const trimmed = name?.trim() ?? ''
+  if (trimmed.length === 0) return '?'
+  return trimmed.charAt(0).toUpperCase()
 }
 
 const STYLES: Record<Size, { container: string; iconRow: string; icon: string }> = {

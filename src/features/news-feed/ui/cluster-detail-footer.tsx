@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import {
   ChevronRight,
   Layers,
@@ -29,6 +30,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   const openLogin = useLoginDialogStore((s) => s.openLogin)
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
   const feedbackMutation = useClusterFeedbackMutation(cluster.clusterId)
+  const queryClient = useQueryClient()
   const currentFeedback = cluster.feedbackType ?? null
 
   function handleQuestionClick(question: string) {
@@ -48,7 +50,11 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
 
     feedbackMutation.mutate(type, {
       onError: (error) => {
-        if (error instanceof ApiError && error.status === 409) return
+        // 409 = 이미 피드백을 남긴 경우. 서버 상태가 이미 반영돼 있으므로 클러스터 재조회로 UI 동기화
+        if (error instanceof ApiError && error.status === 409) {
+          queryClient.invalidateQueries({ queryKey: ['news', 'cluster', cluster.clusterId] })
+          return
+        }
         window.alert('피드백 전송에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
     })

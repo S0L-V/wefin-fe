@@ -15,15 +15,21 @@ const sourceClusterSchema = z.object({
   publishedAt: z.string()
 })
 
+const metricTypeSchema = z.enum(['KOSPI', 'NASDAQ', 'BASE_RATE', 'USD_KRW'])
+const changeDirectionSchema = z.enum(['UP', 'DOWN', 'FLAT'])
+
 const marketSnapshotSchema = z.object({
-  metricType: z.string(),
+  metricType: metricTypeSchema,
   label: z.string(),
   value: z.number(),
   changeRate: z.number().nullable(),
   changeValue: z.number().nullable(),
   unit: z.string(),
-  changeDirection: z.string()
+  changeDirection: changeDirectionSchema
 })
+
+export type MetricType = z.infer<typeof metricTypeSchema>
+export type ChangeDirection = z.infer<typeof changeDirectionSchema>
 
 const overviewSchema = z.object({
   generated: z.boolean(),
