@@ -1,0 +1,51 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+import {
+  buyOrder,
+  type BuyOrderParams,
+  cancelOrder,
+  modifyOrder,
+  type ModifyOrderParams,
+  sellOrder,
+  type SellOrderParams
+} from '../api/mutate-order'
+
+function invalidateOrderSideEffects(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: ['orders'] })
+  queryClient.invalidateQueries({ queryKey: ['trades'] })
+  queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+  queryClient.invalidateQueries({ queryKey: ['account'] })
+  queryClient.invalidateQueries({ queryKey: ['ranking'] })
+}
+
+export function useBuyMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (params: BuyOrderParams) => buyOrder(params),
+    onSuccess: () => invalidateOrderSideEffects(queryClient)
+  })
+}
+
+export function useSellMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (params: SellOrderParams) => sellOrder(params),
+    onSuccess: () => invalidateOrderSideEffects(queryClient)
+  })
+}
+
+export function useModifyOrderMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (params: ModifyOrderParams) => modifyOrder(params),
+    onSuccess: () => invalidateOrderSideEffects(queryClient)
+  })
+}
+
+export function useCancelOrderMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (orderNo: string) => cancelOrder(orderNo),
+    onSuccess: () => invalidateOrderSideEffects(queryClient)
+  })
+}
