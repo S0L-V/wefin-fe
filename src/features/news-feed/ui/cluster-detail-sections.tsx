@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-import type { ArticleSource, ClusterSection } from '../api/fetch-cluster-detail'
-import SourceListModal from './source-list-modal'
+import SourceBadge from '@/shared/ui/source-badge'
 
-const INITIAL_COLORS = ['#2b3a4a', '#24a8ab', '#6b7b8d']
+import type { ClusterSection } from '../api/fetch-cluster-detail'
+import SourceListModal from './source-list-modal'
 
 interface ClusterDetailSectionsProps {
   sections: ClusterSection[]
@@ -39,13 +39,17 @@ export default function ClusterDetailSections({
             </p>
 
             {section.sources.length > 0 && (
-              <div className="mt-4">
-                <SectionSourceBadge
+              <button
+                type="button"
+                onClick={() => setModalSection(section)}
+                className="mt-4 inline-block cursor-pointer transition-opacity hover:opacity-80"
+              >
+                <SourceBadge
+                  sourceCount={section.sourceCount}
                   sources={section.sources}
-                  count={section.sourceCount}
-                  onClick={() => setModalSection(section)}
+                  size="md"
                 />
-              </div>
+              </button>
             )}
           </div>
         ))}
@@ -59,38 +63,5 @@ export default function ClusterDetailSections({
         />
       )}
     </>
-  )
-}
-
-function SectionSourceBadge({
-  sources,
-  count,
-  onClick
-}: {
-  sources: ArticleSource[]
-  count: number
-  onClick: () => void
-}) {
-  const visibleSources = sources.slice(0, 3)
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-gray-50 px-3 py-1.5 text-xs text-wefin-subtle transition-colors hover:bg-gray-100"
-    >
-      <span className="flex -space-x-1.5">
-        {visibleSources.map((src, i) => (
-          <span
-            key={src.articleId}
-            className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white ring-2 ring-gray-50"
-            style={{ backgroundColor: INITIAL_COLORS[i % INITIAL_COLORS.length] }}
-          >
-            {src.publisherName.charAt(0).toUpperCase()}
-          </span>
-        ))}
-      </span>
-      {count}개 출처
-    </button>
   )
 }

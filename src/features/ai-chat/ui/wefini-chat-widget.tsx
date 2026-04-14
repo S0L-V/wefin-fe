@@ -17,6 +17,7 @@ import {
   type UserMessageSignature,
   wait
 } from '@/features/ai-chat/lib/wefini-chat-utils'
+import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 
 const AI_POLL_DELAY_MS = 2500
@@ -26,7 +27,11 @@ type PendingStatus = 'idle' | 'thinking' | 'syncing'
 
 export default function WefinyChatWidget() {
   const userId = useAuthUserId()
-  const [isOpen, setIsOpen] = useState(false)
+  const isOpen = useWefiniChatStore((s) => s.isOpen)
+  const toggle = useWefiniChatStore((s) => s.toggle)
+  const close = useWefiniChatStore((s) => s.close)
+  const pendingPrompt = useWefiniChatStore((s) => s.pendingPrompt)
+  const consumePendingPrompt = useWefiniChatStore((s) => s.consumePendingPrompt)
   const [messages, setMessages] = useState<AiChatMessage[]>([])
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -108,6 +113,15 @@ export default function WefinyChatWidget() {
 
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [isOpen, messages, pendingStatus])
+
+  useEffect(() => {
+    if (!isOpen || pendingPrompt === null) return
+
+    const prompt = consumePendingPrompt()
+    if (prompt !== null) {
+      setMessage(prompt)
+    }
+  }, [isOpen, pendingPrompt, consumePendingPrompt])
 
   const syncAiHistory = async (sessionVersion: number, options?: { preserveError?: boolean }) => {
     const requestId = ++syncRequestIdRef.current
@@ -248,7 +262,7 @@ export default function WefinyChatWidget() {
     <>
       <button
         type="button"
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={toggle}
         className="fixed right-6 bottom-6 z-30 flex h-17 w-17 items-center justify-center overflow-hidden rounded-full border border-[#b8efe7] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[3px] shadow-[0_24px_60px_rgba(24,122,112,0.26)] transition-transform hover:scale-[1.03]"
         aria-label={isOpen ? '위피니 채팅 닫기' : '위피니 채팅 열기'}
       >
@@ -279,7 +293,7 @@ export default function WefinyChatWidget() {
 
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={close}
               className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-white hover:text-gray-600"
               aria-label="위피니 채팅 닫기"
             >

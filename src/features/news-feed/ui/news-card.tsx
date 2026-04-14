@@ -1,17 +1,13 @@
 import { Layers } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+import SourceBadge from '@/shared/ui/source-badge'
+
 import type { ClusterItem } from '../api/fetch-news-clusters'
 import { getTimeAgo } from '../lib/get-time-ago'
 
 interface NewsCardProps {
   cluster: ClusterItem
-}
-
-const INITIAL_COLORS = ['#2b3a4a', '#24a8ab', '#6b7b8d', '#3b82f6', '#8b5cf6']
-
-function getInitial(name: string): string {
-  return name.charAt(0).toUpperCase()
 }
 
 export default function NewsCard({ cluster }: NewsCardProps) {
@@ -50,34 +46,5 @@ export default function NewsCard({ cluster }: NewsCardProps) {
         </div>
       </div>
     </Link>
-  )
-}
-
-function SourceBadge({
-  sources,
-  sourceCount
-}: {
-  sources: ClusterItem['sources']
-  sourceCount: number
-}) {
-  const visibleSources = sources.slice(0, 2)
-
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-1 text-[10px] leading-none text-wefin-subtle">
-      {visibleSources.length > 0 && (
-        <span className="flex -space-x-1">
-          {visibleSources.map((src, i) => (
-            <span
-              key={i}
-              className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-[7px] font-bold text-white ring-1 ring-white"
-              style={{ backgroundColor: INITIAL_COLORS[i % INITIAL_COLORS.length] }}
-            >
-              {getInitial(src.publisherName)}
-            </span>
-          ))}
-        </span>
-      )}
-      {sourceCount}개 출처
-    </span>
   )
 }

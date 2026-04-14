@@ -1,13 +1,17 @@
 import { useParams } from 'react-router-dom'
 
 import { useClusterDetailQuery } from '../model/use-cluster-detail-query'
+import { useMarkClusterRead } from '../model/use-mark-cluster-read'
 import ClusterDetailFooter from './cluster-detail-footer'
 import ClusterDetailHeader from './cluster-detail-header'
 import ClusterDetailSections from './cluster-detail-sections'
 
 export default function ClusterDetailContent() {
   const { clusterId } = useParams<{ clusterId: string }>()
-  const { data: cluster, isLoading, isError } = useClusterDetailQuery(Number(clusterId))
+  const numericClusterId = Number(clusterId)
+  const { data: cluster, isLoading, isError } = useClusterDetailQuery(numericClusterId)
+
+  useMarkClusterRead(numericClusterId, cluster?.isRead)
 
   if (isLoading) {
     return (
