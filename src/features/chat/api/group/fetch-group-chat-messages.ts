@@ -18,17 +18,33 @@ export const newsShareSchema = z.object({
   thumbnailUrl: z.string().nullable()
 })
 
-export const groupChatMessageSchema = z.object({
+const groupChatMessageBaseSchema = {
   messageId: z.number(),
   userId: z.string().nullable(),
   groupId: z.number(),
-  messageType: z.enum(['CHAT', 'NEWS', 'SYSTEM']),
   sender: z.string(),
   content: z.string(),
   createdAt: z.string(),
-  replyTo: replyMessageSchema.nullable(),
-  newsShare: newsShareSchema.nullable().optional()
-})
+  replyTo: replyMessageSchema.nullable()
+}
+
+export const groupChatMessageSchema = z.discriminatedUnion('messageType', [
+  z.object({
+    ...groupChatMessageBaseSchema,
+    messageType: z.literal('CHAT'),
+    newsShare: newsShareSchema.nullable().optional()
+  }),
+  z.object({
+    ...groupChatMessageBaseSchema,
+    messageType: z.literal('NEWS'),
+    newsShare: newsShareSchema
+  }),
+  z.object({
+    ...groupChatMessageBaseSchema,
+    messageType: z.literal('SYSTEM'),
+    newsShare: newsShareSchema.nullable().optional()
+  })
+])
 
 const groupChatMessagesPageSchema = z.object({
   messages: z.array(groupChatMessageSchema),

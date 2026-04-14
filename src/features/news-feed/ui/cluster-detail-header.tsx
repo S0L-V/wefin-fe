@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { ClusterDetail } from '../api/fetch-cluster-detail'
 import { getTimeAgo } from '../lib/get-time-ago'
-import { useShareClusterNews } from '../model/use-share-cluster-news'
+import { useShareClusterNewsAction } from '../model/use-share-cluster-news-action'
 
 interface ClusterDetailHeaderProps {
   cluster: ClusterDetail
@@ -15,17 +15,7 @@ function isAllowedUrl(url: string): boolean {
 
 export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProps) {
   const navigate = useNavigate()
-  const shareClusterNews = useShareClusterNews()
-
-  async function handleShareNews() {
-    try {
-      await shareClusterNews.mutateAsync(cluster.clusterId)
-      navigate('/chat')
-    } catch (error) {
-      console.error('Failed to share cluster news:', error)
-      window.alert('뉴스 공유에 실패했어요. 잠시 후 다시 시도해주세요.')
-    }
-  }
+  const { handleShareNews, isPending } = useShareClusterNewsAction(cluster.clusterId)
 
   return (
     <div>
@@ -40,10 +30,8 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
         </button>
         <button
           type="button"
-          onClick={() => {
-            void handleShareNews()
-          }}
-          disabled={shareClusterNews.isPending}
+          onClick={handleShareNews}
+          disabled={isPending}
           className="inline-flex items-center gap-1.5 rounded-full bg-wefin-mint px-4 py-2 text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-wefin-mint/50 disabled:text-white/70"
         >
           <Share2 className="h-3.5 w-3.5" />

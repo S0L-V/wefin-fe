@@ -11,7 +11,6 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
@@ -21,7 +20,7 @@ import { ApiError } from '@/shared/api/base-api'
 
 import type { ClusterDetail, FeedbackType } from '../api/fetch-cluster-detail'
 import { useClusterFeedbackMutation } from '../model/use-cluster-feedback-mutation'
-import { useShareClusterNews } from '../model/use-share-cluster-news'
+import { useShareClusterNewsAction } from '../model/use-share-cluster-news-action'
 
 interface ClusterDetailFooterProps {
   cluster: ClusterDetail
@@ -29,13 +28,12 @@ interface ClusterDetailFooterProps {
 
 export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProps) {
   const sectorTag = cluster.marketTags[0]
-  const navigate = useNavigate()
   const userId = useAuthUserId()
   const openLogin = useLoginDialogStore((s) => s.openLogin)
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
   const feedbackMutation = useClusterFeedbackMutation(cluster.clusterId)
   const queryClient = useQueryClient()
-  const shareClusterNews = useShareClusterNews()
+  const { handleShareNews, isPending } = useShareClusterNewsAction(cluster.clusterId)
   // 낙관적 상태: mutate 시점에 즉시 반영해 refetch가 완료되기 전에도 버튼이 다시 활성화되지 않도록 한다
   const [optimisticFeedback, setOptimisticFeedback] = useState<FeedbackType | null>(null)
   const currentFeedback = optimisticFeedback ?? cluster.feedbackType ?? null
@@ -46,16 +44,6 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
       return
     }
     openChatWithPrompt(question)
-  }
-
-  async function handleShareNews() {
-    try {
-      await shareClusterNews.mutateAsync(cluster.clusterId)
-      navigate('/chat')
-    } catch (error) {
-      console.error('Failed to share cluster news:', error)
-      window.alert('뉴스 공유에 실패했어요. 잠시 후 다시 시도해주세요.')
-    }
   }
 
   function handleFeedback(type: FeedbackType) {
@@ -124,10 +112,8 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
         </div>
         <button
           type="button"
-          onClick={() => {
-            void handleShareNews()
-          }}
-          disabled={shareClusterNews.isPending}
+          onClick={handleShareNews}
+          disabled={isPending}
           className="flex shrink-0 items-center gap-2 rounded-xl bg-[#3db9b9] px-6 py-3 font-bold text-white transition hover:bg-[#2a8282] disabled:cursor-not-allowed disabled:bg-[#3db9b9]/50 disabled:text-white/70"
         >
           <Share2 size={18} />
