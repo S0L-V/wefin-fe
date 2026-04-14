@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { fetchBriefing } from '../api/fetch-briefing'
+import { gameRoomKeys } from './query-keys'
 
 export function useBriefingQuery(roomId: string) {
   return useQuery({
-    queryKey: ['briefing', roomId],
+    queryKey: gameRoomKeys.briefing(roomId),
     queryFn: () => fetchBriefing(roomId),
     enabled: !!roomId,
     select: (response) => response.data,
