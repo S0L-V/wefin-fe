@@ -11,16 +11,40 @@ export const replyMessageSchema = z.object({
   content: z.string()
 })
 
-export const groupChatMessageSchema = z.object({
+export const newsShareSchema = z.object({
+  newsClusterId: z.number(),
+  title: z.string(),
+  summary: z.string().nullable(),
+  thumbnailUrl: z.string().nullable()
+})
+
+const groupChatMessageBaseSchema = {
   messageId: z.number(),
   userId: z.string().nullable(),
   groupId: z.number(),
-  messageType: z.enum(['CHAT', 'MEMO', 'SYSTEM']),
   sender: z.string(),
   content: z.string(),
   createdAt: z.string(),
   replyTo: replyMessageSchema.nullable()
-})
+}
+
+export const groupChatMessageSchema = z.discriminatedUnion('messageType', [
+  z.object({
+    ...groupChatMessageBaseSchema,
+    messageType: z.literal('CHAT'),
+    newsShare: newsShareSchema.nullable().optional()
+  }),
+  z.object({
+    ...groupChatMessageBaseSchema,
+    messageType: z.literal('NEWS'),
+    newsShare: newsShareSchema
+  }),
+  z.object({
+    ...groupChatMessageBaseSchema,
+    messageType: z.literal('SYSTEM'),
+    newsShare: newsShareSchema.nullable().optional()
+  })
+])
 
 const groupChatMessagesPageSchema = z.object({
   messages: z.array(groupChatMessageSchema),
@@ -29,6 +53,7 @@ const groupChatMessagesPageSchema = z.object({
 })
 
 export type ReplyMessage = z.infer<typeof replyMessageSchema>
+export type NewsShare = z.infer<typeof newsShareSchema>
 export type GroupChatMessage = z.infer<typeof groupChatMessageSchema>
 export type GroupChatMessagesPage = z.infer<typeof groupChatMessagesPageSchema>
 

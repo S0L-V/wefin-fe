@@ -1,5 +1,6 @@
 ﻿import { MessageSquareReply, Send, Users, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { useGroupChatStore } from '@/features/chat/model/group/group-chat-store'
@@ -35,6 +36,7 @@ function getMessageKey(
 
 export default function GroupChatRoom() {
   const [message, setMessage] = useState('')
+  const navigate = useNavigate()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
@@ -66,29 +68,24 @@ export default function GroupChatRoom() {
       !!lastMessageKey &&
       previousLastMessageKeyRef.current !== lastMessageKey
 
-    if (shouldScrollToBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (shouldScrollToBottom && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
     }
 
     previousLastMessageKeyRef.current = lastMessageKey
   }, [lastMessageKey])
 
   useLayoutEffect(() => {
-    if (
-      !shouldRestoreScrollRef.current ||
-      !scrollContainerRef.current ||
-      previousHeightRef.current == null
-    ) {
+    if (isLoading || chatMessages.length === 0 || !scrollContainerRef.current) {
       return
     }
 
     const container = scrollContainerRef.current
-    const heightDiff = container.scrollHeight - previousHeightRef.current
-    container.scrollTop += heightDiff
-
-    shouldRestoreScrollRef.current = false
-    previousHeightRef.current = null
-  }, [chatMessages])
+    container.scrollTop = container.scrollHeight
+  }, [isLoading, chatMessages.length])
 
   const handleSendMessage = () => {
     const didSend = sendMessage(client, message)
@@ -150,7 +147,7 @@ export default function GroupChatRoom() {
         onScroll={() => {
           void handleScroll()
         }}
-        className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6 pr-20"
+        className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6 pr-6"
       >
         {isLoadingOlder && (
           <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
@@ -159,12 +156,79 @@ export default function GroupChatRoom() {
         {chatMessages.map((msg) => {
           const isMine = msg.userId === userId
           const isSystem = msg.messageType === 'SYSTEM'
+          const isNews = msg.messageType === 'NEWS' && !!msg.newsShare
 
           if (isSystem) {
             return (
               <div key={getMessageKey(msg)} className="flex justify-center">
                 <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                   {msg.content}
+                </div>
+              </div>
+            )
+          }
+
+          if (isNews && msg.newsShare) {
+            const newsShare = msg.newsShare
+
+            return (
+              <div
+                key={getMessageKey(msg)}
+                className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+              >
+                <div
+                  className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}
+                >
+                  <span className="text-xs font-bold text-gray-700">{msg.sender}</span>
+                  <span className="text-[10px] text-gray-400">
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+
+                <div className={`relative w-full max-w-[340px] ${isMine ? 'mr-0' : ''}`}>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/news/${newsShare.newsClusterId}`)}
+                    className="w-full overflow-hidden rounded-[22px] border border-black/5 bg-[#1f1f1f] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    {newsShare.thumbnailUrl ? (
+                      <img
+                        src={newsShare.thumbnailUrl}
+                        alt={newsShare.title}
+                        className="h-36 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-36 items-center justify-center bg-gradient-to-br from-[#273b57] to-[#1f1f1f] text-sm font-semibold text-white/70">
+                        뉴스 미리보기
+                      </div>
+                    )}
+
+                    <div className="space-y-3 p-4 text-white">
+                      <div className="line-clamp-2 text-[15px] font-bold leading-6">
+                        {newsShare.title}
+                      </div>
+                      {newsShare.summary && (
+                        <p className="line-clamp-3 text-sm leading-6 text-white/75">
+                          {newsShare.summary}
+                        </p>
+                      )}
+                      <div className="text-sm font-semibold text-[#7ecbff] underline underline-offset-4">
+                        news 상세 보기
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReplyTarget(msg)}
+                    className={`absolute ${isMine ? 'left-[-56px]' : 'right-[-56px]'} bottom-0 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-600 shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]`}
+                  >
+                    <MessageSquareReply size={12} />
+                    답장
+                  </button>
                 </div>
               </div>
             )
@@ -185,7 +249,7 @@ export default function GroupChatRoom() {
                 </span>
               </div>
 
-              <div className="relative max-w-[70%]">
+              <div className={`relative max-w-[70%] ${isMine ? 'mr-0' : ''}`}>
                 <div
                   className={`rounded-2xl p-3 text-sm ${
                     isMine
@@ -212,7 +276,7 @@ export default function GroupChatRoom() {
                 <button
                   type="button"
                   onClick={() => setReplyTarget(msg)}
-                  className="absolute right-[-56px] bottom-0 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-600 shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]"
+                  className={`absolute ${isMine ? 'left-[-56px]' : 'right-[-56px]'} bottom-0 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-600 shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]`}
                 >
                   <MessageSquareReply size={12} />
                   답장
@@ -232,7 +296,11 @@ export default function GroupChatRoom() {
               <div className="mb-1 text-xs font-bold text-[#2a8282]">
                 {replyTarget.sender}에게 답장
               </div>
-              <div className="truncate text-sm text-gray-600">{replyTarget.content}</div>
+              <div className="truncate text-sm text-gray-600">
+                {replyTarget.messageType === 'NEWS' && replyTarget.newsShare
+                  ? replyTarget.newsShare.title
+                  : replyTarget.content}
+              </div>
             </div>
             <button
               type="button"

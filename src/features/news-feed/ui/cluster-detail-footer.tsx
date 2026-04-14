@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
+﻿import { useQueryClient } from '@tanstack/react-query'
 import {
   ChevronRight,
   Layers,
@@ -20,6 +20,7 @@ import { ApiError } from '@/shared/api/base-api'
 
 import type { ClusterDetail, FeedbackType } from '../api/fetch-cluster-detail'
 import { useClusterFeedbackMutation } from '../model/use-cluster-feedback-mutation'
+import { useShareClusterNewsAction } from '../model/use-share-cluster-news-action'
 
 interface ClusterDetailFooterProps {
   cluster: ClusterDetail
@@ -32,6 +33,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
   const feedbackMutation = useClusterFeedbackMutation(cluster.clusterId)
   const queryClient = useQueryClient()
+  const { handleShareNews, isPending } = useShareClusterNewsAction(cluster.clusterId)
   // 낙관적 상태: mutate 시점에 즉시 반영해 refetch가 완료되기 전에도 버튼이 다시 활성화되지 않도록 한다
   const [optimisticFeedback, setOptimisticFeedback] = useState<FeedbackType | null>(null)
   const currentFeedback = optimisticFeedback ?? cluster.feedbackType ?? null
@@ -105,13 +107,14 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
             생각하시나요?
           </h3>
           <p className="text-sm text-gray-600">
-            전체 채팅방에 공유하고 다른 투자자들과 의견을 나누어보세요.
+            그룹 채팅방에 공유하고 다른 투자자들과 의견을 나누어보세요.
           </p>
         </div>
         <button
-          disabled
-          title="준비 중"
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-[#3db9b9]/50 px-6 py-3 font-bold text-white/70 cursor-not-allowed"
+          type="button"
+          onClick={handleShareNews}
+          disabled={isPending}
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-[#3db9b9] px-6 py-3 font-bold text-white transition hover:bg-[#2a8282] disabled:cursor-not-allowed disabled:bg-[#3db9b9]/50 disabled:text-white/70"
         >
           <Share2 size={18} />
           <span>채팅방에 공유하기</span>
@@ -157,7 +160,6 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
           </div>
           <button
             disabled
-            title="준비 중"
             className="shrink-0 rounded-lg bg-[#3db9b9]/50 px-5 py-2.5 text-sm font-bold text-white/70 cursor-not-allowed"
           >
             관심 등록

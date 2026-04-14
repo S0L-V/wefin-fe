@@ -1,8 +1,9 @@
-import { ArrowLeft, Share2 } from 'lucide-react'
+﻿import { ArrowLeft, Share2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import type { ClusterDetail } from '../api/fetch-cluster-detail'
 import { getTimeAgo } from '../lib/get-time-ago'
+import { useShareClusterNewsAction } from '../model/use-share-cluster-news-action'
 
 interface ClusterDetailHeaderProps {
   cluster: ClusterDetail
@@ -14,6 +15,7 @@ function isAllowedUrl(url: string): boolean {
 
 export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProps) {
   const navigate = useNavigate()
+  const { handleShareNews, isPending } = useShareClusterNewsAction(cluster.clusterId)
 
   return (
     <div>
@@ -27,9 +29,10 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
           목록으로
         </button>
         <button
-          disabled
-          className="inline-flex items-center gap-1.5 rounded-full bg-wefin-mint/50 px-4 py-2 text-sm font-medium text-white/70 cursor-not-allowed"
-          title="준비 중"
+          type="button"
+          onClick={handleShareNews}
+          disabled={isPending}
+          className="inline-flex items-center gap-1.5 rounded-full bg-wefin-mint px-4 py-2 text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-wefin-mint/50 disabled:text-white/70"
         >
           <Share2 className="h-3.5 w-3.5" />
           채팅방 공유
