@@ -1,5 +1,11 @@
-import { Check, ChevronDown, Newspaper, Search, X } from 'lucide-react'
+import { Check, ChevronDown, Heart, Newspaper, Search, SlidersHorizontal, X } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+
+import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
+import { useSectorInterestsQuery } from '@/features/sector-interest/model/use-sector-interest-queries'
+import { useWatchlistQuery } from '@/features/watchlist/model/use-watchlist-queries'
+import { routes } from '@/shared/config/routes'
 
 import type { PopularTag } from '../api/fetch-popular-tags'
 
@@ -31,6 +37,34 @@ export default function NewsFilterBar({
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
+
+  const userId = useAuthUserId()
+  const { data: watchlist = [] } = useWatchlistQuery()
+  const { data: sectorInterests = [] } = useSectorInterestsQuery()
+  const hasAnyInterest = watchlist.length > 0 || sectorInterests.length > 0
+
+  // 관심사가 없어도 빈 상태에서 편집 버튼을 띄우려면 하트를 눌러 켤 수 있어야 한다.
+  // 실제 필터 적용은 interestFilterApplied(태그 일치)로, 단순 토글 상태는 emptyHeartOn으로 분리
+  const [emptyHeartOn, setEmptyHeartOn] = useState(false)
+
+  const interestTagsForMode: PopularTag[] =
+    mode === 'SECTOR'
+      ? sectorInterests.map((s) => ({ code: s.code, name: s.name, clusterCount: 0 }))
+      : mode === 'STOCK'
+        ? watchlist.map((w) => ({
+            code: w.stockCode,
+            name: w.stockName || w.stockCode,
+            clusterCount: 0
+          }))
+        : []
+  const interestFilterApplied =
+    mode !== 'ALL' &&
+    interestTagsForMode.length > 0 &&
+    selectedTags.length === interestTagsForMode.length &&
+    selectedTags.every((t) => interestTagsForMode.some((i) => i.code === t.code))
+  // 하트/편집 토글 상태: 실제 필터가 적용됐거나, 현재 모드에 관심사가 없어 빈 상태로 눌린 경우
+  const interestModeActive =
+    interestFilterApplied || (interestTagsForMode.length === 0 && emptyHeartOn)
 
   const rawTags = mode === 'SECTOR' ? sectorTags : mode === 'STOCK' ? stockTags : []
   const allTags = rawTags.filter(
@@ -73,6 +107,20 @@ export default function NewsFilterBar({
     setDropdownOpen(true)
     setSearch('')
     setTimeout(() => searchRef.current?.focus(), 0)
+  }
+
+  function handleInterestFilterClick() {
+    if (interestModeActive) {
+      onTagsChange([])
+      setEmptyHeartOn(false)
+      return
+    }
+    // 현재 모드에 등록된 관심사가 있으면 그 타입 태그를 적용. 없으면(ALL 포함) 타입을 바꾸지 않고 편집 버튼만 띄우는 빈 토글
+    if (interestTagsForMode.length > 0) {
+      onTagsChange(interestTagsForMode)
+      return
+    }
+    setEmptyHeartOn(true)
   }
 
   return (
@@ -166,6 +214,40 @@ export default function NewsFilterBar({
                 </div>
               </div>
             </>
+          )}
+        </div>
+      )}
+
+      {userId && (
+        <div className="inline-flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleInterestFilterClick}
+            aria-pressed={interestModeActive}
+            aria-label="내 관심사로 필터"
+            title={
+              !hasAnyInterest
+                ? '등록된 관심사가 없습니다. 편집에서 추가해주세요.'
+                : interestModeActive
+                  ? '관심사 필터 해제'
+                  : '내 관심사로 필터'
+            }
+            className={`inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
+              interestModeActive
+                ? 'border-red-300 bg-red-50 text-red-500'
+                : 'border-gray-200 bg-white text-wefin-subtle hover:border-red-200 hover:text-red-400'
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${interestModeActive ? 'fill-current' : ''}`} />
+          </button>
+          {interestModeActive && (
+            <Link
+              to={routes.interests}
+              className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-wefin-subtle transition-colors hover:bg-gray-200 hover:text-wefin-text"
+            >
+              <SlidersHorizontal className="h-3 w-3" />
+              편집
+            </Link>
           )}
         </div>
       )}
