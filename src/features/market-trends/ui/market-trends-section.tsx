@@ -97,12 +97,12 @@ function MarketTrendsSection() {
             personalizedError={personalizedQuery.isError}
             onAnalyzeClick={handleAnalyzeClick}
           />
-          {(isPersonalizedActive || isActionBriefing) && personalizedQuery.data && (
+          {(isPersonalizedActive || isActionBriefing) && personalizedData && (
             <PersonalizedSummaryBlock
               mode={personalizedMode!}
-              summary={personalizedQuery.data.summary}
-              articleCount={personalizedQuery.data.sourceArticleCount}
-              sourceClusters={personalizedQuery.data.sourceClusters}
+              summary={personalizedData.summary}
+              articleCount={personalizedData.sourceArticleCount}
+              sourceClusters={personalizedData.sourceClusters}
             />
           )}
           <InsightCardList cards={display.insightCards} sourceClusters={display.sourceClusters} />
