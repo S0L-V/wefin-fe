@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 
+import GroupChatRoom from '@/features/chat/ui/group-chat-room'
 import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
 import { useGameRoomSocket } from '@/features/game-room/model/use-game-room-socket'
@@ -9,7 +10,6 @@ import { useTurnChangeSocket } from '@/features/game-room/model/use-turn-change-
 import { useVoteMutation } from '@/features/game-room/model/use-vote-mutation'
 import { useVoteSocket } from '@/features/game-room/model/use-vote-socket'
 import { useVoteStore } from '@/features/game-room/model/use-vote-store'
-import GroupChat from '@/features/game-room/ui/group-chat'
 import GroupRanking from '@/features/game-room/ui/group-ranking'
 import HoldingsPanel from '@/features/game-room/ui/holdings-panel'
 import LeaveRoomDialog from '@/features/game-room/ui/leave-room-dialog'
@@ -42,6 +42,8 @@ function PlayPage() {
   const isHost =
     roomDetail?.data.participants.some((p) => p.isLeader && p.userId === userId) ?? false
 
+  const activePlayerCount =
+    roomDetail?.data.participants.filter((p) => p.status === 'ACTIVE').length ?? 0
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
@@ -59,6 +61,7 @@ function PlayPage() {
           seed={seed}
           totalAssets={totalAssets}
           profitRate={profitRate}
+          activePlayerCount={activePlayerCount}
           isHost={isHost}
           isAdvancing={voteMutation.isPending || isVoting}
           onNextTurn={() => {
@@ -80,9 +83,9 @@ function PlayPage() {
             <OrderPanel roomId={roomId} cash={cash} />
           </main>
 
-          <aside className="flex w-80 flex-col gap-4">
-            <GroupChat />
-            <GroupRanking />
+          <aside className="flex w-[360px] flex-col gap-4">
+            <GroupChatRoom />
+            <GroupRanking roomId={roomId} />
           </aside>
         </div>
       </div>

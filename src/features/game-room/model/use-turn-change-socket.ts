@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { onStompConnect, stompClient } from '@/shared/api/stomp-client'
 
 import { gameRoomKeys, gameTurnKeys } from './query-keys'
+import { useSelectedStockStore } from './use-selected-stock-store'
 
 /**
  * 턴 전환 WebSocket 구독.
@@ -29,9 +30,18 @@ export function useTurnChangeSocket(roomId: string) {
             queryClient.invalidateQueries({ queryKey: gameTurnKeys.current(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.rankings(roomId) })
             queryClient
               .invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
               .then(() => console.log('[TURN_CHANGE] briefing invalidation complete'))
+
+            // 선택된 종목이 있으면 차트도 갱신 (턴 전환 → 종가 변경)
+            const selectedSymbol = useSelectedStockStore.getState().selectedStock?.symbol
+            if (selectedSymbol) {
+              queryClient.invalidateQueries({
+                queryKey: gameRoomKeys.stockChart(selectedSymbol, roomId)
+              })
+            }
           }
         } catch {
           console.warn('[WebSocket] 턴 전환 메시지 파싱 실패:', message.body)

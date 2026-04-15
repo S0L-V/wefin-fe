@@ -6,6 +6,7 @@ interface PlayHeaderProps {
   seed: number
   totalAssets: number
   profitRate: number
+  activePlayerCount: number
   isHost: boolean
   isAdvancing: boolean
   onNextTurn: () => void
@@ -19,6 +20,7 @@ function PlayHeader({
   seed,
   totalAssets,
   profitRate,
+  activePlayerCount,
   isHost,
   isAdvancing,
   onNextTurn,
@@ -35,6 +37,9 @@ function PlayHeader({
           <span className="font-bold text-wefin-text">타임머신 모의투자</span>
           <span className="rounded-full bg-wefin-mint-soft px-2 py-0.5 text-xs font-bold text-wefin-mint">
             {currentRound}턴
+          </span>
+          <span className="rounded-full bg-wefin-bg px-2.5 py-0.5 text-xs font-bold text-wefin-subtle">
+            참여자 {activePlayerCount}/6
           </span>
         </div>
 
