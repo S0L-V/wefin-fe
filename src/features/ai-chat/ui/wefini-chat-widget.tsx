@@ -281,11 +281,11 @@ export default function WefinyChatWidget() {
                 </div>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-[1rem] font-bold text-gray-900">
+                <div className="flex items-center gap-2 text-[1rem] font-bold text-wefin-text">
                   위피니 채팅
                   <Sparkles size={14} className="text-[#1d9f8d]" />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-wefin-subtle">
                   투자 아이디어와 종목 궁금증을 바로 물어보세요.
                 </p>
               </div>
@@ -294,7 +294,7 @@ export default function WefinyChatWidget() {
             <button
               type="button"
               onClick={close}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-white hover:text-gray-600"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-wefin-subtle transition hover:bg-white hover:text-wefin-subtle"
               aria-label="위피니 채팅 닫기"
             >
               <X size={18} />
@@ -303,11 +303,13 @@ export default function WefinyChatWidget() {
 
           <div className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(75,199,183,0.13),_transparent_45%),linear-gradient(180deg,#fbfefe_0%,#f7fbfb_100%)] px-4 py-5">
             {!hasAccessToken ? (
-              <div className="mt-10 rounded-2xl border border-dashed border-[#c7ebe5] bg-white/80 px-5 py-6 text-center text-sm leading-6 text-gray-500">
+              <div className="mt-10 rounded-2xl border border-dashed border-[#c7ebe5] bg-white/80 px-5 py-6 text-center text-sm leading-6 text-wefin-subtle">
                 위피니 채팅은 로그인 후 사용할 수 있습니다.
               </div>
             ) : isLoading ? (
-              <div className="mt-10 text-center text-sm text-gray-500">대화를 불러오는 중...</div>
+              <div className="mt-10 text-center text-sm text-wefin-subtle">
+                대화를 불러오는 중...
+              </div>
             ) : (
               <div
                 className="space-y-4"
@@ -317,7 +319,7 @@ export default function WefinyChatWidget() {
                 aria-atomic="false"
               >
                 {messages.length === 0 && (
-                  <div className="rounded-2xl border border-[#d7f2ee] bg-white/90 px-4 py-4 text-sm leading-6 text-gray-600">
+                  <div className="rounded-2xl border border-[#d7f2ee] bg-white/90 px-4 py-4 text-sm leading-6 text-wefin-subtle">
                     안녕하세요! 종목 전망, 재무 지표, 시장 흐름처럼 궁금한 내용을 편하게 물어보세요.
                   </div>
                 )}
@@ -348,7 +350,7 @@ export default function WefinyChatWidget() {
                           className={`rounded-[22px] px-4 py-3 text-sm leading-6 shadow-sm ${
                             isMine
                               ? 'rounded-br-md bg-[#1d9f8d] text-white'
-                              : 'rounded-bl-md border border-[#daf2ed] bg-white text-gray-800'
+                              : 'rounded-bl-md border border-[#daf2ed] bg-white text-wefin-text'
                           }`}
                         >
                           {!isMine && (
@@ -375,7 +377,7 @@ export default function WefinyChatWidget() {
                           />
                         </div>
                       </div>
-                      <div className="rounded-[22px] rounded-bl-md border border-[#daf2ed] bg-white px-4 py-3 text-sm leading-6 text-gray-700 shadow-sm">
+                      <div className="rounded-[22px] rounded-bl-md border border-[#daf2ed] bg-white px-4 py-3 text-sm leading-6 text-wefin-text shadow-sm">
                         <div className="mb-1 text-[11px] font-bold text-[#1d9f8d]">위피니</div>
                         <div className="flex items-center gap-2">
                           <span>{pendingLabel}</span>
@@ -425,7 +427,7 @@ export default function WefinyChatWidget() {
                 }
                 disabled={!hasAccessToken || isLoading || isSending || pendingStatus !== 'idle'}
                 rows={1}
-                className="max-h-32 min-h-[48px] flex-1 resize-none border-none bg-transparent px-3 py-2 text-sm text-gray-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-gray-400"
+                className="max-h-32 min-h-[48px] flex-1 resize-none border-none bg-transparent px-3 py-2 text-sm text-wefin-text outline-none placeholder:text-wefin-subtle disabled:cursor-not-allowed disabled:text-wefin-subtle"
               />
               <button
                 type="button"

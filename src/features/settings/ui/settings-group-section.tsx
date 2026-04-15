@@ -339,7 +339,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                             ? '초대 코드 확인 중...'
                             : '생성 버튼을 눌러 초대 코드를 발급하세요'
                 }
-                className="h-11 flex-1 rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
+                className="h-11 flex-1 rounded-xl border border-wefin-line bg-wefin-bg px-4 text-sm text-wefin-subtle outline-none"
               />
               <button
                 type="button"
@@ -432,7 +432,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                 onChange={(e) => setInviteCodeInput(e.target.value)}
                 disabled={!isLoggedIn || isJoiningGroup}
                 placeholder={isLoggedIn ? '초대 코드 입력' : '로그인 후 이용할 수 있어요'}
-                className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none placeholder:text-wefin-subtle disabled:bg-gray-50"
+                className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none placeholder:text-wefin-subtle disabled:bg-wefin-bg"
               />
               <button
                 type="button"
@@ -468,7 +468,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                         ? '공유 그룹에 참여 중이면 새 그룹을 만들 수 없어요'
                         : '그룹 이름을 입력해주세요'
                   }
-                  className="h-11 w-full rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-gray-50"
+                  className="h-11 w-full rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
                 />
 
                 {newGroupName.trim() ? (

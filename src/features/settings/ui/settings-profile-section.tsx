@@ -30,7 +30,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
               type="text"
               disabled={!isLoggedIn}
               placeholder={isLoggedIn ? '새 닉네임 입력' : '로그인 후 이용할 수 있어요'}
-              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle disabled:bg-gray-50"
+              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle disabled:bg-wefin-bg"
             />
             <button
               type="button"
@@ -55,7 +55,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
               type="password"
               disabled={!isLoggedIn}
               placeholder={isLoggedIn ? '새 비밀번호 입력' : '로그인 후 이용할 수 있어요'}
-              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle disabled:bg-gray-50"
+              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle disabled:bg-wefin-bg"
             />
             <button
               type="button"
@@ -80,7 +80,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
             type="text"
             readOnly
             value={isLoggedIn ? emailPlaceholder : '로그인 후 표시됩니다'}
-            className="h-11 w-full rounded-xl border border-wefin-line bg-gray-50 px-4 text-sm text-wefin-subtle outline-none"
+            className="h-11 w-full rounded-xl border border-wefin-line bg-wefin-bg px-4 text-sm text-wefin-subtle outline-none"
           />
         </div>
       </div>

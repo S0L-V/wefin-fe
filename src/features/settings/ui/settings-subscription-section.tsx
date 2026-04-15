@@ -70,7 +70,7 @@ function SettingsSubscriptionSection() {
               className={[
                 'mt-6 inline-flex h-11 w-full items-center justify-center rounded-xl text-sm font-bold',
                 plan.isCurrent
-                  ? 'border border-wefin-line bg-gray-50 text-wefin-subtle'
+                  ? 'border border-wefin-line bg-wefin-bg text-wefin-subtle'
                   : 'bg-wefin-mint text-white opacity-50'
               ].join(' ')}
             >

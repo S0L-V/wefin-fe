@@ -20,11 +20,11 @@ export default function StockPriceCard({ code, name }: Props) {
   return (
     <Link
       to={routes.stockDetail(code)}
-      className="flex cursor-pointer flex-col gap-1 rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-[#3db9b9]/50"
+      className="flex cursor-pointer flex-col gap-1 rounded-xl border border-wefin-line bg-white p-4 transition-colors hover:border-[#3db9b9]/50"
     >
-      <span className="font-bold text-gray-900">{name}</span>
+      <span className="font-bold text-wefin-text">{name}</span>
       <div className="flex items-center gap-1.5">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-wefin-subtle">
           {data ? formatPrice(data.currentPrice) : isLoading ? '···' : isError ? '조회 실패' : '—'}
         </span>
         {data && <ChangeBadge changeRate={data.changeRate} />}
@@ -40,7 +40,7 @@ function ChangeBadge({ changeRate }: { changeRate: number }) {
     ? 'bg-red-50 text-red-500'
     : isDown
       ? 'bg-blue-50 text-blue-500'
-      : 'bg-gray-50 text-gray-500'
+      : 'bg-wefin-bg text-wefin-subtle'
   const sign = isUp ? '+' : ''
   return (
     <span className={`rounded-md px-1.5 py-0.5 text-xs font-bold ${colorClass}`}>

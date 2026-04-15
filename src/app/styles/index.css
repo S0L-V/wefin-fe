@@ -1,8 +1,10 @@
 @import 'tailwindcss';
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
 
 @theme {
   --color-wefin-mint: #24a8ab;
   --color-wefin-mint-soft: #e8f7f7;
+  --color-wefin-mint-deep: #0f8385;
   --color-wefin-bg: #f7f9fc;
   --color-wefin-line: #dbe5ee;
   --color-wefin-text: #202b36;
@@ -13,12 +15,18 @@
   :root {
     --app-header-height: 52px;
     font-family:
-      'Segoe UI',
-      Roboto,
-      'Noto Sans KR',
-      system-ui,
+      'Pretendard Variable',
+      Pretendard,
       -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      Roboto,
+      'Helvetica Neue',
+      'Segoe UI',
+      'Apple SD Gothic Neo',
+      'Noto Sans KR',
       sans-serif;
+    font-feature-settings: 'tnum' on;
     line-height: 1.5;
     font-weight: 400;
     color: var(--color-wefin-text);

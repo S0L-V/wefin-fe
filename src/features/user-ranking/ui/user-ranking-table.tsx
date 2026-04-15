@@ -35,5 +35,5 @@ export default function UserRankingTable() {
 }
 
 function Message({ text }: { text: string }) {
-  return <p className="py-10 text-center text-xs text-gray-400">{text}</p>
+  return <p className="py-10 text-center text-xs text-wefin-subtle">{text}</p>
 }

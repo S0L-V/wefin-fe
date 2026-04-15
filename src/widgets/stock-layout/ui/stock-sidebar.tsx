@@ -16,16 +16,16 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
 
   return (
     <div
-      className={`flex ${heightClass} flex-col rounded-2xl border border-gray-200 bg-white shadow-sm`}
+      className={`flex ${heightClass} flex-col rounded-2xl border border-wefin-line bg-white shadow-sm`}
     >
       {/* 탭 헤더 */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-wefin-line">
         <button
           onClick={() => setActiveTab('watchlist')}
           className={`flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
             activeTab === 'watchlist'
               ? 'border-b-2 border-wefin-mint text-wefin-mint'
-              : 'text-gray-400 hover:text-gray-600'
+              : 'text-wefin-subtle hover:text-wefin-subtle'
           }`}
         >
           관심 주식
@@ -35,7 +35,7 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
           className={`flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
             activeTab === 'chat'
               ? 'border-b-2 border-wefin-mint text-wefin-mint'
-              : 'text-gray-400 hover:text-gray-600'
+              : 'text-wefin-subtle hover:text-wefin-subtle'
           }`}
         >
           전체 채팅

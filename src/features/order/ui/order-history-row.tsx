@@ -53,7 +53,7 @@ function getStatusLabel(status: OrderHistoryResponse['status']): string {
 
 function getStatusColor(status: OrderHistoryResponse['status']): string {
   if (status === 'FILLED' || status === 'PARTIAL') return 'text-red-500'
-  if (status === 'CANCELLED') return 'text-gray-400'
+  if (status === 'CANCELLED') return 'text-wefin-subtle'
   return 'text-wefin-subtle'
 }
 

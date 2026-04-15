@@ -52,13 +52,13 @@ function getInitial(name: string): string {
 const STYLES: Record<Size, { container: string; iconRow: string; icon: string }> = {
   sm: {
     container:
-      'inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-1 text-[10px] leading-none text-wefin-subtle',
+      'inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2 py-1 text-[10px] leading-none text-wefin-subtle',
     iconRow: 'flex -space-x-1',
     icon: 'flex h-3.5 w-3.5 items-center justify-center rounded-full text-[7px] font-bold text-white ring-1 ring-white'
   },
   md: {
     container:
-      'inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-wefin-subtle',
+      'inline-flex items-center gap-2 rounded-full border border-wefin-line bg-white px-3 py-1.5 text-xs text-wefin-subtle',
     iconRow: 'flex -space-x-1.5',
     icon: 'flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white ring-2 ring-white'
   }

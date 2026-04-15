@@ -103,22 +103,22 @@ export default function GlobalChatRoom() {
   }
 
   if (isLoading) {
-    return <div className="h-[640px] p-6 text-sm text-gray-500">Loading global chat...</div>
+    return <div className="h-[640px] p-6 text-sm text-wefin-subtle">Loading global chat...</div>
   }
 
   return (
-    <div className="flex h-[640px] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4">
+    <div className="flex h-[640px] min-h-0 flex-col overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-wefin-line bg-white p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3db9b9]/10 text-[#3db9b9]">
             <Globe size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-gray-900">Global Chat</h3>
-            <p className="text-xs text-gray-500">A shared room visible across the app.</p>
+            <h3 className="font-bold text-wefin-text">Global Chat</h3>
+            <p className="text-xs text-wefin-subtle">A shared room visible across the app.</p>
           </div>
         </div>
-        <div className="text-sm font-medium text-gray-500">
+        <div className="text-sm font-medium text-wefin-subtle">
           {connected ? 'Connected' : 'Connecting...'}
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function GlobalChatRoom() {
         className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-gray-400">이전 메시지를 불러오는 중...</div>
+          <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
         )}
 
         {chatMessages.map((msg) => {
@@ -160,8 +160,8 @@ export default function GlobalChatRoom() {
               className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
             >
               <div className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}>
-                <span className="text-xs font-bold text-gray-700">{msg.sender}</span>
-                <span className="text-[10px] text-gray-400">
+                <span className="text-xs font-bold text-wefin-text">{msg.sender}</span>
+                <span className="text-[10px] text-wefin-subtle">
                   {msg.createdAt
                     ? new Date(msg.createdAt).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -175,7 +175,7 @@ export default function GlobalChatRoom() {
                 className={`max-w-[70%] rounded-2xl p-3 text-sm ${
                   isMine
                     ? 'rounded-tr-none bg-[#3db9b9] text-white'
-                    : 'rounded-tl-none bg-gray-100 text-gray-900'
+                    : 'rounded-tl-none bg-gray-100 text-wefin-text'
                 }`}
               >
                 {msg.content}
@@ -185,7 +185,7 @@ export default function GlobalChatRoom() {
         })}
       </div>
 
-      <div className="border-t border-gray-200 bg-white p-4">
+      <div className="border-t border-wefin-line bg-white p-4">
         <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-2 pr-3">
           <input
             type="text"
@@ -201,7 +201,7 @@ export default function GlobalChatRoom() {
               }
             }}
             placeholder="Type a message..."
-            className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-gray-900 focus:outline-none"
+            className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-wefin-text focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
