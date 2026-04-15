@@ -2,10 +2,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
+import { useGameRoomSocket } from '@/features/game-room/model/use-game-room-socket'
 import { useLeaveRoomGuard } from '@/features/game-room/model/use-leave-room-guard'
 import { usePortfolioQuery } from '@/features/game-room/model/use-portfolio-query'
-import { useTurnAdvanceMutation } from '@/features/game-room/model/use-turn-advance-mutation'
 import { useTurnChangeSocket } from '@/features/game-room/model/use-turn-change-socket'
+import { useVoteMutation } from '@/features/game-room/model/use-vote-mutation'
+import { useVoteSocket } from '@/features/game-room/model/use-vote-socket'
+import { useVoteStore } from '@/features/game-room/model/use-vote-store'
 import GroupChat from '@/features/game-room/ui/group-chat'
 import GroupRanking from '@/features/game-room/ui/group-ranking'
 import HoldingsPanel from '@/features/game-room/ui/holdings-panel'
@@ -14,6 +17,8 @@ import MarketBriefing from '@/features/game-room/ui/market-briefing'
 import OrderPanel from '@/features/game-room/ui/order-panel'
 import PlayHeader from '@/features/game-room/ui/play-header'
 import StockChart from '@/features/game-room/ui/stock-chart'
+import VoteModal from '@/features/game-room/ui/vote-modal'
+import { getCurrentUserId } from '@/shared/lib/get-current-user-id'
 
 function PlayPage() {
   const { roomId } = useParams<{ roomId: string }>()
@@ -22,12 +27,20 @@ function PlayPage() {
   const { data: roomDetail } = useGameRoomDetailQuery(roomId ?? '')
   const { data: portfolio } = usePortfolioQuery(roomId ?? '')
   const { data: currentTurn } = useCurrentTurnQuery(roomId ?? '')
-  const turnAdvance = useTurnAdvanceMutation(roomId ?? '')
+  const voteMutation = useVoteMutation(roomId ?? '')
+  const markVoted = useVoteStore((s) => s.markVoted)
+  const isVoting = useVoteStore((s) => s.isVoting)
+  useGameRoomSocket(roomId ?? '')
   useTurnChangeSocket(roomId ?? '')
+  useVoteSocket(roomId ?? '')
 
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
   }
+
+  const userId = getCurrentUserId()
+  const isHost =
+    roomDetail?.data.participants.some((p) => p.isLeader && p.userId === userId) ?? false
 
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
@@ -46,8 +59,12 @@ function PlayPage() {
           seed={seed}
           totalAssets={totalAssets}
           profitRate={profitRate}
-          isAdvancing={turnAdvance.isPending}
-          onNextTurn={() => turnAdvance.mutate()}
+          isHost={isHost}
+          isAdvancing={voteMutation.isPending || isVoting}
+          onNextTurn={() => {
+            markVoted()
+            voteMutation.mutate(true)
+          }}
           onLeave={() => guard.requestLeave('/history')}
           onEndGame={() => navigate(`/history/room/${roomId}/result`)}
         />
@@ -69,6 +86,8 @@ function PlayPage() {
           </aside>
         </div>
       </div>
+
+      <VoteModal roomId={roomId} />
 
       <LeaveRoomDialog
         open={guard.showDialog}

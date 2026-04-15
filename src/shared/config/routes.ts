@@ -5,8 +5,12 @@ export const routes = {
   stockDetail: (code: string) => `/stocks/${code}`,
   history: '/history',
   chat: '/chat',
-  settings: '/settings'
+  settings: '/settings',
+  account: '/account',
+  accountTab: (tab: AccountTab) => `/account?tab=${tab}`
 } as const
+
+export type AccountTab = 'asset' | 'trade-history' | 'order-history' | 'profit-analysis'
 
 type NavigationItem = {
   to: string
