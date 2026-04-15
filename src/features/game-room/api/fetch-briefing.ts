@@ -7,11 +7,8 @@ import { briefingResponseSchema } from '../model/briefing.schema'
 const BRIEFING_TIMEOUT_MS = 60_000
 
 export async function fetchBriefing(roomId: string) {
-  console.log('[fetchBriefing] fetching for roomId:', roomId)
   const response = await baseApi.get(`/rooms/${roomId}/briefing`, {
     timeout: BRIEFING_TIMEOUT_MS
   })
-  const parsed = briefingResponseSchema.parse(response.data)
-  console.log('[fetchBriefing] received targetDate:', parsed.data.targetDate)
-  return parsed
+  return briefingResponseSchema.parse(response.data)
 }
