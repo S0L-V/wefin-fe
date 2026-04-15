@@ -1,15 +1,18 @@
 import { useCallback, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
+import { useAccountQuery, useBuyingPowerQuery } from '@/features/account/model/use-account-queries'
+import OrderForm from '@/features/order/ui/order-form'
+import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
+import HoldingsPanel from '@/features/portfolio/ui/holdings-panel'
+import { useStockPriceQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
 import { useStockSocket } from '@/features/stock-detail/model/use-stock-socket'
-import HoldingsPanel from '@/features/stock-detail/ui/holdings-panel'
-import OrderForm from '@/features/stock-detail/ui/order-form'
-import OrderHistoryPanel from '@/features/stock-detail/ui/order-history-panel'
 import OrderbookPanel from '@/features/stock-detail/ui/orderbook-panel'
 import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
 import StockChart from '@/features/stock-detail/ui/stock-chart'
 import StockPriceHeader, { type DetailTab } from '@/features/stock-detail/ui/stock-price-header'
 import StockPriceTable from '@/features/stock-detail/ui/stock-price-table'
+import { routes } from '@/shared/config/routes'
 import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
 function StockDetailPage() {
@@ -21,6 +24,11 @@ function StockDetailPage() {
   const [chartH, setChartH] = useState(340)
 
   useStockSocket(code)
+  const { data: price } = useStockPriceQuery(code ?? '')
+  const { data: account } = useAccountQuery()
+  const { data: buyingPower } = useBuyingPowerQuery(price?.currentPrice ?? 0)
+  const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolioQuery()
+  const currentHolding = portfolio?.find((item) => item.stockCode === code) ?? null
 
   // 드래그 오른쪽 → 왼쪽 패널 커짐 → 오른쪽 패널 줄어듦 (w - delta)
   const handleResize1 = useCallback(
@@ -71,14 +79,28 @@ function StockDetailPage() {
             {/* 우측: 주문 + 보유 + 주문내역 */}
             <div className="shrink-0 space-y-1.5 overflow-y-auto" style={{ width: orderW }}>
               <div className="rounded-lg border border-gray-100">
-                <OrderForm code={code} />
+                <OrderForm
+                  stockCode={code}
+                  currentPrice={price?.currentPrice ?? 0}
+                  accountState={{
+                    balance: account?.balance ?? null,
+                    maxQuantity: buyingPower?.maxQuantity ?? null
+                  }}
+                />
               </div>
               <div className="rounded-lg border border-gray-100">
-                <HoldingsPanel code={code} />
+                <HoldingsPanel
+                  stockCode={code}
+                  holding={currentHolding}
+                  isLoading={isPortfolioLoading}
+                />
               </div>
-              <div className="rounded-lg border border-gray-100">
-                <OrderHistoryPanel />
-              </div>
+              <Link
+                to={routes.accountTab('order-history')}
+                className="block rounded-lg border border-gray-100 px-3 py-2 text-center text-[10px] text-wefin-subtle transition-colors hover:bg-gray-50"
+              >
+                주문내역 보기 →
+              </Link>
             </div>
           </div>
         )}
