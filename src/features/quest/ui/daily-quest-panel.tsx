@@ -53,7 +53,6 @@ export default function DailyQuestPanel() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900">일일 퀘스트</h3>
-              <p className="text-xs text-gray-500">오늘의 액션을 완료하고 보상을 받아보세요.</p>
             </div>
           </div>
           <span className="rounded-full bg-[#eff7f6] px-3 py-1 text-xs font-bold tracking-[0.18em] text-[#2a8282]">
@@ -93,7 +92,6 @@ export default function DailyQuestPanel() {
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">일일 퀘스트</h3>
-            <p className="text-xs text-gray-500">오늘의 액션을 완료하고 보상을 받아보세요.</p>
           </div>
         </div>
         <span className="rounded-full bg-[#eff7f6] px-3 py-1 text-xs font-bold tracking-[0.18em] text-[#2a8282]">
@@ -101,7 +99,7 @@ export default function DailyQuestPanel() {
         </span>
       </div>
 
-      <div className="h-[360px] overflow-y-auto px-4 py-4">
+      <div className="h-[180px] overflow-y-auto px-4 py-3">
         {isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -155,9 +153,6 @@ export default function DailyQuestPanel() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h4 className="text-base font-bold text-gray-900">{quest.title}</h4>
-                          <p className="mt-1 line-clamp-2 text-sm leading-5 text-gray-500">
-                            {quest.description}
-                          </p>
                         </div>
                         <div className="shrink-0 rounded-full bg-[#f4fbfa] px-3 py-1 text-sm font-bold text-[#2a8282]">
                           {quest.reward} C
