@@ -5,20 +5,29 @@ import { ApiError } from '@/shared/api/base-api'
 import { claimQuestReward } from '../api/claim-quest-reward'
 import { fetchTodayQuests } from '../api/fetch-today-quests'
 
-export function useTodayQuests(enabled: boolean) {
+function getTodayQuestQueryKey(userId: string) {
+  return ['quests', 'today', userId]
+}
+
+export function useTodayQuests(userId: string) {
   return useQuery({
-    queryKey: ['quests', 'today'],
+    queryKey: getTodayQuestQueryKey(userId),
     queryFn: fetchTodayQuests,
-    enabled
+    enabled: !!userId
   })
 }
 
-export function useClaimQuestReward() {
+export function useClaimQuestReward(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (questId: number) => claimQuestReward(questId),
     onSuccess: () => {
+      if (userId) {
+        void queryClient.invalidateQueries({ queryKey: getTodayQuestQueryKey(userId) })
+        return
+      }
+
       void queryClient.invalidateQueries({ queryKey: ['quests', 'today'] })
     }
   })

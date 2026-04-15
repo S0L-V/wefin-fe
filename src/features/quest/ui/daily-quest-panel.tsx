@@ -40,8 +40,8 @@ function getQuestTone(quest: Quest) {
 export default function DailyQuestPanel() {
   const userId = useAuthUserId()
   const openLogin = useLoginDialogStore((state) => state.openLogin)
-  const { data, isLoading, isError, error, refetch } = useTodayQuests(!!userId)
-  const claimReward = useClaimQuestReward()
+  const { data, isLoading, isError, error, refetch } = useTodayQuests(userId)
+  const claimReward = useClaimQuestReward(userId)
 
   if (!userId) {
     return (
