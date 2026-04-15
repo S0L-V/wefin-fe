@@ -6,7 +6,12 @@ import {
   globalChatMessageSchema
 } from '@/features/chat/api/global/fetch-global-chat-messages'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
-import { connectStomp, disconnectStomp, stompClient } from '@/shared/api/stomp-client'
+import {
+  connectStomp,
+  disconnectStomp,
+  onStompConnect,
+  stompClient
+} from '@/shared/api/stomp-client'
 
 type ChatErrorMessage = {
   code: string
@@ -94,7 +99,9 @@ export function useGlobalChatBoot(userId: string) {
       console.log('[STOMP]', message)
     }
 
-    client.onConnect = () => {
+    // onStompConnect 리스너로 등록 — client.onConnect를 덮어쓰지 않아
+    // 다른 훅(투표, 턴 전환 등)의 구독이 파괴되지 않는다.
+    const removeConnectListener = onStompConnect(() => {
       setConnected(true)
 
       subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
@@ -141,7 +148,7 @@ export function useGlobalChatBoot(userId: string) {
           }
         })
       )
-    }
+    })
 
     client.onDisconnect = () => {
       setConnected(false)
@@ -161,6 +168,7 @@ export function useGlobalChatBoot(userId: string) {
 
     return () => {
       active = false
+      removeConnectListener()
       subscriptionsRef.current.forEach((subscription) => subscription.unsubscribe())
       subscriptionsRef.current = []
 

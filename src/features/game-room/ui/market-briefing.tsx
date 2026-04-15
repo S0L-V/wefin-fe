@@ -5,7 +5,7 @@ interface MarketBriefingProps {
 }
 
 function MarketBriefing({ roomId }: MarketBriefingProps) {
-  const { data, isLoading, isError } = useBriefingQuery(roomId)
+  const { data, isFetching, isError } = useBriefingQuery(roomId)
 
   return (
     <section className="flex min-h-0 flex-1 flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
@@ -14,25 +14,25 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
           <span className="text-[10px] font-bold text-white">위핀</span>
         </div>
         <h3 className="text-sm font-bold text-wefin-text">위핀 시장 동향 브리핑</h3>
-        {data?.targetDate && (
+        {!isFetching && data?.targetDate && (
           <span className="ml-auto text-[11px] text-wefin-subtle">{data.targetDate}</span>
         )}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-        {isLoading && (
+        {isFetching && (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-xs text-wefin-subtle">브리핑 생성 중…</p>
           </div>
         )}
 
-        {isError && (
+        {!isFetching && isError && (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-xs text-wefin-subtle">브리핑을 불러오지 못했습니다</p>
           </div>
         )}
 
-        {data && (
+        {!isFetching && data && (
           <div className="space-y-4 text-xs leading-relaxed text-wefin-text">
             <div>
               <h4 className="mb-1 font-bold text-wefin-mint">시장 개요</h4>
