@@ -1,4 +1,3 @@
-import WefinyChatWidget from '@/features/ai-chat/ui/wefini-chat-widget'
 import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
 import ClusterDetailContent from '@/features/news-feed/ui/cluster-detail-content'
 
@@ -10,8 +9,6 @@ function ClusterDetailPage() {
       <aside className="min-h-[640px]">
         <GlobalChatRoom />
       </aside>
-
-      <WefinyChatWidget />
     </div>
   )
 }
