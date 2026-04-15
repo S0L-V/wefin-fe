@@ -12,32 +12,13 @@ import type {
   SourceCluster
 } from '../api/fetch-market-trends-overview'
 import { useMarketTrendsOverviewQuery } from '../model/use-market-trends-overview-query'
-import { usePersonalizedMarketTrendsQuery } from '../model/use-personalized-market-trends-query'
+import {
+  usePersonalizedMarketTrendsCachedQuery,
+  usePersonalizedMarketTrendsQuery
+} from '../model/use-personalized-market-trends-query'
 import ClusterSourceModal from './cluster-source-modal'
 import InsightCardList from './insight-card-list'
 import MarketSnapshotStrip from './market-snapshot-strip'
-
-/** 오늘 날짜(KST) 기반 localStorage 키 — 자정 넘어가면 자동으로 새 키가 되어 fresh */
-function personalizedToggleKey() {
-  const now = new Date()
-  // KST 기준 yyyy-mm-dd
-  const kstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 9 * 60) * 60 * 1000)
-  return `market-trends:personalized-on:${kstNow.toISOString().slice(0, 10)}`
-}
-
-function readPersistedToggle(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.localStorage.getItem(personalizedToggleKey()) === '1'
-}
-
-function writePersistedToggle(on: boolean) {
-  try {
-    if (on) window.localStorage.setItem(personalizedToggleKey(), '1')
-    else window.localStorage.removeItem(personalizedToggleKey())
-  } catch {
-    /* localStorage 비활성/quota 초과는 토글 UX 보조용이라 무시 */
-  }
-}
 
 /** 백엔드 캐시 TTL과 동일 — 30분 안에 재요청 시 알림 */
 const PERSONALIZED_REFRESH_INTERVAL_MS = 30 * 60 * 1000
@@ -45,26 +26,30 @@ const PERSONALIZED_REFRESH_INTERVAL_MS = 30 * 60 * 1000
 function MarketTrendsSection() {
   const { data, isLoading, isError } = useMarketTrendsOverviewQuery()
   const queryClient = useQueryClient()
-  // 로그인된 사용자가 오늘 한 번이라도 토글 ON했다면 새로고침 후에도 자동 ON.
-  // 백엔드 캐시(V32)가 살아있으므로 personalized 호출은 즉시 DB hit으로 반환됨
-  const [personalizedOn, setPersonalizedOn] = useState<boolean>(() => readPersistedToggle())
-  const personalizedQuery = usePersonalizedMarketTrendsQuery(personalizedOn)
+  const userId = useAuthUserId()
+
+  // 페이지 진입 시 TTL 내 캐시만 조회 — AI 호출을 유발하지 않아 자동 호출이 안전하다
+  const cachedQuery = usePersonalizedMarketTrendsCachedQuery(Boolean(userId))
+  // 버튼 클릭 시점에만 AI 재생성이 가능한 full 엔드포인트 호출
+  const [freshRequested, setFreshRequested] = useState<boolean>(false)
+  const personalizedQuery = usePersonalizedMarketTrendsQuery(freshRequested)
 
   if (isLoading) return <SectionSkeleton />
   if (isError || !data) return <SectionError />
 
-  // 버튼이 켜졌고 personalized 응답이 도착했으면 그 응답을 화면 소스로 사용. 그 외엔 overview
-  const display: MarketTrendsOverview =
-    personalizedOn && personalizedQuery.data ? personalizedQuery.data : data
-  const personalizedMode = personalizedQuery.data?.mode
-  const isPersonalizedActive = personalizedOn && personalizedMode === 'MATCHED'
-  const isActionBriefing = personalizedOn && personalizedMode === 'ACTION_BRIEFING'
-  const isPersonalizedFallback = personalizedOn && personalizedMode === 'OVERVIEW_FALLBACK'
+  // fresh 요청이 있으면 그 응답을 우선, 없으면 캐시 응답을 사용. 둘 다 없으면 overview
+  const personalizedData = personalizedQuery.data ?? cachedQuery.data ?? null
+  const display: MarketTrendsOverview = personalizedData ?? data
+  const personalizedMode = personalizedData?.mode
+  const isPersonalizedActive = personalizedMode === 'MATCHED'
+  const isActionBriefing = personalizedMode === 'ACTION_BRIEFING'
+  const isPersonalizedFallback = freshRequested && personalizedMode === 'OVERVIEW_FALLBACK'
 
   function handleAnalyzeClick() {
     // 분석 결과가 이미 있는 경우: 30분 안이면 알림, 30분 지났으면 갱신
-    if (personalizedQuery.data?.updatedAt) {
-      const lastAt = new Date(personalizedQuery.data.updatedAt).getTime()
+    const lastUpdatedAt = personalizedData?.updatedAt
+    if (lastUpdatedAt) {
+      const lastAt = new Date(lastUpdatedAt).getTime()
       const elapsedMs = Date.now() - lastAt
       if (elapsedMs < PERSONALIZED_REFRESH_INTERVAL_MS) {
         const remainingMin = Math.ceil((PERSONALIZED_REFRESH_INTERVAL_MS - elapsedMs) / 60_000)
@@ -73,15 +58,15 @@ function MarketTrendsSection() {
         )
         return
       }
-      // TTL 경과 → 백엔드 캐시도 stale 처리해 새 AI 호출 유도
-      queryClient.invalidateQueries({ queryKey: ['market-trends', 'personalized'] })
-      personalizedQuery.refetch()
-      return
     }
 
-    // 처음 분석: 토글 ON + 영속화
-    setPersonalizedOn(true)
-    writePersistedToggle(true)
+    // TTL 경과 또는 캐시 없음 → 서버에 AI 재생성을 요청하도록 full 엔드포인트 트리거
+    queryClient.invalidateQueries({ queryKey: ['market-trends', 'personalized'] })
+    if (freshRequested) {
+      personalizedQuery.refetch()
+    } else {
+      setFreshRequested(true)
+    }
   }
 
   return (

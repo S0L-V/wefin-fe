@@ -86,3 +86,21 @@ export async function fetchPersonalizedMarketTrends(): Promise<MarketTrendsOverv
   }
   return parsed.data.data
 }
+
+/**
+ * TTL(30분) 내 캐시가 있을 때만 결과를 반환한다. AI 재생성은 발생하지 않는다.
+ *
+ * 페이지 진입 시 이전 분석 결과가 fresh면 자동으로 화면에 복원하기 위해 사용한다.
+ * 캐시 miss/stale 시 서버가 {@code data=null}을 반환하며 본 함수도 {@code null}을 반환한다
+ */
+export async function fetchPersonalizedMarketTrendsCached(): Promise<MarketTrendsOverview | null> {
+  const response = await baseApi.get('/market-trends/personalized', {
+    params: { cacheOnly: true }
+  })
+  const parsed = apiResponseSchema(overviewSchema.nullable()).safeParse(response.data)
+  if (!parsed.success) {
+    console.error('맞춤 시장 동향(캐시) 응답 파싱 실패:', parsed.error.flatten())
+    throw parsed.error
+  }
+  return parsed.data.data
+}
