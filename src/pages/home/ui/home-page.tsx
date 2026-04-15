@@ -11,8 +11,7 @@ function HomePage() {
         <MarketTrendsSection />
         <NewsListSection />
       </section>
-
-      <aside>
+      <aside className="lg:sticky lg:top-[76px] lg:self-start">
         <HomeSidebar />
       </aside>
     </div>

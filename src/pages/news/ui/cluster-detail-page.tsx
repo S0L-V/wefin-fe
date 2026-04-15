@@ -7,7 +7,7 @@ function ClusterDetailPage() {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
       <ClusterDetailContent />
 
-      <aside className="min-h-[640px]">
+      <aside className="min-h-[640px] lg:sticky lg:top-[76px] lg:self-start">
         <GlobalChatRoom />
       </aside>
 
