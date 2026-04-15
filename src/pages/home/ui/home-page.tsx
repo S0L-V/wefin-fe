@@ -1,7 +1,8 @@
+import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
 import MarketTrendsSection from '@/features/market-trends/ui/market-trends-section'
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
-import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
+import DailyQuestPanel from '@/features/quest/ui/daily-quest-panel'
 
 function HomePage() {
   return (
@@ -12,8 +13,9 @@ function HomePage() {
         <NewsListSection />
       </section>
 
-      <aside>
-        <HomeSidebar />
+      <aside className="flex flex-col gap-6">
+        <DailyQuestPanel />
+        <GlobalChatRoom />
       </aside>
     </div>
   )
