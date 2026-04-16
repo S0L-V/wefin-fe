@@ -15,6 +15,11 @@ import { useState } from 'react'
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
+import {
+  useAddSectorInterest,
+  useDeleteSectorInterest,
+  useSectorInterestsQuery
+} from '@/features/sector-interest/model/use-sector-interest-queries'
 import StockPriceCard from '@/features/stock-price/ui/stock-price-card'
 import { ApiError } from '@/shared/api/base-api'
 
@@ -27,7 +32,7 @@ interface ClusterDetailFooterProps {
 }
 
 export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProps) {
-  const sectorTag = cluster.marketTags[0]
+  const relatedSector = cluster.relatedSectors[0]
   const userId = useAuthUserId()
   const openLogin = useLoginDialogStore((s) => s.openLogin)
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
@@ -37,6 +42,28 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   // 낙관적 상태: mutate 시점에 즉시 반영해 refetch가 완료되기 전에도 버튼이 다시 활성화되지 않도록 한다
   const [optimisticFeedback, setOptimisticFeedback] = useState<FeedbackType | null>(null)
   const currentFeedback = optimisticFeedback ?? cluster.feedbackType ?? null
+
+  // 분야(SECTOR) 관심 등록 — 로그인 사용자에 한해 등록 여부 조회 후 토글
+  const sectorInterestsQuery = useSectorInterestsQuery(Boolean(userId))
+  const addSectorMutation = useAddSectorInterest()
+  const deleteSectorMutation = useDeleteSectorInterest()
+  const isSectorRegistered = Boolean(
+    relatedSector && sectorInterestsQuery.data?.some((item) => item.code === relatedSector.code)
+  )
+  const isSectorMutating = addSectorMutation.isPending || deleteSectorMutation.isPending
+
+  function handleSectorInterestClick() {
+    if (!userId) {
+      openLogin()
+      return
+    }
+    if (!relatedSector || isSectorMutating) return
+    if (isSectorRegistered) {
+      deleteSectorMutation.mutate(relatedSector.code)
+    } else {
+      addSectorMutation.mutate(relatedSector.code)
+    }
+  }
 
   function handleQuestionClick(question: string) {
     if (!userId) {
@@ -145,7 +172,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
       )}
 
       {/* Related sector interest */}
-      {sectorTag && (
+      {relatedSector && (
         <div className="flex items-center justify-between rounded-xl border border-[#3db9b9]/20 bg-gradient-to-r from-[#3db9b9]/10 to-transparent p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#2a8282] shadow-sm">
@@ -153,16 +180,22 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
             </div>
             <div>
               <h4 className="font-bold text-gray-900">
-                이 뉴스와 관련된 &apos;{sectorTag}&apos; 분야
+                이 뉴스와 관련된 &apos;{relatedSector.name}&apos; 분야
               </h4>
               <p className="text-sm text-gray-600">관심 분야로 등록하고 맞춤 뉴스를 받아보세요.</p>
             </div>
           </div>
           <button
-            disabled
-            className="shrink-0 rounded-lg bg-[#3db9b9]/50 px-5 py-2.5 text-sm font-bold text-white/70 cursor-not-allowed"
+            type="button"
+            onClick={handleSectorInterestClick}
+            disabled={isSectorMutating}
+            className={
+              isSectorRegistered
+                ? 'shrink-0 rounded-lg border border-[#3db9b9] bg-white px-5 py-2.5 text-sm font-bold text-[#2a8282] transition-colors hover:bg-[#3db9b9]/10 disabled:opacity-60'
+                : 'shrink-0 rounded-lg bg-[#3db9b9] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2a8282] disabled:opacity-60'
+            }
           >
-            관심 등록
+            {isSectorRegistered ? '등록됨' : '관심 등록'}
           </button>
         </div>
       )}

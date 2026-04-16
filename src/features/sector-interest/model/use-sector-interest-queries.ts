@@ -10,11 +10,12 @@ import { ApiError } from '@/shared/api/base-api'
 
 const SECTOR_INTERESTS_KEY = ['interests', 'sectors'] as const
 
-export function useSectorInterestsQuery() {
+export function useSectorInterestsQuery(enabled: boolean = true) {
   return useQuery({
     queryKey: SECTOR_INTERESTS_KEY,
     queryFn: fetchSectorInterests,
-    staleTime: 30_000
+    staleTime: 30_000,
+    enabled
   })
 }
 
