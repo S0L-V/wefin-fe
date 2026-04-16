@@ -27,10 +27,12 @@ export function useAddSectorInterest() {
     onMutate: async (code) => {
       await queryClient.cancelQueries({ queryKey: SECTOR_INTERESTS_KEY })
       const previous = queryClient.getQueryData<SectorInterest[]>(SECTOR_INTERESTS_KEY)
-      queryClient.setQueryData<SectorInterest[]>(SECTOR_INTERESTS_KEY, (old) => [
-        ...(old ?? []),
-        { code, name: code }
-      ])
+      queryClient.setQueryData<SectorInterest[]>(SECTOR_INTERESTS_KEY, (old) => {
+        const current = old ?? []
+        // code는 고유 키. 이미 존재하면 그대로 두어 rapid click·동시 호출로 중복이 쌓이지 않게 한다
+        if (current.some((item) => item.code === code)) return current
+        return [...current, { code, name: code }]
+      })
       return { previous }
     },
     onError: (error, _code, context) => {
