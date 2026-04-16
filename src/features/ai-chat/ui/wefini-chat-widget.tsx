@@ -50,6 +50,8 @@ export default function WefinyChatWidget() {
   const syncRequestIdRef = useRef(0)
   const sessionVersionRef = useRef(0)
   const wasOpenRef = useRef(false)
+  const shouldJumpToBottomRef = useRef(false)
+  const previousMessageCountRef = useRef(0)
 
   useEffect(() => {
     const syncAuthState = () => {
@@ -117,7 +119,13 @@ export default function WefinyChatWidget() {
   useLayoutEffect(() => {
     if (!isOpen) {
       wasOpenRef.current = false
+      shouldJumpToBottomRef.current = false
+      previousMessageCountRef.current = 0
       return
+    }
+
+    if (!wasOpenRef.current) {
+      shouldJumpToBottomRef.current = true
     }
 
     const container = scrollContainerRef.current
@@ -127,8 +135,17 @@ export default function WefinyChatWidget() {
 
     container.scrollTo({
       top: container.scrollHeight,
-      behavior: wasOpenRef.current ? 'smooth' : 'auto'
+      behavior: shouldJumpToBottomRef.current ? 'auto' : 'smooth'
     })
+
+    const messageCount = messages.length
+    const didAppendMessages = previousMessageCountRef.current < messageCount
+
+    if (shouldJumpToBottomRef.current && didAppendMessages) {
+      shouldJumpToBottomRef.current = false
+    }
+
+    previousMessageCountRef.current = messageCount
     wasOpenRef.current = true
   }, [isOpen, messages, pendingStatus])
 
