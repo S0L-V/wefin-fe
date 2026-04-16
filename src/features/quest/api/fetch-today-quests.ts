@@ -17,12 +17,14 @@ export const questSchema = z.object({
   targetValue: z.number(),
   reward: z.number(),
   questDate: z.string(),
+  expiresAt: z.string(),
   startedAt: z.string().nullable(),
   completedAt: z.string().nullable()
 })
 
 const todayQuestListSchema = z.object({
   questDate: z.string(),
+  expiresAt: z.string(),
   quests: z.array(questSchema)
 })
 

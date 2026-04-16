@@ -1,13 +1,18 @@
 import { create } from 'zustand'
 
+export interface PendingAiPrompt {
+  message: string
+  newsClusterId?: number
+}
+
 interface WefiniChatState {
   isOpen: boolean
-  pendingPrompt: string | null
+  pendingPrompt: PendingAiPrompt | null
   open: () => void
   close: () => void
   toggle: () => void
-  openWithPrompt: (prompt: string) => void
-  consumePendingPrompt: () => string | null
+  openWithPrompt: (prompt: PendingAiPrompt) => void
+  consumePendingPrompt: () => PendingAiPrompt | null
 }
 
 /**

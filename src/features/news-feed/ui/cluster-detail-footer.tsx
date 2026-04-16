@@ -43,7 +43,10 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
       openLogin()
       return
     }
-    openChatWithPrompt(question)
+    openChatWithPrompt({
+      message: question,
+      newsClusterId: cluster.clusterId
+    })
   }
 
   function handleFeedback(type: FeedbackType) {
