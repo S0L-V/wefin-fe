@@ -13,7 +13,8 @@ export function useTodayQuests(userId: string) {
   return useQuery({
     queryKey: getTodayQuestQueryKey(userId),
     queryFn: fetchTodayQuests,
-    enabled: !!userId
+    enabled: !!userId,
+    refetchInterval: 60_000
   })
 }
 
