@@ -84,7 +84,7 @@ export default function NewsFeedSection() {
               <button
                 onClick={canExpand ? handleExpand : handleLoadMore}
                 disabled={isFetching}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-wefin-line px-3 py-1.5 text-xs font-medium text-wefin-subtle transition-colors hover:bg-gray-50 disabled:opacity-50"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-wefin-line px-3 py-1.5 text-xs font-medium text-wefin-subtle transition-colors hover:bg-wefin-bg disabled:opacity-50"
               >
                 {isFetching ? (
                   <RefreshCw className="h-3 w-3 animate-spin" />

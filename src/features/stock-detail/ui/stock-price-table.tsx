@@ -1,69 +1,81 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   useCandlesQuery,
   useRecentTradesQuery
 } from '@/features/stock-detail/model/use-stock-detail-queries'
+import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
+import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs'
 
 interface StockPriceTableProps {
   code: string
 }
 
-type TableTab = 'price' | 'investor'
 type PriceSubTab = 'realtime' | 'daily'
 
+const PRICE_SUB_TABS: SegmentedTabItem<PriceSubTab>[] = [
+  { key: 'realtime', label: '실시간' },
+  { key: 'daily', label: '일별' }
+]
+
+const MIN_LEFT_WIDTH = 220
+const MIN_RIGHT_WIDTH = 320
+
 export default function StockPriceTable({ code }: StockPriceTableProps) {
-  const [activeTab, setActiveTab] = useState<TableTab>('price')
   const [priceSubTab, setPriceSubTab] = useState<PriceSubTab>('realtime')
+  const [leftWidth, setLeftWidth] = useState<number | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const { data: candles = [], isLoading: candlesLoading } = useCandlesQuery(code, 'D')
   const { data: trades = [], isLoading: tradesLoading } = useRecentTradesQuery(code)
 
+  useEffect(() => {
+    if (leftWidth !== null) return
+    const el = containerRef.current
+    if (!el) return
+    setLeftWidth(el.getBoundingClientRect().width / 2)
+  }, [leftWidth])
+
+  const handleResize = useCallback((delta: number) => {
+    setLeftWidth((prev) => {
+      const container = containerRef.current
+      if (!container || prev === null) return prev
+      const max = container.getBoundingClientRect().width - MIN_RIGHT_WIDTH
+      return Math.max(MIN_LEFT_WIDTH, Math.min(max, prev + delta))
+    })
+  }, [])
+
   return (
-    <div className="flex h-full flex-col rounded-xl border border-gray-100">
-      {/* 탭 헤더 */}
-      <div className="flex shrink-0 items-center gap-1.5 border-b border-gray-100 px-3 py-1.5">
-        <TabButton
-          label="시세"
-          active={activeTab === 'price'}
-          onClick={() => setActiveTab('price')}
-        />
-        <TabButton
-          label="개인·외국인·기관"
-          active={activeTab === 'investor'}
-          onClick={() => setActiveTab('investor')}
-        />
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
-        {activeTab === 'price' ? (
-          <div className="flex h-full flex-col">
-            {/* 실시간 / 일별 서브탭 */}
-            <div className="flex shrink-0 border-b border-gray-100">
-              <SubTabButton
-                label="실시간"
-                active={priceSubTab === 'realtime'}
-                onClick={() => setPriceSubTab('realtime')}
-              />
-              <SubTabButton
-                label="일별"
-                active={priceSubTab === 'daily'}
-                onClick={() => setPriceSubTab('daily')}
-              />
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              {priceSubTab === 'realtime' ? (
-                <RealtimeTab trades={trades} isLoading={tradesLoading} />
-              ) : (
-                <DailyTab candles={candles} isLoading={candlesLoading} />
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="px-3 py-6 text-center text-[10px] text-gray-400">
+    <div ref={containerRef} className="flex h-full">
+      {/* 좌측 모듈: 개인·외국인·기관 */}
+      <div
+        className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white"
+        style={{ width: leftWidth ?? '50%' }}
+      >
+        <div className="flex h-11 shrink-0 items-center px-3">
+          <span className="text-sm font-semibold text-wefin-text">개인·외국인·기관</span>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+          <div className="px-3 py-6 text-center text-xs text-wefin-subtle">
             투자자 매매동향 (추후 연동)
           </div>
-        )}
+        </div>
+      </div>
+
+      <ResizeHandle onResize={handleResize} />
+
+      {/* 우측 모듈: 시세 */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
+        <div className="flex h-11 shrink-0 items-center justify-between px-3">
+          <span className="text-sm font-semibold text-wefin-text">시세</span>
+          <SegmentedTabs items={PRICE_SUB_TABS} activeKey={priceSubTab} onChange={setPriceSubTab} />
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+          {priceSubTab === 'realtime' ? (
+            <RealtimeTab trades={trades} isLoading={tradesLoading} />
+          ) : (
+            <DailyTab candles={candles} isLoading={candlesLoading} />
+          )}
+        </div>
       </div>
     </div>
   )
@@ -85,21 +97,21 @@ function RealtimeTab({
   isLoading: boolean
 }) {
   if (isLoading) {
-    return <div className="px-3 py-6 text-center text-[10px] text-gray-400">로딩 중...</div>
+    return <div className="px-3 py-6 text-center text-xs text-wefin-subtle">로딩 중...</div>
   }
 
   if (trades.length === 0) {
-    return <div className="px-3 py-6 text-center text-[10px] text-gray-400">체결 내역 없음</div>
+    return <div className="px-3 py-6 text-center text-xs text-wefin-subtle">체결 내역 없음</div>
   }
 
   return (
-    <table className="w-full text-[10px]">
-      <thead className="sticky top-0 bg-gray-50">
+    <table className="w-full text-xs">
+      <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
-          <th className="px-2 py-1.5 text-left font-medium">체결가</th>
-          <th className="px-2 py-1.5 text-right font-medium">체결량(주)</th>
-          <th className="px-2 py-1.5 text-right font-medium">등락률</th>
-          <th className="px-2 py-1.5 text-right font-medium">시간</th>
+          <th className="px-2 py-1.5 text-left font-semibold">체결가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">체결량(주)</th>
+          <th className="px-2 py-1.5 text-right font-semibold">등락률</th>
+          <th className="px-2 py-1.5 text-right font-semibold">시간</th>
         </tr>
       </thead>
       <tbody>
@@ -110,16 +122,23 @@ function RealtimeTab({
           const timeDisplay = formatTradeTime(t.tradeTime)
 
           return (
-            <tr key={`${t.tradeTime}-${i}`} className="border-t border-gray-50 hover:bg-gray-50">
-              <td className={`px-2 py-1 font-medium ${colorClass}`}>
+            <tr
+              key={`${t.tradeTime}-${i}`}
+              className="border-t border-wefin-line hover:bg-wefin-bg"
+            >
+              <td className={`px-2 py-1 font-semibold tabular-nums ${colorClass}`}>
                 {t.price.toLocaleString()}원
               </td>
-              <td className={`px-2 py-1 text-right ${colorClass}`}>{t.volume.toLocaleString()}</td>
-              <td className={`px-2 py-1 text-right ${colorClass}`}>
+              <td className={`px-2 py-1 text-right font-medium tabular-nums ${colorClass}`}>
+                {t.volume.toLocaleString()}
+              </td>
+              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
                 {isPositive ? '+' : ''}
                 {t.changeRate.toFixed(2)}%
               </td>
-              <td className="px-2 py-1 text-right text-wefin-subtle">{timeDisplay}</td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
+                {timeDisplay}
+              </td>
             </tr>
           )
         })}
@@ -143,24 +162,24 @@ function DailyTab({
   isLoading: boolean
 }) {
   if (isLoading) {
-    return <div className="px-3 py-6 text-center text-[10px] text-gray-400">로딩 중...</div>
+    return <div className="px-3 py-6 text-center text-xs text-wefin-subtle">로딩 중...</div>
   }
 
   if (candles.length === 0) {
-    return <div className="px-3 py-6 text-center text-[10px] text-gray-400">데이터 없음</div>
+    return <div className="px-3 py-6 text-center text-xs text-wefin-subtle">데이터 없음</div>
   }
 
   return (
-    <table className="w-full text-[10px]">
-      <thead className="sticky top-0 bg-gray-50">
+    <table className="w-full text-xs">
+      <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
-          <th className="px-2 py-1.5 text-left font-medium">일자</th>
-          <th className="px-2 py-1.5 text-right font-medium">종가</th>
-          <th className="px-2 py-1.5 text-right font-medium">등락률</th>
-          <th className="px-2 py-1.5 text-right font-medium">거래량</th>
-          <th className="px-2 py-1.5 text-right font-medium">시가</th>
-          <th className="px-2 py-1.5 text-right font-medium">고가</th>
-          <th className="px-2 py-1.5 text-right font-medium">저가</th>
+          <th className="px-2 py-1.5 text-left font-semibold">일자</th>
+          <th className="px-2 py-1.5 text-right font-semibold">종가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">등락률</th>
+          <th className="px-2 py-1.5 text-right font-semibold">거래량</th>
+          <th className="px-2 py-1.5 text-right font-semibold">시가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">고가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">저가</th>
         </tr>
       </thead>
       <tbody>
@@ -172,70 +191,34 @@ function DailyTab({
           const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : ''
 
           return (
-            <tr key={c.date} className="border-t border-gray-50 hover:bg-gray-50">
-              <td className="px-2 py-1 text-wefin-subtle">{c.date.substring(5, 10)}</td>
-              <td className={`px-2 py-1 text-right font-medium ${colorClass}`}>
+            <tr key={c.date} className="border-t border-wefin-line hover:bg-wefin-bg">
+              <td className="px-2 py-1 font-medium text-wefin-subtle tabular-nums">
+                {c.date.substring(5, 10).replace('-', '.')}
+              </td>
+              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
                 {c.closePrice.toLocaleString()}
               </td>
-              <td className={`px-2 py-1 text-right ${colorClass}`}>
+              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
                 {isPositive ? '+' : ''}
                 {changeRate.toFixed(2)}%
               </td>
-              <td className="px-2 py-1 text-right text-wefin-subtle">
+              <td className="px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
                 {c.volume.toLocaleString()}
               </td>
-              <td className="px-2 py-1 text-right">{c.openPrice.toLocaleString()}</td>
-              <td className="px-2 py-1 text-right">{c.highPrice.toLocaleString()}</td>
-              <td className="px-2 py-1 text-right">{c.lowPrice.toLocaleString()}</td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+                {c.openPrice.toLocaleString()}
+              </td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+                {c.highPrice.toLocaleString()}
+              </td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+                {c.lowPrice.toLocaleString()}
+              </td>
             </tr>
           )
         })}
       </tbody>
     </table>
-  )
-}
-
-function TabButton({
-  label,
-  active,
-  onClick
-}: {
-  label: string
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
-        active ? 'bg-wefin-text text-white' : 'text-wefin-subtle hover:bg-gray-100'
-      }`}
-    >
-      {label}
-    </button>
-  )
-}
-
-function SubTabButton({
-  label,
-  active,
-  onClick
-}: {
-  label: string
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex-1 py-1.5 text-center text-[10px] font-medium transition-colors ${
-        active
-          ? 'border-b-2 border-wefin-text text-wefin-text'
-          : 'text-wefin-subtle hover:text-wefin-text'
-      }`}
-    >
-      {label}
-    </button>
   )
 }
 

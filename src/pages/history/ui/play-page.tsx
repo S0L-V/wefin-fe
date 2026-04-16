@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
 
+import GroupChatRoom from '@/features/chat/ui/group-chat-room'
 import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
+import { useEndGameMutation } from '@/features/game-room/model/use-end-game-mutation'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
 import { useGameRoomSocket } from '@/features/game-room/model/use-game-room-socket'
 import { useLeaveRoomGuard } from '@/features/game-room/model/use-leave-room-guard'
@@ -9,7 +11,6 @@ import { useTurnChangeSocket } from '@/features/game-room/model/use-turn-change-
 import { useVoteMutation } from '@/features/game-room/model/use-vote-mutation'
 import { useVoteSocket } from '@/features/game-room/model/use-vote-socket'
 import { useVoteStore } from '@/features/game-room/model/use-vote-store'
-import GroupChat from '@/features/game-room/ui/group-chat'
 import GroupRanking from '@/features/game-room/ui/group-ranking'
 import HoldingsPanel from '@/features/game-room/ui/holdings-panel'
 import LeaveRoomDialog from '@/features/game-room/ui/leave-room-dialog'
@@ -28,6 +29,7 @@ function PlayPage() {
   const { data: portfolio } = usePortfolioQuery(roomId ?? '')
   const { data: currentTurn } = useCurrentTurnQuery(roomId ?? '')
   const voteMutation = useVoteMutation(roomId ?? '')
+  const endGameMutation = useEndGameMutation(roomId ?? '')
   const markVoted = useVoteStore((s) => s.markVoted)
   const isVoting = useVoteStore((s) => s.isVoting)
   useGameRoomSocket(roomId ?? '')
@@ -42,6 +44,8 @@ function PlayPage() {
   const isHost =
     roomDetail?.data.participants.some((p) => p.isLeader && p.userId === userId) ?? false
 
+  const activePlayers =
+    roomDetail?.data.participants.filter((p) => p.status === 'ACTIVE').length ?? 0
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
@@ -59,6 +63,7 @@ function PlayPage() {
           seed={seed}
           totalAssets={totalAssets}
           profitRate={profitRate}
+          activePlayers={activePlayers}
           isHost={isHost}
           isAdvancing={voteMutation.isPending || isVoting}
           onNextTurn={() => {
@@ -66,7 +71,12 @@ function PlayPage() {
             voteMutation.mutate(true)
           }}
           onLeave={() => guard.requestLeave('/history')}
-          onEndGame={() => navigate(`/history/room/${roomId}/result`)}
+          isEnding={endGameMutation.isPending}
+          onEndGame={() => {
+            endGameMutation.mutate(undefined, {
+              onSuccess: () => navigate(`/history/room/${roomId}/result`)
+            })
+          }}
         />
 
         <div className="mx-auto flex max-w-[1400px] items-stretch gap-4 p-4">
@@ -80,9 +90,9 @@ function PlayPage() {
             <OrderPanel roomId={roomId} cash={cash} />
           </main>
 
-          <aside className="flex w-80 flex-col gap-4">
-            <GroupChat />
-            <GroupRanking />
+          <aside className="flex w-[360px] flex-col gap-4">
+            <GroupChatRoom />
+            <GroupRanking roomId={roomId} />
           </aside>
         </div>
       </div>

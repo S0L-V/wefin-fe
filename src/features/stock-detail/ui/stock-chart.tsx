@@ -364,8 +364,12 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       // 시간 순서 충돌 시 무시
     }
 
-    if (isInitialLoad.current) {
-      chartRef.current?.timeScale().fitContent()
+    // 최초 로딩 직후엔 레이아웃이 안정된 다음 프레임에 fitContent 재호출
+    // (컨테이너 너비 0으로 초기화되는 케이스 대응)
+    if (candleData.length > 0 && isInitialLoad.current) {
+      const fit = () => chartRef.current?.timeScale().fitContent()
+      fit()
+      requestAnimationFrame(fit)
       isInitialLoad.current = false
     }
   }, [allCandles, periodCode])
@@ -485,7 +489,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   return (
     <div className="flex h-full flex-col">
       {/* 기간 탭 */}
-      <div className="flex shrink-0 items-center gap-0.5 border-b border-gray-100 px-2 py-1">
+      <div className="flex shrink-0 items-center gap-0 border-b border-wefin-line px-2 py-1">
         {periods.map((p) => (
           <PeriodButton
             key={p.code}
@@ -494,7 +498,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
             onClick={() => setPeriodCode(p.code)}
           />
         ))}
-        <div className="mx-1.5 h-3 w-px bg-gray-200" />
+        <div className="mx-1 h-3 w-px bg-gray-200" />
         {datePeriods.map((p) => (
           <PeriodButton
             key={p.code}
@@ -509,7 +513,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       <div className="relative min-h-0 flex-1">
         {/* OHLC 정보 — 차트 위에 겹쳐서 표시 */}
         {ohlc && (
-          <div className="absolute left-1 top-1 z-10 flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 text-[10px]">
+          <div className="absolute left-1 top-1 z-10 flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 text-xs">
             <span className="text-wefin-subtle">
               시 <span className="font-medium text-wefin-text">{ohlc.open.toLocaleString()}</span>
             </span>
@@ -531,7 +535,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
         )}
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-            <span className="text-xs text-gray-400">로딩 중...</span>
+            <span className="text-xs text-wefin-subtle">로딩 중...</span>
           </div>
         )}
         <div ref={chartContainerRef} />
@@ -552,7 +556,7 @@ function PeriodButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
+      className={`rounded px-1.5 py-1 text-xs font-medium transition-colors ${
         active ? 'bg-wefin-mint text-white' : 'text-wefin-subtle hover:bg-gray-100'
       }`}
     >

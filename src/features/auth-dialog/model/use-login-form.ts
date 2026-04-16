@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -22,6 +23,7 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as LocationState | null)?.from || '/'
@@ -49,9 +51,11 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
       })
 
       localStorage.setItem('nickname', result.nickname)
+      localStorage.setItem('email', formData.email)
       localStorage.setItem('accessToken', result.accessToken)
       localStorage.setItem('refreshToken', result.refreshToken)
 
+      await queryClient.invalidateQueries({ queryKey: ['quests', 'today'] })
       window.dispatchEvent(new Event('auth-changed'))
 
       onSuccess()

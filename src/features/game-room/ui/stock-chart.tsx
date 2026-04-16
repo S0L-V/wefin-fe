@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { aggregateCandles, type ChartInterval } from '../model/aggregate-candles'
 import { useLightweightChart } from '../model/use-lightweight-chart'
@@ -12,13 +12,23 @@ interface StockChartProps {
 function StockChart({ roomId }: StockChartProps) {
   const [chartInterval, setChartInterval] = useState<ChartInterval>('day')
 
-  const { selectedStock } = useSelectedStockStore()
+  const { selectedStock, selectStock } = useSelectedStockStore()
   const {
     data: chartData,
     isLoading,
     isError,
     error
   } = useStockChart(selectedStock?.symbol ?? null, roomId)
+
+  // 차트 데이터가 갱신되면 마지막 종가로 선택 종목 가격 동기화
+  // (턴 전환 시 차트 invalidate → 새 종가 반영)
+  useEffect(() => {
+    if (!selectedStock || !chartData || chartData.length === 0) return
+    const latestClose = chartData[chartData.length - 1].closePrice
+    if (latestClose !== selectedStock.price) {
+      selectStock({ ...selectedStock, price: latestClose })
+    }
+  }, [chartData, selectedStock, selectStock])
 
   const aggregated = useMemo(
     () => (chartData ? aggregateCandles(chartData, chartInterval) : null),

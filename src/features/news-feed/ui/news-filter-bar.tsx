@@ -167,34 +167,34 @@ export default function NewsFilterBar({
               <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
               <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-xl border border-wefin-line bg-white py-1 shadow-lg">
                 <div className="px-3 pb-2 pt-1">
-                  <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-2.5 py-1.5">
-                    <Search className="h-3.5 w-3.5 text-gray-400" />
+                  <div className="flex items-center gap-2 rounded-lg border border-wefin-line px-2.5 py-1.5">
+                    <Search className="h-3.5 w-3.5 text-wefin-subtle" />
                     <input
                       ref={searchRef}
                       type="text"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="검색..."
-                      className="w-full bg-transparent text-[13px] text-wefin-text outline-none placeholder:text-gray-400"
+                      className="w-full bg-transparent text-[13px] text-wefin-text outline-none placeholder:text-wefin-subtle"
                     />
                   </div>
                 </div>
 
                 <div className="max-h-[240px] overflow-y-auto scrollbar-thin">
                   {filteredTags.length === 0 ? (
-                    <p className="px-4 py-3 text-center text-xs text-gray-400">결과 없음</p>
+                    <p className="px-4 py-3 text-center text-xs text-wefin-subtle">결과 없음</p>
                   ) : (
                     filteredTags.map((tag, idx) => (
                       <button
                         key={`${tag.code}-${idx}`}
                         onClick={() => toggleTag(tag)}
-                        className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-[13px] transition-colors hover:bg-gray-50"
+                        className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-[13px] transition-colors hover:bg-wefin-bg"
                       >
                         <span
                           className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                             selectedNames.includes(tag.name)
                               ? 'border-wefin-mint bg-wefin-mint text-white'
-                              : 'border-gray-300'
+                              : 'border-wefin-line'
                           }`}
                         >
                           {selectedNames.includes(tag.name) && <Check className="h-3 w-3" />}

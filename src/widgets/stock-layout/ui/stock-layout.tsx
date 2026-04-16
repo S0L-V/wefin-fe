@@ -13,7 +13,7 @@ export default function StockLayout({ children, sidebarWidth = 'default' }: Stoc
   const [sideW, setSideW] = useState(defaultW)
 
   const handleResize = useCallback(
-    (delta: number) => setSideW((w) => Math.max(200, Math.min(420, w - delta))),
+    (delta: number) => setSideW((w) => Math.max(280, Math.min(480, w - delta))),
     []
   )
 

@@ -1,9 +1,19 @@
 import { useState } from 'react'
 
-import { ApiError } from '@/shared/api/base-api'
+import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs'
 
+import {
+  formatAmount,
+  getSubmitColor,
+  getSubmitLabel,
+  type OrderTab,
+  type PriceMode,
+  priceTick,
+  resolveErrorMessage
+} from '../lib/order-form-utils'
 import { useBuyMutation, useSellMutation } from '../model/use-order-mutations'
-import OrderTabButton from './order-tab-button'
+import PriceInput from './price-input'
+import QuantityInput from './quantity-input'
 
 interface OrderFormProps {
   stockCode: string
@@ -12,35 +22,64 @@ interface OrderFormProps {
     balance: number | null
     maxQuantity: number | null
   }
+  holdingQuantity?: number | null
+  priceFromOrderbook?: number | null
 }
 
-type OrderTab = 'buy' | 'sell' | 'modify'
+const ORDER_TABS: SegmentedTabItem<OrderTab>[] = [
+  { key: 'buy', label: '구매', tone: 'red' },
+  { key: 'sell', label: '판매', tone: 'blue' },
+  { key: 'modify', label: '정정', tone: 'gray' }
+]
 
-const RATIO_OPTIONS = [
-  { label: '10%', ratio: 0.1 },
-  { label: '25%', ratio: 0.25 },
-  { label: '50%', ratio: 0.5 },
-  { label: '최대', ratio: 1 }
-] as const
+const PRICE_MODE_TABS: SegmentedTabItem<PriceMode>[] = [
+  { key: 'limit', label: '지정가' },
+  { key: 'market', label: '시장가' }
+]
 
-export default function OrderForm({ stockCode, currentPrice, accountState }: OrderFormProps) {
+export default function OrderForm({
+  stockCode,
+  currentPrice,
+  accountState,
+  holdingQuantity,
+  priceFromOrderbook
+}: OrderFormProps) {
   const [activeTab, setActiveTab] = useState<OrderTab>('buy')
+  const [priceMode, setPriceMode] = useState<PriceMode>('limit')
+  const [limitPrice, setLimitPrice] = useState<number>(0)
   const [quantity, setQuantity] = useState('')
+  const [prevOrderbookPrice, setPrevOrderbookPrice] = useState<number | null | undefined>(
+    priceFromOrderbook
+  )
+
+  // 호가창 클릭으로 priceFromOrderbook이 바뀌면 (지정가 모드일 때) limitPrice 동기화
+  if (priceFromOrderbook !== prevOrderbookPrice) {
+    setPrevOrderbookPrice(priceFromOrderbook)
+    if (priceMode === 'limit' && priceFromOrderbook && priceFromOrderbook > 0) {
+      setLimitPrice(priceFromOrderbook)
+    }
+  }
 
   const buyMutation = useBuyMutation()
   const sellMutation = useSellMutation()
 
+  const effectiveLimitPrice = limitPrice > 0 ? limitPrice : currentPrice
+  const effectivePrice = priceMode === 'market' ? currentPrice : effectiveLimitPrice
   const qtyNumber = Number(quantity || 0)
-  const totalAmount = qtyNumber * currentPrice
+  const totalAmount = qtyNumber * effectivePrice
   const activeMutation = activeTab === 'buy' ? buyMutation : sellMutation
   const isPending = buyMutation.isPending || sellMutation.isPending
   const canSubmit = activeTab !== 'modify' && qtyNumber >= 1 && !isPending
-
-  const maxQuantity = activeTab === 'buy' ? (accountState.maxQuantity ?? 0) : 0
-  const ratioDisabled = activeTab !== 'buy' || maxQuantity <= 0
+  const maxQuantity =
+    activeTab === 'buy'
+      ? (accountState.maxQuantity ?? 0)
+      : activeTab === 'sell'
+        ? (holdingQuantity ?? 0)
+        : 0
+  const ratioDisabled = activeTab === 'modify' || maxQuantity <= 0
 
   const handleSubmit = () => {
-    if (!canSubmit) return
+    if (!canSubmit || priceMode === 'limit') return
     const mutation = activeTab === 'buy' ? buyMutation : sellMutation
     mutation.mutate({ stockCode, quantity: qtyNumber }, { onSuccess: () => setQuantity('') })
   }
@@ -50,110 +89,93 @@ export default function OrderForm({ stockCode, currentPrice, accountState }: Ord
     setQuantity(String(Math.max(1, Math.floor(maxQuantity * ratio))))
   }
 
-  const errorMessage = resolveErrorMessage(activeMutation.error)
+  const adjustPrice = (dir: 1 | -1) => {
+    if (priceMode !== 'limit') return
+    const tick = priceTick(limitPrice || currentPrice)
+    setLimitPrice((p) => Math.max(0, (p || currentPrice) + dir * tick))
+  }
+
+  const errorMessage =
+    priceMode === 'limit' && canSubmit
+      ? '지정가 주문은 곧 출시됩니다'
+      : resolveErrorMessage(activeMutation.error)
 
   return (
     <div>
-      <div className="flex items-center border-b border-gray-100">
-        <span className="px-3 py-1.5 text-xs font-medium text-wefin-text">주문하기</span>
-        <div className="ml-auto flex">
-          <OrderTabButton
-            label="구매"
-            active={activeTab === 'buy'}
-            color="red"
-            onClick={() => setActiveTab('buy')}
-          />
-          <OrderTabButton
-            label="판매"
-            active={activeTab === 'sell'}
-            color="blue"
-            onClick={() => setActiveTab('sell')}
-          />
-          <OrderTabButton
-            label="정정"
-            active={activeTab === 'modify'}
-            color="gray"
-            onClick={() => setActiveTab('modify')}
-          />
-        </div>
+      <div className="flex h-11 items-center justify-between px-3">
+        <span className="text-sm font-semibold text-wefin-text">주문하기</span>
+        <SegmentedTabs
+          items={ORDER_TABS}
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          shape="square"
+        />
       </div>
 
-      <div className="space-y-2 p-3">
-        <div>
-          <label className="mb-0.5 block text-[10px] text-wefin-subtle">수량</label>
-          <input
-            type="number"
-            min="0"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="0"
-            disabled={activeTab === 'modify'}
-            className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-xs outline-none focus:border-wefin-mint disabled:bg-gray-50"
+      <div className="space-y-3 p-3">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-wefin-text">
+              {activeTab === 'sell' ? '판매 가격' : '구매 가격'}
+            </span>
+            <SegmentedTabs
+              items={PRICE_MODE_TABS}
+              activeKey={priceMode}
+              onChange={setPriceMode}
+              shape="square"
+            />
+          </div>
+          <PriceInput
+            value={effectivePrice}
+            disabled={priceMode === 'market'}
+            onChange={setLimitPrice}
+            onIncrement={() => adjustPrice(1)}
+            onDecrement={() => adjustPrice(-1)}
           />
         </div>
 
-        <div className="grid grid-cols-4 gap-1">
-          {RATIO_OPTIONS.map(({ label, ratio }) => (
-            <button
-              key={label}
-              type="button"
-              disabled={ratioDisabled}
-              onClick={() => handleRatio(ratio)}
-              className="rounded-md border border-gray-200 py-1 text-[10px] text-wefin-subtle transition-colors hover:bg-gray-50 disabled:opacity-50"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <QuantityInput
+          value={quantity}
+          disabled={activeTab === 'modify'}
+          onChange={setQuantity}
+          onRatio={handleRatio}
+          ratioDisabled={ratioDisabled}
+          maxQuantity={maxQuantity > 0 ? maxQuantity : null}
+          maxLabel={activeTab === 'sell' ? '보유' : '최대'}
+        />
 
-        <div className="space-y-1 text-[10px]">
-          <div className="flex justify-between">
-            <span className="text-wefin-subtle">구매가능 금액</span>
-            <span className="font-medium text-wefin-text">
-              {formatAmount(accountState.balance)}원
+        <div className="space-y-1.5 border-t border-wefin-line pt-3 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-wefin-subtle">
+              {activeTab === 'sell' ? '보유 수량' : '구매가능 금액'}
+            </span>
+            <span className="font-semibold text-wefin-text">
+              {activeTab === 'sell'
+                ? `${(holdingQuantity ?? 0).toLocaleString()}주`
+                : `${formatAmount(accountState.balance)}원`}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-wefin-subtle">총 주문 금액</span>
-            <span className="font-medium text-wefin-text">{totalAmount.toLocaleString()}원</span>
+          <div className="flex items-center justify-between">
+            <span className="text-wefin-subtle">
+              {activeTab === 'sell' ? '예상 수령 금액' : '총 주문 금액'}
+            </span>
+            <span className="font-semibold text-wefin-text">
+              {Math.trunc(totalAmount).toLocaleString()}원
+            </span>
           </div>
         </div>
 
-        {errorMessage && <p className="text-[10px] text-red-500">{errorMessage}</p>}
+        {errorMessage && <p className="text-xs text-red-500">{errorMessage}</p>}
 
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!canSubmit}
-          className={`w-full rounded-md py-2 text-xs font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getSubmitColor(activeTab)}`}
+          disabled={!canSubmit || priceMode === 'limit'}
+          className={`w-full rounded-md py-2.5 text-sm font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getSubmitColor(activeTab)}`}
         >
           {getSubmitLabel(activeTab, isPending)}
         </button>
       </div>
     </div>
   )
-}
-
-function getSubmitColor(tab: OrderTab): string {
-  if (tab === 'buy') return 'bg-red-500 hover:bg-red-600'
-  if (tab === 'sell') return 'bg-blue-500 hover:bg-blue-600'
-  return 'bg-gray-400 hover:bg-gray-500'
-}
-
-function getSubmitLabel(tab: OrderTab, isPending: boolean): string {
-  if (isPending) return '처리중...'
-  if (tab === 'buy') return '구매하기'
-  if (tab === 'sell') return '판매하기'
-  return '정정하기'
-}
-
-function formatAmount(value: number | null): string {
-  if (value === null || value === undefined) return '-'
-  return value.toLocaleString()
-}
-
-function resolveErrorMessage(error: unknown): string | null {
-  if (!error) return null
-  if (error instanceof ApiError) return error.message
-  return '주문 처리 중 오류가 발생했어요.'
 }

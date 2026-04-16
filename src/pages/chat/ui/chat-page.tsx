@@ -10,15 +10,17 @@ function ChatPage() {
 
   return (
     <div className="mx-auto flex h-full max-w-5xl flex-col">
-      <div className="mb-6 border-b border-gray-200 pb-2">
-        <h2 className="mb-5 text-2xl font-bold text-gray-900">채팅</h2>
+      <div className="mb-6 border-b border-wefin-line pb-2">
+        <h2 className="mb-5 text-2xl font-bold text-wefin-text">채팅</h2>
 
         <div className="flex items-center gap-6">
           <button
             type="button"
             onClick={() => setActiveTab('group')}
             className={`relative pb-3 text-lg font-bold transition-colors ${
-              activeTab === 'group' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
+              activeTab === 'group'
+                ? 'text-wefin-text'
+                : 'text-wefin-subtle hover:text-wefin-subtle'
             }`}
           >
             그룹 채팅
@@ -30,7 +32,9 @@ function ChatPage() {
             type="button"
             onClick={() => setActiveTab('global')}
             className={`relative pb-3 text-lg font-bold transition-colors ${
-              activeTab === 'global' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
+              activeTab === 'global'
+                ? 'text-wefin-text'
+                : 'text-wefin-subtle hover:text-wefin-subtle'
             }`}
           >
             전체 채팅

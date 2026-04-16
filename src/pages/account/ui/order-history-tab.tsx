@@ -15,7 +15,7 @@ export default function OrderHistoryTab() {
   const [subTab, setSubTab] = useState<OrderSubTab>('filled')
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-md space-y-6">
       <div className="flex gap-6 border-b border-wefin-line">
         {SUB_TABS.map(({ key, label }) => (
           <button

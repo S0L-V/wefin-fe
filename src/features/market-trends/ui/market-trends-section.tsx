@@ -70,7 +70,7 @@ function MarketTrendsSection() {
   }
 
   return (
-    <div className="mt-6 border-t border-gray-100 pt-6">
+    <div className="mt-6 border-t border-wefin-line pt-6">
       <header className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1">
         <h2 className="text-lg font-bold text-wefin-text">오늘 시장 한눈에 보기</h2>
         {data.trendDate && (
@@ -311,7 +311,7 @@ function formatTrendDate(date: string) {
 
 function SectionSkeleton() {
   return (
-    <div className="mt-6 border-t border-gray-100 pt-6">
+    <div className="mt-6 border-t border-wefin-line pt-6">
       <div className="h-6 w-56 animate-pulse rounded bg-wefin-line" />
       <div className="mt-6 h-24 animate-pulse rounded-2xl bg-wefin-line/60" />
     </div>
@@ -320,7 +320,7 @@ function SectionSkeleton() {
 
 function SectionError() {
   return (
-    <div className="mt-6 border-t border-gray-100 pt-6">
+    <div className="mt-6 border-t border-wefin-line pt-6">
       <h2 className="text-lg font-bold text-wefin-text">오늘 시장 한눈에 보기</h2>
       <p className="mt-4 text-sm text-wefin-subtle">동향을 불러오지 못했습니다.</p>
     </div>

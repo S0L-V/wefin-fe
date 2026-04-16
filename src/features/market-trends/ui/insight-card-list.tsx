@@ -1,4 +1,5 @@
 import { Lightbulb } from 'lucide-react'
+import { Activity, Flame, type LucideIcon, ShieldCheck, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
 import SourceBadge from '@/shared/ui/source-badge'
@@ -6,7 +7,7 @@ import SourceBadge from '@/shared/ui/source-badge'
 import type { InsightCard, SourceCluster } from '../api/fetch-market-trends-overview'
 import ClusterSourceModal from './cluster-source-modal'
 
-const CARD_EMOJIS = ['🚀', '📉', '🔥', '🛡️']
+const CARD_ICONS: LucideIcon[] = [TrendingUp, Activity, Flame, ShieldCheck]
 
 type Props = {
   cards: InsightCard[]
@@ -42,7 +43,7 @@ function InsightCardItem({
   clusterById: Map<number, SourceCluster>
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const emoji = CARD_EMOJIS[index % CARD_EMOJIS.length]
+  const Icon = CARD_ICONS[index % CARD_ICONS.length]
 
   const cardClusters: SourceCluster[] = card.relatedClusterIds
     .map((id) => clusterById.get(id))
@@ -53,9 +54,9 @@ function InsightCardItem({
   const hasAdvice = Boolean(card.advice && card.adviceLabel)
 
   return (
-    <article className="flex h-full flex-col rounded-xl bg-gray-50 p-3">
+    <article className="flex h-full flex-col rounded-xl border border-wefin-line bg-white p-4">
       <div className="mb-2 flex items-center gap-2">
-        <span className="text-lg">{emoji}</span>
+        <Icon className="h-4 w-4 text-wefin-mint" />
         <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
       </div>
       <p className="mb-3 flex-grow text-xs leading-relaxed text-wefin-subtle">{card.body}</p>

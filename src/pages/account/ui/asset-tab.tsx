@@ -6,22 +6,23 @@ export default function AssetTab() {
   const { data: portfolio, isLoading: portfolioLoading } = usePortfolioQuery()
 
   if (accountLoading || portfolioLoading) {
-    return <p className="py-10 text-center text-sm text-gray-400">불러오는 중...</p>
+    return <p className="py-10 text-center text-sm text-wefin-subtle">불러오는 중...</p>
   }
 
-  const balance = account?.balance ?? 0
-  const realizedProfit = account?.totalRealizedProfit ?? 0
-  const investedAmount = (portfolio ?? []).reduce(
-    (sum, item) => sum + (item.evaluationAmount ?? 0),
-    0
+  const balance = Math.trunc(account?.balance ?? 0)
+  const realizedProfit = Math.trunc(account?.totalRealizedProfit ?? 0)
+  const investedAmount = Math.trunc(
+    (portfolio ?? []).reduce((sum, item) => sum + (item.evaluationAmount ?? 0), 0)
   )
-  const totalPnL = (portfolio ?? []).reduce((sum, item) => sum + (item.profitLoss ?? 0), 0)
+  const totalPnL = Math.trunc(
+    (portfolio ?? []).reduce((sum, item) => sum + (item.profitLoss ?? 0), 0)
+  )
   const totalAsset = balance + investedAmount
   const profitColor = realizedProfit >= 0 ? 'text-red-500' : 'text-blue-500'
   const pnlColor = totalPnL >= 0 ? 'text-red-500' : 'text-blue-500'
 
   return (
-    <div className="divide-y divide-wefin-line">
+    <div className="max-w-md divide-y divide-wefin-line">
       <div className="pb-5">
         <p className="text-xs text-wefin-subtle">총 자산</p>
         <p className="mt-1 text-2xl font-bold text-wefin-text">{totalAsset.toLocaleString()}원</p>

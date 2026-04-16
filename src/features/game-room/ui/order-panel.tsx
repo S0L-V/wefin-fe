@@ -240,14 +240,14 @@ interface SummaryRowsProps {
 function SummaryRows({ type, currentPrice, quantity, totalAmount, cash }: SummaryRowsProps) {
   const priceLabel = type === 'market' ? '시장가' : `${currentPrice.toLocaleString()}원`
   return (
-    <div className="space-y-1.5 border-t border-wefin-line pt-3">
+    <div className="space-y-2 border-t border-wefin-line pt-3">
       <SummaryRow label="주문 단가" value={priceLabel} />
       <SummaryRow label="주문 수량" value={`${quantity}주`} />
-      <div className="flex justify-between pt-1 text-xs">
+      <div className="flex justify-between pt-1 text-sm">
         <span className="font-bold text-wefin-text">총 주문 금액</span>
         <span className="font-bold text-wefin-text">{totalAmount.toLocaleString()}원</span>
       </div>
-      <div className="flex justify-between text-[9px]">
+      <div className="flex justify-between text-xs">
         <span className="text-wefin-subtle">보유 현금</span>
         <span className="text-wefin-subtle">{cash.toLocaleString()}원</span>
       </div>
@@ -257,7 +257,7 @@ function SummaryRows({ type, currentPrice, quantity, totalAmount, cash }: Summar
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between text-[10px]">
+    <div className="flex justify-between text-xs">
       <span className="text-wefin-subtle">{label}</span>
       <span className="font-bold text-wefin-text">{value}</span>
     </div>

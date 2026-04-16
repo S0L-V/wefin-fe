@@ -53,7 +53,7 @@ export const joinRoomResponseSchema = z.object({
 
 // === API 4: 게임방 상세 조회 ===
 
-export const participantStatusSchema = z.enum(['ACTIVE', 'LEFT'])
+export const participantStatusSchema = z.enum(['ACTIVE', 'LEFT', 'FINISHED'])
 
 export const participantDetailSchema = z.object({
   participantId: z.uuid(),

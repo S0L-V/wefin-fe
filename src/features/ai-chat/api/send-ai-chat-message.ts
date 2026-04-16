@@ -14,6 +14,10 @@ const aiChatMessageSchema = z.object({
 
 export type AiChatMessage = z.infer<typeof aiChatMessageSchema>
 
+interface SendAiChatMessageOptions {
+  newsClusterId?: number
+}
+
 const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
   z.object({
     status: z.number(),
@@ -22,12 +26,16 @@ const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
     data: schema
   })
 
-export async function sendAiChatMessage(message: string): Promise<AiChatMessage> {
+export async function sendAiChatMessage(
+  message: string,
+  options?: SendAiChatMessageOptions
+): Promise<AiChatMessage> {
   // 메시지 전송은 로그인된 사용자의 Authorization 헤더와 함께 백엔드 /chat/ai/messages POST로 전달된다.
   const response = await baseApi.post(
     '/chat/ai/messages',
     {
-      message
+      message,
+      newsClusterId: options?.newsClusterId
     },
     {
       // AI 응답 생성은 일반 REST 요청보다 오래 걸릴 수 있어서 전용 timeout을 더 길게 준다.

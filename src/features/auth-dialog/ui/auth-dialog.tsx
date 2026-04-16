@@ -1,7 +1,7 @@
 import '@/app/styles/dialog.css'
 
 import * as Dialog from '@radix-ui/react-dialog'
-import { LockKeyhole, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 import { useLoginDialogQuery } from '../model/use-login-dialog-query'
 import { useLoginDialogStore } from '../model/use-login-dialog-store'
@@ -37,7 +37,6 @@ function AuthDialog() {
     handleBlur,
     handleVerifyEmail,
     handleSubmit: handleSignupSubmit,
-    handleOAuth,
     inputClassName
   } = useSignupForm({
     onSuccess: () => {
@@ -55,10 +54,6 @@ function AuthDialog() {
         <Dialog.Content className="dialog-content">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full bg-wefin-mint-soft px-3 py-1 text-xs font-semibold text-wefin-mint">
-                <LockKeyhole className="size-3.5" />
-                Radix UI Dialog
-              </div>
               <Dialog.Title className="text-xl font-semibold text-slate-900">
                 {isLogin ? (data?.title ?? '로그인') : '회원가입'}
               </Dialog.Title>
@@ -123,23 +118,6 @@ function AuthDialog() {
                   {loginLoading ? '로그인 중...' : '로그인'}
                 </button>
               </form>
-
-              <div className="mt-6 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleOAuth('google')}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  Google
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOAuth('kakao')}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  Kakao
-                </button>
-              </div>
 
               <p className="mt-6 text-center text-sm text-slate-500">
                 계정이 없으신가요?
@@ -270,23 +248,6 @@ function AuthDialog() {
                   {signupLoading ? '처리 중...' : '회원가입'}
                 </button>
               </form>
-
-              <div className="mt-6 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleOAuth('google')}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  Google
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOAuth('kakao')}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  Kakao
-                </button>
-              </div>
 
               <p className="mt-6 text-center text-sm text-slate-500">
                 이미 계정이 있으신가요?

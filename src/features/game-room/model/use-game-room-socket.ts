@@ -21,7 +21,11 @@ export function useGameRoomSocket(roomId: string) {
         try {
           const eventType = JSON.parse(message.body)
 
-          if (eventType === 'PARTICIPANT_JOINED' || eventType === 'PARTICIPANT_LEFT') {
+          if (
+            eventType === 'PARTICIPANT_JOINED' ||
+            eventType === 'PARTICIPANT_LEFT' ||
+            eventType === 'PARTICIPANT_FINISHED'
+          ) {
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.detail(roomId) })
           }
 
