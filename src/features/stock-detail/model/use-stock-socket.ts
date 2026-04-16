@@ -155,17 +155,28 @@ export function useStockSocket(stockCode: string | undefined): void {
     const removeListener = onStompConnect(setupSubscriptions)
 
     return () => {
-      // 종목 이동 시 BE에 먼저 unsubscribe SEND를 보내고 topic을 끊는다.
-      // 아직 connect 전이라 setupSubscriptions가 호출되지 않았다면 publish는 스킵.
-      if (didSendSubscribe && stompClient.connected) {
-        stompClient.publish({
-          destination: '/app/stocks/unsubscribe',
-          body: JSON.stringify({ stockCode })
+      try {
+        // 종목 이동 시 BE에 먼저 unsubscribe SEND를 보내고 topic을 끊는다.
+        // 아직 connect 전이라 setupSubscriptions가 호출되지 않았다면 publish는 스킵.
+        if (didSendSubscribe && stompClient.connected) {
+          stompClient.publish({
+            destination: '/app/stocks/unsubscribe',
+            body: JSON.stringify({ stockCode })
+          })
+        }
+        subscriptions.forEach((sub) => {
+          try {
+            sub.unsubscribe()
+          } catch {
+            /* 이미 해제된 구독은 무시 */
+          }
         })
+        lastWsReceiveTime = 0
+      } finally {
+        // publish / unsubscribe에서 예외가 나도 listener는 반드시 해제해야
+        // 언마운트된 훅의 stale 콜백이 재연결 시 실행되는 걸 막는다.
+        removeListener()
       }
-      subscriptions.forEach((sub) => sub.unsubscribe())
-      lastWsReceiveTime = 0
-      removeListener()
     }
   }, [stockCode, queryClient])
 }
