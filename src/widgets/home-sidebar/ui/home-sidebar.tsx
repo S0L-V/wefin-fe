@@ -28,7 +28,7 @@ export default function HomeSidebar() {
                   key={key}
                   type="button"
                   onClick={() => setActiveTab(key)}
-                  className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
+                  className={`flex-1 rounded-full py-2 text-sm font-bold transition-colors ${
                     isActive
                       ? 'bg-white text-wefin-text shadow-sm'
                       : 'text-wefin-subtle hover:text-wefin-text'

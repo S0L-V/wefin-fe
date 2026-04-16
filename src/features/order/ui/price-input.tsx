@@ -17,17 +17,20 @@ export default function PriceInput({
 }: PriceInputProps) {
   return (
     <div
-      className={`flex items-center rounded-md border border-wefin-line ${
+      className={`flex items-center rounded-md border-[1.5px] border-wefin-line ${
         disabled ? 'bg-wefin-bg' : 'bg-white'
       }`}
     >
       <input
-        type="number"
-        min="0"
-        value={value || ''}
-        onChange={(e) => onChange(Number(e.target.value))}
+        type="text"
+        inputMode="numeric"
+        value={value ? value.toLocaleString() : ''}
+        onChange={(e) => {
+          const digits = e.target.value.replace(/[^\d]/g, '')
+          onChange(digits ? Number(digits) : 0)
+        }}
         disabled={disabled}
-        className="min-w-0 flex-1 bg-transparent px-3 py-2 text-right text-sm font-medium text-wefin-text outline-none disabled:cursor-not-allowed"
+        className="min-w-0 flex-1 bg-transparent px-3 py-2 text-right text-sm font-medium tabular-nums text-wefin-text outline-none disabled:cursor-not-allowed"
       />
       <span className="pr-2 text-xs text-wefin-subtle">원</span>
       <button

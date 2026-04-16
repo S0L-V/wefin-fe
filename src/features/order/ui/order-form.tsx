@@ -102,7 +102,7 @@ export default function OrderForm({
 
   return (
     <div>
-      <div className="flex h-11 items-center justify-between border-b border-wefin-line px-3">
+      <div className="flex h-11 items-center justify-between px-3">
         <span className="text-sm font-semibold text-wefin-text">주문하기</span>
         <SegmentedTabs
           items={ORDER_TABS}
@@ -115,7 +115,7 @@ export default function OrderForm({
       <div className="space-y-3 p-3">
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-wefin-subtle">
+            <span className="text-xs font-bold text-wefin-text">
               {activeTab === 'sell' ? '판매 가격' : '구매 가격'}
             </span>
             <SegmentedTabs

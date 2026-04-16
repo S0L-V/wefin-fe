@@ -51,7 +51,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
         className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white"
         style={{ width: leftWidth ?? '50%' }}
       >
-        <div className="flex h-11 shrink-0 items-center border-b border-wefin-line px-3">
+        <div className="flex h-11 shrink-0 items-center px-3">
           <span className="text-sm font-semibold text-wefin-text">개인·외국인·기관</span>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
@@ -65,7 +65,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
 
       {/* 우측 모듈: 시세 */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
-        <div className="flex h-11 shrink-0 items-center justify-between border-b border-wefin-line px-3">
+        <div className="flex h-11 shrink-0 items-center justify-between px-3">
           <span className="text-sm font-semibold text-wefin-text">시세</span>
           <SegmentedTabs items={PRICE_SUB_TABS} activeKey={priceSubTab} onChange={setPriceSubTab} />
         </div>
@@ -108,10 +108,10 @@ function RealtimeTab({
     <table className="w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
-          <th className="px-2 py-1.5 text-left font-medium">체결가</th>
-          <th className="px-2 py-1.5 text-right font-medium">체결량(주)</th>
-          <th className="px-2 py-1.5 text-right font-medium">등락률</th>
-          <th className="px-2 py-1.5 text-right font-medium">시간</th>
+          <th className="px-2 py-1.5 text-left font-semibold">체결가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">체결량(주)</th>
+          <th className="px-2 py-1.5 text-right font-semibold">등락률</th>
+          <th className="px-2 py-1.5 text-right font-semibold">시간</th>
         </tr>
       </thead>
       <tbody>
@@ -126,15 +126,19 @@ function RealtimeTab({
               key={`${t.tradeTime}-${i}`}
               className="border-t border-wefin-line hover:bg-wefin-bg"
             >
-              <td className={`px-2 py-1 font-medium ${colorClass}`}>
+              <td className={`px-2 py-1 font-semibold tabular-nums ${colorClass}`}>
                 {t.price.toLocaleString()}원
               </td>
-              <td className={`px-2 py-1 text-right ${colorClass}`}>{t.volume.toLocaleString()}</td>
-              <td className={`px-2 py-1 text-right ${colorClass}`}>
+              <td className={`px-2 py-1 text-right font-medium tabular-nums ${colorClass}`}>
+                {t.volume.toLocaleString()}
+              </td>
+              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
                 {isPositive ? '+' : ''}
                 {t.changeRate.toFixed(2)}%
               </td>
-              <td className="px-2 py-1 text-right text-wefin-subtle">{timeDisplay}</td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
+                {timeDisplay}
+              </td>
             </tr>
           )
         })}
@@ -169,13 +173,13 @@ function DailyTab({
     <table className="w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
-          <th className="px-2 py-1.5 text-left font-medium">일자</th>
-          <th className="px-2 py-1.5 text-right font-medium">종가</th>
-          <th className="px-2 py-1.5 text-right font-medium">등락률</th>
-          <th className="px-2 py-1.5 text-right font-medium">거래량</th>
-          <th className="px-2 py-1.5 text-right font-medium">시가</th>
-          <th className="px-2 py-1.5 text-right font-medium">고가</th>
-          <th className="px-2 py-1.5 text-right font-medium">저가</th>
+          <th className="px-2 py-1.5 text-left font-semibold">일자</th>
+          <th className="px-2 py-1.5 text-right font-semibold">종가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">등락률</th>
+          <th className="px-2 py-1.5 text-right font-semibold">거래량</th>
+          <th className="px-2 py-1.5 text-right font-semibold">시가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">고가</th>
+          <th className="px-2 py-1.5 text-right font-semibold">저가</th>
         </tr>
       </thead>
       <tbody>
@@ -188,20 +192,28 @@ function DailyTab({
 
           return (
             <tr key={c.date} className="border-t border-wefin-line hover:bg-wefin-bg">
-              <td className="px-2 py-1 text-wefin-subtle">{c.date.substring(5, 10)}</td>
-              <td className={`px-2 py-1 text-right font-medium ${colorClass}`}>
+              <td className="px-2 py-1 font-medium text-wefin-subtle tabular-nums">
+                {c.date.substring(5, 10).replace('-', '.')}
+              </td>
+              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
                 {c.closePrice.toLocaleString()}
               </td>
-              <td className={`px-2 py-1 text-right ${colorClass}`}>
+              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
                 {isPositive ? '+' : ''}
                 {changeRate.toFixed(2)}%
               </td>
-              <td className="px-2 py-1 text-right text-wefin-subtle">
+              <td className="px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
                 {c.volume.toLocaleString()}
               </td>
-              <td className="px-2 py-1 text-right">{c.openPrice.toLocaleString()}</td>
-              <td className="px-2 py-1 text-right">{c.highPrice.toLocaleString()}</td>
-              <td className="px-2 py-1 text-right">{c.lowPrice.toLocaleString()}</td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+                {c.openPrice.toLocaleString()}
+              </td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+                {c.highPrice.toLocaleString()}
+              </td>
+              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+                {c.lowPrice.toLocaleString()}
+              </td>
             </tr>
           )
         })}
