@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
-import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
+import ChatPanel from '@/features/chat/ui/chat-panel'
 import WatchlistPanel from '@/features/watchlist/ui/watchlist-panel'
 
 type Tab = 'watchlist' | 'chat'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'watchlist', label: '관심 주식' },
-  { key: 'chat', label: '전체 채팅' }
+  { key: 'chat', label: '채팅' }
 ]
 
 interface StockSidebarProps {
@@ -74,7 +74,7 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
           </>
         ) : (
           <div className="h-full [&>*]:h-full [&>*]:min-h-0">
-            <GlobalChatRoom />
+            <ChatPanel />
           </div>
         )}
       </div>

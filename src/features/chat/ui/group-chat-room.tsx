@@ -1,5 +1,5 @@
-﻿import { useQueryClient } from '@tanstack/react-query'
-import { MessageSquareReply, Send, Users, X } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { ArrowUp, CornerDownRight, MessageSquareReply, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -36,11 +36,14 @@ function getMessageKey(
   ].join(':')
 }
 
-export default function GroupChatRoom() {
+interface GroupChatRoomProps {
+  bare?: boolean
+}
+
+export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
   const shouldRestoreScrollRef = useRef(false)
@@ -48,9 +51,7 @@ export default function GroupChatRoom() {
 
   const userId = useGlobalChatStore((state) => state.userId)
   const client = useGlobalChatStore((state) => state.client)
-  const groupMeta = useGroupChatStore((state) => state.groupMeta)
   const chatMessages = useGroupChatStore((state) => state.messages)
-  const connected = useGroupChatStore((state) => state.connected)
   const isLoading = useGroupChatStore((state) => state.loading)
   const isLoadingOlder = useGroupChatStore((state) => state.loadingOlder)
   const hasNext = useGroupChatStore((state) => state.hasNext)
@@ -107,7 +108,6 @@ export default function GroupChatRoom() {
       return
     }
 
-    // 이전 메시지를 붙이기 전에 현재 높이를 기록해 두고, 성공했을 때만 scrollTop을 보정한다.
     previousHeightRef.current = container.scrollHeight
     shouldRestoreScrollRef.current = true
 
@@ -120,26 +120,19 @@ export default function GroupChatRoom() {
   }
 
   if (isLoading) {
-    return <div className="h-[640px] p-6 text-sm text-wefin-subtle">Loading group chat...</div>
+    return (
+      <div className={`${bare ? 'h-full' : 'h-[640px]'} p-6 text-sm text-wefin-subtle`}>
+        Loading group chat...
+      </div>
+    )
   }
 
   return (
-    <div className="flex h-[640px] min-h-0 flex-col overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-wefin-line bg-white p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3db9b9]/10 text-[#3db9b9]">
-            <Users size={20} />
-          </div>
-          <div>
-            <h3 className="font-bold text-wefin-text">{groupMeta?.groupName ?? '그룹 채팅'}</h3>
-            <p className="text-xs text-wefin-subtle">현재 그룹 멤버만 참여할 수 있는 대화방</p>
-          </div>
-        </div>
-        <div className="text-sm font-medium text-wefin-subtle">
-          {connected ? 'Connected' : 'Connecting...'}
-        </div>
-      </div>
-
+    <div
+      className={`flex min-h-0 flex-col overflow-hidden ${
+        bare ? 'h-full' : 'h-[640px] rounded-2xl border border-wefin-line bg-white shadow-sm'
+      }`}
+    >
       {errorMessage && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {errorMessage}
@@ -151,7 +144,7 @@ export default function GroupChatRoom() {
         onScroll={() => {
           void handleScroll()
         }}
-        className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6 pr-6"
+        className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-white p-3 scrollbar-thin"
       >
         {isLoadingOlder && (
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
@@ -172,67 +165,57 @@ export default function GroupChatRoom() {
             )
           }
 
+          const time = msg.createdAt
+            ? new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            : ''
+
           if (isNews && msg.newsShare) {
             const newsShare = msg.newsShare
 
             return (
               <div
                 key={getMessageKey(msg)}
-                className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
               >
-                <div
-                  className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}
-                >
-                  <span className="text-xs font-bold text-wefin-text">{msg.sender}</span>
-                  <span className="text-[10px] text-wefin-subtle">
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </div>
+                {!isMine && (
+                  <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
+                )}
 
-                <div className={`relative w-full max-w-[340px] ${isMine ? 'mr-0' : ''}`}>
+                <div
+                  className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
+                >
                   <button
                     type="button"
                     onClick={() => navigate(`/news/${newsShare.newsClusterId}`)}
-                    className="w-full overflow-hidden rounded-[22px] border border-black/5 bg-[#1f1f1f] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                    className="w-full max-w-[280px] overflow-hidden rounded-2xl bg-[#1f1f1f] text-left text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                   >
                     {newsShare.thumbnailUrl ? (
                       <img
                         src={newsShare.thumbnailUrl}
                         alt={newsShare.title}
-                        className="h-36 w-full object-cover"
+                        className="h-28 w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-36 items-center justify-center bg-gradient-to-br from-[#273b57] to-[#1f1f1f] text-sm font-semibold text-white/70">
+                      <div className="flex h-28 items-center justify-center bg-gradient-to-br from-[#273b57] to-[#1f1f1f] text-xs font-semibold text-white/70">
                         뉴스 미리보기
                       </div>
                     )}
-
-                    <div className="space-y-3 p-4 text-white">
-                      <div className="line-clamp-2 text-[15px] font-bold leading-6">
+                    <div className="space-y-1.5 p-3">
+                      <div className="line-clamp-2 text-sm font-bold leading-snug">
                         {newsShare.title}
                       </div>
                       {newsShare.summary && (
-                        <p className="line-clamp-3 text-sm leading-6 text-white/75">
+                        <p className="line-clamp-2 text-xs leading-snug text-white/70">
                           {newsShare.summary}
                         </p>
                       )}
-                      <div className="text-sm font-semibold text-[#7ecbff] underline underline-offset-4">
-                        news 상세 보기
-                      </div>
                     </div>
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setReplyTarget(msg)}
-                    className={`absolute ${isMine ? 'left-[-56px]' : 'right-[-56px]'} bottom-0 inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2.5 py-1 text-[11px] font-semibold text-wefin-subtle shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]`}
-                  >
-                    <MessageSquareReply size={12} />
-                    답장
-                  </button>
+                  {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
+                  <ReplyButton onClick={() => setReplyTarget(msg)} />
                 </div>
               </div>
             )
@@ -241,66 +224,58 @@ export default function GroupChatRoom() {
           return (
             <div
               key={getMessageKey(msg)}
-              className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+              className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
             >
-              <div className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}>
-                <span className="text-xs font-bold text-wefin-text">{msg.sender}</span>
-                <span className="text-[10px] text-wefin-subtle">
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
+              {!isMine && (
+                <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
+              )}
 
-              <div className={`relative max-w-[70%] ${isMine ? 'mr-0' : ''}`}>
+              {msg.replyTo && (
                 <div
-                  className={`rounded-2xl p-3 text-sm ${
+                  className={`mb-1 inline-flex max-w-[70%] items-start gap-1 rounded-lg border border-wefin-line bg-wefin-bg px-2.5 py-1 text-[11px] leading-snug [overflow-wrap:anywhere] ${
+                    isMine ? 'flex-row-reverse text-right' : ''
+                  }`}
+                >
+                  <CornerDownRight
+                    size={11}
+                    className="mt-0.5 shrink-0 text-wefin-subtle opacity-80"
+                  />
+                  <span>
+                    <span className="font-bold text-wefin-text">{msg.replyTo.sender}</span>
+                    <span className="text-wefin-subtle">
+                      {' · '}
+                      {msg.replyTo.content}
+                    </span>
+                  </span>
+                </div>
+              )}
+
+              <div className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
+                <div
+                  className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm leading-snug [overflow-wrap:anywhere] ${
                     isMine
-                      ? 'rounded-tr-none bg-[#3db9b9] text-white'
+                      ? 'rounded-tr-none bg-wefin-mint text-white'
                       : 'rounded-tl-none bg-gray-100 text-wefin-text'
                   }`}
                 >
-                  {msg.replyTo && (
-                    <div
-                      className={`mb-3 rounded-xl border px-3 py-2 text-xs ${
-                        isMine
-                          ? 'border-white/20 bg-white/10 text-white/85'
-                          : 'border-wefin-line bg-white text-wefin-subtle'
-                      }`}
-                    >
-                      <div className="mb-1 font-semibold">{msg.replyTo.sender}</div>
-                      <div className="line-clamp-2">{msg.replyTo.content}</div>
-                    </div>
-                  )}
-
-                  <div>{msg.content}</div>
+                  {msg.content}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setReplyTarget(msg)}
-                  className={`absolute ${isMine ? 'left-[-56px]' : 'right-[-56px]'} bottom-0 inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2.5 py-1 text-[11px] font-semibold text-wefin-subtle shadow-sm transition hover:border-[#3db9b9]/40 hover:text-[#3db9b9]`}
-                >
-                  <MessageSquareReply size={12} />
-                  답장
-                </button>
+                {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
+                <ReplyButton onClick={() => setReplyTarget(msg)} />
               </div>
             </div>
           )
         })}
-
-        <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-wefin-line bg-white p-4">
+      <div className="border-t border-wefin-line bg-white p-3">
         {replyTarget && (
-          <div className="mb-3 flex items-start justify-between rounded-xl border border-[#3db9b9]/20 bg-[#3db9b9]/5 px-4 py-3">
+          <div className="mb-2 flex items-center justify-between rounded-lg bg-wefin-mint-soft/50 px-3 py-2">
             <div className="min-w-0">
-              <div className="mb-1 text-xs font-bold text-[#2a8282]">
+              <div className="text-[11px] font-bold text-wefin-mint-deep">
                 {replyTarget.sender}에게 답장
               </div>
-              <div className="truncate text-sm text-wefin-subtle">
+              <div className="truncate text-xs text-wefin-subtle">
                 {replyTarget.messageType === 'NEWS' && replyTarget.newsShare
                   ? replyTarget.newsShare.title
                   : replyTarget.content}
@@ -309,15 +284,15 @@ export default function GroupChatRoom() {
             <button
               type="button"
               onClick={clearReplyTarget}
-              className="ml-3 flex h-7 w-7 items-center justify-center rounded-full text-wefin-subtle transition hover:bg-white hover:text-wefin-subtle"
+              className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-wefin-subtle transition hover:bg-white"
               aria-label="답장 취소"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
           </div>
         )}
 
-        <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-2 pr-3">
+        <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}
@@ -331,19 +306,32 @@ export default function GroupChatRoom() {
                 handleSendMessage()
               }
             }}
-            placeholder="메시지를 입력하세요... (/slow, /rename 등 명령어 사용 가능)"
-            className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-wefin-text focus:outline-none"
+            placeholder="메시지를 입력하세요"
+            className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
             aria-label="메시지 전송"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
           >
-            <Send size={18} />
+            <ArrowUp size={18} strokeWidth={2.5} />
           </button>
         </div>
       </div>
     </div>
+  )
+}
+
+function ReplyButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="답장"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-wefin-subtle opacity-0 transition-opacity hover:bg-wefin-bg hover:text-wefin-mint-deep group-hover/msg:opacity-100"
+    >
+      <MessageSquareReply size={16} />
+    </button>
   )
 }

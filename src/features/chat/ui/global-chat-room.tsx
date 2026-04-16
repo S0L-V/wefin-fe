@@ -33,7 +33,11 @@ function getMessageKey(
   ].join(':')
 }
 
-export default function GlobalChatRoom() {
+interface GlobalChatRoomProps {
+  bare?: boolean
+}
+
+export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const queryClient = useQueryClient()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -106,11 +110,19 @@ export default function GlobalChatRoom() {
   }
 
   if (isLoading) {
-    return <div className="h-[640px] p-6 text-sm text-wefin-subtle">Loading global chat...</div>
+    return (
+      <div className={`${bare ? 'h-full' : 'h-[640px]'} p-6 text-sm text-wefin-subtle`}>
+        Loading global chat...
+      </div>
+    )
   }
 
   return (
-    <div className="flex h-[640px] min-h-0 flex-col overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
+    <div
+      className={`flex min-h-0 flex-col overflow-hidden ${
+        bare ? 'h-full' : 'h-[640px] rounded-2xl border border-wefin-line bg-white shadow-sm'
+      }`}
+    >
       {errorMessage && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {errorMessage}
@@ -158,9 +170,9 @@ export default function GlobalChatRoom() {
                 <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
               )}
 
-              <div className={`flex items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
                 <div
-                  className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug ${
+                  className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug [overflow-wrap:anywhere] ${
                     isMine
                       ? 'rounded-tr-none bg-wefin-mint text-white'
                       : 'rounded-tl-none bg-gray-100 text-wefin-text'
@@ -175,8 +187,8 @@ export default function GlobalChatRoom() {
         })}
       </div>
 
-      <div className="border-t border-wefin-line bg-white p-2">
-        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1 pr-1 pl-3">
+      <div className="border-t border-wefin-line bg-white p-3">
+        <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}
@@ -191,15 +203,15 @@ export default function GlobalChatRoom() {
               }
             }}
             placeholder="메시지를 입력하세요"
-            className="flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
+            className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
             aria-label="메시지 전송"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
           >
-            <ArrowUp size={14} strokeWidth={2.5} />
+            <ArrowUp size={18} strokeWidth={2.5} />
           </button>
         </div>
       </div>
