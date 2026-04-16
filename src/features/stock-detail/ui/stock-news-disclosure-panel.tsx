@@ -1,4 +1,4 @@
-import { ExternalLink, FileText, Newspaper } from 'lucide-react'
+import { ExternalLink, FileSearch, FileText, Info, Newspaper } from 'lucide-react'
 
 import type {
   StockDisclosureItem,
@@ -8,6 +8,7 @@ import {
   useStockDisclosuresQuery,
   useStockNewsQuery
 } from '@/features/stock-detail/model/use-stock-detail-queries'
+import { ApiError } from '@/shared/api/base-api'
 
 interface StockNewsDisclosurePanelProps {
   code: string
@@ -22,17 +23,19 @@ export default function StockNewsDisclosurePanel({
   const disclosuresQuery = useStockDisclosuresQuery(code, enabled)
 
   return (
-    <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-5 lg:grid-cols-2">
+    <div className="grid h-full w-full grid-cols-1 gap-3 overflow-y-auto p-5 lg:grid-cols-2">
       <NewsSection
         items={newsQuery.data?.items ?? []}
         isLoading={newsQuery.isLoading}
         isError={newsQuery.isError}
+        error={newsQuery.error}
       />
       <DisclosureSection
         items={disclosuresQuery.data?.items ?? []}
         totalCount={disclosuresQuery.data?.totalCount ?? null}
         isLoading={disclosuresQuery.isLoading}
         isError={disclosuresQuery.isError}
+        error={disclosuresQuery.error}
       />
     </div>
   )
@@ -76,7 +79,7 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="flex min-w-0 flex-col rounded-xl border border-wefin-line bg-white">
+    <section className="flex min-w-0 w-full flex-col rounded-xl border border-wefin-line bg-white">
       <header className="flex items-center justify-between border-b border-wefin-line px-4 py-2.5">
         <div className="flex items-center gap-2">
           {icon}
@@ -97,23 +100,60 @@ function EmptyRow({ message }: { message: string }) {
   )
 }
 
+function SectionEmptyState({
+  icon,
+  title,
+  description
+}: {
+  icon: React.ReactNode
+  title: string
+  description?: string
+}) {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-8 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-wefin-bg">
+        {icon}
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-wefin-fg">{title}</p>
+        {description && <p className="text-xs text-wefin-subtle">{description}</p>}
+      </div>
+    </div>
+  )
+}
+
+function errorDescription(error: unknown): string {
+  if (error instanceof ApiError) return error.message
+  if (error instanceof Error) return error.message
+  return '잠시 후 다시 시도해주세요.'
+}
+
 // ---- 뉴스 ----
 
 function NewsSection({
   items,
   isLoading,
-  isError
+  isError,
+  error
 }: {
   items: StockNewsItem[]
   isLoading: boolean
   isError: boolean
+  error: unknown
 }) {
   return (
     <Section title="뉴스" icon={<Newspaper className="h-4 w-4 text-wefin-subtle" />}>
       {isLoading ? (
-        <EmptyRow message="불러오는 중…" />
+        <SectionEmptyState
+          icon={<Info className="h-8 w-8 text-wefin-subtle" />}
+          title="불러오는 중…"
+        />
       ) : isError ? (
-        <EmptyRow message="뉴스를 불러오지 못했습니다" />
+        <SectionEmptyState
+          icon={<FileSearch className="h-8 w-8 text-wefin-subtle" />}
+          title="뉴스를 불러오지 못했습니다"
+          description={errorDescription(error)}
+        />
       ) : items.length === 0 ? (
         <EmptyRow message="관련 뉴스가 없습니다" />
       ) : (
@@ -185,12 +225,14 @@ function DisclosureSection({
   items,
   totalCount,
   isLoading,
-  isError
+  isError,
+  error
 }: {
   items: StockDisclosureItem[]
   totalCount: number | null
   isLoading: boolean
   isError: boolean
+  error: unknown
 }) {
   return (
     <Section
@@ -199,9 +241,16 @@ function DisclosureSection({
       count={totalCount}
     >
       {isLoading ? (
-        <EmptyRow message="불러오는 중…" />
+        <SectionEmptyState
+          icon={<Info className="h-8 w-8 text-wefin-subtle" />}
+          title="불러오는 중…"
+        />
       ) : isError ? (
-        <EmptyRow message="공시를 불러오지 못했습니다" />
+        <SectionEmptyState
+          icon={<FileSearch className="h-8 w-8 text-wefin-subtle" />}
+          title="공시를 불러오지 못했습니다"
+          description={errorDescription(error)}
+        />
       ) : items.length === 0 ? (
         <EmptyRow message="최근 3개월 공시가 없습니다" />
       ) : (
