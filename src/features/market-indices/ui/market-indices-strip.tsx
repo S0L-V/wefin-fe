@@ -25,11 +25,13 @@ export default function MarketIndicesStrip() {
 
   // 데이터 fetch 전에도 부모(가격 옆) 레이아웃이 점프하지 않도록 고정 높이 유지
   if (!data || data.indices.length === 0) {
-    return <div className={STRIP_HEIGHT} aria-hidden />
+    return <div className={`min-w-0 ${STRIP_HEIGHT}`} aria-hidden />
   }
 
   return (
-    <ul className={`flex items-center gap-7 overflow-x-auto scrollbar-thin ${STRIP_HEIGHT}`}>
+    <ul
+      className={`flex min-w-0 items-center gap-7 overflow-x-auto scrollbar-thin ${STRIP_HEIGHT}`}
+    >
       {data.indices.map((index) => (
         <IndexCard key={index.code} index={index} />
       ))}

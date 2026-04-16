@@ -49,7 +49,13 @@ export default function QuantityInput({
           value={value ? Number(value).toLocaleString() : ''}
           onChange={(e) => {
             const digits = e.target.value.replace(/[^\d]/g, '')
-            onChange(digits)
+            if (!digits) {
+              onChange('')
+              return
+            }
+            const n = Number(digits)
+            const clamped = maxQuantity !== null ? Math.min(maxQuantity, n) : n
+            onChange(String(clamped))
           }}
           placeholder="0"
           disabled={disabled}

@@ -110,7 +110,20 @@ function AskRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps)
   const barWidth = (entry.quantity / maxQuantity) * 100
 
   return (
-    <div className={rowOuterClass(isCurrent, !!onClick)} onClick={() => onClick?.(entry.price)}>
+    <div
+      className={rowOuterClass(isCurrent, !!onClick)}
+      onClick={() => onClick?.(entry.price)}
+      onKeyDown={(e) => {
+        if (!onClick) return
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick(entry.price)
+        }
+      }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `${entry.price.toLocaleString()}원 선택` : undefined}
+    >
       <span
         aria-hidden
         className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-200/70 to-transparent"
@@ -135,7 +148,20 @@ function BidRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps)
   const barWidth = (entry.quantity / maxQuantity) * 100
 
   return (
-    <div className={rowOuterClass(isCurrent, !!onClick)} onClick={() => onClick?.(entry.price)}>
+    <div
+      className={rowOuterClass(isCurrent, !!onClick)}
+      onClick={() => onClick?.(entry.price)}
+      onKeyDown={(e) => {
+        if (!onClick) return
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick(entry.price)
+        }
+      }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `${entry.price.toLocaleString()}원 선택` : undefined}
+    >
       <span
         aria-hidden
         className="absolute inset-y-0 right-0 bg-gradient-to-l from-red-200/70 to-transparent"

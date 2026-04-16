@@ -26,7 +26,10 @@ export default function HoldingsPanel({
         <div className="flex items-baseline gap-1.5">
           <span className="text-sm font-semibold text-wefin-text">내 보유</span>
           {list.length > 0 && (
-            <span className="text-xs font-bold text-wefin-mint-deep tabular-nums">
+            <span
+              className="text-xs font-bold text-wefin-mint-deep tabular-nums"
+              aria-label={`${list.length}종목 보유`}
+            >
               {list.length}
             </span>
           )}
