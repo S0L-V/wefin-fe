@@ -6,8 +6,10 @@ interface PlayHeaderProps {
   seed: number
   totalAssets: number
   profitRate: number
+  activePlayers: number
   isHost: boolean
   isAdvancing: boolean
+  isEnding: boolean
   onNextTurn: () => void
   onLeave: () => void
   onEndGame: () => void
@@ -19,8 +21,10 @@ function PlayHeader({
   seed,
   totalAssets,
   profitRate,
+  activePlayers,
   isHost,
   isAdvancing,
+  isEnding,
   onNextTurn,
   onLeave,
   onEndGame
@@ -35,6 +39,9 @@ function PlayHeader({
           <span className="font-bold text-wefin-text">타임머신 모의투자</span>
           <span className="rounded-full bg-wefin-mint-soft px-2 py-0.5 text-xs font-bold text-wefin-mint">
             {currentRound}턴
+          </span>
+          <span className="flex items-center gap-1 text-xs font-bold text-wefin-text">
+            참가 인원 : {activePlayers}/6
           </span>
         </div>
 
@@ -70,9 +77,10 @@ function PlayHeader({
         <button
           type="button"
           onClick={onEndGame}
-          className="rounded-xl bg-wefin-text px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+          disabled={isEnding}
+          className="rounded-xl bg-wefin-text px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          게임 종료
+          {isEnding ? '종료 중…' : '게임 종료'}
         </button>
       </div>
     </header>
