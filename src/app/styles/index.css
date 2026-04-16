@@ -69,6 +69,12 @@
   select {
     font: inherit;
   }
+
+  /* Tailwind preflight가 button 커서를 default로 리셋하므로 다시 포인터로 복원 */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {
