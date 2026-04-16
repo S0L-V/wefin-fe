@@ -18,13 +18,18 @@ function formatValue(value: number): string {
   return value.toLocaleString('ko-KR', { maximumFractionDigits: 2 })
 }
 
+const STRIP_HEIGHT = 'h-[44px]'
+
 export default function MarketIndicesStrip() {
   const { data } = useMarketIndicesQuery({ interval: '5m', sparklinePoints: 80 })
 
-  if (!data || data.indices.length === 0) return null
+  // 데이터 fetch 전에도 부모(가격 옆) 레이아웃이 점프하지 않도록 고정 높이 유지
+  if (!data || data.indices.length === 0) {
+    return <div className={STRIP_HEIGHT} aria-hidden />
+  }
 
   return (
-    <ul className="flex items-center gap-7 overflow-x-auto scrollbar-thin">
+    <ul className={`flex items-center gap-7 overflow-x-auto scrollbar-thin ${STRIP_HEIGHT}`}>
       {data.indices.map((index) => (
         <IndexCard key={index.code} index={index} />
       ))}

@@ -4,7 +4,7 @@ import { fetchMarketIndices, type MarketIndicesParams } from '../api/fetch-marke
 
 export function useMarketIndicesQuery(params: MarketIndicesParams = {}) {
   return useQuery({
-    queryKey: ['market', 'indices', params],
+    queryKey: ['market', 'indices', params.interval, params.sparklinePoints],
     queryFn: () => fetchMarketIndices(params),
     staleTime: 10_000,
     refetchInterval: 10_000,

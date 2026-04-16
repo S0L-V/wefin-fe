@@ -58,9 +58,10 @@ function StockDetailPage() {
     if (!el) return
     const update = () => {
       const totalH = el.clientHeight
-      if (totalH > 0) {
-        setChartH(Math.round(totalH * chartRatio))
-      }
+      if (totalH <= 0) return
+      const next = Math.round(totalH * chartRatio)
+      // 동일 값이면 setState 스킵해서 ResizeObserver 재발화 루프 방지
+      setChartH((prev) => (prev === next ? prev : next))
     }
     update()
     const ro = new ResizeObserver(update)
