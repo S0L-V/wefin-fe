@@ -37,7 +37,7 @@ describe('AppHeader', () => {
     expect(screen.getByRole('button', { name: '로그인' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '실시간 주식' })).toHaveClass(
       'bg-wefin-mint-soft',
-      'text-wefin-mint'
+      'text-wefin-mint-deep'
     )
   })
 })
