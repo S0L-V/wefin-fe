@@ -6,6 +6,7 @@ import { claimQuestReward } from '../api/claim-quest-reward'
 import { fetchTodayQuests } from '../api/fetch-today-quests'
 
 const todayQuestQueryKey = ['quests', 'today'] as const
+const realtimeQuestRefreshRetryDelays = [300, 1000, 2000] as const
 
 export function getTodayQuestQueryKey(userId: string) {
   return [...todayQuestQueryKey, userId] as const
@@ -17,9 +18,11 @@ export function invalidateTodayQuests(queryClient: QueryClient) {
 
 export function refreshTodayQuestsAfterRealtimeAction(queryClient: QueryClient) {
   void invalidateTodayQuests(queryClient)
-  window.setTimeout(() => {
-    void invalidateTodayQuests(queryClient)
-  }, 500)
+  realtimeQuestRefreshRetryDelays.forEach((delay) => {
+    window.setTimeout(() => {
+      void invalidateTodayQuests(queryClient)
+    }, delay)
+  })
 }
 
 export function useTodayQuests(userId: string) {
