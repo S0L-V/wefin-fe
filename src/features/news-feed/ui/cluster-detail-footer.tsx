@@ -47,17 +47,23 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   const sectorInterestsQuery = useSectorInterestsQuery(Boolean(userId))
   const addSectorMutation = useAddSectorInterest()
   const deleteSectorMutation = useDeleteSectorInterest()
-  const isSectorRegistered = Boolean(
-    relatedSector && sectorInterestsQuery.data?.some((item) => item.code === relatedSector.code)
-  )
   const isSectorMutating = addSectorMutation.isPending || deleteSectorMutation.isPending
+  // 로딩/뮤테이션 중이면 등록 여부를 신뢰할 수 없으므로 토글 차단. data가 아직 없을 때 false로 간주되어
+  // 이미 등록된 분야에 중복 add가 발생하는 문제를 막는다
+  const isSectorToggleDisabled =
+    !relatedSector || sectorInterestsQuery.isLoading || isSectorMutating
+  const isSectorRegistered =
+    !sectorInterestsQuery.isLoading &&
+    Boolean(
+      relatedSector && sectorInterestsQuery.data?.some((item) => item.code === relatedSector.code)
+    )
 
   function handleSectorInterestClick() {
     if (!userId) {
       openLogin()
       return
     }
-    if (!relatedSector || isSectorMutating) return
+    if (isSectorToggleDisabled || !relatedSector) return
     if (isSectorRegistered) {
       deleteSectorMutation.mutate(relatedSector.code)
     } else {
@@ -193,7 +199,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
           <button
             type="button"
             onClick={handleSectorInterestClick}
-            disabled={isSectorMutating}
+            disabled={isSectorToggleDisabled}
             className={
               isSectorRegistered
                 ? 'shrink-0 rounded-lg border border-[#3db9b9] bg-white px-5 py-2.5 text-sm font-bold text-[#2a8282] transition-colors hover:bg-[#3db9b9]/10 disabled:opacity-60'
