@@ -5,13 +5,18 @@ import { useToggleWatchlist } from '@/features/watchlist/model/use-watchlist-que
 import { routes } from '@/shared/config/routes'
 import StockLogo from '@/shared/ui/stock-logo'
 
-import type { RankingStock } from '../lib/ranking-data'
+import type { StockRankingItem } from '../api/fetch-stock-ranking'
 
 interface StockRankingRowProps {
-  stock: RankingStock
+  stock: StockRankingItem
 }
 
 function formatTradingValue(won: number): string {
+  if (won >= 1_0000_0000_0000) {
+    const jo = Math.floor(won / 1_0000_0000_0000)
+    const eok = Math.floor((won % 1_0000_0000_0000) / 1_0000_0000)
+    return eok > 0 ? `${jo}조 ${eok.toLocaleString()}억원` : `${jo}조원`
+  }
   if (won >= 1_0000_0000) return `${(won / 1_0000_0000).toFixed(0)}억원`
   if (won >= 1_0000) return `${(won / 1_0000).toFixed(0)}만원`
   return `${won.toLocaleString()}원`
@@ -19,18 +24,17 @@ function formatTradingValue(won: number): string {
 
 export default function StockRankingRow({ stock }: StockRankingRowProps) {
   const navigate = useNavigate()
-  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(stock.code)
+  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(stock.stockCode)
 
   const isUp = stock.changeRate > 0
   const isDown = stock.changeRate < 0
   const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : null
   const rateTextColor = isUp ? 'text-red-500' : isDown ? 'text-blue-500' : 'text-wefin-subtle'
   const rateBgColor = isUp ? 'bg-red-50' : isDown ? 'bg-blue-50' : 'bg-transparent'
-  const changeValue = Math.trunc((stock.price * stock.changeRate) / 100)
-  const signedChangeValue = `${changeValue >= 0 ? '+' : ''}${changeValue.toLocaleString()}`
-  const tradingValue = stock.price * stock.volume
+  const signedChangeAmount = `${stock.changeAmount >= 0 ? '+' : ''}${Math.trunc(stock.changeAmount).toLocaleString()}`
+  const tradingValue = stock.currentPrice * stock.volume
 
-  const handleRowClick = () => navigate(routes.stockDetail(stock.code))
+  const handleRowClick = () => navigate(routes.stockDetail(stock.stockCode))
   const handleHeartClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     toggle()
@@ -54,18 +58,18 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
       </button>
       <div className="w-8 text-sm font-semibold text-wefin-text">{stock.rank}</div>
       <div className="mr-3">
-        <StockLogo code={stock.code} name={stock.name} />
+        <StockLogo code={stock.stockCode} name={stock.stockName} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-semibold text-wefin-text">{stock.name}</span>
-        <span className="text-xs text-wefin-subtle">{stock.code}</span>
+        <span className="truncate text-sm font-semibold text-wefin-text">{stock.stockName}</span>
+        <span className="text-xs text-wefin-subtle">{stock.stockCode}</span>
       </div>
       <div className="flex w-32 flex-col items-end">
         <span className="text-base font-semibold text-wefin-text tabular-nums">
-          {stock.price.toLocaleString()}원
+          {stock.currentPrice.toLocaleString()}원
         </span>
         <span className={`text-xs font-medium ${rateTextColor} tabular-nums`}>
-          {signedChangeValue}원
+          {signedChangeAmount}원
         </span>
       </div>
       <div className="flex w-28 justify-end">

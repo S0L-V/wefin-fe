@@ -1,4 +1,4 @@
-﻿import { Globe, Send } from 'lucide-react'
+﻿import { ArrowUp } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
@@ -41,7 +41,6 @@ export default function GlobalChatRoom() {
   const userId = useGlobalChatStore((state) => state.userId)
   const client = useGlobalChatStore((state) => state.client)
   const chatMessages = useGlobalChatStore((state) => state.messages)
-  const connected = useGlobalChatStore((state) => state.connected)
   const isLoading = useGlobalChatStore((state) => state.loading)
   const isLoadingOlder = useGlobalChatStore((state) => state.loadingOlder)
   const hasNext = useGlobalChatStore((state) => state.hasNext)
@@ -108,21 +107,6 @@ export default function GlobalChatRoom() {
 
   return (
     <div className="flex h-[640px] min-h-0 flex-col overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-wefin-line bg-white p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3db9b9]/10 text-[#3db9b9]">
-            <Globe size={20} />
-          </div>
-          <div>
-            <h3 className="font-bold text-wefin-text">Global Chat</h3>
-            <p className="text-xs text-wefin-subtle">A shared room visible across the app.</p>
-          </div>
-        </div>
-        <div className="text-sm font-medium text-wefin-subtle">
-          {connected ? 'Connected' : 'Connecting...'}
-        </div>
-      </div>
-
       {errorMessage && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {errorMessage}
@@ -134,7 +118,7 @@ export default function GlobalChatRoom() {
         onScroll={() => {
           void handleScroll()
         }}
-        className="min-h-0 flex-1 space-y-6 overflow-y-auto bg-white p-6"
+        className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-white p-3 scrollbar-thin"
       >
         {isLoadingOlder && (
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
@@ -154,39 +138,41 @@ export default function GlobalChatRoom() {
             )
           }
 
+          const time = msg.createdAt
+            ? new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            : ''
+
           return (
             <div
               key={getMessageKey(msg)}
               className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
             >
-              <div className={`mb-1 flex items-baseline gap-2 ${isMine ? 'flex-row-reverse' : ''}`}>
-                <span className="text-xs font-bold text-wefin-text">{msg.sender}</span>
-                <span className="text-[10px] text-wefin-subtle">
-                  {msg.createdAt
-                    ? new Date(msg.createdAt).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
-                    : ''}
-                </span>
-              </div>
+              {!isMine && (
+                <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
+              )}
 
-              <div
-                className={`max-w-[70%] rounded-2xl p-3 text-sm ${
-                  isMine
-                    ? 'rounded-tr-none bg-[#3db9b9] text-white'
-                    : 'rounded-tl-none bg-gray-100 text-wefin-text'
-                }`}
-              >
-                {msg.content}
+              <div className={`flex items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
+                <div
+                  className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug ${
+                    isMine
+                      ? 'rounded-tr-none bg-wefin-mint text-white'
+                      : 'rounded-tl-none bg-gray-100 text-wefin-text'
+                  }`}
+                >
+                  {msg.content}
+                </div>
+                {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
               </div>
             </div>
           )
         })}
       </div>
 
-      <div className="border-t border-wefin-line bg-white p-4">
-        <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-2 pr-3">
+      <div className="border-t border-wefin-line bg-white p-2">
+        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1 pr-1 pl-3">
           <input
             type="text"
             value={message}
@@ -200,16 +186,16 @@ export default function GlobalChatRoom() {
                 handleSendMessage()
               }
             }}
-            placeholder="Type a message..."
-            className="flex-1 border-none bg-transparent px-4 py-2 text-sm text-wefin-text focus:outline-none"
+            placeholder="메시지를 입력하세요"
+            className="flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
           />
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
             aria-label="메시지 전송"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3db9b9] text-white transition-colors hover:bg-[#2a8282] disabled:opacity-50"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
           >
-            <Send size={18} />
+            <ArrowUp size={14} strokeWidth={2.5} />
           </button>
         </div>
       </div>

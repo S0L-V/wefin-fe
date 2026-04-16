@@ -1,7 +1,14 @@
-import { MOCK_RANKING } from '../lib/ranking-data'
+import type { RankingTab } from '../lib/ranking-data'
+import { useStockRankingQuery } from '../model/use-stock-ranking-query'
 import StockRankingRow from './stock-ranking-row'
 
-export default function StockRankingTable() {
+interface StockRankingTableProps {
+  activeTab: RankingTab
+}
+
+export default function StockRankingTable({ activeTab }: StockRankingTableProps) {
+  const { data: items = [], isLoading, isError } = useStockRankingQuery(activeTab)
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex shrink-0 items-center border-b border-wefin-line px-5 py-3 text-xs font-medium text-wefin-subtle">
@@ -15,9 +22,15 @@ export default function StockRankingTable() {
         <div className="w-32 text-right">거래량</div>
       </div>
       <div className="min-h-0 flex-1 divide-y divide-wefin-line overflow-y-auto scrollbar-thin">
-        {MOCK_RANKING.map((stock) => (
-          <StockRankingRow key={stock.code} stock={stock} />
-        ))}
+        {isLoading && items.length === 0 ? (
+          <p className="py-10 text-center text-sm text-wefin-subtle">불러오는 중...</p>
+        ) : isError ? (
+          <p className="py-10 text-center text-sm text-red-500">랭킹을 불러올 수 없어요</p>
+        ) : items.length === 0 ? (
+          <p className="py-10 text-center text-sm text-wefin-subtle">데이터가 없어요</p>
+        ) : (
+          items.map((stock) => <StockRankingRow key={stock.stockCode} stock={stock} />)
+        )}
       </div>
     </div>
   )

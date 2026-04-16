@@ -1,90 +1,92 @@
-import { Mail, User } from 'lucide-react'
-
-import SettingsSectionHeader from './settings-section-header'
-
 type SettingsProfileSectionProps = {
   isLoggedIn: boolean
   emailPlaceholder: string
 }
 
 function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfileSectionProps) {
+  const nickname = isLoggedIn ? (localStorage.getItem('nickname') ?? '') : ''
+
   return (
-    <section className="rounded-3xl border border-wefin-line bg-white p-6 shadow-sm">
-      <SettingsSectionHeader
-        icon={<User size={20} />}
-        title="내 정보 변경"
-        description="백엔드 연결 전 단계라 입력창과 버튼 UI만 먼저 배치했습니다."
-      />
-
-      <div className="space-y-5">
-        <div>
-          <label
-            htmlFor="settings-nickname"
-            className="mb-2 block text-sm font-semibold text-wefin-text"
-          >
-            닉네임 변경
-          </label>
-          <div className="flex gap-2 max-md:flex-col">
-            <input
-              id="settings-nickname"
-              type="text"
-              disabled={!isLoggedIn}
-              placeholder={isLoggedIn ? '새 닉네임 입력' : '로그인 후 이용할 수 있어요'}
-              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle disabled:bg-wefin-bg"
-            />
-            <button
-              type="button"
-              disabled
-              className="inline-flex h-11 min-w-[96px] items-center justify-center rounded-xl bg-wefin-mint px-4 text-sm font-semibold text-white opacity-50"
-            >
-              준비 중
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="settings-password"
-            className="mb-2 block text-sm font-semibold text-wefin-text"
-          >
-            비밀번호 변경
-          </label>
-          <div className="flex gap-2 max-md:flex-col">
-            <input
-              id="settings-password"
-              type="password"
-              disabled={!isLoggedIn}
-              placeholder={isLoggedIn ? '새 비밀번호 입력' : '로그인 후 이용할 수 있어요'}
-              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle disabled:bg-wefin-bg"
-            />
-            <button
-              type="button"
-              disabled
-              className="inline-flex h-11 min-w-[96px] items-center justify-center rounded-xl bg-wefin-mint px-4 text-sm font-semibold text-white opacity-50"
-            >
-              준비 중
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="settings-email"
-            className="mb-2 flex items-center gap-2 text-sm font-semibold text-wefin-text"
-          >
-            <Mail size={16} />
-            이메일
-          </label>
-          <input
-            id="settings-email"
-            type="text"
-            readOnly
-            value={isLoggedIn ? emailPlaceholder : '로그인 후 표시됩니다'}
-            className="h-11 w-full rounded-xl border border-wefin-line bg-wefin-bg px-4 text-sm text-wefin-subtle outline-none"
+    <div className="space-y-10">
+      <section>
+        <h3 className="mb-4 text-base font-semibold text-wefin-text">프로필 설정</h3>
+        <div className="divide-y divide-wefin-line/70">
+          <SettingRow
+            title="닉네임"
+            description="서비스에서 표시될 이름입니다."
+            action={
+              <input
+                defaultValue={nickname}
+                placeholder="닉네임 입력"
+                disabled={!isLoggedIn}
+                maxLength={12}
+                className="h-9 w-[200px] rounded-lg border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
+              />
+            }
+          />
+          <SettingRow
+            title="이메일 주소"
+            description="로그인에 사용되는 이메일입니다."
+            action={
+              <span className="text-sm font-medium text-wefin-subtle">
+                {isLoggedIn ? emailPlaceholder : '로그인 후 표시'}
+              </span>
+            }
+          />
+          <SettingRow
+            title="비밀번호"
+            description="보안을 위해 주기적으로 변경하세요."
+            action={
+              <button
+                type="button"
+                disabled={!isLoggedIn}
+                className="h-8 rounded-lg border border-wefin-line px-3 text-xs font-semibold text-wefin-text transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                변경하기
+              </button>
+            }
           />
         </div>
+      </section>
+
+      <section>
+        <h3 className="mb-4 text-base font-semibold text-wefin-text">보안 인증</h3>
+        <SettingRow
+          title="2단계 인증 (2FA)"
+          description="로그인 시 추가 보안 코드를 요구하여 계정을 보호합니다."
+          action={
+            <button
+              type="button"
+              disabled
+              aria-label="2단계 인증 토글"
+              className="relative h-6 w-11 cursor-not-allowed rounded-full bg-wefin-line opacity-60"
+            >
+              <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white" />
+            </button>
+          }
+        />
+      </section>
+    </div>
+  )
+}
+
+function SettingRow({
+  title,
+  description,
+  action
+}: {
+  title: string
+  description: string
+  action: React.ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between gap-6 py-3.5">
+      <div className="min-w-0 space-y-0.5">
+        <p className="text-sm font-semibold text-wefin-text">{title}</p>
+        <p className="text-xs text-wefin-subtle">{description}</p>
       </div>
-    </section>
+      <div className="shrink-0">{action}</div>
+    </div>
   )
 }
 

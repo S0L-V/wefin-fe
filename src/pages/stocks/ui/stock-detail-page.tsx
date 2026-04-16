@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { useAccountQuery, useBuyingPowerQuery } from '@/features/account/model/use-account-queries'
@@ -23,6 +23,18 @@ function StockDetailPage() {
   const [orderW, setOrderW] = useState(300)
   const [chartH, setChartH] = useState(520)
   const [priceFromOrderbook, setPriceFromOrderbook] = useState<number | null>(null)
+
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
+
+  useEffect(() => {
+    const sync = () => setIsLoggedIn(!!localStorage.getItem('accessToken'))
+    window.addEventListener('auth-changed', sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener('auth-changed', sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
 
   useStockSocket(code)
   const { data: price } = useStockPriceQuery(code ?? '')
@@ -72,10 +84,14 @@ function StockDetailPage() {
                 <ResizeHandle onResize={handleResize1} />
 
                 <div
-                  className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
+                  className="relative shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
                   style={{ width: orderbookW }}
                 >
-                  <OrderbookPanel code={code} onPriceClick={setPriceFromOrderbook} />
+                  <OrderbookPanel
+                    code={code}
+                    onPriceClick={isLoggedIn ? setPriceFromOrderbook : undefined}
+                  />
+                  {!isLoggedIn && <BlurOverlay />}
                 </div>
               </>
             )}
@@ -95,7 +111,10 @@ function StockDetailPage() {
 
           <ResizeHandle onResize={handleResize2} />
 
-          <div className="flex shrink-0 flex-col gap-2 overflow-y-auto" style={{ width: orderW }}>
+          <div
+            className="relative flex shrink-0 flex-col gap-2 overflow-y-auto"
+            style={{ width: orderW }}
+          >
             <div className="rounded-xl border border-wefin-line bg-white">
               <OrderForm
                 stockCode={code}
@@ -123,10 +142,23 @@ function StockDetailPage() {
             >
               주문내역 보기 →
             </Link>
+            {!isLoggedIn && <BlurOverlay />}
           </div>
         </div>
       </div>
     </StockLayout>
+  )
+}
+
+function BlurOverlay() {
+  return (
+    <div
+      className="absolute inset-0 z-10 rounded-xl backdrop-blur-sm"
+      style={{
+        background:
+          'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 20%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 80%, transparent 100%)'
+      }}
+    />
   )
 }
 

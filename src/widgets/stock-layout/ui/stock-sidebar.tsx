@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
 import WatchlistPanel from '@/features/watchlist/ui/watchlist-panel'
@@ -11,6 +11,17 @@ interface StockSidebarProps {
 
 export default function StockSidebar({ matchHeight }: StockSidebarProps) {
   const [activeTab, setActiveTab] = useState<Tab>('watchlist')
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
+
+  useEffect(() => {
+    const sync = () => setIsLoggedIn(!!localStorage.getItem('accessToken'))
+    window.addEventListener('auth-changed', sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener('auth-changed', sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
 
   const heightClass = matchHeight ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-120px)]'
 
@@ -43,9 +54,20 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
       </div>
 
       {/* 탭 콘텐츠 */}
-      <div className="min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1">
         {activeTab === 'watchlist' ? (
-          <WatchlistPanel />
+          <>
+            <WatchlistPanel />
+            {!isLoggedIn && (
+              <div
+                className="absolute inset-0 z-10 rounded-b-2xl backdrop-blur-sm"
+                style={{
+                  background:
+                    'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 20%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 80%, transparent 100%)'
+                }}
+              />
+            )}
+          </>
         ) : (
           <div className="h-full [&>*]:h-full [&>*]:min-h-0">
             <GlobalChatRoom />

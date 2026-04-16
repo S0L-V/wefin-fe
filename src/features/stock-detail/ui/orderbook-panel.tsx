@@ -33,7 +33,7 @@ export default function OrderbookPanel({ code, onPriceClick }: OrderbookPanelPro
         <span className="text-sm font-semibold text-wefin-text">호가</span>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
         {[...asks].reverse().map((ask, i) => (
           <AskRow
             key={`ask-${i}`}
@@ -99,7 +99,7 @@ interface RowProps {
 }
 
 function rowOuterClass(isCurrent: boolean, clickable: boolean): string {
-  const base = `relative grid min-h-[28px] flex-1 grid-cols-3 items-center px-3 text-xs ${
+  const base = `relative grid h-[34px] shrink-0 grid-cols-3 items-center px-3 text-xs ${
     clickable ? 'cursor-pointer hover:bg-wefin-bg' : ''
   }`
   return isCurrent ? `${base} rounded-md border-[3px] border-wefin-mint-deep` : base

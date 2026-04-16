@@ -33,7 +33,7 @@ function StocksPage() {
           />
         </div>
         <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white shadow-sm">
-          <StockRankingTable />
+          <StockRankingTable activeTab={activeTab} />
         </div>
       </div>
 
