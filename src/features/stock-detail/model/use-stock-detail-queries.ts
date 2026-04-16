@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { fetchInvestorTrend } from '@/features/stock-detail/api/fetch-investor-trend'
 import {
   fetchCandles,
   fetchOrderbook,
@@ -92,5 +93,15 @@ export function useStockDisclosuresQuery(code: string, enabled = true) {
     enabled: !!code && enabled,
     // BE 공시 캐시 30분
     staleTime: 15 * 60_000
+  })
+}
+
+export function useInvestorTrendQuery(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['stocks', code, 'investor-trend'],
+    queryFn: () => fetchInvestorTrend(code),
+    enabled: !!code && enabled,
+    // BE investorTrend 캐시 10분
+    staleTime: 10 * 60_000
   })
 }
