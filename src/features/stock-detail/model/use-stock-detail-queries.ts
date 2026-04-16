@@ -7,6 +7,7 @@ import {
   fetchStockInfo,
   fetchStockPrice
 } from '@/features/stock-detail/api/fetch-stock-detail'
+import { fetchStockInfoDetail } from '@/features/stock-detail/api/fetch-stock-info-detail'
 import { isWsActive } from '@/features/stock-detail/model/use-stock-socket'
 
 export function useStockInfoQuery(code: string) {
@@ -57,5 +58,15 @@ export function useRecentTradesQuery(code: string) {
     queryFn: () => fetchRecentTrades(code),
     enabled: !!code,
     staleTime: 5_000
+  })
+}
+
+export function useStockInfoDetailQuery(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['stocks', code, 'info-detail'],
+    queryFn: () => fetchStockInfoDetail(code),
+    enabled: !!code && enabled,
+    // BE 캐시가 6h~24h 이라 FE는 10분 staleTime으로 충분
+    staleTime: 10 * 60_000
   })
 }
