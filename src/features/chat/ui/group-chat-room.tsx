@@ -1,10 +1,12 @@
-﻿import { MessageSquareReply, Send, Users, X } from 'lucide-react'
+﻿import { useQueryClient } from '@tanstack/react-query'
+import { MessageSquareReply, Send, Users, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { useGroupChatStore } from '@/features/chat/model/group/group-chat-store'
 import { useGroupChatSocket } from '@/features/chat/model/group/use-group-chat-socket'
+import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 
 function getLastMessageKey(messages: ReturnType<typeof useGroupChatStore.getState>['messages']) {
   const lastMessage = messages[messages.length - 1]
@@ -36,6 +38,7 @@ function getMessageKey(
 
 export default function GroupChatRoom() {
   const [message, setMessage] = useState('')
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -93,6 +96,7 @@ export default function GroupChatRoom() {
       return
     }
 
+    refreshTodayQuestsAfterRealtimeAction(queryClient)
     setMessage('')
   }
 

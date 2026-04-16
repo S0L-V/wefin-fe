@@ -1,12 +1,25 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { ApiError } from '@/shared/api/base-api'
 
 import { claimQuestReward } from '../api/claim-quest-reward'
 import { fetchTodayQuests } from '../api/fetch-today-quests'
 
-function getTodayQuestQueryKey(userId: string) {
-  return ['quests', 'today', userId]
+const todayQuestQueryKey = ['quests', 'today'] as const
+
+export function getTodayQuestQueryKey(userId: string) {
+  return [...todayQuestQueryKey, userId] as const
+}
+
+export function invalidateTodayQuests(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({ queryKey: todayQuestQueryKey })
+}
+
+export function refreshTodayQuestsAfterRealtimeAction(queryClient: QueryClient) {
+  void invalidateTodayQuests(queryClient)
+  window.setTimeout(() => {
+    void invalidateTodayQuests(queryClient)
+  }, 500)
 }
 
 export function useTodayQuests(userId: string) {
@@ -29,7 +42,7 @@ export function useClaimQuestReward(userId: string) {
         return
       }
 
-      void queryClient.invalidateQueries({ queryKey: ['quests', 'today'] })
+      void invalidateTodayQuests(queryClient)
     }
   })
 }

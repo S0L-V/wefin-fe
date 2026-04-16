@@ -1,7 +1,9 @@
-﻿import { Globe, Send } from 'lucide-react'
+﻿import { useQueryClient } from '@tanstack/react-query'
+import { Globe, Send } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
+import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 
 function getLastMessageKey(messages: ReturnType<typeof useGlobalChatStore.getState>['messages']) {
   const lastMessage = messages[messages.length - 1]
@@ -33,6 +35,7 @@ function getMessageKey(
 
 export default function GlobalChatRoom() {
   const [message, setMessage] = useState('')
+  const queryClient = useQueryClient()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
   const shouldRestoreScrollRef = useRef(false)
@@ -81,6 +84,7 @@ export default function GlobalChatRoom() {
     if (!trimmedMessage || !client?.connected) return
 
     sendMessage(trimmedMessage)
+    refreshTodayQuestsAfterRealtimeAction(queryClient)
     setMessage('')
   }
 

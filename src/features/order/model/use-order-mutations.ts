@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { invalidateTodayQuests } from '@/features/quest/model/use-today-quests'
+
 import {
   buyOrder,
   type BuyOrderParams,
@@ -16,6 +18,7 @@ function invalidateOrderSideEffects(queryClient: ReturnType<typeof useQueryClien
   queryClient.invalidateQueries({ queryKey: ['portfolio'] })
   queryClient.invalidateQueries({ queryKey: ['account'] })
   queryClient.invalidateQueries({ queryKey: ['ranking'] })
+  void invalidateTodayQuests(queryClient)
 }
 
 export function useBuyMutation() {
