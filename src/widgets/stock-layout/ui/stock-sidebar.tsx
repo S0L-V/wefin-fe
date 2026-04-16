@@ -5,6 +5,11 @@ import WatchlistPanel from '@/features/watchlist/ui/watchlist-panel'
 
 type Tab = 'watchlist' | 'chat'
 
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'watchlist', label: '관심 주식' },
+  { key: 'chat', label: '전체 채팅' }
+]
+
 interface StockSidebarProps {
   matchHeight?: boolean
 }
@@ -30,27 +35,26 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
       className={`flex ${heightClass} flex-col rounded-2xl border border-wefin-line bg-white shadow-sm`}
     >
       {/* 탭 헤더 */}
-      <div className="flex border-b border-wefin-line">
-        <button
-          onClick={() => setActiveTab('watchlist')}
-          className={`flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
-            activeTab === 'watchlist'
-              ? 'border-b-2 border-wefin-mint text-wefin-mint'
-              : 'text-wefin-subtle hover:text-wefin-subtle'
-          }`}
-        >
-          관심 주식
-        </button>
-        <button
-          onClick={() => setActiveTab('chat')}
-          className={`flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
-            activeTab === 'chat'
-              ? 'border-b-2 border-wefin-mint text-wefin-mint'
-              : 'text-wefin-subtle hover:text-wefin-subtle'
-          }`}
-        >
-          전체 채팅
-        </button>
+      <div className="p-2.5">
+        <div className="flex gap-1 rounded-full bg-gray-100 p-1">
+          {TABS.map(({ key, label }) => {
+            const isActive = activeTab === key
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveTab(key)}
+                className={`flex-1 rounded-full py-2 text-sm font-bold transition-colors ${
+                  isActive
+                    ? 'bg-white text-wefin-text shadow-sm'
+                    : 'text-wefin-subtle hover:text-wefin-text'
+                }`}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* 탭 콘텐츠 */}

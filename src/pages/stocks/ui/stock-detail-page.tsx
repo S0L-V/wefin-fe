@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { useAccountQuery, useBuyingPowerQuery } from '@/features/account/model/use-account-queries'
@@ -21,7 +21,9 @@ function StockDetailPage() {
 
   const [orderbookW, setOrderbookW] = useState(320)
   const [orderW, setOrderW] = useState(300)
-  const [chartH, setChartH] = useState(520)
+  const [chartRatio, setChartRatio] = useState(0.55) // 차트가 좌측 컬럼 세로공간의 55%
+  const [chartH, setChartH] = useState(360)
+  const chartColumnRef = useRef<HTMLDivElement>(null)
   const [priceFromOrderbook, setPriceFromOrderbook] = useState<number | null>(null)
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
@@ -50,10 +52,30 @@ function StockDetailPage() {
     (delta: number) => setOrderW((w) => Math.max(280, Math.min(400, w - delta))),
     []
   )
-  const handleChartResize = useCallback(
-    (delta: number) => setChartH((h) => Math.max(380, Math.min(800, h + delta))),
-    []
-  )
+  // 컬럼 높이를 관측해서 ratio 기반으로 chartH를 계산 — 어떤 해상도에서도 비율 유지
+  useEffect(() => {
+    const el = chartColumnRef.current
+    if (!el) return
+    const update = () => {
+      const totalH = el.clientHeight
+      if (totalH <= 0) return
+      const next = Math.round(totalH * chartRatio)
+      // 동일 값이면 setState 스킵해서 ResizeObserver 재발화 루프 방지
+      setChartH((prev) => (prev === next ? prev : next))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [chartRatio])
+
+  const handleChartResize = useCallback((delta: number) => {
+    const el = chartColumnRef.current
+    if (!el) return
+    const totalH = el.clientHeight
+    if (totalH <= 0) return
+    setChartRatio((r) => Math.max(0.3, Math.min(0.85, r + delta / totalH)))
+  }, [])
 
   if (!code) return null
 
@@ -68,7 +90,7 @@ function StockDetailPage() {
           <div className="flex min-w-0 flex-1">
             {activeTab === 'chart' && (
               <>
-                <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+                <div ref={chartColumnRef} className="flex min-w-0 flex-1 flex-col overflow-hidden">
                   <div
                     className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
                     style={{ height: chartH }}

@@ -85,7 +85,7 @@ export default function SegmentedTabs<T extends string>({
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(item.key)}
-            className={`relative z-10 inline-flex items-center justify-center font-medium transition-colors ${buttonRadius} ${sizeClass} ${
+            className={`relative z-10 inline-flex items-center justify-center font-bold leading-none transition-colors ${buttonRadius} ${sizeClass} ${
               isActive ? 'text-white' : 'text-wefin-subtle hover:text-wefin-text'
             }`}
           >

@@ -50,7 +50,9 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
         onClick={handleHeartClick}
         disabled={isPending}
         className={`mr-2 rounded-md p-1 transition-colors ${
-          isWatchlisted ? 'text-red-500 hover:text-red-600' : 'text-wefin-subtle hover:text-red-400'
+          isWatchlisted
+            ? 'text-rose-500 hover:text-rose-600'
+            : 'text-wefin-subtle hover:text-rose-400'
         } ${isPending ? 'opacity-50' : ''}`}
         aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
       >

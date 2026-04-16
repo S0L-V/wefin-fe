@@ -1,3 +1,5 @@
+import { Minus, Plus } from 'lucide-react'
+
 interface QuantityInputProps {
   value: string
   disabled: boolean
@@ -27,7 +29,7 @@ export default function QuantityInput({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-wefin-subtle">수량</span>
+        <span className="text-xs font-bold text-wefin-text">수량</span>
         {maxQuantity !== null && maxQuantity > 0 && (
           <span className="text-xs text-wefin-subtle">
             {maxLabel}{' '}
@@ -36,15 +38,57 @@ export default function QuantityInput({
           </span>
         )}
       </div>
-      <input
-        type="number"
-        min="0"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="0"
-        disabled={disabled}
-        className="w-full rounded-md border border-wefin-line px-3 py-2 text-right text-sm outline-none focus:border-wefin-mint disabled:bg-wefin-bg"
-      />
+      <div
+        className={`flex items-center rounded-md border-[1.5px] border-wefin-line ${
+          disabled ? 'bg-wefin-bg' : 'bg-white'
+        }`}
+      >
+        <input
+          type="text"
+          inputMode="numeric"
+          value={value ? Number(value).toLocaleString() : ''}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/[^\d]/g, '')
+            if (!digits) {
+              onChange('')
+              return
+            }
+            const n = Number(digits)
+            const clamped = maxQuantity !== null ? Math.min(maxQuantity, n) : n
+            onChange(String(clamped))
+          }}
+          placeholder="0"
+          disabled={disabled}
+          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-right text-sm font-medium tabular-nums text-wefin-text outline-none disabled:cursor-not-allowed"
+        />
+        <span className="pr-2 text-xs text-wefin-subtle">주</span>
+        <button
+          type="button"
+          onClick={() => {
+            const n = Number(value || 0)
+            const next = Math.max(0, n - 1)
+            onChange(String(next))
+          }}
+          disabled={disabled}
+          className="flex h-8 w-8 items-center justify-center text-wefin-subtle transition-colors hover:text-wefin-text disabled:opacity-30"
+          aria-label="수량 감소"
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const n = Number(value || 0)
+            const next = maxQuantity !== null ? Math.min(maxQuantity, n + 1) : n + 1
+            onChange(String(next))
+          }}
+          disabled={disabled}
+          className="flex h-8 w-8 items-center justify-center text-wefin-subtle transition-colors hover:text-wefin-text disabled:opacity-30"
+          aria-label="수량 증가"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
       <div className="grid grid-cols-4 gap-1">
         {RATIO_OPTIONS.map(({ label, ratio }) => (
           <button

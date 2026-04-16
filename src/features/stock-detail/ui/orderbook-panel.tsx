@@ -29,11 +29,11 @@ export default function OrderbookPanel({ code, onPriceClick }: OrderbookPanelPro
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-11 items-center border-b border-wefin-line px-3">
+      <div className="flex h-11 items-center px-3">
         <span className="text-sm font-semibold text-wefin-text">호가</span>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+      <div className="flex min-h-0 flex-1 flex-col">
         {[...asks].reverse().map((ask, i) => (
           <AskRow
             key={`ask-${i}`}
@@ -58,7 +58,7 @@ export default function OrderbookPanel({ code, onPriceClick }: OrderbookPanelPro
 
       {price && <OrderbookPriceSummary price={price} />}
 
-      <div className="border-t border-wefin-line px-3 py-2">
+      <div className="border-t border-wefin-line px-3 py-1.5">
         {tradeStrength != null && (
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="text-wefin-subtle">체결강도</span>
@@ -99,10 +99,10 @@ interface RowProps {
 }
 
 function rowOuterClass(isCurrent: boolean, clickable: boolean): string {
-  const base = `relative grid h-[34px] shrink-0 grid-cols-3 items-center px-3 text-xs ${
+  const base = `relative grid min-h-0 flex-1 grid-cols-3 items-center px-3 text-xs ${
     clickable ? 'cursor-pointer hover:bg-wefin-bg' : ''
   }`
-  return isCurrent ? `${base} rounded-md border-[3px] border-wefin-mint-deep` : base
+  return isCurrent ? `${base} rounded-md border-[2px] border-wefin-mint-deep` : base
 }
 
 function AskRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps) {
@@ -110,19 +110,32 @@ function AskRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps)
   const barWidth = (entry.quantity / maxQuantity) * 100
 
   return (
-    <div className={rowOuterClass(isCurrent, !!onClick)} onClick={() => onClick?.(entry.price)}>
+    <div
+      className={rowOuterClass(isCurrent, !!onClick)}
+      onClick={() => onClick?.(entry.price)}
+      onKeyDown={(e) => {
+        if (!onClick) return
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick(entry.price)
+        }
+      }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `${entry.price.toLocaleString()}원 선택` : undefined}
+    >
       <span
         aria-hidden
         className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-200/70 to-transparent"
         style={{ width: `${barWidth}%` }}
       />
-      <span className="relative z-10 pl-2 text-left font-medium text-blue-500 tabular-nums">
+      <span className="relative z-10 pl-2 text-left font-semibold text-blue-600 tabular-nums">
         {entry.quantity.toLocaleString()}
       </span>
-      <span className="relative z-10 text-center font-semibold text-wefin-text tabular-nums">
+      <span className="relative z-10 text-center font-medium text-wefin-text tabular-nums">
         {entry.price.toLocaleString()}
       </span>
-      <span className="relative z-10 text-right text-xs text-blue-400 tabular-nums">
+      <span className="relative z-10 text-right font-semibold text-blue-500 tabular-nums">
         {changeRate >= 0 ? '+' : ''}
         {changeRate.toFixed(2)}%
       </span>
@@ -135,20 +148,33 @@ function BidRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps)
   const barWidth = (entry.quantity / maxQuantity) * 100
 
   return (
-    <div className={rowOuterClass(isCurrent, !!onClick)} onClick={() => onClick?.(entry.price)}>
+    <div
+      className={rowOuterClass(isCurrent, !!onClick)}
+      onClick={() => onClick?.(entry.price)}
+      onKeyDown={(e) => {
+        if (!onClick) return
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick(entry.price)
+        }
+      }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `${entry.price.toLocaleString()}원 선택` : undefined}
+    >
       <span
         aria-hidden
         className="absolute inset-y-0 right-0 bg-gradient-to-l from-red-200/70 to-transparent"
         style={{ width: `${barWidth}%` }}
       />
-      <span className="relative z-10 text-left text-xs text-red-400 tabular-nums">
+      <span className="relative z-10 text-left font-semibold text-red-500 tabular-nums">
         {changeRate >= 0 ? '+' : ''}
         {changeRate.toFixed(2)}%
       </span>
-      <span className="relative z-10 text-center font-semibold text-wefin-text tabular-nums">
+      <span className="relative z-10 text-center font-medium text-wefin-text tabular-nums">
         {entry.price.toLocaleString()}
       </span>
-      <span className="relative z-10 pr-2 text-right font-medium text-red-500 tabular-nums">
+      <span className="relative z-10 pr-2 text-right font-semibold text-red-600 tabular-nums">
         {entry.quantity.toLocaleString()}
       </span>
     </div>
