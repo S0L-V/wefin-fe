@@ -77,7 +77,7 @@ export default function AssetHistoryChart({ history, height = 240 }: AssetHistor
               padding: '6px 10px'
             }}
             labelStyle={{ color: '#637282', marginBottom: 2 }}
-            formatter={(value: number) => [`${Math.trunc(value).toLocaleString()}원`, '총 자산']}
+            formatter={(value) => [`${Math.trunc(Number(value)).toLocaleString()}원`, '총 자산']}
           />
           <Area
             type="monotone"

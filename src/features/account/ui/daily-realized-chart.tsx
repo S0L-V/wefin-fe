@@ -87,8 +87,8 @@ export default function DailyRealizedChart({
               padding: '6px 10px'
             }}
             labelStyle={{ color: '#637282', marginBottom: 2 }}
-            formatter={(value: number) => {
-              const v = Math.trunc(value)
+            formatter={(value) => {
+              const v = Math.trunc(Number(value))
               return [`${v >= 0 ? '+' : ''}${v.toLocaleString()}원`, '실현손익']
             }}
           />
