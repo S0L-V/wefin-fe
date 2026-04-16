@@ -34,7 +34,8 @@ export function useAddSectorInterest() {
       return { previous }
     },
     onError: (error, _code, context) => {
-      if (context?.previous) {
+      // context.previous가 undefined일 수도 있으므로 property 존재 여부로 판단한다 (undefined 복구 포함)
+      if (context && 'previous' in context) {
         queryClient.setQueryData(SECTOR_INTERESTS_KEY, context.previous)
       }
       if (error instanceof ApiError) window.alert(error.message)
@@ -60,7 +61,8 @@ export function useDeleteSectorInterest() {
       return { previous }
     },
     onError: (error, _code, context) => {
-      if (context?.previous) {
+      // context.previous가 undefined일 수도 있으므로 property 존재 여부로 판단한다 (undefined 복구 포함)
+      if (context && 'previous' in context) {
         queryClient.setQueryData(SECTOR_INTERESTS_KEY, context.previous)
       }
       if (error instanceof ApiError) window.alert(error.message)
