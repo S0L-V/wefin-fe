@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 
+import GroupChatRoom from '@/features/chat/ui/group-chat-room'
 import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
 import { useEndGameMutation } from '@/features/game-room/model/use-end-game-mutation'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
@@ -10,7 +11,6 @@ import { useTurnChangeSocket } from '@/features/game-room/model/use-turn-change-
 import { useVoteMutation } from '@/features/game-room/model/use-vote-mutation'
 import { useVoteSocket } from '@/features/game-room/model/use-vote-socket'
 import { useVoteStore } from '@/features/game-room/model/use-vote-store'
-import GroupChat from '@/features/game-room/ui/group-chat'
 import GroupRanking from '@/features/game-room/ui/group-ranking'
 import HoldingsPanel from '@/features/game-room/ui/holdings-panel'
 import LeaveRoomDialog from '@/features/game-room/ui/leave-room-dialog'
@@ -90,9 +90,9 @@ function PlayPage() {
             <OrderPanel roomId={roomId} cash={cash} />
           </main>
 
-          <aside className="flex w-80 flex-col gap-4">
-            <GroupChat />
-            <GroupRanking />
+          <aside className="flex w-[360px] flex-col gap-4">
+            <GroupChatRoom />
+            <GroupRanking roomId={roomId} />
           </aside>
         </div>
       </div>
