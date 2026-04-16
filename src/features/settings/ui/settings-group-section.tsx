@@ -127,6 +127,15 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     }
   }, [])
 
+  // 새 액션 시작 시 다른 mutation의 success/error 플래그 함께 reset
+  // → "그룹 생성 성공" 메시지가 이후 "탈퇴 성공" 메시지와 동시에 뜨는 누적 문제 방지
+  const resetOtherMutations = (keep: 'leave' | 'invite' | 'join' | 'create' | 'none' = 'none') => {
+    if (keep !== 'leave') leaveGroupMutation.reset()
+    if (keep !== 'invite') createInviteMutation.reset()
+    if (keep !== 'join') joinGroupMutation.reset()
+    if (keep !== 'create') createGroupMutation.reset()
+  }
+
   const handleLeaveGroup = () => {
     if (!group || !canLeaveGroup || isLeaving) {
       return
@@ -137,12 +146,9 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       return
     }
 
-    leaveGroupMutation.mutate(group.groupId, {
-      onSuccess: () => {
-        createInviteMutation.reset()
-        setCopyState('idle')
-      }
-    })
+    resetOtherMutations('leave')
+    setCopyState('idle')
+    leaveGroupMutation.mutate(group.groupId)
   }
 
   const handleCreateInvite = () => {
@@ -150,7 +156,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       return
     }
 
-    createInviteMutation.reset()
+    resetOtherMutations('invite')
     setCopyState('idle')
 
     createInviteMutation.mutate(group.groupId, {
@@ -167,14 +173,12 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       return
     }
 
+    resetOtherMutations('join')
+    setCopyState('idle')
     joinGroupMutation.mutate(
-      {
-        inviteCode: trimmedInviteCode
-      },
+      { inviteCode: trimmedInviteCode },
       {
         onSuccess: () => {
-          createInviteMutation.reset()
-          setCopyState('idle')
           setHomeGroupMode('idle')
         }
       }
@@ -188,14 +192,12 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       return
     }
 
+    resetOtherMutations('create')
+    setCopyState('idle')
     createGroupMutation.mutate(
-      {
-        name: trimmedGroupName
-      },
+      { name: trimmedGroupName },
       {
         onSuccess: () => {
-          createInviteMutation.reset()
-          setCopyState('idle')
           setHomeGroupMode('idle')
         }
       }
@@ -448,6 +450,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                   onKeyDown={(e) => {
+                    // 한글 IME 조합 중 Enter는 무시 (마지막 글자 확정용)
+                    if (e.nativeEvent.isComposing) return
                     if (e.key === 'Enter' && canCreateGroup) handleCreateGroup()
                   }}
                   disabled={isCreatingGroup}
@@ -494,6 +498,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                   value={inviteCodeInput}
                   onChange={(e) => setInviteCodeInput(e.target.value)}
                   onKeyDown={(e) => {
+                    // 한글 IME 조합 중 Enter는 무시
+                    if (e.nativeEvent.isComposing) return
                     if (e.key === 'Enter' && canJoinGroup) handleJoinGroup()
                   }}
                   disabled={isJoiningGroup}

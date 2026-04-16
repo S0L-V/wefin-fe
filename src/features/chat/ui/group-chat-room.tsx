@@ -324,12 +324,14 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 }
 
 function ReplyButton({ onClick }: { onClick: () => void }) {
+  // hover 환경에선 평소 숨기고 메시지 hover/focus 시 노출
+  // 터치(hover 미지원) 환경에선 항상 노출 — pointer:fine 미디어 쿼리로 분기
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label="답장"
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-wefin-subtle opacity-0 transition-opacity hover:bg-wefin-bg hover:text-wefin-mint-deep group-hover/msg:opacity-100"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-wefin-subtle transition-opacity hover:bg-wefin-bg hover:text-wefin-mint-deep focus-visible:opacity-100 group-hover/msg:opacity-100 [@media(pointer:fine)]:opacity-0"
     >
       <MessageSquareReply size={16} />
     </button>

@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { type MouseEvent, useCallback, useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 
@@ -29,6 +30,7 @@ function AppHeader() {
   const guardActive = useLeaveGuardStore((s) => s.active)
   const requestLeave = useLeaveGuardStore((s) => s.requestLeave)
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const handleNavClick = useCallback(
     (e: MouseEvent, to: string) => {
@@ -60,6 +62,8 @@ function AppHeader() {
     localStorage.removeItem('nickname')
     localStorage.removeItem('email')
 
+    // 사용자 스코프 캐시(그룹/계정 등) 제거 — 다른 사용자가 로그인 시 stale data 방지
+    queryClient.removeQueries({ queryKey: ['settings', 'my-group'] })
     window.dispatchEvent(new Event('auth-changed'))
   }
 

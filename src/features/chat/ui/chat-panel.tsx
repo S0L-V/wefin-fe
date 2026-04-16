@@ -34,7 +34,8 @@ export default function ChatPanel() {
   const canUseGroupChat = isLoggedIn && group != null && !group.isHomeGroup
 
   const [innerTab, setInnerTab] = useState<InnerTab>('group')
-  // 멤버십 변할 때 적절한 탭으로 자동 전환
+  // 멤버십이 변할 때 적절한 탭으로 자동 전환 (React docs "adjust state when prop changes" 패턴)
+  // 프로젝트 ESLint 룰(react-hooks/set-state-in-effect)이 useEffect 내 setState를 금지함
   const [prevCanUseGroup, setPrevCanUseGroup] = useState<boolean | null>(null)
   if (prevCanUseGroup !== canUseGroupChat) {
     setPrevCanUseGroup(canUseGroupChat)
