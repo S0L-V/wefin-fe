@@ -1,4 +1,4 @@
-import type { IFrame, StompSubscription } from '@stomp/stompjs'
+import type { StompSubscription } from '@stomp/stompjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
@@ -13,7 +13,7 @@ import {
   orderbookMessageSchema,
   tradeMessageSchema
 } from '@/features/stock-detail/api/stock-socket-messages'
-import { stompClient } from '@/shared/api/stomp-client'
+import { onStompConnect, stompClient } from '@/shared/api/stomp-client'
 
 /** WS 메시지 마지막 수신 시각. polling 간격을 동적으로 조절하는 데 사용한다. */
 let lastWsReceiveTime = 0
@@ -41,7 +41,6 @@ export function useStockSocket(stockCode: string | undefined): void {
     if (!stockCode) return
 
     const subscriptions: StompSubscription[] = []
-    let prevOnConnect: typeof stompClient.onConnect | null = null
     let didSendSubscribe = false
 
     function setupSubscriptions() {
@@ -151,32 +150,32 @@ export function useStockSocket(stockCode: string | undefined): void {
       didSendSubscribe = true
     }
 
-    if (stompClient.connected) {
-      setupSubscriptions()
-    } else {
-      // AppLayout의 useGlobalChatBoot가 connectStomp()를 이미 호출해두었지만,
-      // 실제 STOMP CONNECTED 프레임 도착 전에 컴포넌트가 마운트될 수 있다.
-      // game-room-socket과 동일한 onConnect 체이닝 패턴으로 연결 완료를 기다린다.
-      prevOnConnect = stompClient.onConnect
-      stompClient.onConnect = (frame: IFrame) => {
-        prevOnConnect?.(frame)
-        setupSubscriptions()
-      }
-    }
+    // onStompConnect는 이미 연결돼 있으면 즉시 호출, 아니면 CONNECTED 프레임 도착 시 호출.
+    // 재연결 시에도 자동 재호출되어 setupSubscriptions가 다시 돌아간다.
+    const removeListener = onStompConnect(setupSubscriptions)
 
     return () => {
-      // 종목 이동 시 BE에 먼저 unsubscribe SEND를 보내고 topic을 끊는다.
-      // 아직 connect 전이라 setupSubscriptions가 호출되지 않았다면 publish는 스킵.
-      if (didSendSubscribe && stompClient.connected) {
-        stompClient.publish({
-          destination: '/app/stocks/unsubscribe',
-          body: JSON.stringify({ stockCode })
+      try {
+        // 종목 이동 시 BE에 먼저 unsubscribe SEND를 보내고 topic을 끊는다.
+        // 아직 connect 전이라 setupSubscriptions가 호출되지 않았다면 publish는 스킵.
+        if (didSendSubscribe && stompClient.connected) {
+          stompClient.publish({
+            destination: '/app/stocks/unsubscribe',
+            body: JSON.stringify({ stockCode })
+          })
+        }
+        subscriptions.forEach((sub) => {
+          try {
+            sub.unsubscribe()
+          } catch {
+            /* 이미 해제된 구독은 무시 */
+          }
         })
-      }
-      subscriptions.forEach((sub) => sub.unsubscribe())
-      lastWsReceiveTime = 0
-      if (prevOnConnect !== null) {
-        stompClient.onConnect = prevOnConnect
+        lastWsReceiveTime = 0
+      } finally {
+        // publish / unsubscribe에서 예외가 나도 listener는 반드시 해제해야
+        // 언마운트된 훅의 stale 콜백이 재연결 시 실행되는 걸 막는다.
+        removeListener()
       }
     }
   }, [stockCode, queryClient])
