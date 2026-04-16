@@ -139,12 +139,18 @@ export default function ProfitAnalysisTab() {
       </section>
 
       <section className="max-w-xl border-t border-wefin-line pt-5">
-        <h3 className="mb-3 text-sm font-semibold text-wefin-text">일별 실현손익</h3>
+        <div className="mb-3 flex items-baseline justify-between">
+          <h3 className="text-sm font-semibold text-wefin-text">일별 실현손익</h3>
+          <span className="text-[11px] text-wefin-subtle">최근 거래 200건 기준</span>
+        </div>
         <DailyRealizedChart trades={trades} cutoffDate={cutoffDate} />
       </section>
 
       <section className="max-w-xl border-t border-wefin-line pt-5">
-        <h3 className="mb-3 text-sm font-semibold text-wefin-text">종목별 손익</h3>
+        <div className="mb-3 flex items-baseline justify-between">
+          <h3 className="text-sm font-semibold text-wefin-text">종목별 손익</h3>
+          <span className="text-[11px] text-wefin-subtle">최근 거래 200건 기준</span>
+        </div>
         <PerStockProfitList portfolio={portfolio ?? []} trades={trades} cutoffDate={cutoffDate} />
       </section>
     </div>
