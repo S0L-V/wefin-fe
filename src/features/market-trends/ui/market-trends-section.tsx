@@ -61,7 +61,8 @@ function MarketTrendsSection() {
     }
 
     // TTL 경과 또는 캐시 없음 → 서버에 AI 재생성을 요청하도록 full 엔드포인트 트리거
-    queryClient.invalidateQueries({ queryKey: ['market-trends', 'personalized'] })
+    // exact: true — prefix 매칭으로 cached 쿼리(['market-trends','personalized','cached'])까지 무효화되지 않도록 제한
+    queryClient.invalidateQueries({ queryKey: ['market-trends', 'personalized'], exact: true })
     if (freshRequested) {
       personalizedQuery.refetch()
     } else {
