@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
 import type { ArticleSource } from '../api/fetch-cluster-detail'
@@ -44,7 +44,7 @@ export default function SourceListModal({ heading, sources, onClose }: SourceLis
             id="source-modal-title"
             className="flex items-center gap-1.5 text-base font-bold text-wefin-text"
           >
-            <span className="text-wefin-mint">✦</span>
+            <Sparkles className="h-4 w-4 text-wefin-mint" />
             출처 {sources.length}개
           </h3>
           <button
@@ -67,7 +67,7 @@ export default function SourceListModal({ heading, sources, onClose }: SourceLis
               href={src.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-xl border border-gray-100 p-4 transition-colors hover:bg-gray-50"
+              className="block rounded-xl border border-wefin-line p-4 transition-colors hover:bg-wefin-bg"
             >
               <span className="mb-2 inline-flex items-center gap-1.5 text-xs text-wefin-subtle">
                 <span

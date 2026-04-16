@@ -51,6 +51,7 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
       })
 
       localStorage.setItem('nickname', result.nickname)
+      localStorage.setItem('email', formData.email)
       localStorage.setItem('accessToken', result.accessToken)
       localStorage.setItem('refreshToken', result.refreshToken)
 

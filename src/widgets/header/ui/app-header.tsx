@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import { type MouseEvent, useCallback, useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 
@@ -9,15 +10,18 @@ import { navigationItems, routes } from '@/shared/config/routes'
 type AuthUser = {
   isLoggedIn: boolean
   nickname: string
+  email: string
 }
 
 function getAuthUser(): AuthUser {
   const token = localStorage.getItem('accessToken')
   const nickname = localStorage.getItem('nickname') ?? ''
+  const email = localStorage.getItem('email') ?? ''
 
   return {
     isLoggedIn: !!token,
-    nickname
+    nickname,
+    email
   }
 }
 
@@ -55,27 +59,25 @@ function AppHeader() {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('nickname')
+    localStorage.removeItem('email')
 
     window.dispatchEvent(new Event('auth-changed'))
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-wefin-line bg-white/92 backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[52px] w-[min(1400px,calc(100%-32px))] items-center justify-between gap-4 max-md:w-[min(100%,calc(100%-24px))] max-md:flex-col max-md:items-start max-md:py-2">
-        <div className="flex min-w-0 items-center gap-5 max-md:w-full max-md:flex-col max-md:items-start max-md:gap-3.5">
+    <header className="sticky top-0 z-20 bg-white/70 shadow-[0_4px_24px_-8px_rgba(36,168,171,0.25)] backdrop-blur-xl backdrop-saturate-150 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-wefin-mint/50 after:to-transparent">
+      <div className="flex h-14 w-full items-center justify-between gap-6 px-6">
+        <div className="flex min-w-0 items-center gap-8">
           <NavLink
             to={routes.home}
             onClick={(e) => handleNavClick(e, routes.home)}
-            className="text-[1.6rem] leading-none font-extrabold tracking-[-0.06em] text-wefin-mint max-md:text-[1.4rem]"
+            className="text-xl font-extrabold tracking-tight text-wefin-mint"
             aria-label="wefin 홈"
           >
             wefin
           </NavLink>
 
-          <nav
-            className="flex flex-wrap items-center gap-1.5 max-md:w-full max-md:gap-2"
-            aria-label="Primary"
-          >
+          <nav className="flex items-center gap-1" aria-label="Primary">
             {navigationItems.map(({ to, label, end }) => (
               <NavLink
                 key={to}
@@ -84,38 +86,26 @@ function AppHeader() {
                 onClick={(e) => handleNavClick(e, to)}
                 className={({ isActive }) =>
                   [
-                    'inline-flex h-9 items-center rounded-[10px] border border-transparent px-3 text-sm font-semibold whitespace-nowrap transition-colors',
+                    'inline-flex h-9 items-center rounded-lg px-3.5 text-sm whitespace-nowrap transition-colors',
                     isActive
-                      ? 'bg-wefin-mint-soft text-wefin-mint'
-                      : 'text-wefin-text hover:bg-wefin-mint-soft/60'
+                      ? 'bg-wefin-mint-soft font-bold text-wefin-mint-deep'
+                      : 'font-medium text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
                   ].join(' ')
                 }
               >
-                <span>{label}</span>
+                {label}
               </NavLink>
             ))}
           </nav>
         </div>
 
-        <div className="flex items-center gap-3 max-md:self-end">
+        <div className="flex shrink-0 items-center gap-3">
           {authUser.isLoggedIn ? (
-            <>
-              <span className="text-sm font-semibold text-wefin-text">{authUser.nickname}님</span>
-              <button
-                type="button"
-                onClick={() => navigate(routes.account)}
-                className="inline-flex h-[34px] min-w-[88px] items-center justify-center rounded-[9px] bg-wefin-mint px-4 text-sm font-semibold text-white transition-colors hover:bg-wefin-mint/90"
-              >
-                내 계좌
-              </button>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="inline-flex h-[34px] min-w-[88px] items-center justify-center rounded-[9px] border border-wefin-line px-4 text-sm font-semibold text-wefin-text transition-colors hover:bg-wefin-mint-soft/60"
-              >
-                로그아웃
-              </button>
-            </>
+            <UserMenu
+              user={authUser}
+              onLogout={handleLogout}
+              onAccountClick={() => navigate(routes.account)}
+            />
           ) : (
             <>
               <LoginDialog />
@@ -125,6 +115,55 @@ function AppHeader() {
         </div>
       </div>
     </header>
+  )
+}
+
+function UserMenu({
+  user,
+  onLogout,
+  onAccountClick
+}: {
+  user: AuthUser
+  onLogout: () => void
+  onAccountClick: () => void
+}) {
+  return (
+    <div className="group relative">
+      <button
+        type="button"
+        className="inline-flex h-[34px] items-center gap-1 rounded-[9px] border border-wefin-line px-3 text-sm font-semibold text-wefin-text transition-colors group-hover:bg-wefin-mint-soft/60"
+      >
+        {user.nickname}님
+        <ChevronDown className="h-3.5 w-3.5 text-wefin-subtle transition-transform group-hover:rotate-180" />
+      </button>
+      {/* 호버 영역 끊기지 않도록 padding-top으로 다리 */}
+      <div className="invisible absolute right-0 top-full z-30 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+        <div className="w-56 overflow-hidden rounded-xl border border-wefin-line bg-white shadow-lg">
+          <div className="border-b border-wefin-line px-4 py-3">
+            <p className="text-sm font-semibold text-wefin-text">{user.nickname}</p>
+            {user.email && (
+              <p className="mt-0.5 truncate text-xs text-wefin-subtle">{user.email}</p>
+            )}
+          </div>
+          <div className="py-1">
+            <button
+              type="button"
+              onClick={onAccountClick}
+              className="block w-full px-4 py-2 text-left text-sm text-wefin-text transition-colors hover:bg-wefin-bg"
+            >
+              내 계좌
+            </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="block w-full px-4 py-2 text-left text-sm text-wefin-text transition-colors hover:bg-wefin-bg"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

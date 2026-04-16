@@ -67,7 +67,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function EmptyText({ text }: { text: string }) {
-  return <p className="py-6 text-center text-xs text-gray-400">{text}</p>
+  return <p className="py-6 text-center text-xs text-wefin-subtle">{text}</p>
 }
 
 function AssetHistoryMiniTable({

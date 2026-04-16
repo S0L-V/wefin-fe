@@ -1,4 +1,3 @@
-import { CreditCard, Crown, Lock, Mail, Settings, User, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import SettingsGroupSection from './settings-group-section'
@@ -6,124 +5,83 @@ import SettingsPaymentSection from './settings-payment-section'
 import SettingsProfileSection from './settings-profile-section'
 import SettingsSubscriptionSection from './settings-subscription-section'
 
+type Section = 'profile' | 'group' | 'subscription' | 'billing'
+
+const SIDEBAR_ITEMS: { id: Section; label: string }[] = [
+  { id: 'profile', label: '프로필' },
+  { id: 'group', label: '그룹 관리' },
+  { id: 'subscription', label: '구독 플랜' },
+  { id: 'billing', label: '결제 및 내역' }
+]
+
+const SECTION_DESCRIPTION: Record<Section, string> = {
+  profile: '계정 정보와 보안 설정을 관리하세요.',
+  group: '소속 그룹을 관리하고 새로운 그룹에 참여하세요.',
+  subscription: '현재 구독 상태를 확인하고 플랜을 변경하세요.',
+  billing: '결제 수단과 내역을 확인할 수 있어요.'
+}
+
 function SettingsView() {
+  const [active, setActive] = useState<Section>('profile')
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
 
   useEffect(() => {
-    const syncAuthState = () => {
-      setIsLoggedIn(!!localStorage.getItem('accessToken'))
-    }
-
-    window.addEventListener('auth-changed', syncAuthState)
-    window.addEventListener('storage', syncAuthState)
-
+    const sync = () => setIsLoggedIn(!!localStorage.getItem('accessToken'))
+    window.addEventListener('auth-changed', sync)
+    window.addEventListener('storage', sync)
     return () => {
-      window.removeEventListener('auth-changed', syncAuthState)
-      window.removeEventListener('storage', syncAuthState)
+      window.removeEventListener('auth-changed', sync)
+      window.removeEventListener('storage', sync)
     }
   }, [])
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <section className="rounded-3xl border border-wefin-line bg-white p-7 shadow-sm">
-        <div className="flex items-start gap-4 max-md:flex-col">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-            <Settings size={22} />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <h1 className="text-3xl font-bold tracking-[-0.03em] text-wefin-text">설정</h1>
-            <p className="mt-2 text-sm leading-6 text-wefin-subtle">
-              계정, 그룹, 구독, 결제 정보를 한 곳에서 확인할 수 있어요. 아직 백엔드가 연결되지 않은
-              항목은 화면만 먼저 구성했습니다.
-            </p>
-          </div>
+    <div className="mx-auto grid max-w-6xl grid-cols-[220px_minmax(0,1fr)] gap-10">
+      <aside className="sticky top-20 self-start">
+        <div className="mb-6 text-xs font-semibold uppercase tracking-wider text-wefin-subtle">
+          Settings
         </div>
-      </section>
+        <nav className="flex flex-col gap-1">
+          {SIDEBAR_ITEMS.map((item) => {
+            const isActive = active === item.id
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActive(item.id)}
+                className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-wefin-mint-soft text-wefin-mint-deep'
+                    : 'text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
+                }`}
+              >
+                {item.label}
+              </button>
+            )
+          })}
+        </nav>
+      </aside>
 
-      {!isLoggedIn ? (
-        <section className="rounded-3xl border border-wefin-line bg-white p-6 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-              <Lock size={20} />
-            </div>
+      <main>
+        <header className="mb-8">
+          <h1 className="text-2xl font-bold text-wefin-text">
+            {SIDEBAR_ITEMS.find((i) => i.id === active)?.label}
+          </h1>
+          <p className="mt-1 text-sm text-wefin-subtle">{SECTION_DESCRIPTION[active]}</p>
+        </header>
 
-            <div>
-              <h2 className="text-lg font-bold text-wefin-text">로그인이 필요합니다</h2>
-              <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-                설정 변경 기능은 로그인 후 이용할 수 있어요. 현재는 화면만 먼저 준비되어 있습니다.
-              </p>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      <div className="grid gap-6">
-        <SettingsProfileSection
-          isLoggedIn={isLoggedIn}
-          emailPlaceholder="로그인된 이메일이 표시됩니다"
-        />
-
-        <SettingsGroupSection isLoggedIn={isLoggedIn} />
-
-        <SettingsSubscriptionSection />
-
-        <SettingsPaymentSection isLoggedIn={isLoggedIn} />
-      </div>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-            <User size={18} />
-          </div>
-          <h3 className="text-base font-bold text-wefin-text">계정 관리</h3>
-          <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-            닉네임, 비밀번호, 이메일 표시 영역을 먼저 배치했습니다.
-          </p>
+        <div key={active} className="animate-fade-in">
+          {active === 'profile' && (
+            <SettingsProfileSection
+              isLoggedIn={isLoggedIn}
+              emailPlaceholder={localStorage.getItem('email') ?? '로그인된 이메일'}
+            />
+          )}
+          {active === 'group' && <SettingsGroupSection isLoggedIn={isLoggedIn} />}
+          {active === 'subscription' && <SettingsSubscriptionSection />}
+          {active === 'billing' && <SettingsPaymentSection isLoggedIn={isLoggedIn} />}
         </div>
-
-        <div className="rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-            <Users size={18} />
-          </div>
-          <h3 className="text-base font-bold text-wefin-text">그룹 설정</h3>
-          <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-            현재 그룹, 초대 코드, 참여/생성 UI를 백엔드 연결 전 단계로 구성했습니다.
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-            <Crown size={18} />
-          </div>
-          <h3 className="text-base font-bold text-wefin-text">구독 및 결제</h3>
-          <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-            플랜 비교 카드와 결제 정보 카드 UI를 먼저 확인할 수 있습니다.
-          </p>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-            <Mail size={18} />
-          </div>
-          <h3 className="text-base font-bold text-wefin-text">이메일 표시</h3>
-          <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-            로그인 상태일 때 이메일 영역이 노출되도록 자리만 먼저 준비했습니다.
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-wefin-mint-soft text-wefin-mint">
-            <CreditCard size={18} />
-          </div>
-          <h3 className="text-base font-bold text-wefin-text">결제 수단</h3>
-          <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-            카드 정보 수정 UI와 결제 내역 목록을 더미 데이터로 배치했습니다.
-          </p>
-        </div>
-      </section>
+      </main>
     </div>
   )
 }

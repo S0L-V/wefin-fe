@@ -1,5 +1,5 @@
 import { ChevronLeft, Heart, Search, TrendingDown, TrendingUp } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import type { PriceData } from '@/features/stock-detail/api/fetch-stock-detail'
@@ -9,6 +9,8 @@ import {
 } from '@/features/stock-detail/model/use-stock-detail-queries'
 import StockSearchModal from '@/features/stock-search/ui/stock-search-modal'
 import { useToggleWatchlist } from '@/features/watchlist/model/use-watchlist-queries'
+import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs'
+import StockLogo from '@/shared/ui/stock-logo'
 
 export type DetailTab = 'chart' | 'info' | 'news'
 
@@ -18,7 +20,7 @@ interface StockPriceHeaderProps {
   onTabChange: (tab: DetailTab) => void
 }
 
-const tabs: { key: DetailTab; label: string }[] = [
+const tabs: SegmentedTabItem<DetailTab>[] = [
   { key: 'chart', label: '차트·호가' },
   { key: 'info', label: '종목정보' },
   { key: 'news', label: '뉴스·공시' }
@@ -31,6 +33,18 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
   const [searchOpen, setSearchOpen] = useState(false)
   const { isWatchlisted, toggle, isPending } = useToggleWatchlist(code)
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key !== '/') return
+      const target = e.target as HTMLElement | null
+      if (target?.matches('input, textarea, [contenteditable="true"]')) return
+      e.preventDefault()
+      setSearchOpen(true)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   return (
     <>
       <div className="space-y-1.5">
@@ -39,7 +53,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => navigate(-1)}
-              className="rounded-md p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              className="rounded-md p-0.5 text-wefin-subtle transition-colors hover:bg-gray-100 hover:text-wefin-subtle"
               aria-label="뒤로가기"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -49,6 +63,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
               <div className="h-5 w-24 animate-pulse rounded bg-gray-200" />
             ) : (
               <>
+                <StockLogo code={code} name={stockInfo?.stockName ?? code} size={28} />
                 <h1 className="text-base font-bold text-wefin-text">
                   {stockInfo?.stockName ?? code}
                 </h1>
@@ -62,7 +77,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
               className={`rounded-md p-0.5 transition-colors ${
                 isWatchlisted
                   ? 'text-red-500 hover:text-red-600'
-                  : 'text-gray-300 hover:text-red-400'
+                  : 'text-wefin-subtle hover:text-red-400'
               } ${isPending ? 'opacity-50' : ''}`}
               aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
               aria-pressed={isWatchlisted}
@@ -73,10 +88,15 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
 
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex w-52 items-center gap-1.5 rounded-md bg-gray-100 px-3 py-1.5 text-xs text-wefin-subtle transition-colors hover:bg-gray-200"
+            className="flex w-60 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm text-wefin-subtle transition-colors hover:bg-gray-200"
           >
-            <Search className="h-3.5 w-3.5" />
-            종목명, 코드, 분야를 검색하세요
+            <Search className="h-4 w-4" />
+            <span className="flex items-center gap-1">
+              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-wefin-line bg-white px-1.5 font-mono text-xs text-wefin-subtle">
+                /
+              </kbd>
+              를 눌러 검색하세요
+            </span>
           </button>
         </div>
 
@@ -88,20 +108,8 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
         ) : null}
 
         {/* 3행: 탭 */}
-        <div className="flex gap-3 border-b border-gray-200">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => onTabChange(tab.key)}
-              className={`pb-2 text-xs font-medium transition-colors ${
-                activeTab === tab.key
-                  ? 'border-b-2 border-wefin-text text-wefin-text'
-                  : 'text-wefin-subtle hover:text-wefin-text'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div>
+          <SegmentedTabs items={tabs} activeKey={activeTab} onChange={onTabChange} />
         </div>
       </div>
 
@@ -113,7 +121,11 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
 function PriceDisplay({ price }: { price: PriceData }) {
   const isPositive = price.changePrice > 0
   const isNegative = price.changePrice < 0
-  const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : 'text-gray-600'
+  const colorClass = isPositive
+    ? 'text-red-500'
+    : isNegative
+      ? 'text-blue-500'
+      : 'text-wefin-subtle'
   const sign = isPositive ? '+' : ''
 
   return (
