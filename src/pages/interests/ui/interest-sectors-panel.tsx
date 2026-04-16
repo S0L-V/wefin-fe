@@ -7,6 +7,8 @@ import {
   useSectorInterestsQuery
 } from '@/features/sector-interest/model/use-sector-interest-queries'
 
+const MAX_SECTOR_INTERESTS = 10
+
 export default function InterestSectorsPanel() {
   const { data: interests = [], isLoading } = useSectorInterestsQuery()
   const { data: popular = [], isLoading: isLoadingPopular } = usePopularTagsQuery('SECTOR')
@@ -14,13 +16,22 @@ export default function InterestSectorsPanel() {
   const deleteMutation = useDeleteSectorInterest()
 
   const registeredCodes = new Set(interests.map((i) => i.code))
+  const isLimitReached = interests.length >= MAX_SECTOR_INTERESTS
+
+  function handleAddSector(code: string) {
+    // 서버 제한과 동일한 상한선을 클라이언트에서 선제 차단 — 쓸모없는 실패 요청을 예방한다
+    if (isLimitReached) return
+    addMutation.mutate(code)
+  }
 
   return (
     <section className="flex flex-col gap-6">
       <div>
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-base font-bold text-wefin-text">등록한 관심 분야</h2>
-          <span className="text-xs text-wefin-subtle">{interests.length} / 10</span>
+          <span className="text-xs text-wefin-subtle">
+            {interests.length} / {MAX_SECTOR_INTERESTS}
+          </span>
         </div>
         {isLoading ? (
           <SkeletonRows count={3} />
@@ -58,8 +69,8 @@ export default function InterestSectorsPanel() {
                 <li key={tag.code}>
                   <button
                     type="button"
-                    disabled={registered || addMutation.isPending}
-                    onClick={() => addMutation.mutate(tag.code)}
+                    disabled={registered || isLimitReached || addMutation.isPending}
+                    onClick={() => handleAddSector(tag.code)}
                     className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors ${
                       registered
                         ? 'border-gray-200 bg-gray-50 text-gray-400'

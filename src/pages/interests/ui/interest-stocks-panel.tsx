@@ -8,6 +8,8 @@ import {
   useWatchlistQuery
 } from '@/features/watchlist/model/use-watchlist-queries'
 
+const MAX_WATCHLIST_ITEMS = 10
+
 export default function InterestStocksPanel() {
   const { data: watchlist = [], isLoading } = useWatchlistQuery()
   const addMutation = useAddWatchlist()
@@ -16,13 +18,22 @@ export default function InterestStocksPanel() {
   const { data: searchResults = [], isFetching } = useStockSearchQuery(keyword)
 
   const registeredCodes = new Set(watchlist.map((w) => w.stockCode))
+  const isLimitReached = watchlist.length >= MAX_WATCHLIST_ITEMS
+
+  function handleAddStock(stockCode: string) {
+    // 서버 제한과 동일한 상한선을 클라이언트에서 선제 차단 — 쓸모없는 실패 요청을 예방한다
+    if (isLimitReached) return
+    addMutation.mutate(stockCode)
+  }
 
   return (
     <section className="flex flex-col gap-6">
       <div>
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-base font-bold text-wefin-text">등록한 관심 종목</h2>
-          <span className="text-xs text-wefin-subtle">{watchlist.length} / 10</span>
+          <span className="text-xs text-wefin-subtle">
+            {watchlist.length} / {MAX_WATCHLIST_ITEMS}
+          </span>
         </div>
         {isLoading ? (
           <SkeletonRows count={3} />
@@ -88,8 +99,8 @@ export default function InterestStocksPanel() {
                   </div>
                   <button
                     type="button"
-                    disabled={registered || addMutation.isPending}
-                    onClick={() => addMutation.mutate(s.stockCode)}
+                    disabled={registered || isLimitReached || addMutation.isPending}
+                    onClick={() => handleAddStock(s.stockCode)}
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                       registered
                         ? 'bg-gray-100 text-gray-400'
