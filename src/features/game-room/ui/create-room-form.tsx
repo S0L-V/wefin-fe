@@ -145,7 +145,7 @@ function OptionButton({
         disabled
         role="radio"
         aria-checked={false}
-        className="flex-1 rounded-xl border border-wefin-line bg-gray-50 py-2.5 text-sm text-gray-300"
+        className="flex-1 rounded-xl border border-wefin-line bg-wefin-bg py-2.5 text-sm text-wefin-subtle"
       >
         {children}
       </button>

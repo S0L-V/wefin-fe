@@ -78,7 +78,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   return (
     <div className="mt-10 space-y-12">
       {/* Feedback */}
-      <div className="rounded-2xl bg-gray-50 py-6 text-center">
+      <div className="rounded-2xl bg-wefin-bg py-6 text-center">
         <p className="text-sm font-semibold text-wefin-text">
           {currentFeedback ? '피드백을 남겨주셨어요' : '도움이 되셨나요?'}
         </p>
@@ -105,11 +105,11 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
       {/* Chat share CTA */}
       <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#3db9b9]/20 bg-gradient-to-r from-[#3db9b9]/10 to-blue-500/10 p-6 sm:flex-row">
         <div>
-          <h3 className="mb-1 flex items-center gap-2 text-lg font-bold text-gray-900">
+          <h3 className="mb-1 flex items-center gap-2 text-lg font-bold text-wefin-text">
             <MessageCircle size={20} className="text-[#3db9b9]" />이 뉴스에 대해 어떻게
             생각하시나요?
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-wefin-subtle">
             그룹 채팅방에 공유하고 다른 투자자들과 의견을 나누어보세요.
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
         <div>
           <div className="mb-4 flex items-center gap-2">
             <Sparkles size={20} className="text-[#3db9b9]" />
-            <h3 className="text-lg font-bold text-gray-900">AI에게 더 물어보기</h3>
+            <h3 className="text-lg font-bold text-wefin-text">AI에게 더 물어보기</h3>
           </div>
           <div className="space-y-2">
             {cluster.suggestedQuestions.map((q, i) => (
@@ -137,10 +137,10 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
                 key={i}
                 type="button"
                 onClick={() => handleQuestionClick(q)}
-                className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-100 px-4 py-3 text-left text-sm text-wefin-text transition-colors hover:border-[#3db9b9]/40 hover:bg-[#3db9b9]/5"
+                className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-wefin-line px-4 py-3 text-left text-sm text-wefin-text transition-colors hover:border-[#3db9b9]/40 hover:bg-[#3db9b9]/5"
               >
                 <span className="line-clamp-1">{q}</span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-wefin-subtle" />
               </button>
             ))}
           </div>
@@ -155,10 +155,12 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
               <Star size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-gray-900">
+              <h4 className="font-bold text-wefin-text">
                 이 뉴스와 관련된 &apos;{sectorTag}&apos; 분야
               </h4>
-              <p className="text-sm text-gray-600">관심 분야로 등록하고 맞춤 뉴스를 받아보세요.</p>
+              <p className="text-sm text-wefin-subtle">
+                관심 분야로 등록하고 맞춤 뉴스를 받아보세요.
+              </p>
             </div>
           </div>
           <button
@@ -175,7 +177,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
         <div>
           <div className="mb-4 flex items-center gap-2">
             <TrendingUp size={20} className="text-[#3db9b9]" />
-            <h3 className="text-lg font-bold text-gray-900">AI 추천 관련 종목</h3>
+            <h3 className="text-lg font-bold text-wefin-text">AI 추천 관련 종목</h3>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {cluster.relatedStocks.map((stock) => (
@@ -189,9 +191,9 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
       <div>
         <div className="mb-4 flex items-center gap-2">
           <Layers size={20} className="text-[#3db9b9]" />
-          <h3 className="text-lg font-bold text-gray-900">AI 추천 관련 뉴스</h3>
+          <h3 className="text-lg font-bold text-wefin-text">AI 추천 관련 뉴스</h3>
         </div>
-        <p className="py-8 text-center text-sm text-gray-400">준비 중입니다</p>
+        <p className="py-8 text-center text-sm text-wefin-subtle">준비 중입니다</p>
       </div>
     </div>
   )
@@ -213,7 +215,7 @@ function FeedbackButton({
   onClick: () => void
 }) {
   const activeClass = 'border-[#3db9b9] bg-[#3db9b9]/10 text-[#2a8282]'
-  const idleClass = 'border-gray-200 bg-white text-wefin-subtle hover:bg-gray-50'
+  const idleClass = 'border-wefin-line bg-white text-wefin-subtle hover:bg-wefin-bg'
   const dimmedClass = 'opacity-50'
 
   return (

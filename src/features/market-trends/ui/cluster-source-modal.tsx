@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -47,7 +47,7 @@ export default function ClusterSourceModal({
             id="cluster-source-modal-title"
             className="flex items-center gap-1.5 text-base font-bold text-wefin-text"
           >
-            <span className="text-wefin-mint">✦</span>
+            <Sparkles className="h-4 w-4 text-wefin-mint" />
             {articleCount != null
               ? `출처 ${articleCount}개 · 클러스터 ${clusters.length}개`
               : `관련 클러스터 ${clusters.length}개`}
@@ -68,7 +68,7 @@ export default function ClusterSourceModal({
               key={c.clusterId}
               to={`/news/${c.clusterId}`}
               onClick={onClose}
-              className="block rounded-xl border border-gray-100 p-4 transition-colors hover:bg-gray-50"
+              className="block rounded-xl border border-wefin-line p-4 transition-colors hover:bg-wefin-bg"
             >
               <span className="mb-2 inline-flex items-center gap-1.5 text-xs text-wefin-subtle">
                 <span

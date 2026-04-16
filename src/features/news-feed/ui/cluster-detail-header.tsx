@@ -1,4 +1,4 @@
-﻿import { ArrowLeft, Share2 } from 'lucide-react'
+﻿import { ArrowLeft, Share2, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import type { ClusterDetail } from '../api/fetch-cluster-detail'
@@ -52,7 +52,7 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
       {cluster.sources.length > 0 && (
         <div className="mt-6">
           <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-wefin-text">
-            <span className="text-wefin-mint">✦</span> AI 요약 출처
+            <Sparkles className="h-3.5 w-3.5 text-wefin-mint" /> AI 요약 출처
           </h3>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {cluster.sources.map((src) => {
@@ -63,7 +63,7 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
                   {...(safe
                     ? { href: src.url, target: '_blank', rel: 'noopener noreferrer' }
                     : { 'aria-disabled': true, tabIndex: -1 })}
-                  className={`flex w-[200px] shrink-0 flex-col gap-2.5 rounded-2xl border border-gray-100 p-4 transition-colors ${safe ? 'hover:bg-gray-50' : 'cursor-not-allowed opacity-50'}`}
+                  className={`flex w-[200px] shrink-0 flex-col gap-2.5 rounded-2xl border border-wefin-line p-4 transition-colors ${safe ? 'hover:bg-wefin-bg' : 'cursor-not-allowed opacity-50'}`}
                 >
                   <span className="inline-flex items-center gap-1.5 text-xs text-wefin-subtle">
                     <span

@@ -6,7 +6,7 @@ export default function AssetTab() {
   const { data: portfolio, isLoading: portfolioLoading } = usePortfolioQuery()
 
   if (accountLoading || portfolioLoading) {
-    return <p className="py-10 text-center text-sm text-gray-400">불러오는 중...</p>
+    return <p className="py-10 text-center text-sm text-wefin-subtle">불러오는 중...</p>
   }
 
   const balance = account?.balance ?? 0

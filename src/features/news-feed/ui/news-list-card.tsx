@@ -14,7 +14,7 @@ export default function NewsListCard({ cluster }: NewsListCardProps) {
   return (
     <Link
       to={`/news/${cluster.clusterId}`}
-      className="group flex gap-5 border-b border-gray-100 py-5 last:border-b-0"
+      className="group flex gap-5 border-b border-wefin-line py-5 last:border-b-0"
     >
       {/* Thumbnail */}
       <div className="h-[140px] w-[220px] shrink-0 overflow-hidden rounded-xl bg-gray-100">
@@ -26,7 +26,7 @@ export default function NewsListCard({ cluster }: NewsListCardProps) {
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-            <Layers className="h-10 w-10 text-gray-300" />
+            <Layers className="h-10 w-10 text-wefin-subtle" />
           </div>
         )}
       </div>
@@ -62,7 +62,7 @@ function SourceBadge({
   const visibleSources = sources.slice(0, 2)
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-1 text-[10px] leading-none text-wefin-subtle">
+    <span className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2 py-1 text-[10px] leading-none text-wefin-subtle">
       {visibleSources.length > 0 && (
         <span className="flex -space-x-1">
           {visibleSources.map((src, i) => (

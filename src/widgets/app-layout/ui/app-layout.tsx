@@ -20,11 +20,18 @@ function AppLayout() {
     location.pathname.startsWith(`${routes.stocks}/`) ||
     location.pathname === routes.chat
 
+  const isFullWidth =
+    location.pathname === routes.stocks || location.pathname.startsWith(`${routes.stocks}/`)
+
+  const mainClass = isFullWidth
+    ? 'w-full px-4 pt-2 pb-2 max-md:px-3'
+    : 'mx-auto w-[min(1400px,calc(100%-32px))] pt-2 pb-2 max-md:w-[min(100%,calc(100%-24px))] max-md:pt-2'
+
   return (
     <div className="min-h-screen bg-wefin-bg">
       <AppHeader />
 
-      <main className="mx-auto w-[min(1400px,calc(100%-32px))] pt-2 pb-2 max-md:w-[min(100%,calc(100%-24px))] max-md:pt-2">
+      <main className={mainClass}>
         <Outlet />
       </main>
       {shouldShowAiChatWidget && <WefinyChatWidget />}

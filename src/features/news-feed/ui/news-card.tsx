@@ -23,7 +23,7 @@ export default function NewsCard({ cluster }: NewsCardProps) {
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-            <Layers className="h-8 w-8 text-gray-300" />
+            <Layers className="h-8 w-8 text-wefin-subtle" />
           </div>
         )}
       </div>

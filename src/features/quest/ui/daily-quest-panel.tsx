@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Gift, Sparkles, Target } from 'lucide-react'
+import { CheckCircle2, Circle, Gift } from 'lucide-react'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
@@ -46,34 +46,21 @@ export default function DailyQuestPanel() {
   if (!userId) {
     return (
       <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-wefin-line px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e8f8f8] text-[#2a8282]">
-              <Target size={20} />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">일일 퀘스트</h3>
-            </div>
-          </div>
-          <span className="rounded-full bg-[#eff7f6] px-3 py-1 text-xs font-bold tracking-[0.18em] text-[#2a8282]">
-            DAILY
-          </span>
+        <div className="flex h-11 items-center border-b border-wefin-line px-3">
+          <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
         </div>
-        <div className="px-5 py-6">
-          <div className="rounded-2xl border border-dashed border-[#cdeae7] bg-[#f8fcfc] px-5 py-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f8f8] text-[#2a8282]">
-              <Sparkles size={20} />
-            </div>
-            <p className="text-sm font-semibold text-gray-800">
-              로그인 후 오늘의 퀘스트를 확인할 수 있어요.
+        <div className="p-3">
+          <div className="rounded-xl border border-dashed border-wefin-line bg-wefin-bg p-4 text-center">
+            <p className="text-sm font-semibold text-wefin-text">
+              로그인 후 오늘의 퀘스트를 확인할 수 있어요
             </p>
-            <p className="mt-1 text-xs leading-5 text-gray-500">
-              매일 새로운 퀘스트를 완료하고 보상을 받아보세요.
+            <p className="mt-1 text-xs text-wefin-subtle">
+              매일 새로운 퀘스트를 완료하고 보상을 받아보세요
             </p>
             <button
               type="button"
               onClick={openLogin}
-              className="mt-4 rounded-xl bg-[#3db9b9] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2a8282]"
+              className="mt-3 rounded-lg bg-wefin-mint px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-wefin-mint-deep"
             >
               로그인하고 보기
             </button>
@@ -85,21 +72,11 @@ export default function DailyQuestPanel() {
 
   return (
     <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-wefin-line px-5 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e8f8f8] text-[#2a8282]">
-            <Target size={20} />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900">일일 퀘스트</h3>
-          </div>
-        </div>
-        <span className="rounded-full bg-[#eff7f6] px-3 py-1 text-xs font-bold tracking-[0.18em] text-[#2a8282]">
-          DAILY
-        </span>
+      <div className="flex h-11 items-center border-b border-wefin-line px-3">
+        <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
       </div>
 
-      <div className="h-[180px] overflow-y-auto px-4 py-3">
+      <div className="h-[180px] overflow-y-auto p-3 scrollbar-thin">
         {isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, index) => (

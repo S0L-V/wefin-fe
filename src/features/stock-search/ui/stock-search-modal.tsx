@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useStockSearchQuery } from '@/features/stock-search/model/use-stock-search-query'
 import { routes } from '@/shared/config/routes'
+import StockLogo from '@/shared/ui/stock-logo'
 
 interface StockSearchModalProps {
   isOpen: boolean
@@ -64,20 +65,20 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
         className="relative w-full max-w-xl rounded-2xl bg-white shadow-2xl"
       >
         {/* 검색 입력 */}
-        <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4">
-          <Search className="h-5 w-5 text-gray-400" />
+        <div className="flex items-center gap-3 border-b border-wefin-line px-5 py-4">
+          <Search className="h-5 w-5 text-wefin-subtle" />
           <input
             ref={inputRef}
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="종목명, 코드, 분야를 검색하세요"
-            className="flex-1 text-sm outline-none placeholder:text-gray-400"
+            className="flex-1 text-sm outline-none placeholder:text-wefin-subtle"
           />
           <button
             onClick={handleClose}
             aria-label="검색 닫기"
-            className="text-gray-400 hover:text-gray-600"
+            className="text-wefin-subtle hover:text-wefin-subtle"
           >
             <X className="h-5 w-5" />
           </button>
@@ -86,33 +87,33 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
         {/* 검색 결과 */}
         <div className="max-h-96 overflow-y-auto p-2">
           {trimmed.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-gray-400">
+            <p className="px-3 py-8 text-center text-sm text-wefin-subtle">
               종목명 또는 코드를 입력하세요
             </p>
           ) : isLoading ? (
-            <p className="px-3 py-8 text-center text-sm text-gray-400">검색 중...</p>
+            <p className="px-3 py-8 text-center text-sm text-wefin-subtle">검색 중...</p>
           ) : isError ? (
             <p className="px-3 py-8 text-center text-sm text-red-500">
               검색 중 오류가 발생했습니다
             </p>
           ) : results.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-gray-400">검색 결과가 없습니다</p>
+            <p className="px-3 py-8 text-center text-sm text-wefin-subtle">검색 결과가 없습니다</p>
           ) : (
             <ul>
               {results.map((stock) => (
                 <li key={stock.stockCode}>
                   <button
                     onClick={() => handleSelect(stock.stockCode)}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors hover:bg-gray-50"
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors hover:bg-wefin-bg"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
-                      {stock.stockName.charAt(0)}
-                    </div>
+                    <StockLogo code={stock.stockCode} name={stock.stockName} size={36} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{stock.stockName}</p>
-                      <p className="text-xs text-gray-400">{stock.stockCode}</p>
+                      <p className="text-sm font-medium text-wefin-text">{stock.stockName}</p>
+                      <p className="text-xs text-wefin-subtle">{stock.stockCode}</p>
                     </div>
-                    {stock.sector && <span className="text-xs text-gray-400">{stock.sector}</span>}
+                    {stock.sector && (
+                      <span className="text-xs text-wefin-subtle">{stock.sector}</span>
+                    )}
                   </button>
                 </li>
               ))}

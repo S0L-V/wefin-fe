@@ -29,7 +29,7 @@ export default function OrderHistoryList({ statuses }: OrderHistoryListProps) {
           type="button"
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
-          className="mt-3 w-full rounded-md border border-gray-200 py-2 text-xs text-wefin-subtle hover:bg-gray-50 disabled:opacity-50"
+          className="mt-3 w-full rounded-md border border-wefin-line py-2 text-xs text-wefin-subtle hover:bg-wefin-bg disabled:opacity-50"
         >
           {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
         </button>
@@ -39,5 +39,5 @@ export default function OrderHistoryList({ statuses }: OrderHistoryListProps) {
 }
 
 function Message({ text }: { text: string }) {
-  return <p className="py-10 text-center text-xs text-gray-400">{text}</p>
+  return <p className="py-10 text-center text-xs text-wefin-subtle">{text}</p>
 }

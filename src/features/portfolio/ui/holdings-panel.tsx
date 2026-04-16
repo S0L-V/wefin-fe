@@ -1,71 +1,54 @@
 import type { PortfolioItem } from '../api/fetch-portfolio'
+import HoldingRow from './holding-row'
 
 interface HoldingsPanelProps {
-  stockCode: string
-  holding: PortfolioItem | null
+  currentStockCode: string
+  portfolio: PortfolioItem[] | undefined
   isLoading: boolean
 }
 
-export default function HoldingsPanel({ holding, isLoading }: HoldingsPanelProps) {
+export default function HoldingsPanel({
+  currentStockCode,
+  portfolio,
+  isLoading
+}: HoldingsPanelProps) {
+  const list = portfolio ?? []
+  const sorted = [...list].sort((a, b) => {
+    if (a.stockCode === currentStockCode) return -1
+    if (b.stockCode === currentStockCode) return 1
+    return 0
+  })
+  const hasCurrent = list.some((item) => item.stockCode === currentStockCode)
+
   return (
     <div>
-      <div className="border-b border-gray-100 px-3 py-1.5">
-        <span className="text-xs font-medium text-wefin-text">보유 주식</span>
+      <div className="flex h-11 items-center justify-between border-b border-wefin-line px-3">
+        <span className="text-sm font-semibold text-wefin-text">내 보유</span>
+        {list.length > 0 && <span className="text-xs text-wefin-subtle">{list.length}종목</span>}
       </div>
-      <div className="px-3 py-2">
-        {isLoading ? <LoadingRow /> : <HoldingContent holding={holding} />}
-      </div>
+
+      {isLoading ? (
+        <p className="py-4 text-center text-xs text-wefin-subtle">불러오는 중...</p>
+      ) : list.length === 0 ? (
+        <p className="py-4 text-center text-xs text-wefin-subtle">보유 중인 주식이 없어요</p>
+      ) : (
+        <>
+          {!hasCurrent && (
+            <p className="border-b border-wefin-line px-3 py-2 text-xs text-wefin-subtle">
+              이 종목은 보유하고 있지 않아요
+            </p>
+          )}
+          <div className="divide-y divide-wefin-line">
+            {sorted.map((item) => (
+              <HoldingRow
+                key={item.stockCode ?? item.stockName}
+                holding={item}
+                isCurrent={item.stockCode === currentStockCode}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
-}
-
-function LoadingRow() {
-  return <p className="py-2 text-center text-[10px] text-gray-400">불러오는 중...</p>
-}
-
-function HoldingContent({ holding }: { holding: PortfolioItem | null }) {
-  if (!holding || !holding.quantity) {
-    return <p className="py-2 text-center text-[10px] text-gray-400">보유 중인 수량이 없어요</p>
-  }
-
-  const profitLoss = holding.profitLoss ?? 0
-  const profitRate = holding.profitRate ?? 0
-  const profitColor = profitLoss >= 0 ? 'text-red-500' : 'text-blue-500'
-
-  return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
-      <InfoRow label="보유 수량" value={`${(holding.quantity ?? 0).toLocaleString()}주`} />
-      <InfoRow label="평단가" value={formatPrice(holding.avgPrice)} />
-      <InfoRow label="현재가" value={formatPrice(holding.currentPrice)} />
-      <InfoRow label="평가금액" value={formatPrice(holding.evaluationAmount)} />
-      <InfoRow
-        label="평가손익"
-        value={`${profitLoss.toLocaleString()}원`}
-        valueClassName={profitColor}
-      />
-      <InfoRow label="수익률" value={`${profitRate.toFixed(2)}%`} valueClassName={profitColor} />
-    </div>
-  )
-}
-
-function InfoRow({
-  label,
-  value,
-  valueClassName = 'text-wefin-text'
-}: {
-  label: string
-  value: string
-  valueClassName?: string
-}) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-wefin-subtle">{label}</span>
-      <span className={valueClassName}>{value}</span>
-    </div>
-  )
-}
-
-function formatPrice(value: number | null): string {
-  if (value === null || value === undefined) return '-'
-  return `${value.toLocaleString()}원`
 }

@@ -28,7 +28,7 @@ function MarketSnapshotStrip({ snapshots }: Props) {
   return (
     <ul className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
       {ordered.map((s) => (
-        <li key={s.metricType} className="rounded-xl border border-gray-100 p-3">
+        <li key={s.metricType} className="rounded-xl border border-wefin-line p-3">
           <div className="mb-1.5 flex items-center gap-1 text-wefin-subtle">
             {metricIcon(s.metricType)}
             <span className="text-xs font-medium">{s.label}</span>
