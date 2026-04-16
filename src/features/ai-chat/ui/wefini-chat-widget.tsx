@@ -1,6 +1,7 @@
-﻿import axios from 'axios'
+﻿import { useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import { Send, Sparkles, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react'
 
 import {
   type AiChatMessage,
@@ -17,8 +18,12 @@ import {
   type UserMessageSignature,
   wait
 } from '@/features/ai-chat/lib/wefini-chat-utils'
-import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
+import {
+  type PendingAiPrompt,
+  useWefiniChatStore
+} from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
+import { invalidateTodayQuests } from '@/features/quest/model/use-today-quests'
 
 const AI_POLL_DELAY_MS = 2500
 const AI_POLL_MAX_ATTEMPTS = 6
@@ -27,6 +32,7 @@ type PendingStatus = 'idle' | 'thinking' | 'syncing'
 
 export default function WefinyChatWidget() {
   const userId = useAuthUserId()
+  const queryClient = useQueryClient()
   const isOpen = useWefiniChatStore((s) => s.isOpen)
   const toggle = useWefiniChatStore((s) => s.toggle)
   const close = useWefiniChatStore((s) => s.close)
@@ -39,9 +45,11 @@ export default function WefinyChatWidget() {
   const [pendingStatus, setPendingStatus] = useState<PendingStatus>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [hasAccessToken, setHasAccessToken] = useState(readHasAccessToken)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const syncRequestIdRef = useRef(0)
   const sessionVersionRef = useRef(0)
+  const wasOpenRef = useRef(false)
 
   useEffect(() => {
     const syncAuthState = () => {
@@ -106,22 +114,23 @@ export default function WefinyChatWidget() {
     }
   }, [hasAccessToken, isOpen])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen) {
+      wasOpenRef.current = false
       return
     }
 
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [isOpen, messages, pendingStatus])
-
-  useEffect(() => {
-    if (!isOpen || pendingPrompt === null) return
-
-    const prompt = consumePendingPrompt()
-    if (prompt !== null) {
-      setMessage(prompt)
+    const container = scrollContainerRef.current
+    if (!container) {
+      return
     }
-  }, [isOpen, pendingPrompt, consumePendingPrompt])
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: wasOpenRef.current ? 'smooth' : 'auto'
+    })
+    wasOpenRef.current = true
+  }, [isOpen, messages, pendingStatus])
 
   const syncAiHistory = async (sessionVersion: number, options?: { preserveError?: boolean }) => {
     const requestId = ++syncRequestIdRef.current
@@ -188,11 +197,24 @@ export default function WefinyChatWidget() {
     setErrorMessage('답변이 조금 늦어지고 있어요. 잠시 후 채팅을 다시 열면 최신 답변을 불러옵니다.')
   }
 
-  const handleSendMessage = async () => {
-    const trimmedMessage = message.trim()
+  const handleSendMessage = async (
+    overrideMessage?: string,
+    options?: { newsClusterId?: number; ignoreLoading?: boolean }
+  ) => {
+    const trimmedMessage = (overrideMessage ?? message).trim()
 
-    if (!trimmedMessage || isLoading || isSending || pendingStatus !== 'idle' || !hasAccessToken) {
+    if (
+      !trimmedMessage ||
+      (!options?.ignoreLoading && isLoading) ||
+      isSending ||
+      pendingStatus !== 'idle' ||
+      !hasAccessToken
+    ) {
       return
+    }
+
+    if (options?.ignoreLoading) {
+      setIsLoading(false)
     }
 
     const sessionVersion = sessionVersionRef.current
@@ -221,7 +243,9 @@ export default function WefinyChatWidget() {
     setErrorMessage(null)
 
     try {
-      const aiMessage = await sendAiChatMessage(trimmedMessage)
+      const aiMessage = await sendAiChatMessage(trimmedMessage, {
+        newsClusterId: options?.newsClusterId
+      })
 
       if (sessionVersionRef.current !== sessionVersion) {
         return
@@ -229,6 +253,7 @@ export default function WefinyChatWidget() {
 
       setMessages((current) => mergeMessages(current, [aiMessage]))
       setPendingStatus('idle')
+      void invalidateTodayQuests(queryClient)
     } catch (error) {
       console.error('Failed to send AI chat message:', error)
 
@@ -250,6 +275,40 @@ export default function WefinyChatWidget() {
       }
     }
   }
+
+  const sendPendingPrompt = useEffectEvent((prompt: PendingAiPrompt) => {
+    void handleSendMessage(prompt.message, {
+      newsClusterId: prompt.newsClusterId,
+      ignoreLoading: true
+    })
+  })
+
+  useEffect(() => {
+    if (
+      !isOpen ||
+      pendingPrompt === null ||
+      !hasAccessToken ||
+      isSending ||
+      pendingStatus !== 'idle'
+    ) {
+      return
+    }
+
+    const prompt = consumePendingPrompt()
+    if (prompt === null) {
+      return
+    }
+
+    sendPendingPrompt(prompt)
+  }, [
+    isOpen,
+    pendingPrompt,
+    hasAccessToken,
+    isLoading,
+    isSending,
+    pendingStatus,
+    consumePendingPrompt
+  ])
 
   const pendingLabel =
     pendingStatus === 'thinking'
@@ -301,12 +360,15 @@ export default function WefinyChatWidget() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(75,199,183,0.13),_transparent_45%),linear-gradient(180deg,#fbfefe_0%,#f7fbfb_100%)] px-4 py-5">
+          <div
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(75,199,183,0.13),_transparent_45%),linear-gradient(180deg,#fbfefe_0%,#f7fbfb_100%)] px-4 py-5"
+          >
             {!hasAccessToken ? (
               <div className="mt-10 rounded-2xl border border-dashed border-[#c7ebe5] bg-white/80 px-5 py-6 text-center text-sm leading-6 text-gray-500">
                 위피니 채팅은 로그인 후 사용할 수 있습니다.
               </div>
-            ) : isLoading ? (
+            ) : isLoading && messages.length === 0 && pendingStatus === 'idle' ? (
               <div className="mt-10 text-center text-sm text-gray-500">대화를 불러오는 중...</div>
             ) : (
               <div
