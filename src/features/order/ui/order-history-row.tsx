@@ -14,29 +14,29 @@ export default function OrderHistoryRow({ order }: OrderHistoryRowProps) {
   const dateLabel = formatDateLabel(order.createdAt)
 
   return (
-    <div className="flex items-start justify-between py-3">
+    <div className="flex items-start justify-between py-3.5">
       <div>
         <div className="flex items-baseline gap-2">
-          <span className="text-xs text-wefin-subtle">{dateLabel}</span>
-          <span className="text-sm font-medium text-wefin-text">
+          <span className="text-sm text-wefin-subtle tabular-nums">{dateLabel}</span>
+          <span className="text-base font-semibold text-wefin-text">
             {order.stockName ?? order.stockCode ?? '-'}
           </span>
-          <span className={`text-[11px] ${statusColor}`}>
+          <span className={`text-xs font-semibold ${statusColor}`}>
             {sideLabel} {statusLabel}
           </span>
         </div>
-        <div className="mt-0.5 text-[11px] text-wefin-subtle">
+        <div className="mt-0.5 text-xs text-wefin-subtle tabular-nums">
           {orderTypeLabel} · {order.quantity}주
           {order.requestPrice !== null && ` · ${requestPrice.toLocaleString()}원`}
         </div>
       </div>
       <div className="text-right">
         {totalAmount > 0 && (
-          <div className="text-sm font-medium text-wefin-text">
+          <div className="text-base font-semibold text-wefin-text tabular-nums">
             {totalAmount.toLocaleString()}원
           </div>
         )}
-        <div className="mt-0.5 text-[11px] text-wefin-subtle">
+        <div className="mt-0.5 text-xs text-wefin-subtle tabular-nums">
           수수료 {(order.fee ?? 0).toLocaleString()}원
         </div>
       </div>

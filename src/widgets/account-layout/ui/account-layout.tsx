@@ -26,12 +26,12 @@ export default function AccountLayout({ activeTab, onTabChange, children }: Acco
   const activeLabel = TABS.find((t) => t.key === activeTab)?.label ?? ''
 
   return (
-    <div className="mx-auto grid max-w-6xl grid-cols-[220px_minmax(0,1fr)] gap-10">
+    <div className="mx-auto grid max-w-6xl grid-cols-[180px_minmax(0,1fr)] gap-4 pt-12">
       <aside className="sticky top-20 self-start">
-        <div className="mb-6 text-xs font-semibold uppercase tracking-wider text-wefin-subtle">
+        <div className="mb-7 text-[11px] font-bold uppercase tracking-widest text-wefin-subtle">
           My Account
         </div>
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col">
           {TABS.map(({ key, label }) => {
             const isActive = activeTab === key
             return (
@@ -39,12 +39,18 @@ export default function AccountLayout({ activeTab, onTabChange, children }: Acco
                 key={key}
                 type="button"
                 onClick={() => onTabChange(key)}
-                className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                className={`relative px-3 py-3 text-left text-base transition-colors ${
                   isActive
-                    ? 'bg-wefin-mint-soft text-wefin-mint-deep'
-                    : 'text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
+                    ? 'font-bold text-wefin-mint-deep'
+                    : 'font-medium text-wefin-subtle hover:text-wefin-text'
                 }`}
               >
+                {isActive && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-wefin-mint-deep"
+                  />
+                )}
                 {label}
               </button>
             )
@@ -52,10 +58,10 @@ export default function AccountLayout({ activeTab, onTabChange, children }: Acco
         </nav>
       </aside>
 
-      <main>
-        <header className="mb-8">
-          <h1 className="text-2xl font-bold text-wefin-text">{activeLabel}</h1>
-          <p className="mt-1 text-sm text-wefin-subtle">{SECTION_DESCRIPTION[activeTab]}</p>
+      <main className="max-w-md">
+        <header className="mb-10">
+          <h1 className="text-[28px] font-bold leading-tight text-wefin-text">{activeLabel}</h1>
+          <p className="mt-1.5 text-sm text-wefin-subtle">{SECTION_DESCRIPTION[activeTab]}</p>
         </header>
 
         <div key={activeTab} className="animate-fade-in">

@@ -9,7 +9,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
   return (
     <div className="space-y-10">
       <section>
-        <h3 className="mb-4 text-base font-semibold text-wefin-text">프로필 설정</h3>
+        <h3 className="mb-4 text-lg font-bold text-wefin-text">프로필 설정</h3>
         <div className="divide-y divide-wefin-line/70">
           <SettingRow
             title="닉네임"
@@ -50,7 +50,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
       </section>
 
       <section>
-        <h3 className="mb-4 text-base font-semibold text-wefin-text">보안 인증</h3>
+        <h3 className="mb-4 text-lg font-bold text-wefin-text">보안 인증</h3>
         <SettingRow
           title="2단계 인증 (2FA)"
           description="로그인 시 추가 보안 코드를 요구하여 계정을 보호합니다."
@@ -80,10 +80,10 @@ function SettingRow({
   action: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between gap-6 py-3.5">
-      <div className="min-w-0 space-y-0.5">
-        <p className="text-sm font-semibold text-wefin-text">{title}</p>
-        <p className="text-xs text-wefin-subtle">{description}</p>
+    <div className="flex items-center justify-between gap-6 py-4">
+      <div className="min-w-0 space-y-1">
+        <p className="text-base font-semibold text-wefin-text">{title}</p>
+        <p className="text-sm text-wefin-subtle">{description}</p>
       </div>
       <div className="shrink-0">{action}</div>
     </div>

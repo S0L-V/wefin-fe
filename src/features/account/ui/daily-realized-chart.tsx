@@ -94,7 +94,7 @@ export default function DailyRealizedChart({
           />
           <Bar dataKey="amount" radius={[3, 3, 0, 0]}>
             {data.map((entry) => (
-              <Cell key={entry.date} fill={entry.amount >= 0 ? '#ef4444' : '#3b82f6'} />
+              <Cell key={entry.date} fill={entry.amount >= 0 ? '#ef4444' : '#2563eb'} />
             ))}
           </Bar>
         </BarChart>

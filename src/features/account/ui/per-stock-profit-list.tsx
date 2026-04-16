@@ -66,7 +66,7 @@ export default function PerStockProfitList({
   return (
     <ul className="divide-y divide-wefin-line">
       {rows.map((row) => {
-        const totalColor = row.total >= 0 ? 'text-red-500' : 'text-blue-500'
+        const totalColor = row.total >= 0 ? 'text-red-500' : 'text-blue-600'
         return (
           <li key={row.code}>
             <Link

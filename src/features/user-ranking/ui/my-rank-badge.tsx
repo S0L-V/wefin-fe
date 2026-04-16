@@ -5,8 +5,8 @@ interface MyRankBadgeProps {
 }
 
 export default function MyRankBadge({ myRank }: MyRankBadgeProps) {
-  const profit = myRank.realizedProfit ?? 0
-  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500'
+  const profit = Math.trunc(myRank.realizedProfit ?? 0)
+  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-600'
 
   return (
     <div className="flex items-center justify-between rounded-2xl bg-wefin-mint-soft px-5 py-3">

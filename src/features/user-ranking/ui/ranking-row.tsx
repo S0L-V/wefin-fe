@@ -13,8 +13,8 @@ const TROPHY_COLOR: Record<number, string> = {
 }
 
 export default function RankingRow({ item }: RankingRowProps) {
-  const profit = item.realizedProfit ?? 0
-  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500'
+  const profit = Math.trunc(item.realizedProfit ?? 0)
+  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-600'
   const trophyColor = TROPHY_COLOR[item.rank]
 
   return (

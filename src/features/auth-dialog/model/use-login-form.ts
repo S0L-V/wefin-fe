@@ -55,6 +55,8 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
       localStorage.setItem('accessToken', result.accessToken)
       localStorage.setItem('refreshToken', result.refreshToken)
 
+      // 다른 사용자 캐시(그룹 등)가 남아 분기 로직이 잘못 계산되지 않도록 사용자 스코프 쿼리 제거
+      queryClient.removeQueries({ queryKey: ['settings', 'my-group'] })
       await queryClient.invalidateQueries({ queryKey: ['quests', 'today'] })
       window.dispatchEvent(new Event('auth-changed'))
 
