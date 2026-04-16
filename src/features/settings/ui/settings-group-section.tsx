@@ -1,4 +1,4 @@
-import { Copy, LogOut, Plus, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Check, Copy, Info, LogIn, LogOut, Plus, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { ApiError } from '@/shared/api/base-api'
@@ -39,9 +39,12 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     enabled: isLoggedIn
   })
 
+  type HomeGroupMode = 'idle' | 'create' | 'join'
+
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const [newGroupName, setNewGroupName] = useState('')
-  const [copyMessage, setCopyMessage] = useState('')
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const [homeGroupMode, setHomeGroupMode] = useState<HomeGroupMode>('idle')
   const copyTimeoutRef = useRef<number | null>(null)
 
   const isHomeGroup = group?.isHomeGroup ?? true
@@ -137,7 +140,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     leaveGroupMutation.mutate(group.groupId, {
       onSuccess: () => {
         createInviteMutation.reset()
-        setCopyMessage('')
+        setCopyState('idle')
       }
     })
   }
@@ -148,7 +151,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     }
 
     createInviteMutation.reset()
-    setCopyMessage('')
+    setCopyState('idle')
 
     createInviteMutation.mutate(group.groupId, {
       onSuccess: () => {
@@ -171,7 +174,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       {
         onSuccess: () => {
           createInviteMutation.reset()
-          setCopyMessage('')
+          setCopyState('idle')
+          setHomeGroupMode('idle')
         }
       }
     )
@@ -191,22 +195,31 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       {
         onSuccess: () => {
           createInviteMutation.reset()
-          setCopyMessage('')
+          setCopyState('idle')
+          setHomeGroupMode('idle')
         }
       }
     )
   }
 
-  const handleCopy = async (text: string, label: string) => {
+  const handleBackToIdle = () => {
+    setHomeGroupMode('idle')
+    setInviteCodeInput('')
+    setNewGroupName('')
+    joinGroupMutation.reset()
+    createGroupMutation.reset()
+  }
+
+  const handleCopy = async (text: string) => {
     if (!text || !hasInviteCode || isCodeConsumed) {
       return
     }
 
     try {
       await navigator.clipboard.writeText(text)
-      setCopyMessage(`${label}가 복사되었습니다.`)
+      setCopyState('copied')
     } catch {
-      setCopyMessage('복사에 실패했어요. 직접 선택해서 복사해주세요.')
+      setCopyState('failed')
     }
 
     if (copyTimeoutRef.current) {
@@ -214,107 +227,106 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     }
 
     copyTimeoutRef.current = window.setTimeout(() => {
-      setCopyMessage('')
+      setCopyState('idle')
       copyTimeoutRef.current = null
-    }, 2000)
+    }, 1500)
   }
 
   const statusDisplay = inviteStatus ? getInviteStatusDisplay(inviteStatus) : null
 
   return (
-    <div className="divide-y divide-wefin-line/70">
-      <div className="px-4 py-3.5">
-        <div className="flex items-start justify-between gap-4 max-md:flex-col">
-          <div>
-            <p className="text-xs text-wefin-subtle">현재 소속 그룹</p>
-            <p className="mt-0.5 text-sm font-medium text-wefin-text">{groupName}</p>
-
-            {isLoggedIn && !isLoading && !isError ? (
-              <p className="mt-2 text-sm text-wefin-subtle">
-                {isHomeGroup ? '현재 홈 그룹에 속해 있어요.' : '현재 공유 그룹에 참여 중이에요.'}
-              </p>
-            ) : null}
-
-            {isLoggedIn && isError ? (
-              <p className="mt-2 text-sm text-red-500">{queryErrorMessage}</p>
-            ) : null}
-
-            {leaveGroupMutation.isSuccess ? (
-              <p className="mt-2 text-sm text-wefin-mint">
-                그룹에서 탈퇴했고 현재 홈 그룹으로 전환되었어요.
-              </p>
-            ) : null}
-
-            {leaveGroupMutation.isError ? (
-              <p className="mt-2 text-sm text-red-500">{leaveErrorMessage}</p>
-            ) : null}
-
-            {joinGroupMutation.isSuccess ? (
-              <p className="mt-2 text-sm text-wefin-mint">그룹에 성공적으로 참여했어요.</p>
-            ) : null}
-
-            {joinGroupMutation.isError ? (
-              <p className="mt-2 text-sm text-red-500">{joinErrorMessage}</p>
-            ) : null}
-
-            {createGroupMutation.isSuccess ? (
-              <p className="mt-2 text-sm text-wefin-mint">새 그룹이 생성되었어요.</p>
-            ) : null}
-
-            {createGroupMutation.isError ? (
-              <p className="mt-2 text-sm text-red-500">{createGroupErrorMessage}</p>
-            ) : null}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleLeaveGroup}
-            disabled={!canLeaveGroup || isLeaving}
-            className={[
-              'inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
-              canLeaveGroup && !isLeaving
-                ? 'border-red-200 text-red-500 hover:bg-red-50'
-                : 'border-wefin-line text-red-500 opacity-50'
-            ].join(' ')}
-          >
-            <LogOut size={16} />
-            {isLeaving ? '탈퇴 중...' : '그룹 탈퇴'}
-          </button>
+    <div className="max-w-md divide-y divide-wefin-line/70">
+      {/* 비로그인 / 로딩 / 에러 상태 — 어떤 화면을 그릴지 결정되기 전 단계 */}
+      {!isLoggedIn ? (
+        <div className="px-4 py-6 text-center text-sm text-wefin-subtle">
+          로그인 후 그룹을 사용할 수 있어요.
         </div>
-      </div>
+      ) : isLoading ? (
+        <div className="px-4 py-6 text-center text-sm text-wefin-subtle">불러오는 중...</div>
+      ) : isError ? (
+        <div className="px-4 py-6 text-center text-sm text-red-500">{queryErrorMessage}</div>
+      ) : null}
 
-      {!isHomeGroup && (
+      {/* 공유 그룹 멤버일 때만: 그룹 정보 + 탈퇴 */}
+      {isLoggedIn && !isLoading && !isError && !isHomeGroup && (
         <div className="px-4 py-3.5">
-          <div className="mb-2 flex items-center gap-2">
+          <div className="flex max-w-md items-start justify-between gap-4 max-md:flex-col">
+            <div>
+              <p className="text-xs text-wefin-subtle">현재 소속 그룹</p>
+              <p className="mt-0.5 text-base font-bold text-wefin-text">{groupName}</p>
+
+              {leaveGroupMutation.isError ? (
+                <p className="mt-2 text-sm text-red-500">{leaveErrorMessage}</p>
+              ) : null}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLeaveGroup}
+              disabled={!canLeaveGroup || isLeaving}
+              className={[
+                'inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
+                canLeaveGroup && !isLeaving
+                  ? 'border-red-200 text-red-500 hover:bg-red-50'
+                  : 'border-wefin-line text-red-500 opacity-50'
+              ].join(' ')}
+            >
+              <LogOut size={16} />
+              {isLeaving ? '탈퇴 중...' : '그룹 탈퇴'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 성공/에러 토스트 (홈 그룹에서도 표시) */}
+      {(joinGroupMutation.isSuccess ||
+        joinGroupMutation.isError ||
+        createGroupMutation.isSuccess ||
+        createGroupMutation.isError ||
+        leaveGroupMutation.isSuccess) && (
+        <div className="px-4 py-2">
+          {leaveGroupMutation.isSuccess && (
+            <p className="text-sm text-wefin-mint">그룹에서 탈퇴했어요.</p>
+          )}
+          {joinGroupMutation.isSuccess && (
+            <p className="text-sm text-wefin-mint">그룹에 성공적으로 참여했어요.</p>
+          )}
+          {joinGroupMutation.isError && <p className="text-sm text-red-500">{joinErrorMessage}</p>}
+          {createGroupMutation.isSuccess && (
+            <p className="text-sm text-wefin-mint">새 그룹이 생성되었어요.</p>
+          )}
+          {createGroupMutation.isError && (
+            <p className="text-sm text-red-500">{createGroupErrorMessage}</p>
+          )}
+        </div>
+      )}
+
+      {!isHomeGroup && isLoggedIn && (
+        <div className="px-4 py-3.5">
+          <div className="mb-2 flex items-center gap-1.5">
             <label htmlFor="invite-code-input" className="text-sm font-semibold text-wefin-text">
               초대 코드
             </label>
+            <span className="group relative inline-flex h-4 w-4 items-center justify-center text-wefin-subtle">
+              <Info size={13} />
+              <span className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-1.5 w-[260px] -translate-x-1/2 rounded-lg bg-wefin-text px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
+                1인당 초대 코드는 1개만 발급할 수 있어요. 사용되면 재발급이 필요해요.
+              </span>
+            </span>
 
             {statusDisplay ? (
               <span
                 className={[
-                  'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                  'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold',
                   statusDisplay.className
                 ].join(' ')}
               >
                 {statusDisplay.label}
               </span>
             ) : null}
-
-            {canCreateInvite ? (
-              <button
-                type="button"
-                onClick={() => void inviteCodeQuery.refetch()}
-                disabled={inviteCodeQuery.isFetching}
-                title="상태 새로고침"
-                className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:opacity-50"
-              >
-                <RefreshCw size={12} className={inviteCodeQuery.isFetching ? 'animate-spin' : ''} />
-              </button>
-            ) : null}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex max-w-md gap-2">
             <input
               id="invite-code-input"
               type="text"
@@ -322,161 +334,191 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
               value={
                 hasInviteCode
                   ? inviteCode
-                  : !isLoggedIn
-                    ? '로그인 후 확인 가능'
-                    : isLoading
-                      ? '불러오는 중...'
-                      : isHomeGroup
-                        ? '홈 그룹은 초대 코드를 생성할 수 없어요'
-                        : inviteCodeQuery.isLoading
-                          ? '초대 코드 확인 중...'
-                          : '생성 버튼을 눌러 초대 코드를 발급하세요'
+                  : inviteCodeQuery.isLoading
+                    ? '확인 중...'
+                    : '발급된 코드가 없어요'
               }
               className="h-11 flex-1 rounded-xl border border-wefin-line bg-wefin-bg px-4 text-sm text-wefin-subtle outline-none"
             />
-            <button
-              type="button"
-              onClick={() => handleCopy(inviteCode, '초대 코드')}
-              disabled={!hasInviteCode || isCodeConsumed}
-              className={[
-                'inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
-                hasInviteCode && !isCodeConsumed
-                  ? 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
-                  : 'border-wefin-line text-wefin-text opacity-50'
-              ].join(' ')}
-            >
-              <Copy size={16} />
-              복사
-            </button>
+            {hasInviteCode && !isCodeConsumed ? (
+              <button
+                type="button"
+                onClick={() => handleCopy(inviteCode)}
+                className={[
+                  'inline-flex h-11 w-[96px] shrink-0 items-center justify-center gap-1.5 rounded-xl border text-sm font-semibold transition-all duration-200',
+                  copyState === 'copied'
+                    ? 'border-wefin-mint bg-wefin-mint text-white'
+                    : copyState === 'failed'
+                      ? 'border-red-300 bg-red-50 text-red-600'
+                      : 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
+                ].join(' ')}
+              >
+                {copyState === 'copied' ? (
+                  <>
+                    <Check size={16} />
+                    복사됨
+                  </>
+                ) : copyState === 'failed' ? (
+                  '실패'
+                ) : (
+                  <>
+                    <Copy size={16} />
+                    복사
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCreateInvite}
+                disabled={!canCreateInvite || isCreatingInvite}
+                className={[
+                  'inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-bold text-white transition-colors',
+                  canCreateInvite && !isCreatingInvite
+                    ? 'bg-wefin-mint hover:bg-wefin-mint-deep'
+                    : 'bg-wefin-mint/40 cursor-not-allowed'
+                ].join(' ')}
+              >
+                <Plus size={16} />
+                {isCreatingInvite ? '생성 중...' : isCodeConsumed ? '재생성' : '생성'}
+              </button>
+            )}
           </div>
+          {isCodeConsumed && (
+            <p className="mt-2 text-xs text-orange-600">
+              초대 코드가 사용되었어요. 재생성해주세요.
+            </p>
+          )}
+          {createInviteMutation.isError && (
+            <p className="mt-2 text-xs text-red-500">{inviteErrorMessage}</p>
+          )}
         </div>
       )}
 
-      {copyMessage ? <p className="text-sm font-medium text-wefin-mint">{copyMessage}</p> : null}
-
-      {!isHomeGroup && isLoggedIn ? (
-        <div className="px-4 py-3.5">
-          <div className="flex items-start justify-between gap-3 max-md:flex-col">
-            <div>
-              <h3 className="text-base font-bold text-wefin-text">초대 코드 생성</h3>
+      {isHomeGroup && isLoggedIn && !isLoading && !isError && (
+        <div className="px-4 py-5">
+          {homeGroupMode === 'idle' && (
+            <div className="rounded-2xl border border-wefin-line bg-wefin-bg/60 p-6 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-wefin-mint-soft text-wefin-mint-deep">
+                <Users size={22} />
+              </div>
+              <h3 className="mt-3 text-base font-bold text-wefin-text">아직 소속 그룹이 없어요</h3>
               <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-                1회용 초대 코드를 발급해 멤버를 초대할 수 있어요. 사용 후에는 새로 생성해주세요.
+                그룹에 참여하면 멤버들과 함께 투자 활동을 공유할 수 있어요.
               </p>
-
-              {isCodeConsumed ? (
-                <div className="mt-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
-                  <p className="text-sm font-semibold text-orange-700">
-                    초대 코드가 이미 사용되었어요.
-                  </p>
-                  <p className="mt-0.5 text-sm text-orange-600">
-                    새 초대 코드를 생성해서 공유해보세요.
-                  </p>
-                </div>
-              ) : null}
-
-              {createInviteMutation.isSuccess && inviteCode && !isCodeConsumed ? (
-                <p className="mt-2 text-sm text-wefin-mint">
-                  새 초대 코드가 생성되었어요. 복사해서 공유해보세요.
-                </p>
-              ) : null}
-
-              {createInviteMutation.isError ? (
-                <p className="mt-2 text-sm text-red-500">{inviteErrorMessage}</p>
-              ) : null}
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+                <button
+                  type="button"
+                  onClick={() => setHomeGroupMode('create')}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-wefin-mint px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2a8282]"
+                >
+                  <Plus size={16} />새 그룹 만들기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHomeGroupMode('join')}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-wefin-line bg-white px-5 text-sm font-semibold text-wefin-text transition-colors hover:bg-wefin-bg"
+                >
+                  <LogIn size={16} />
+                  초대 코드로 참여
+                </button>
+              </div>
             </div>
+          )}
 
-            <button
-              type="button"
-              onClick={handleCreateInvite}
-              disabled={!canCreateInvite || isCreatingInvite}
-              className={[
-                'inline-flex h-11 min-w-[112px] items-center justify-center rounded-xl px-4 text-sm font-semibold text-white transition-colors',
-                canCreateInvite && !isCreatingInvite
-                  ? 'bg-wefin-mint hover:bg-[#2a8282]'
-                  : 'bg-wefin-mint opacity-50'
-              ].join(' ')}
-            >
-              {isCreatingInvite
-                ? '생성 중...'
-                : isCodeConsumed
-                  ? '새 초대 코드 생성'
-                  : '초대 코드 생성'}
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      <div className={isHomeGroup ? 'grid divide-x divide-wefin-line md:grid-cols-2' : ''}>
-        <div className="px-4 py-3.5">
-          <h3 className="text-base font-bold text-wefin-text">기존 그룹 참여</h3>
-          <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-            초대 코드를 입력하면 즉시 그룹 참여를 시도해요.
-          </p>
-
-          <div className="mt-4 flex gap-2 max-md:flex-col">
-            <input
-              type="text"
-              value={inviteCodeInput}
-              onChange={(e) => setInviteCodeInput(e.target.value)}
-              disabled={!isLoggedIn || isJoiningGroup}
-              placeholder={isLoggedIn ? '초대 코드 입력' : '로그인 후 이용할 수 있어요'}
-              className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none placeholder:text-wefin-subtle disabled:bg-wefin-bg"
-            />
-            <button
-              type="button"
-              onClick={handleJoinGroup}
-              disabled={!canJoinGroup}
-              className={[
-                'inline-flex h-11 min-w-[96px] items-center justify-center rounded-xl px-4 text-sm font-semibold text-white transition-colors',
-                canJoinGroup ? 'bg-wefin-mint hover:bg-[#2a8282]' : 'bg-wefin-mint opacity-50'
-              ].join(' ')}
-            >
-              {isJoiningGroup ? '참여 중...' : '참여하기'}
-            </button>
-          </div>
-        </div>
-
-        {isHomeGroup ? (
-          <div className="px-4 py-3.5">
-            <h3 className="text-base font-bold text-wefin-text">새 그룹 만들기</h3>
-            <p className="mt-1 text-sm leading-6 text-wefin-subtle">
-              홈 그룹 상태에서 새 공유 그룹을 생성할 수 있어요.
-            </p>
-
-            <div className="mt-4 space-y-2">
-              <input
-                type="text"
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                disabled={!isLoggedIn || isCreatingGroup || !isHomeGroup}
-                placeholder={
-                  !isLoggedIn
-                    ? '로그인 후 이용할 수 있어요'
-                    : !isHomeGroup
-                      ? '공유 그룹에 참여 중이면 새 그룹을 만들 수 없어요'
-                      : '그룹 이름을 입력해주세요'
-                }
-                className="h-11 w-full rounded-xl border border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
-              />
-
-              {newGroupName.trim() ? (
+          {homeGroupMode === 'create' && (
+            <div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleBackToIdle}
+                  className="-ml-1 inline-flex h-8 w-8 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text"
+                  aria-label="돌아가기"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <h3 className="text-lg font-bold text-wefin-text">어떤 그룹을 만들까요?</h3>
+              </div>
+              <p className="mt-1 text-sm text-wefin-subtle">
+                생성 후 초대 코드로 멤버를 초대할 수 있어요.
+              </p>
+              <div className="mt-5 flex max-w-md gap-2 max-md:flex-col">
+                <input
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && canCreateGroup) handleCreateGroup()
+                  }}
+                  disabled={isCreatingGroup}
+                  autoFocus
+                  placeholder="그룹 이름"
+                  className="h-12 flex-1 rounded-xl border-[1.5px] border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
+                />
                 <button
                   type="button"
                   onClick={handleCreateGroup}
                   disabled={!canCreateGroup}
                   className={[
-                    'inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white transition-colors',
-                    canCreateGroup ? 'bg-wefin-mint hover:bg-[#2a8282]' : 'bg-wefin-mint opacity-50'
+                    'inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-bold text-white transition-colors',
+                    canCreateGroup
+                      ? 'bg-wefin-mint hover:bg-wefin-mint-deep'
+                      : 'bg-wefin-mint/40 cursor-not-allowed'
                   ].join(' ')}
                 >
-                  <Plus size={16} />
-                  {isCreatingGroup ? '생성 중...' : '생성하기'}
+                  {isCreatingGroup ? '생성 중...' : '만들기'}
                 </button>
-              ) : null}
+              </div>
             </div>
-          </div>
-        ) : null}
-      </div>
+          )}
+
+          {homeGroupMode === 'join' && (
+            <div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleBackToIdle}
+                  className="-ml-1 inline-flex h-8 w-8 items-center justify-center rounded-lg text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text"
+                  aria-label="돌아가기"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <h3 className="text-lg font-bold text-wefin-text">초대 코드를 입력해주세요</h3>
+              </div>
+              <p className="mt-1 text-sm text-wefin-subtle">
+                받은 코드를 입력하면 즉시 그룹에 참여해요.
+              </p>
+              <div className="mt-5 flex max-w-md gap-2 max-md:flex-col">
+                <input
+                  type="text"
+                  value={inviteCodeInput}
+                  onChange={(e) => setInviteCodeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && canJoinGroup) handleJoinGroup()
+                  }}
+                  disabled={isJoiningGroup}
+                  autoFocus
+                  placeholder="초대 코드"
+                  className="h-12 flex-1 rounded-xl border-[1.5px] border-wefin-line bg-white px-4 text-sm tracking-wider tabular-nums text-wefin-text outline-none transition-colors placeholder:tracking-normal placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
+                />
+                <button
+                  type="button"
+                  onClick={handleJoinGroup}
+                  disabled={!canJoinGroup}
+                  className={[
+                    'inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-bold text-white transition-colors',
+                    canJoinGroup
+                      ? 'bg-wefin-mint hover:bg-wefin-mint-deep'
+                      : 'bg-wefin-mint/40 cursor-not-allowed'
+                  ].join(' ')}
+                >
+                  {isJoiningGroup ? '참여 중...' : '참여하기'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
