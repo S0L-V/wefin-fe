@@ -1,4 +1,4 @@
-﻿import { z } from 'zod'
+import { z } from 'zod'
 
 import { baseApi } from '@/shared/api/base-api'
 
@@ -18,6 +18,21 @@ export const newsShareSchema = z.object({
   thumbnailUrl: z.string().nullable()
 })
 
+export const voteShareOptionSchema = z.object({
+  optionId: z.number(),
+  optionText: z.string()
+})
+
+export const voteShareSchema = z.object({
+  voteId: z.number(),
+  title: z.string(),
+  status: z.string(),
+  maxSelectCount: z.number(),
+  endsAt: z.string().nullable(),
+  closed: z.boolean(),
+  options: z.array(voteShareOptionSchema)
+})
+
 const groupChatMessageBaseSchema = {
   messageId: z.number(),
   userId: z.string().nullable(),
@@ -32,17 +47,20 @@ export const groupChatMessageSchema = z.discriminatedUnion('messageType', [
   z.object({
     ...groupChatMessageBaseSchema,
     messageType: z.literal('CHAT'),
-    newsShare: newsShareSchema.nullable().optional()
+    newsShare: newsShareSchema.nullable().optional(),
+    voteShare: voteShareSchema.nullable().optional()
   }),
   z.object({
     ...groupChatMessageBaseSchema,
     messageType: z.literal('NEWS'),
-    newsShare: newsShareSchema
+    newsShare: newsShareSchema,
+    voteShare: voteShareSchema.nullable().optional()
   }),
   z.object({
     ...groupChatMessageBaseSchema,
     messageType: z.literal('SYSTEM'),
-    newsShare: newsShareSchema.nullable().optional()
+    newsShare: newsShareSchema.nullable().optional(),
+    voteShare: voteShareSchema.nullable().optional()
   })
 ])
 
@@ -54,6 +72,8 @@ const groupChatMessagesPageSchema = z.object({
 
 export type ReplyMessage = z.infer<typeof replyMessageSchema>
 export type NewsShare = z.infer<typeof newsShareSchema>
+export type VoteShareOption = z.infer<typeof voteShareOptionSchema>
+export type VoteShare = z.infer<typeof voteShareSchema>
 export type GroupChatMessage = z.infer<typeof groupChatMessageSchema>
 export type GroupChatMessagesPage = z.infer<typeof groupChatMessagesPageSchema>
 
