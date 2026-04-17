@@ -1,0 +1,46 @@
+name: Frontend Deploy (Desktop)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set environment variables
+        run: |
+          {
+            echo "VITE_API_BASE_URL=https://wefin.shinhanacademy.co.kr/api"
+            echo "VITE_WS_URL=https://wefin.shinhanacademy.co.kr/ws"
+          } > .env.production
+
+      - name: Build
+        run: pnpm build
+
+      - name: Deploy to nginx
+        run: |
+          TARGET_DIR="/home/student/wefin/frontend"
+          mkdir -p "$TARGET_DIR"
+          rm -rf "$TARGET_DIR"/*
+          cp -r dist/* "$TARGET_DIR"/
+
+      - name: Restart nginx
+        run: |
+          docker compose -f /home/student/wefin/docker-compose-desktop.yml restart nginx || true
