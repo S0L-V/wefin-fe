@@ -3,6 +3,7 @@ import { baseApi } from '@/shared/api/base-api'
 import type { CreateRoomRequest } from '../model/game-room.schema'
 import {
   createRoomResponseSchema,
+  gameHistoryResponseSchema,
   joinRoomResponseSchema,
   leaveRoomResponseSchema,
   roomDetailResponseSchema,
@@ -44,4 +45,10 @@ export async function leaveGameRoom(roomId: string) {
 export async function startGameRoom(roomId: string) {
   const response = await baseApi.post(`/rooms/${roomId}/start`)
   return startRoomResponseSchema.parse(response.data)
+}
+
+// API 7: 과거 게임 이력 조회
+export async function fetchGameHistory(page: number, size: number) {
+  const response = await baseApi.get('/rooms/history', { params: { page, size } })
+  return gameHistoryResponseSchema.parse(response.data)
 }

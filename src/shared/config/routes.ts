@@ -4,6 +4,7 @@ export const routes = {
   stocks: '/stocks',
   stockDetail: (code: string) => `/stocks/${code}`,
   history: '/history',
+  historyArchive: '/history/archive',
   chat: '/chat',
   settings: '/settings',
   account: '/account',

@@ -156,6 +156,42 @@ export const turnAdvanceResponseSchema = z.object({
   data: turnAdvanceDataSchema
 })
 
+// === API: 과거 게임 이력 조회 ===
+
+export const pageInfoSchema = z.object({
+  page: z.number().int().min(0),
+  size: z.number().int().min(1),
+  totalElements: z.number().int().min(0),
+  totalPages: z.number().int().min(0),
+  hasNext: z.boolean()
+})
+
+export const gameHistoryItemSchema = z.object({
+  roomId: z.uuid(),
+  roomStatus: roomStatusSchema,
+  seedMoney: z.number(),
+  periodMonths: z.number().int(),
+  moveDays: z.number().int(),
+  startDate: z.iso.date(),
+  endDate: z.iso.date(),
+  participantCount: z.number().int(),
+  finalAsset: z.number(),
+  profitRate: z.number(),
+  finalRank: z.number().int().nullable(),
+  totalTrades: z.number().int(),
+  finishedAt: z.iso.datetime()
+})
+
+export const gameHistoryResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: z.object({
+    content: z.array(gameHistoryItemSchema),
+    pageInfo: pageInfoSchema
+  })
+})
+
 // === Type exports ===
 
 export type TurnAdvanceData = z.infer<typeof turnAdvanceDataSchema>
@@ -172,3 +208,6 @@ export type RoomDetailResponse = z.infer<typeof roomDetailResponseSchema>
 export type LeaveRoomResponse = z.infer<typeof leaveRoomResponseSchema>
 export type TurnDetail = z.infer<typeof turnDetailSchema>
 export type StartRoomResponse = z.infer<typeof startRoomResponseSchema>
+export type PageInfo = z.infer<typeof pageInfoSchema>
+export type GameHistoryItem = z.infer<typeof gameHistoryItemSchema>
+export type GameHistoryResponse = z.infer<typeof gameHistoryResponseSchema>

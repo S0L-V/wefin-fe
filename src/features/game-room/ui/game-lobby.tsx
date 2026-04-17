@@ -1,12 +1,12 @@
 import { Play, TrendingUp } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import type { RoomListItem } from '../model/game-room.schema'
+import type { GameHistoryItem, RoomListItem } from '../model/game-room.schema'
 import { useGameLobby } from '../model/use-game-lobby'
 import { useJoinGameRoomMutation } from '../model/use-game-room-query'
 
 function GameLobby() {
-  const { activeRoom, finishedRooms, isLoading } = useGameLobby()
+  const { activeRoom, recentHistory, isLoading } = useGameLobby()
 
   if (isLoading) {
     return <div className="text-center py-20 text-wefin-subtle">로딩 중...</div>
@@ -31,7 +31,7 @@ function GameLobby() {
 
       {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <EmptyRoomCard />}
 
-      {finishedRooms.length > 0 && <GameHistorySection rooms={finishedRooms} />}
+      {recentHistory.length > 0 && <GameHistorySection items={recentHistory} />}
     </div>
   )
 }
@@ -45,7 +45,6 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
     joinMutation.mutate(room.roomId, {
       onSuccess: () => navigate(`/history/room/${room.roomId}`),
       onError: (error) => {
-        // 이미 참가 중이면 바로 이동
         if (error instanceof Error && 'code' in error && error.code === 'ROOM_ALREADY_JOINED') {
           navigate(`/history/room/${room.roomId}`)
         }
@@ -94,44 +93,58 @@ function EmptyRoomCard() {
   )
 }
 
-function GameHistorySection({ rooms }: { rooms: RoomListItem[] }) {
+function GameHistorySection({ items }: { items: GameHistoryItem[] }) {
   return (
     <div className="bg-white rounded-2xl border border-wefin-line p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-wefin-text">과거 게임 이력</h2>
-        <button className="text-sm text-wefin-mint hover:underline">전체보기 &gt;</button>
+        <Link to="/history/archive" className="text-sm text-wefin-mint hover:underline">
+          전체보기 &gt;
+        </Link>
       </div>
       <div className="space-y-4">
-        {rooms.map((room) => (
-          <GameHistoryItem key={room.roomId} room={room} />
+        {items.map((item) => (
+          <GameHistoryCard key={item.roomId} item={item} />
         ))}
       </div>
     </div>
   )
 }
 
-function GameHistoryItem({ room }: { room: RoomListItem }) {
-  const seedLabel = `시드 ${(room.seedMoney / 10000).toLocaleString()}만원`
-  const periodLabel = `${room.periodMonths}M`
+function GameHistoryCard({ item }: { item: GameHistoryItem }) {
+  const seedLabel = `시드 ${(item.seedMoney / 10000).toLocaleString()}만원`
+  const periodLabel = `${item.periodMonths}M`
+  const isPositive = item.profitRate >= 0
+  const profitColor = isPositive ? 'text-red-500' : 'text-blue-500'
+  const profitSign = isPositive ? '+' : ''
+  const rankLabel = item.finalRank != null ? `${item.finalRank}등` : '-'
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-wefin-line last:border-b-0">
+    <Link
+      to={`/history/room/${item.roomId}/result`}
+      className="flex items-center justify-between py-3 border-b border-wefin-line last:border-b-0 hover:bg-gray-50 -mx-2 px-2 rounded transition-colors"
+    >
       <div className="flex items-center gap-3">
         <div className="w-1 h-10 bg-green-400 rounded-full" />
         <div>
           <p className="font-medium text-wefin-text">
-            {seedLabel} · {periodLabel}
+            {seedLabel} · {periodLabel} · {item.participantCount}명
           </p>
           <p className="text-sm text-wefin-subtle">
-            {room.startDate} ~ {room.endDate}
+            {item.startDate} ~ {item.endDate}
           </p>
         </div>
       </div>
       <div className="text-right">
-        <p className="text-red-500 font-medium">+0.00%</p>
-        <p className="text-xs text-wefin-subtle">완료</p>
+        <p className={`font-medium ${profitColor}`}>
+          {profitSign}
+          {item.profitRate.toFixed(2)}%
+        </p>
+        <p className="text-xs text-wefin-subtle">
+          {rankLabel} / {item.participantCount}명
+        </p>
       </div>
-    </div>
+    </Link>
   )
 }
 

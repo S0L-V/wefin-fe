@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
   createGameRoom,
+  fetchGameHistory,
   fetchGameRoomDetail,
   fetchGameRooms,
   joinGameRoom,
@@ -17,6 +18,13 @@ export function useGameRoomsQuery() {
   return useQuery({
     queryKey: gameRoomKeys.list(),
     queryFn: fetchGameRooms
+  })
+}
+
+export function useGameHistoryQuery(page: number, size: number) {
+  return useQuery({
+    queryKey: gameRoomKeys.history(page, size),
+    queryFn: () => fetchGameHistory(page, size)
   })
 }
 
