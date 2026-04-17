@@ -295,7 +295,7 @@ export default function OrderForm({
 
         <QuantityInput
           value={quantity}
-          disabled={activeTab === 'modify'}
+          disabled={false}
           onChange={setQuantity}
           onRatio={handleRatio}
           ratioDisabled={ratioDisabled}
