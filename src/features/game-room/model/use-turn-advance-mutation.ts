@@ -14,7 +14,7 @@ export function useTurnAdvanceMutation(roomId: string) {
       const data = response.data
 
       if (data.gameFinished) {
-        navigate(`/rooms/${roomId}/result`)
+        navigate(`/history/room/${roomId}/result`)
         return
       }
 
