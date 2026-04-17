@@ -1,6 +1,6 @@
 ﻿import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { Send, Sparkles, X } from 'lucide-react'
+import { Maximize2, Minimize2, Send, Sparkles, X } from 'lucide-react'
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react'
 
 import {
@@ -44,14 +44,41 @@ export default function WefinyChatWidget() {
   const [isSending, setIsSending] = useState(false)
   const [pendingStatus, setPendingStatus] = useState<PendingStatus>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState(false)
   const [hasAccessToken, setHasAccessToken] = useState(readHasAccessToken)
+  const widgetRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const syncRequestIdRef = useRef(0)
   const sessionVersionRef = useRef(0)
   const wasOpenRef = useRef(false)
   const shouldJumpToBottomRef = useRef(false)
   const previousMessageCountRef = useRef(0)
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (widgetRef.current && !widgetRef.current.contains(e.target as Node)) {
+        close()
+      }
+    }
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEsc)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEsc)
+    }
+  }, [isOpen, close])
 
   useEffect(() => {
     const syncAuthState = () => {
@@ -335,69 +362,82 @@ export default function WefinyChatWidget() {
         : null
 
   return (
-    <>
+    <div ref={widgetRef}>
       <button
         type="button"
         onClick={toggle}
-        className="fixed right-6 bottom-6 z-30 flex h-17 w-17 items-center justify-center overflow-hidden rounded-full border border-[#b8efe7] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[3px] shadow-[0_24px_60px_rgba(24,122,112,0.26)] transition-transform hover:scale-[1.03]"
+        className="fixed right-6 bottom-6 z-30 flex h-14 w-14 items-center justify-center rounded-2xl bg-wefin-mint-deep text-white shadow-[0_8px_24px_rgba(36,168,171,0.3)] transition-all hover:scale-105 hover:shadow-[0_12px_32px_rgba(36,168,171,0.4)]"
         aria-label={isOpen ? '위피니 채팅 닫기' : '위피니 채팅 열기'}
       >
-        <div className="h-full w-full overflow-hidden rounded-full border border-white/80 bg-white">
-          <img src="/wefini.png" alt="위피니 아이콘" className="h-full w-full object-cover" />
-        </div>
+        {isOpen ? <X size={22} /> : <Sparkles size={22} />}
       </button>
 
       {isOpen && (
-        <div className="fixed right-6 bottom-26 z-30 flex h-[620px] w-[380px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-[28px] border border-[#b8efe7] bg-white shadow-[0_30px_80px_rgba(16,91,83,0.22)] max-md:right-3 max-md:bottom-24 max-md:h-[72vh] max-md:w-[calc(100vw-24px)]">
-          <div className="flex items-center justify-between border-b border-[#bfeae3] bg-linear-to-r from-[#dff8f3] via-[#f5fffd] to-[#e5faf7] px-5 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 overflow-hidden rounded-2xl border border-[#9fe0d5] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[2px] shadow-sm">
-                <div className="h-full w-full overflow-hidden rounded-[14px] bg-white">
-                  <img src="/wefini.png" alt="위피니" className="h-full w-full object-cover" />
-                </div>
+        <div
+          className={`fixed right-6 bottom-[88px] z-30 flex flex-col overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm transition-all duration-300 max-md:right-3 max-md:bottom-[80px] max-md:h-[72vh] max-md:w-[calc(100vw-24px)] ${expanded ? 'h-[80vh] w-[480px]' : 'h-[620px] w-[380px]'}`}
+        >
+          <div className="flex items-center justify-between border-b border-wefin-line bg-gradient-to-r from-wefin-mint-soft/40 to-transparent px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-wefin-mint shadow-sm">
+                <Sparkles size={16} className="text-white" />
+                <span className="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
               </div>
               <div>
-                <div className="flex items-center gap-2 text-[1rem] font-bold text-wefin-text">
-                  위피니 채팅
-                  <Sparkles size={14} className="text-[#1d9f8d]" />
-                </div>
-                <p className="text-xs text-wefin-subtle">
-                  투자 아이디어와 종목 궁금증을 바로 물어보세요.
-                </p>
+                <span className="text-sm font-bold text-wefin-text">위피니 AI</span>
+                <p className="text-[11px] text-wefin-subtle">투자 어시스턴트</p>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={close}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-wefin-subtle transition hover:bg-white hover:text-wefin-subtle"
-              aria-label="위피니 채팅 닫기"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-white/60 hover:text-wefin-text"
+                aria-label={expanded ? '채팅창 축소' : '채팅창 확대'}
+              >
+                {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              </button>
+              <button
+                type="button"
+                onClick={close}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-white/60 hover:text-wefin-text"
+                aria-label="위피니 채팅 닫기"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           <div
             ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(75,199,183,0.13),_transparent_45%),linear-gradient(180deg,#fbfefe_0%,#f7fbfb_100%)] px-4 py-5"
+            className="flex-1 space-y-3 overflow-y-auto bg-white p-3 scrollbar-thin"
           >
             {!hasAccessToken ? (
-              <div className="mt-10 rounded-2xl border border-dashed border-[#c7ebe5] bg-white/80 px-5 py-6 text-center text-sm leading-6 text-wefin-subtle">
-                위피니 채팅은 로그인 후 사용할 수 있습니다.
+              <div className="mt-10 rounded-xl bg-wefin-bg px-4 py-5 text-center text-sm text-wefin-subtle">
+                로그인 후 사용할 수 있어요
               </div>
             ) : isLoading && messages.length === 0 && pendingStatus === 'idle' ? (
-              <div className="mt-10 text-center text-sm text-gray-500">대화를 불러오는 중...</div>
+              <div className="mt-10 text-center text-sm text-wefin-subtle">
+                대화를 불러오는 중...
+              </div>
             ) : (
               <div
-                className="space-y-4"
+                className="space-y-2"
                 role="log"
                 aria-live="polite"
                 aria-relevant="additions text"
                 aria-atomic="false"
               >
                 {messages.length === 0 && (
-                  <div className="rounded-2xl border border-[#d7f2ee] bg-white/90 px-4 py-4 text-sm leading-6 text-wefin-subtle">
-                    안녕하세요! 종목 전망, 재무 지표, 시장 흐름처럼 궁금한 내용을 편하게 물어보세요.
+                  <div className="flex flex-col items-center gap-3 py-8 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-wefin-mint-soft">
+                      <Sparkles size={22} className="text-wefin-mint-deep" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-wefin-text">무엇이든 물어보세요</p>
+                      <p className="mt-1 text-xs text-wefin-subtle">
+                        종목 전망, 재무 지표, 시장 흐름 등
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -407,63 +447,41 @@ export default function WefinyChatWidget() {
                   return (
                     <div
                       key={getMessageKey(chatMessage, index)}
-                      className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
+                      className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                     >
-                      <div
-                        className={`flex max-w-[82%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}
-                      >
-                        {!isMine && (
-                          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-[#9fe0d5] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[1px]">
-                            <div className="h-full w-full overflow-hidden rounded-full bg-white">
-                              <img
-                                src="/wefini.png"
-                                alt="위피니"
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                          </div>
-                        )}
-                        <div
-                          className={`rounded-[22px] px-4 py-3 text-sm leading-6 shadow-sm ${
-                            isMine
-                              ? 'rounded-br-md bg-[#1d9f8d] text-white'
-                              : 'rounded-bl-md border border-[#daf2ed] bg-white text-wefin-text'
-                          }`}
-                        >
-                          {!isMine && (
-                            <div className="mb-1 text-[11px] font-bold text-[#1d9f8d]">위피니</div>
-                          )}
-                          <div className="whitespace-pre-wrap break-words">
-                            {chatMessage.content}
-                          </div>
+                      {!isMine && (
+                        <div className="mb-1 flex items-center gap-1">
+                          <Sparkles size={10} className="text-wefin-mint" />
+                          <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
                         </div>
+                      )}
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm leading-relaxed [overflow-wrap:anywhere] ${
+                          isMine
+                            ? 'rounded-tr-none bg-wefin-mint text-white'
+                            : 'rounded-tl-none border border-wefin-line bg-white text-wefin-text shadow-sm'
+                        }`}
+                      >
+                        <div className="whitespace-pre-wrap">{chatMessage.content}</div>
                       </div>
                     </div>
                   )
                 })}
 
                 {pendingLabel && (
-                  <div className="flex justify-start" role="status" aria-live="polite">
-                    <div className="flex max-w-[82%] items-end gap-2">
-                      <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-[#9fe0d5] bg-linear-to-br from-[#1d9f8d] via-[#2bb6a4] to-[#6cd9cd] p-[1px]">
-                        <div className="h-full w-full overflow-hidden rounded-full bg-white">
-                          <img
-                            src="/wefini.png"
-                            alt="위피니"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      </div>
-                      <div className="rounded-[22px] rounded-bl-md border border-[#daf2ed] bg-white px-4 py-3 text-sm leading-6 text-wefin-text shadow-sm">
-                        <div className="mb-1 text-[11px] font-bold text-[#1d9f8d]">위피니</div>
-                        <div className="flex items-center gap-2">
-                          <span>{pendingLabel}</span>
-                          <span className="flex items-center gap-1 text-[#1d9f8d]">
-                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]" />
-                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.1s]" />
-                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current" />
-                          </span>
-                        </div>
+                  <div className="flex flex-col items-start" role="status" aria-live="polite">
+                    <div className="mb-1 flex items-center gap-1">
+                      <Sparkles size={10} className="text-wefin-mint" />
+                      <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
+                    </div>
+                    <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-white px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <span>{pendingLabel}</span>
+                        <span className="flex items-center gap-1 text-wefin-mint">
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.1s]" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current" />
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -474,18 +492,20 @@ export default function WefinyChatWidget() {
             )}
           </div>
 
-          <div className="border-t border-[#d7f2ee] bg-white px-4 py-4">
+          <div className="border-t border-wefin-line bg-white p-3">
             {errorMessage && (
               <div
-                className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                className="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
                 role="alert"
               >
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex items-end gap-2 rounded-[24px] border border-[#d7f2ee] bg-[#f9fcfc] p-2">
-              <textarea
+            <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
+              <input
+                ref={inputRef}
+                type="text"
                 aria-label="위피니 채팅 메시지 입력"
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
@@ -494,17 +514,13 @@ export default function WefinyChatWidget() {
                     return
                   }
 
-                  if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault()
+                  if (event.key === 'Enter') {
                     void handleSendMessage()
                   }
                 }}
-                placeholder={
-                  hasAccessToken ? '예: 삼성전자 전망 알려줘' : '로그인 후 이용할 수 있어요'
-                }
+                placeholder={hasAccessToken ? '삼성전자 전망 알려줘' : '로그인 후 이용할 수 있어요'}
                 disabled={!hasAccessToken || isLoading || isSending || pendingStatus !== 'idle'}
-                rows={1}
-                className="max-h-32 min-h-[48px] flex-1 resize-none border-none bg-transparent px-3 py-2 text-sm text-wefin-text outline-none placeholder:text-wefin-subtle disabled:cursor-not-allowed disabled:text-wefin-subtle"
+                className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none placeholder:text-wefin-subtle disabled:cursor-not-allowed disabled:text-wefin-subtle"
               />
               <button
                 type="button"
@@ -518,15 +534,15 @@ export default function WefinyChatWidget() {
                   isSending ||
                   pendingStatus !== 'idle'
                 }
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1d9f8d] text-white transition hover:bg-[#16786b] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
                 aria-label="위피니 채팅 전송"
               >
-                <Send size={18} />
+                <Send size={16} />
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

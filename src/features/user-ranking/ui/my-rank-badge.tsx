@@ -9,15 +9,17 @@ export default function MyRankBadge({ myRank }: MyRankBadgeProps) {
   const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-600'
 
   return (
-    <div className="flex items-center justify-between rounded-2xl bg-wefin-mint-soft px-5 py-3">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-medium text-wefin-mint">내 순위</span>
-        <span className="text-lg font-bold text-wefin-text">{myRank.rank}위</span>
+    <div className="rounded-lg border border-wefin-line bg-wefin-bg/50 px-3 py-2">
+      <p className="text-[9px] font-semibold tracking-widest text-wefin-subtle">MY RANK</p>
+      <div className="flex items-end justify-between">
+        <span className="text-xl font-extrabold leading-none text-wefin-text tabular-nums">
+          {String(myRank.rank).padStart(2, '0')}
+        </span>
+        <span className={`text-sm font-bold tabular-nums ${profitColor}`}>
+          {profit >= 0 ? '+' : ''}
+          {profit.toLocaleString()}원
+        </span>
       </div>
-      <span className={`text-sm font-semibold ${profitColor}`}>
-        {profit >= 0 ? '+' : ''}
-        {profit.toLocaleString()}원
-      </span>
     </div>
   )
 }

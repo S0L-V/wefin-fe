@@ -12,24 +12,23 @@ export default function UserRankingTable() {
   const myRank = data?.myRank ?? null
 
   return (
-    <div className="space-y-4">
-      {myRank && <MyRankBadge myRank={myRank} />}
+    <div>
+      {myRank && (
+        <div className="mb-4">
+          <MyRankBadge myRank={myRank} />
+        </div>
+      )}
 
-      <div>
-        <div className="flex items-center gap-3 border-b border-wefin-line py-2 text-xs text-wefin-subtle">
-          <span className="w-10">순위</span>
-          <span className="w-28">닉네임</span>
-          <span className="w-14 text-right">거래횟수</span>
-          <span className="flex-1 text-right">실현수익</span>
+      {rankings.length === 0 ? (
+        <Message text="아직 랭킹이 없어요" />
+      ) : (
+        <div className="divide-y divide-wefin-line/50">
+          {rankings.map((item) => (
+            <RankingRow key={`${item.rank}-${item.nickname}`} item={item} />
+          ))}
         </div>
-        <div className="divide-y divide-wefin-line">
-          {rankings.length === 0 ? (
-            <Message text="아직 랭킹이 없어요" />
-          ) : (
-            rankings.map((item) => <RankingRow key={`${item.rank}-${item.nickname}`} item={item} />)
-          )}
-        </div>
-      </div>
+      )}
+      <p className="py-4 text-center text-sm text-wefin-subtle">거래하고 순위에 도전하세요</p>
     </div>
   )
 }

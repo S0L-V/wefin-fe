@@ -33,6 +33,7 @@ interface OrderFormProps {
   }
   holdingQuantity?: number | null
   priceFromOrderbook?: number | null
+  modifyTarget?: OrderHistoryResponse | null
 }
 
 const ORDER_TABS: SegmentedTabItem<OrderTab>[] = [
@@ -51,12 +52,13 @@ export default function OrderForm({
   currentPrice,
   accountState,
   holdingQuantity,
-  priceFromOrderbook
+  priceFromOrderbook,
+  modifyTarget
 }: OrderFormProps) {
-  const [activeTab, setActiveTab] = useState<OrderTab>('buy')
+  const [activeTab, setActiveTab] = useState<OrderTab>(modifyTarget ? 'modify' : 'buy')
   const [priceMode, setPriceMode] = useState<PriceMode>('limit')
-  const [limitPrice, setLimitPrice] = useState<number>(0)
-  const [quantity, setQuantity] = useState('')
+  const [limitPrice, setLimitPrice] = useState<number>(modifyTarget?.requestPrice ?? 0)
+  const [quantity, setQuantity] = useState(modifyTarget ? String(modifyTarget.quantity) : '')
   const [prevOrderbookPrice, setPrevOrderbookPrice] = useState<number | null | undefined>(
     priceFromOrderbook
   )
@@ -69,7 +71,9 @@ export default function OrderForm({
     }
   }
 
-  const [selectedOrder, setSelectedOrder] = useState<OrderHistoryResponse | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<OrderHistoryResponse | null>(
+    modifyTarget ?? null
+  )
 
   const buyMutation = useBuyMutation()
   const sellMutation = useSellMutation()
@@ -102,10 +106,14 @@ export default function OrderForm({
     limitSellMutation.isPending ||
     modifyMutation.isPending ||
     cancelMutation.isPending
+  const balance = accountState.balance ?? 0
+  const exceedsBalance = activeTab === 'buy' && totalAmount > balance
+  const exceedsHolding = activeTab === 'sell' && qtyNumber > (holdingQuantity ?? 0)
+  const invalidPrice = priceMode === 'limit' && effectiveLimitPrice <= 0
   const canSubmit =
     activeTab === 'modify'
-      ? !!selectedOrder && qtyNumber >= 1 && !isPending
-      : qtyNumber >= 1 && !isPending
+      ? !!selectedOrder && qtyNumber >= 1 && !isPending && !invalidPrice
+      : qtyNumber >= 1 && !isPending && !exceedsBalance && !exceedsHolding && !invalidPrice
   const maxQuantity =
     activeTab === 'buy'
       ? (accountState.maxQuantity ?? 0)
@@ -162,7 +170,7 @@ export default function OrderForm({
   const adjustPrice = (dir: 1 | -1) => {
     if (activeTab !== 'modify' && priceMode !== 'limit') return
     const tick = priceTick(limitPrice || currentPrice)
-    setLimitPrice((p) => Math.max(0, (p || currentPrice) + dir * tick))
+    setLimitPrice((p) => Math.max(1, (p || currentPrice) + dir * tick))
   }
 
   const errorMessage = resolveErrorMessage(activeMutation.error)
@@ -186,31 +194,35 @@ export default function OrderForm({
               <p className="py-4 text-center text-xs text-wefin-subtle">미체결 주문이 없습니다</p>
             ) : (
               <ul className="max-h-32 space-y-1 overflow-y-auto">
-                {stockPendingOrders.map((order) => (
-                  <li key={order.orderNo}>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectOrder(order)}
-                      className={`flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs transition-colors ${
-                        selectedOrder?.orderNo === order.orderNo
-                          ? 'bg-wefin-mint-soft ring-1 ring-wefin-mint'
-                          : 'bg-wefin-bg hover:bg-wefin-line/60'
-                      }`}
-                    >
-                      <span
-                        className={`font-semibold ${order.side === 'BUY' ? 'text-red-500' : 'text-blue-500'}`}
+                {stockPendingOrders.map((order) => {
+                  const isSelected = selectedOrder?.orderNo === order.orderNo
+                  const isBuy = order.side === 'BUY'
+                  return (
+                    <li key={order.orderNo}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectOrder(order)}
+                        className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+                          isSelected
+                            ? 'bg-wefin-mint-soft ring-1 ring-wefin-mint'
+                            : 'bg-wefin-bg hover:bg-wefin-line/60'
+                        }`}
                       >
-                        {order.side === 'BUY' ? '매수' : '매도'}
-                      </span>
-                      <span className="tabular-nums text-wefin-text">
-                        {(order.requestPrice ?? 0).toLocaleString()}원
-                      </span>
-                      <span className="tabular-nums text-wefin-subtle">
-                        {order.quantity.toLocaleString()}주
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                        <span
+                          className={`text-xs font-bold ${isBuy ? 'text-red-500' : 'text-blue-500'}`}
+                        >
+                          {isBuy ? '매수' : '매도'}
+                        </span>
+                        <span className="flex-1 text-left font-semibold text-wefin-text tabular-nums">
+                          {Math.trunc(order.requestPrice ?? 0).toLocaleString()}원
+                        </span>
+                        <span className="font-medium text-wefin-subtle tabular-nums">
+                          {order.quantity.toLocaleString()}주
+                        </span>
+                      </button>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>
@@ -324,6 +336,13 @@ export default function OrderForm({
           </div>
         </div>
 
+        {exceedsBalance && <p className="text-xs font-medium text-red-500">잔고가 부족해요</p>}
+        {exceedsHolding && (
+          <p className="text-xs font-medium text-red-500">보유 수량을 초과했어요</p>
+        )}
+        {invalidPrice && qtyNumber > 0 && (
+          <p className="text-xs font-medium text-red-500">주문 가격을 입력해주세요</p>
+        )}
         {errorMessage && <p className="text-xs text-red-500">{errorMessage}</p>}
 
         <button

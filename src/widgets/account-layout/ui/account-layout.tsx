@@ -12,7 +12,7 @@ const TABS: { key: AccountTab; label: string }[] = [
   { key: 'asset', label: '자산' },
   { key: 'trade-history', label: '거래내역' },
   { key: 'order-history', label: '주문내역' },
-  { key: 'profit-analysis', label: '리포트' }
+  { key: 'profit-analysis', label: '투자현황' }
 ]
 
 const SECTION_DESCRIPTION: Record<AccountTab, string> = {
@@ -28,9 +28,6 @@ export default function AccountLayout({ activeTab, onTabChange, children }: Acco
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-[180px_minmax(0,1fr)] gap-4 pt-12">
       <aside className="sticky top-20 self-start">
-        <div className="mb-7 text-[11px] font-bold uppercase tracking-widest text-wefin-subtle">
-          My Account
-        </div>
         <nav className="flex flex-col">
           {TABS.map(({ key, label }) => {
             const isActive = activeTab === key
@@ -39,10 +36,10 @@ export default function AccountLayout({ activeTab, onTabChange, children }: Acco
                 key={key}
                 type="button"
                 onClick={() => onTabChange(key)}
-                className={`relative px-3 py-3 text-left text-base transition-colors ${
+                className={`relative origin-left px-3 py-3 text-left transition-all ${
                   isActive
-                    ? 'font-bold text-wefin-mint-deep'
-                    : 'font-medium text-wefin-subtle hover:text-wefin-text'
+                    ? 'text-lg font-bold text-wefin-mint-deep'
+                    : 'text-base font-medium text-wefin-subtle hover:scale-105 hover:text-wefin-text'
                 }`}
               >
                 {isActive && (

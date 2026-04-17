@@ -1,3 +1,4 @@
+import { Maximize2, Minimize2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import ChatPanel from '@/features/chat/ui/chat-panel'
@@ -16,6 +17,7 @@ interface StockSidebarProps {
 
 export default function StockSidebar({ matchHeight }: StockSidebarProps) {
   const [activeTab, setActiveTab] = useState<Tab>('watchlist')
+  const [expanded, setExpanded] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
 
   useEffect(() => {
@@ -32,11 +34,15 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
 
   return (
     <div
-      className={`flex ${heightClass} flex-col rounded-2xl border border-wefin-line bg-white shadow-sm`}
+      className={`flex flex-col rounded-2xl border border-wefin-line bg-white shadow-sm transition-all duration-300 ${
+        expanded
+          ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
+          : heightClass
+      }`}
     >
       {/* 탭 헤더 */}
-      <div className="p-2.5">
-        <div className="flex gap-1 rounded-full bg-gray-100 p-1">
+      <div className="flex items-center gap-2 p-2.5">
+        <div className="flex flex-1 gap-1 rounded-full bg-gray-100 p-1">
           {TABS.map(({ key, label }) => {
             const isActive = activeTab === key
             return (
@@ -55,6 +61,16 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
             )
           })}
         </div>
+        {activeTab === 'chat' && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text"
+            aria-label={expanded ? '채팅 축소' : '채팅 확대'}
+          >
+            {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+          </button>
+        )}
       </div>
 
       {/* 탭 콘텐츠 */}
