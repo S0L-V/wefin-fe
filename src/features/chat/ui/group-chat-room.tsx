@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
+﻿import { useQueryClient } from '@tanstack/react-query'
 import { ArrowUp, CornerDownRight, ListChecks, MessageSquareReply, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -153,9 +153,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
         >
           {isLoadingOlder && (
             <div className="text-center text-xs text-wefin-subtle">
-              <div className="text-center text-xs text-wefin-subtle">
-                이전 메시지를 불러오는 중...
-              </div>
+              이전 메시지를 불러오는 중...
             </div>
           )}
 
