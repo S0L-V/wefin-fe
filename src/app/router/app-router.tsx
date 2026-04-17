@@ -10,6 +10,7 @@ import PlayPage from '@/pages/history/ui/play-page'
 import ResultPage from '@/pages/history/ui/result-page'
 import RoomPage from '@/pages/history/ui/room-page'
 import HomePage from '@/pages/home/ui/home-page'
+import InterestsPage from '@/pages/interests/ui/interests-page'
 import ClusterDetailPage from '@/pages/news/ui/cluster-detail-page'
 import NotFoundPage from '@/pages/not-found/ui/not-found-page'
 import SettingsPage from '@/pages/settings/ui/settings-page'
@@ -78,19 +79,28 @@ function AppRouter() {
         />
 
         <Route
-          path="settings"
+          path="account"
           element={
             <ProtectedRoute>
-              <SettingsPage />
+              <AccountPage />
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="account"
+          path="interests"
           element={
             <ProtectedRoute>
-              <AccountPage />
+              <InterestsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

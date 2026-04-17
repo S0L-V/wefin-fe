@@ -109,11 +109,9 @@ function SectionHeader({
   onTabChange: Parameters<typeof NewsCategoryTabs>[0]['onTabChange']
 }) {
   return (
-    <div className="mb-5 flex items-center justify-between">
-      <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-bold text-wefin-text">이 시각 주요 뉴스</h2>
-        <NewsCategoryTabs activeTab={activeTab} onTabChange={onTabChange} />
-      </div>
+    <div className="mb-5 flex flex-col gap-3">
+      <h2 className="text-lg font-bold text-wefin-text">이 시각 주요 뉴스</h2>
+      <NewsCategoryTabs activeTab={activeTab} onTabChange={onTabChange} />
     </div>
   )
 }

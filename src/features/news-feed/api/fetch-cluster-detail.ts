@@ -23,6 +23,11 @@ const stockSchema = z.object({
   name: z.string()
 })
 
+const sectorSchema = z.object({
+  code: z.string(),
+  name: z.string()
+})
+
 const clusterDetailSchema = z.object({
   clusterId: z.number(),
   title: z.string(),
@@ -32,6 +37,7 @@ const clusterDetailSchema = z.object({
   sourceCount: z.number(),
   sources: z.array(articleSourceSchema),
   relatedStocks: z.array(stockSchema),
+  relatedSectors: z.array(sectorSchema).default([]),
   marketTags: z.array(z.string()),
   isRead: z.boolean(),
   sections: z.array(sectionSchema),

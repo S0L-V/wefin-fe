@@ -1,3 +1,4 @@
+import { Lightbulb } from 'lucide-react'
 import { Activity, Flame, type LucideIcon, ShieldCheck, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
@@ -50,13 +51,24 @@ function InsightCardItem({
   const sourceCount = cardClusters.length
   const badgeSources = cardClusters.slice(0, 2).map((c) => ({ publisherName: c.title }))
 
+  const hasAdvice = Boolean(card.advice && card.adviceLabel)
+
   return (
     <article className="flex h-full flex-col rounded-xl border border-wefin-line bg-white p-4">
       <div className="mb-2 flex items-center gap-2">
         <Icon className="h-4 w-4 text-wefin-mint" />
         <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
       </div>
-      <p className="mb-4 flex-grow text-xs leading-relaxed text-wefin-subtle">{card.body}</p>
+      <p className="mb-3 flex-grow text-xs leading-relaxed text-wefin-subtle">{card.body}</p>
+      {hasAdvice && (
+        <div className="mb-3 rounded-lg border border-gray-100 bg-white p-3">
+          <div className="mb-1 flex items-center gap-1.5">
+            <Lightbulb size={14} className="text-blue-500" />
+            <span className="text-xs font-bold text-wefin-text">{card.adviceLabel}</span>
+          </div>
+          <p className="text-xs text-wefin-subtle">{card.advice}</p>
+        </div>
+      )}
       {sourceCount > 0 && (
         <div className="mt-auto flex justify-end">
           <button

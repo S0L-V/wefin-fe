@@ -7,7 +7,8 @@ export const routes = {
   chat: '/chat',
   settings: '/settings',
   account: '/account',
-  accountTab: (tab: AccountTab) => `/account?tab=${tab}`
+  accountTab: (tab: AccountTab) => `/account?tab=${tab}`,
+  interests: '/interests'
 } as const
 
 export type AccountTab = 'asset' | 'trade-history' | 'order-history' | 'profit-analysis'
