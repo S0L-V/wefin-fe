@@ -7,7 +7,11 @@ export const gameRoomKeys = {
   briefing: (roomId: string) => ['game-room', 'briefing', roomId] as const,
   rankings: (roomId: string) => ['game-room', 'rankings', roomId] as const,
   stockChart: (symbol: string, roomId: string) =>
-    ['game-room', 'stockChart', symbol, roomId] as const
+    ['game-room', 'stockChart', symbol, roomId] as const,
+  result: (roomId: string) => ['game-room', 'result', roomId] as const,
+  snapshots: (roomId: string) => ['game-room', 'snapshots', roomId] as const,
+  orders: (roomId: string) => ['game-room', 'orders', roomId] as const,
+  report: (roomId: string) => ['game-room', 'report', roomId] as const
 }
 
 export const gameTurnKeys = {
