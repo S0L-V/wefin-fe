@@ -6,6 +6,10 @@ import {
   buyOrder,
   type BuyOrderParams,
   cancelOrder,
+  limitBuyOrder,
+  type LimitBuyOrderParams,
+  limitSellOrder,
+  type LimitSellOrderParams,
   modifyOrder,
   type ModifyOrderParams,
   sellOrder,
@@ -33,6 +37,22 @@ export function useSellMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (params: SellOrderParams) => sellOrder(params),
+    onSuccess: () => invalidateOrderSideEffects(queryClient)
+  })
+}
+
+export function useLimitBuyMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (params: LimitBuyOrderParams) => limitBuyOrder(params),
+    onSuccess: () => invalidateOrderSideEffects(queryClient)
+  })
+}
+
+export function useLimitSellMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (params: LimitSellOrderParams) => limitSellOrder(params),
     onSuccess: () => invalidateOrderSideEffects(queryClient)
   })
 }

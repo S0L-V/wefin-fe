@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs'
 
+import type { OrderHistoryResponse } from '../api/fetch-order'
 import {
   formatAmount,
   getSubmitColor,
@@ -11,7 +12,15 @@ import {
   priceTick,
   resolveErrorMessage
 } from '../lib/order-form-utils'
-import { useBuyMutation, useSellMutation } from '../model/use-order-mutations'
+import {
+  useBuyMutation,
+  useCancelOrderMutation,
+  useLimitBuyMutation,
+  useLimitSellMutation,
+  useModifyOrderMutation,
+  useSellMutation
+} from '../model/use-order-mutations'
+import { usePendingOrdersQuery } from '../model/use-order-queries'
 import PriceInput from './price-input'
 import QuantityInput from './quantity-input'
 
@@ -60,16 +69,43 @@ export default function OrderForm({
     }
   }
 
+  const [selectedOrder, setSelectedOrder] = useState<OrderHistoryResponse | null>(null)
+
   const buyMutation = useBuyMutation()
   const sellMutation = useSellMutation()
+  const limitBuyMutation = useLimitBuyMutation()
+  const limitSellMutation = useLimitSellMutation()
+  const modifyMutation = useModifyOrderMutation()
+  const cancelMutation = useCancelOrderMutation()
+  const { data: pendingOrders } = usePendingOrdersQuery()
+
+  const stockPendingOrders = (pendingOrders ?? []).filter((o) => o.stockCode === stockCode)
 
   const effectiveLimitPrice = limitPrice > 0 ? limitPrice : currentPrice
   const effectivePrice = priceMode === 'market' ? currentPrice : effectiveLimitPrice
   const qtyNumber = Number(quantity || 0)
   const totalAmount = qtyNumber * effectivePrice
-  const activeMutation = activeTab === 'buy' ? buyMutation : sellMutation
-  const isPending = buyMutation.isPending || sellMutation.isPending
-  const canSubmit = activeTab !== 'modify' && qtyNumber >= 1 && !isPending
+  const activeMutation =
+    activeTab === 'modify'
+      ? modifyMutation
+      : priceMode === 'limit'
+        ? activeTab === 'buy'
+          ? limitBuyMutation
+          : limitSellMutation
+        : activeTab === 'buy'
+          ? buyMutation
+          : sellMutation
+  const isPending =
+    buyMutation.isPending ||
+    sellMutation.isPending ||
+    limitBuyMutation.isPending ||
+    limitSellMutation.isPending ||
+    modifyMutation.isPending ||
+    cancelMutation.isPending
+  const canSubmit =
+    activeTab === 'modify'
+      ? !!selectedOrder && qtyNumber >= 1 && !isPending
+      : qtyNumber >= 1 && !isPending
   const maxQuantity =
     activeTab === 'buy'
       ? (accountState.maxQuantity ?? 0)
@@ -78,10 +114,44 @@ export default function OrderForm({
         : 0
   const ratioDisabled = activeTab === 'modify' || maxQuantity <= 0
 
+  const handleSelectOrder = (order: OrderHistoryResponse) => {
+    setSelectedOrder(order)
+    setLimitPrice(order.requestPrice ?? currentPrice)
+    setQuantity(String(order.quantity))
+  }
+
   const handleSubmit = () => {
-    if (!canSubmit || priceMode === 'limit') return
-    const mutation = activeTab === 'buy' ? buyMutation : sellMutation
-    mutation.mutate({ stockCode, quantity: qtyNumber }, { onSuccess: () => setQuantity('') })
+    if (!canSubmit) return
+    if (activeTab === 'modify' && selectedOrder) {
+      modifyMutation.mutate(
+        { orderNo: selectedOrder.orderNo, requestPrice: effectiveLimitPrice, quantity: qtyNumber },
+        {
+          onSuccess: () => {
+            setSelectedOrder(null)
+            setQuantity('')
+          }
+        }
+      )
+    } else if (priceMode === 'limit') {
+      const mutation = activeTab === 'buy' ? limitBuyMutation : limitSellMutation
+      mutation.mutate(
+        { stockCode, quantity: qtyNumber, requestPrice: effectiveLimitPrice },
+        { onSuccess: () => setQuantity('') }
+      )
+    } else {
+      const mutation = activeTab === 'buy' ? buyMutation : sellMutation
+      mutation.mutate({ stockCode, quantity: qtyNumber }, { onSuccess: () => setQuantity('') })
+    }
+  }
+
+  const handleCancel = () => {
+    if (!selectedOrder || cancelMutation.isPending) return
+    cancelMutation.mutate(selectedOrder.orderNo, {
+      onSuccess: () => {
+        setSelectedOrder(null)
+        setQuantity('')
+      }
+    })
   }
 
   const handleRatio = (ratio: number) => {
@@ -90,15 +160,104 @@ export default function OrderForm({
   }
 
   const adjustPrice = (dir: 1 | -1) => {
-    if (priceMode !== 'limit') return
+    if (activeTab !== 'modify' && priceMode !== 'limit') return
     const tick = priceTick(limitPrice || currentPrice)
     setLimitPrice((p) => Math.max(0, (p || currentPrice) + dir * tick))
   }
 
-  const errorMessage =
-    priceMode === 'limit' && canSubmit
-      ? '지정가 주문은 곧 출시됩니다'
-      : resolveErrorMessage(activeMutation.error)
+  const errorMessage = resolveErrorMessage(activeMutation.error)
+
+  if (activeTab === 'modify') {
+    return (
+      <div>
+        <div className="flex h-11 items-center justify-between px-3">
+          <span className="text-sm font-semibold text-wefin-text">주문하기</span>
+          <SegmentedTabs
+            items={ORDER_TABS}
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            shape="square"
+          />
+        </div>
+        <div className="space-y-3 p-3">
+          <div className="space-y-1">
+            <span className="text-xs font-bold text-wefin-text">미체결 주문</span>
+            {stockPendingOrders.length === 0 ? (
+              <p className="py-4 text-center text-xs text-wefin-subtle">미체결 주문이 없습니다</p>
+            ) : (
+              <ul className="max-h-32 space-y-1 overflow-y-auto">
+                {stockPendingOrders.map((order) => (
+                  <li key={order.orderNo}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectOrder(order)}
+                      className={`flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs transition-colors ${
+                        selectedOrder?.orderNo === order.orderNo
+                          ? 'bg-wefin-mint-soft ring-1 ring-wefin-mint'
+                          : 'bg-wefin-bg hover:bg-wefin-line/60'
+                      }`}
+                    >
+                      <span
+                        className={`font-semibold ${order.side === 'BUY' ? 'text-red-500' : 'text-blue-500'}`}
+                      >
+                        {order.side === 'BUY' ? '매수' : '매도'}
+                      </span>
+                      <span className="tabular-nums text-wefin-text">
+                        {(order.requestPrice ?? 0).toLocaleString()}원
+                      </span>
+                      <span className="tabular-nums text-wefin-subtle">
+                        {order.quantity.toLocaleString()}주
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {selectedOrder && (
+            <>
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-wefin-text">정정 가격</span>
+                <PriceInput
+                  value={effectiveLimitPrice}
+                  disabled={false}
+                  onChange={setLimitPrice}
+                  onIncrement={() => adjustPrice(1)}
+                  onDecrement={() => adjustPrice(-1)}
+                />
+              </div>
+              <QuantityInput
+                value={quantity}
+                disabled={false}
+                onChange={setQuantity}
+                onRatio={() => {}}
+                ratioDisabled={true}
+                maxQuantity={null}
+                maxLabel="최대"
+              />
+              {errorMessage && <p className="text-xs text-red-500">{errorMessage}</p>}
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                className="w-full rounded-md bg-wefin-text py-2.5 text-sm font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {modifyMutation.isPending ? '정정 중...' : '정정하기'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={cancelMutation.isPending}
+                className="w-full rounded-md border border-wefin-line py-2.5 text-sm font-bold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {cancelMutation.isPending ? '취소 중...' : '주문 취소'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -170,7 +329,7 @@ export default function OrderForm({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!canSubmit || priceMode === 'limit'}
+          disabled={!canSubmit}
           className={`w-full rounded-md py-2.5 text-sm font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getSubmitColor(activeTab)}`}
         >
           {getSubmitLabel(activeTab, isPending)}

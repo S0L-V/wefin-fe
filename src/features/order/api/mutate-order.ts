@@ -48,6 +48,18 @@ export interface SellOrderParams {
   quantity: number
 }
 
+export interface LimitBuyOrderParams {
+  stockCode: string
+  quantity: number
+  requestPrice: number
+}
+
+export interface LimitSellOrderParams {
+  stockCode: string
+  quantity: number
+  requestPrice: number
+}
+
 export interface ModifyOrderParams {
   orderNo: string
   requestPrice: number
@@ -61,6 +73,16 @@ export async function buyOrder(params: BuyOrderParams): Promise<OrderResponse> {
 
 export async function sellOrder(params: SellOrderParams): Promise<OrderResponse> {
   const response = await baseApi.post('/order/sell', params)
+  return apiResponseSchema(orderResponseSchema).parse(response.data).data
+}
+
+export async function limitBuyOrder(params: LimitBuyOrderParams): Promise<OrderResponse> {
+  const response = await baseApi.post('/order/limit/buy', params)
+  return apiResponseSchema(orderResponseSchema).parse(response.data).data
+}
+
+export async function limitSellOrder(params: LimitSellOrderParams): Promise<OrderResponse> {
+  const response = await baseApi.post('/order/limit/sell', params)
   return apiResponseSchema(orderResponseSchema).parse(response.data).data
 }
 
