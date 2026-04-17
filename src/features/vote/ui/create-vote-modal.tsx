@@ -10,11 +10,11 @@ import { createVote } from '@/features/vote/api/create-vote'
 import { ApiError } from '@/shared/api/base-api'
 
 const DURATION_OPTIONS = [
-  { value: 1, label: '1h' },
-  { value: 4, label: '4h' },
-  { value: 8, label: '8h' },
-  { value: 24, label: '24h' },
-  { value: 72, label: '72h' }
+  { value: 1, label: '1시간' },
+  { value: 4, label: '4시간' },
+  { value: 8, label: '8시간' },
+  { value: 24, label: '24시간' },
+  { value: 72, label: '72시간' }
 ] as const
 
 const MIN_OPTION_COUNT = 2
@@ -85,22 +85,22 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
     const trimmedOptions = options.map((item) => item.trim())
 
     if (!trimmedTitle) {
-      setErrorMessage('Please enter a title.')
+      setErrorMessage('투표 제목을 입력해주세요.')
       return
     }
 
     if (trimmedOptions.some((item) => !item)) {
-      setErrorMessage('Please fill in all options.')
+      setErrorMessage('모든 선택지를 입력해주세요.')
       return
     }
 
     if (new Set(trimmedOptions).size !== trimmedOptions.length) {
-      setErrorMessage('Duplicate options are not allowed.')
+      setErrorMessage('중복된 선택지는 사용할 수 없습니다.')
       return
     }
 
     if (maxSelectCount > trimmedOptions.length) {
-      setErrorMessage('Max selections cannot exceed option count.')
+      setErrorMessage('최대 선택 개수는 선택지 개수를 넘을 수 없습니다.')
       return
     }
 
@@ -122,7 +122,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
       if (error instanceof ApiError) {
         setErrorMessage(error.message)
       } else {
-        setErrorMessage('Failed to create vote. Please try again.')
+        setErrorMessage('투표 생성에 실패했습니다. 다시 시도해주세요.')
       }
     } finally {
       setIsSubmitting(false)
@@ -137,17 +137,17 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
           <div className="flex items-start justify-between gap-4">
             <div>
               <Dialog.Title className="text-lg font-semibold text-wefin-text">
-                Create Vote
+                투표 만들기
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-wefin-subtle">
-                Create a vote and share it directly into the group chat.
+                그룹 채팅에 바로 공유할 투표를 만들어보세요.
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
               <button
                 type="button"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition hover:bg-wefin-bg"
-                aria-label="Close vote modal"
+                aria-label="투표 만들기 닫기"
               >
                 <X size={18} />
               </button>
@@ -156,18 +156,18 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
 
           <div className="mt-5 space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-wefin-text">Title</label>
+              <label className="mb-2 block text-sm font-medium text-wefin-text">제목</label>
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="What should we decide?"
+                placeholder="무엇을 결정할지 입력해주세요"
                 className="h-11 w-full rounded-xl border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none focus:border-wefin-mint"
               />
             </div>
 
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <label className="block text-sm font-medium text-wefin-text">Options</label>
+                <label className="block text-sm font-medium text-wefin-text">선택지</label>
                 <button
                   type="button"
                   onClick={handleAddOption}
@@ -175,7 +175,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                   className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-wefin-mint transition hover:bg-wefin-mint-soft disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Plus size={14} />
-                  Add
+                  추가
                 </button>
               </div>
 
@@ -185,14 +185,14 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                     <input
                       value={option}
                       onChange={(event) => handleOptionChange(index, event.target.value)}
-                      placeholder={`Option ${index + 1}`}
+                      placeholder={`선택지 ${index + 1}`}
                       className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none focus:border-wefin-mint"
                     />
                     <button
                       type="button"
                       onClick={() => handleRemoveOption(index)}
                       disabled={options.length <= MIN_OPTION_COUNT}
-                      aria-label={`Remove option ${index + 1}`}
+                      aria-label={`선택지 ${index + 1} 삭제`}
                       className="flex h-11 w-11 items-center justify-center rounded-xl border border-wefin-line text-wefin-subtle transition hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <Trash2 size={16} />
@@ -205,7 +205,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-wefin-text">
-                  Max selections
+                  최대 선택 개수
                 </label>
                 <select
                   value={maxSelectCount}
@@ -221,7 +221,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-wefin-text">Duration</label>
+                <label className="mb-2 block text-sm font-medium text-wefin-text">투표 시간</label>
                 <select
                   value={durationHours}
                   onChange={(event) => setDurationHours(Number(event.target.value))}
@@ -248,7 +248,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                 onClick={() => onOpenChange(false)}
                 className="h-11 rounded-xl border border-wefin-line px-4 text-sm font-medium text-wefin-text transition hover:bg-wefin-bg"
               >
-                Cancel
+                취소
               </button>
               <button
                 type="button"
@@ -258,7 +258,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                 disabled={!groupId || isSubmitting}
                 className="h-11 rounded-xl bg-wefin-mint px-4 text-sm font-medium text-white transition hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {isSubmitting ? 'Creating...' : 'Create vote'}
+                {isSubmitting ? '생성 중...' : '투표 만들기'}
               </button>
             </div>
           </div>

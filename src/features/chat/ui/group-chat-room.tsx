@@ -8,7 +8,7 @@ import { useGroupChatStore } from '@/features/chat/model/group/group-chat-store'
 import { useGroupChatSocket } from '@/features/chat/model/group/use-group-chat-socket'
 import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 import CreateVoteModal from '@/features/vote/ui/create-vote-modal'
-import VoteDetailModal from '@/features/vote/ui/vote-detail-modal'
+import InlineVoteCard from '@/features/vote/ui/inline-vote-card'
 
 function getLastMessageKey(messages: ReturnType<typeof useGroupChatStore.getState>['messages']) {
   const lastMessage = messages[messages.length - 1]
@@ -38,17 +38,6 @@ function getMessageKey(
   ].join(':')
 }
 
-function formatVoteDeadline(deadline: string | null) {
-  if (!deadline) {
-    return '--'
-  }
-
-  return new Date(deadline).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
 interface GroupChatRoomProps {
   bare?: boolean
 }
@@ -56,7 +45,6 @@ interface GroupChatRoomProps {
 export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false)
-  const [selectedVoteId, setSelectedVoteId] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -165,7 +153,9 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
         >
           {isLoadingOlder && (
             <div className="text-center text-xs text-wefin-subtle">
-              이전 메시지를 불러오는 중...
+              <div className="text-center text-xs text-wefin-subtle">
+                이전 메시지를 불러오는 중...
+              </div>
             </div>
           )}
 
@@ -242,63 +232,15 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
             }
 
             if (isVote && msg.voteShare) {
-              const voteShare = msg.voteShare
-
               return (
-                <div
+                <InlineVoteCard
                   key={getMessageKey(msg)}
-                  className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-                >
-                  {!isMine && (
-                    <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
-                  )}
-
-                  <div
-                    className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedVoteId(voteShare.voteId)}
-                      className="w-full max-w-[320px] overflow-hidden rounded-2xl border border-[#cde9e2] bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                      <div className="border-b border-[#e2f2ee] bg-[#f6fbfa] px-4 py-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <div className="mb-1 text-xs font-semibold text-[#1d9f8d]">Vote</div>
-                            <div className="line-clamp-2 text-sm font-bold text-wefin-text">
-                              {voteShare.title}
-                            </div>
-                          </div>
-                          <span
-                            className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${
-                              voteShare.closed
-                                ? 'bg-gray-100 text-gray-600'
-                                : 'bg-[#daf4ef] text-[#157969]'
-                            }`}
-                          >
-                            {voteShare.closed ? 'Closed' : 'Open'}
-                          </span>
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-wefin-subtle">
-                          <span>Max {voteShare.maxSelectCount}</span>
-                          <span>Ends {formatVoteDeadline(voteShare.endsAt)}</span>
-                        </div>
-                      </div>
-                      <div className="space-y-2 px-4 py-3">
-                        {voteShare.options.map((option) => (
-                          <div
-                            key={option.optionId}
-                            className="rounded-xl border border-wefin-line bg-wefin-bg px-3 py-2 text-sm text-wefin-text"
-                          >
-                            {option.optionText}
-                          </div>
-                        ))}
-                      </div>
-                    </button>
-                    {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
-                    <ReplyButton onClick={() => setReplyTarget(msg)} />
-                  </div>
-                </div>
+                  voteShare={msg.voteShare}
+                  isMine={isMine}
+                  sender={msg.sender}
+                  time={time}
+                  onReply={() => setReplyTarget(msg)}
+                />
               )
             }
 
@@ -324,7 +266,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                     <span>
                       <span className="font-bold text-wefin-text">{msg.replyTo.sender}</span>
                       <span className="text-wefin-subtle">
-                        {' · '}
+                        {' 답장 '}
                         {msg.replyTo.content}
                       </span>
                     </span>
@@ -398,7 +340,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
               type="button"
               onClick={() => setIsVoteModalOpen(true)}
               disabled={!groupId}
-              aria-label="Open vote modal"
+              aria-label="투표 만들기"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-mint transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ListChecks size={17} />
@@ -416,27 +358,18 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
       </div>
 
       <CreateVoteModal open={isVoteModalOpen} onOpenChange={setIsVoteModalOpen} groupId={groupId} />
-      <VoteDetailModal
-        open={selectedVoteId != null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedVoteId(null)
-          }
-        }}
-        voteId={selectedVoteId}
-      />
     </>
   )
 }
 
 function ReplyButton({ onClick }: { onClick: () => void }) {
-  // hover 환경에선 평소 숨기고 메시지 hover/focus 시 노출
-  // 터치(hover 미지원) 환경에선 항상 노출 — pointer:fine 미디어 쿼리로 분기
+  // hover ?섍꼍?먯꽑 ?됱냼 ?④린怨?硫붿떆吏 hover/focus ???몄텧
+  // ?곗튂(hover 誘몄??? ?섍꼍?먯꽑 ??긽 ?몄텧 ??pointer:fine 誘몃뵒??荑쇰━濡?遺꾧린
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="답장"
+      aria-label="?듭옣"
       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-wefin-subtle transition-opacity hover:bg-wefin-bg hover:text-wefin-mint-deep focus-visible:opacity-100 group-hover/msg:opacity-100 [@media(pointer:fine)]:opacity-0"
     >
       <MessageSquareReply size={16} />
