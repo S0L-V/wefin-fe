@@ -66,7 +66,7 @@ export default function QuantityInput({
           type="button"
           onClick={() => {
             const n = Number(value || 0)
-            const next = Math.max(0, n - 1)
+            const next = Math.max(1, n - 1)
             onChange(String(next))
           }}
           disabled={disabled}

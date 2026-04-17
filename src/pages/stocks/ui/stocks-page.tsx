@@ -8,7 +8,7 @@ import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
 function StocksPage() {
   const [searchOpen, setSearchOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<RankingTab>('volume')
+  const [activeTab, setActiveTab] = useState<RankingTab>('amount')
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

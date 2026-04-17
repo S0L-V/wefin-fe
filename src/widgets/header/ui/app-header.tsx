@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { type MouseEvent, useCallback, useEffect, useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { type MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
@@ -27,10 +27,37 @@ function getAuthUser(): AuthUser {
 
 function AppHeader() {
   const [authUser, setAuthUser] = useState<AuthUser>(() => getAuthUser())
+  const [scrolled, setScrolled] = useState(false)
   const guardActive = useLeaveGuardStore((s) => s.active)
   const requestLeave = useLeaveGuardStore((s) => s.requestLeave)
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
+  const navRef = useRef<HTMLElement>(null)
+  const indicatorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const isNavActive = (to: string, end?: boolean) =>
+    end ? location.pathname === to : location.pathname.startsWith(to)
+
+  useEffect(() => {
+    if (!navRef.current || !indicatorRef.current) return
+    const activeLink = navRef.current.querySelector<HTMLElement>('[data-active="true"]')
+    if (activeLink) {
+      const navRect = navRef.current.getBoundingClientRect()
+      const linkRect = activeLink.getBoundingClientRect()
+      indicatorRef.current.style.width = `${linkRect.width}px`
+      indicatorRef.current.style.transform = `translateX(${linkRect.left - navRect.left}px)`
+      indicatorRef.current.style.opacity = '1'
+    } else {
+      indicatorRef.current.style.opacity = '0'
+    }
+  }, [location.pathname])
 
   const handleNavClick = useCallback(
     (e: MouseEvent, to: string) => {
@@ -68,19 +95,33 @@ function AppHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-20 bg-white/70 shadow-[0_4px_24px_-8px_rgba(36,168,171,0.25)] backdrop-blur-xl backdrop-saturate-150 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-wefin-mint/50 after:to-transparent">
-      <div className="flex h-16 w-full items-center justify-between gap-6 px-6">
+    <header
+      className={`sticky top-0 z-20 bg-white/80 backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 ${
+        scrolled ? 'shadow-[0_1px_3px_rgba(0,0,0,0.06)]' : 'shadow-none'
+      }`}
+    >
+      <div
+        className={`flex w-full items-center justify-between gap-6 px-6 transition-all duration-300 ${
+          scrolled ? 'h-12' : 'h-16'
+        }`}
+      >
         <div className="flex min-w-0 items-center gap-10">
           <NavLink
             to={routes.home}
             onClick={(e) => handleNavClick(e, routes.home)}
-            className="text-[32px] font-extrabold tracking-tight text-wefin-mint transition-colors hover:text-wefin-mint-deep"
+            className={`font-extrabold tracking-tight text-wefin-mint-deep transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(36,168,171,0.35),0_0_40px_rgba(36,168,171,0.15)] ${
+              scrolled ? 'text-[26px]' : 'text-[32px]'
+            }`}
             aria-label="wefin 홈"
           >
             wefin
           </NavLink>
 
-          <nav className="flex items-center gap-1" aria-label="Primary">
+          <nav ref={navRef} className="relative flex items-center gap-1" aria-label="Primary">
+            <div
+              ref={indicatorRef}
+              className="absolute bottom-0 h-[2px] rounded-full bg-wefin-mint-deep opacity-0 transition-all duration-300"
+            />
             {navigationItems.map(({ to, label, end }) => (
               <NavLink
                 key={to}
@@ -89,12 +130,11 @@ function AppHeader() {
                 onClick={(e) => handleNavClick(e, to)}
                 className={({ isActive }) =>
                   [
-                    'inline-flex h-10 items-center rounded-lg px-4 text-base font-bold whitespace-nowrap transition-colors',
-                    isActive
-                      ? 'text-wefin-mint-deep'
-                      : 'text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
+                    'inline-flex h-10 items-center px-4 text-base font-bold whitespace-nowrap transition-colors',
+                    isActive ? 'text-wefin-mint-deep' : 'text-wefin-subtle hover:text-wefin-text'
                   ].join(' ')
                 }
+                {...(isNavActive(to, end) ? { 'data-active': 'true' } : {})}
               >
                 {label}
               </NavLink>

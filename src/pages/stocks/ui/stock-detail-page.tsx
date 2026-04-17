@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { useAccountQuery, useBuyingPowerQuery } from '@/features/account/model/use-account-queries'
+import type { OrderHistoryResponse } from '@/features/order/api/fetch-order'
 import OrderForm from '@/features/order/ui/order-form'
+import PendingOrdersPanel from '@/features/order/ui/pending-orders-panel'
 import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
 import HoldingsPanel from '@/features/portfolio/ui/holdings-panel'
 import { useStockPriceQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
@@ -27,6 +29,18 @@ function StockDetailPage() {
   const [chartH, setChartH] = useState(360)
   const chartColumnRef = useRef<HTMLDivElement>(null)
   const [priceFromOrderbook, setPriceFromOrderbook] = useState<number | null>(null)
+  const [modifyTarget, setModifyTarget] = useState<{
+    order: OrderHistoryResponse
+    ts: number
+  } | null>(null)
+  const [prevCode, setPrevCode] = useState(code)
+  if (code !== prevCode) {
+    setPrevCode(code)
+    setModifyTarget(null)
+  }
+  const handleModify = useCallback((order: OrderHistoryResponse) => {
+    setModifyTarget({ order, ts: Date.now() })
+  }, [])
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
 
@@ -141,6 +155,7 @@ function StockDetailPage() {
           >
             <div className="rounded-xl border border-wefin-line bg-white">
               <OrderForm
+                key={`${code}-${modifyTarget?.ts ?? 0}`}
                 stockCode={code}
                 currentPrice={price?.currentPrice ?? 0}
                 accountState={{
@@ -151,18 +166,29 @@ function StockDetailPage() {
                   portfolio?.find((item) => item.stockCode === code)?.quantity ?? null
                 }
                 priceFromOrderbook={priceFromOrderbook}
+                modifyTarget={modifyTarget?.order ?? null}
               />
             </div>
-            <div className="rounded-xl border border-wefin-line bg-white">
-              <HoldingsPanel
-                currentStockCode={code}
-                portfolio={portfolio}
-                isLoading={isPortfolioLoading}
-              />
+            <div className="flex min-h-0 flex-1 flex-col gap-2">
+              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-white">
+                <div className="flex w-full flex-col overflow-y-auto">
+                  <HoldingsPanel
+                    currentStockCode={code}
+                    portfolio={portfolio}
+                    isLoading={isPortfolioLoading}
+                    balance={account?.balance}
+                  />
+                </div>
+              </div>
+              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-white">
+                <div className="flex w-full flex-col overflow-y-auto">
+                  <PendingOrdersPanel currentStockCode={code} onModify={handleModify} />
+                </div>
+              </div>
             </div>
             <Link
               to={routes.accountTab('order-history')}
-              className="block rounded-xl border border-wefin-line bg-white px-3 py-2.5 text-center text-xs text-wefin-subtle transition-colors hover:bg-wefin-bg"
+              className="block shrink-0 rounded-xl border border-wefin-line bg-white px-3 py-2.5 text-center text-xs text-wefin-subtle transition-colors hover:bg-wefin-bg"
             >
               주문내역 보기 →
             </Link>

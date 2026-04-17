@@ -91,9 +91,12 @@ export function formatSeoulDate(date: Date): string {
   return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(date)
 }
 
-function getDefaultDateRange(periodCode: string): { start: string; end: string } {
-  const end = new Date()
-  const start = new Date()
+export function getDateRangeForPeriod(
+  periodCode: string,
+  baseDate: Date = new Date()
+): { start: string; end: string } {
+  const end = new Date(baseDate)
+  const start = new Date(baseDate)
 
   switch (periodCode) {
     case '1':
@@ -107,10 +110,10 @@ function getDefaultDateRange(periodCode: string): { start: string; end: string }
       start.setFullYear(end.getFullYear() - 1)
       break
     case 'W':
-      start.setFullYear(end.getFullYear() - 1)
+      start.setFullYear(end.getFullYear() - 3)
       break
     case 'M':
-      start.setFullYear(end.getFullYear() - 3)
+      start.setFullYear(end.getFullYear() - 10)
       break
     default:
       start.setMonth(end.getMonth() - 3)
@@ -120,7 +123,7 @@ function getDefaultDateRange(periodCode: string): { start: string; end: string }
 }
 
 export async function fetchCandles(code: string, periodCode: string = 'D'): Promise<CandleData[]> {
-  const { start, end } = getDefaultDateRange(periodCode)
+  const { start, end } = getDateRangeForPeriod(periodCode)
   const response = await baseApi.get(`/stocks/${code}/candles`, {
     params: { periodCode, start, end }
   })

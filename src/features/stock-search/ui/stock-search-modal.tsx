@@ -72,7 +72,7 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="종목명, 코드, 분야를 검색하세요"
+            placeholder="종목명 또는 코드를 검색하세요"
             className="flex-1 text-sm outline-none placeholder:text-wefin-subtle"
           />
           <button
@@ -111,9 +111,6 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
                       <p className="text-sm font-medium text-wefin-text">{stock.stockName}</p>
                       <p className="text-xs text-wefin-subtle">{stock.stockCode}</p>
                     </div>
-                    {stock.sector && (
-                      <span className="text-xs text-wefin-subtle">{stock.sector}</span>
-                    )}
                   </button>
                 </li>
               ))}

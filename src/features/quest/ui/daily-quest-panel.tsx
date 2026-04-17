@@ -1,4 +1,5 @@
-import { CheckCircle2, Circle, Gift } from 'lucide-react'
+import { CheckCircle2, ChevronLeft, ChevronRight, Circle, Gift } from 'lucide-react'
+import { useRef, useState } from 'react'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
@@ -10,31 +11,16 @@ import {
   useTodayQuests
 } from '../model/use-today-quests'
 
-function getQuestProgressPercent(progress: number, targetValue: number) {
-  if (targetValue <= 0) {
-    return 0
-  }
-
-  return Math.min(100, Math.round((progress / targetValue) * 100))
+function getProgressPercent(progress: number, target: number) {
+  if (target <= 0) return 0
+  return Math.min(100, Math.round((progress / target) * 100))
 }
 
-function getQuestStatusLabel(quest: Quest) {
+function getStatusLabel(quest: Quest) {
   if (quest.status === 'REWARDED') return '수령 완료'
   if (quest.status === 'COMPLETED') return '보상 받기'
   if (quest.status === 'IN_PROGRESS') return '진행 중'
   return '시작 전'
-}
-
-function getQuestTone(quest: Quest) {
-  if (quest.status === 'REWARDED') {
-    return 'border-[#b7ebe7] bg-[#f2fbfa]'
-  }
-
-  if (quest.status === 'COMPLETED') {
-    return 'border-[#7ed8cf] bg-[linear-gradient(180deg,#f7fffe_0%,#ecfbf9_100%)]'
-  }
-
-  return 'border-gray-200 bg-white'
 }
 
 export default function DailyQuestPanel() {
@@ -42,6 +28,28 @@ export default function DailyQuestPanel() {
   const openLogin = useLoginDialogStore((state) => state.openLogin)
   const { data, isLoading, isError, error, refetch } = useTodayQuests(userId)
   const claimReward = useClaimQuestReward(userId)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const quests = data?.quests ?? []
+
+  const scrollTo = (index: number) => {
+    const container = scrollRef.current
+    if (!container) return
+    const card = container.children[index] as HTMLElement | undefined
+    if (card) {
+      container.scrollTo({ left: card.offsetLeft, behavior: 'smooth' })
+      setActiveIndex(index)
+    }
+  }
+
+  const handleScroll = () => {
+    const container = scrollRef.current
+    if (!container || quests.length === 0) return
+    const scrollLeft = container.scrollLeft
+    const cardWidth = container.scrollWidth / quests.length
+    setActiveIndex(Math.round(scrollLeft / cardWidth))
+  }
 
   if (!userId) {
     return (
@@ -53,9 +61,6 @@ export default function DailyQuestPanel() {
           <div className="rounded-xl border border-dashed border-wefin-line bg-wefin-bg p-4 text-center">
             <p className="text-sm font-semibold text-wefin-text">
               로그인 후 오늘의 퀘스트를 확인할 수 있어요
-            </p>
-            <p className="mt-1 text-xs text-wefin-subtle">
-              매일 새로운 퀘스트를 완료하고 보상을 받아보세요
             </p>
             <button
               type="button"
@@ -72,114 +77,138 @@ export default function DailyQuestPanel() {
 
   return (
     <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-      <div className="flex h-11 items-center border-b border-wefin-line px-3">
+      <div className="flex h-11 items-center justify-between border-b border-wefin-line px-3">
         <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
+        {quests.length > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => scrollTo(Math.max(0, activeIndex - 1))}
+              disabled={activeIndex === 0}
+              className="flex h-6 w-6 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg disabled:opacity-30"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTo(Math.min(quests.length - 1, activeIndex + 1))}
+              disabled={activeIndex === quests.length - 1}
+              className="flex h-6 w-6 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg disabled:opacity-30"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="h-[180px] overflow-y-auto p-3 scrollbar-thin">
+      <div className="p-3">
         {isLoading && (
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className="animate-pulse rounded-2xl border border-gray-200 bg-white p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="h-5 w-36 rounded bg-gray-200" />
-                  <div className="h-7 w-20 rounded-full bg-gray-200" />
-                </div>
-                <div className="mt-3 h-4 w-full rounded bg-gray-100" />
-                <div className="mt-2 h-2 w-full rounded-full bg-gray-100" />
-              </div>
-            ))}
+          <div className="animate-pulse rounded-xl border border-gray-200 bg-white p-4">
+            <div className="h-5 w-36 rounded bg-gray-200" />
+            <div className="mt-3 h-2 w-full rounded-full bg-gray-100" />
           </div>
         )}
 
         {isError && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-5 text-sm text-amber-900">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-center text-sm text-amber-900">
             <p>{getQuestErrorMessage(error)}</p>
             <button
               type="button"
               onClick={() => {
                 void refetch()
               }}
-              className="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-amber-900 transition hover:bg-amber-100"
+              className="mt-2 text-xs font-semibold text-amber-700 underline"
             >
               다시 불러오기
             </button>
           </div>
         )}
 
-        {!isLoading && !isError && (
-          <div className="space-y-3">
-            {data?.quests.map((quest) => {
-              const progressPercent = getQuestProgressPercent(quest.progress, quest.targetValue)
-              const isRewardable = quest.status === 'COMPLETED'
-              const isRewarded = quest.status === 'REWARDED'
+        {!isLoading && !isError && quests.length > 0 && (
+          <>
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="flex snap-x snap-mandatory gap-3 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
+              {quests.map((quest) => {
+                const percent = getProgressPercent(quest.progress, quest.targetValue)
+                const isRewardable = quest.status === 'COMPLETED'
+                const isRewarded = quest.status === 'REWARDED'
 
-              return (
-                <article
-                  key={quest.questId}
-                  className={`rounded-2xl border p-4 transition ${getQuestTone(quest)}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 text-[#2a8282]">
-                      {isRewarded ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+                return (
+                  <div
+                    key={quest.questId}
+                    className="w-full shrink-0 snap-center rounded-xl border border-wefin-line p-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="text-wefin-mint-deep">
+                          {isRewarded ? <CheckCircle2 size={18} /> : <Circle size={18} />}
+                        </div>
+                        <span className="text-sm font-bold text-wefin-text">{quest.title}</span>
+                      </div>
+                      <span className="rounded-full bg-wefin-mint-soft px-2 py-0.5 text-xs font-bold text-wefin-mint-deep">
+                        {quest.reward.toLocaleString()}원
+                      </span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h4 className="text-base font-bold text-gray-900">{quest.title}</h4>
-                        </div>
-                        <div className="shrink-0 rounded-full bg-[#f4fbfa] px-3 py-1 text-sm font-bold text-[#2a8282]">
-                          {quest.reward} C
-                        </div>
-                      </div>
 
-                      <div className="mt-3">
-                        <div className="mb-2 flex items-center justify-between text-xs font-medium text-gray-500">
-                          <span>{getQuestStatusLabel(quest)}</span>
-                          <span>
-                            {quest.progress} / {quest.targetValue}
-                          </span>
-                        </div>
-                        <div className="h-2 rounded-full bg-[#edf4f4]">
-                          <div
-                            className="h-full rounded-full bg-[linear-gradient(90deg,#3db9b9_0%,#7fd9cf_100%)] transition-all"
-                            style={{ width: `${progressPercent}%` }}
-                          />
-                        </div>
+                    <div className="mt-3">
+                      <div className="mb-1.5 flex items-center justify-between text-xs">
+                        <span className="font-medium text-wefin-subtle">
+                          {getStatusLabel(quest)}
+                        </span>
+                        <span className="tabular-nums text-wefin-subtle">
+                          {quest.progress}/{quest.targetValue}
+                        </span>
                       </div>
+                      <div className="h-1.5 rounded-full bg-gray-100">
+                        <div
+                          className="h-full rounded-full bg-wefin-mint transition-all"
+                          style={{ width: `${percent}%` }}
+                        />
+                      </div>
+                    </div>
 
-                      <div className="mt-4 flex justify-end">
+                    <div className="mt-3">
+                      {isRewarded ? (
+                        <div className="flex items-center justify-center gap-1.5 rounded-lg bg-wefin-mint-soft py-1.5 text-xs font-bold text-wefin-mint-deep">
+                          <CheckCircle2 size={13} />
+                          보상 수령 완료
+                        </div>
+                      ) : isRewardable ? (
                         <button
                           type="button"
-                          disabled={!isRewardable || claimReward.isPending}
-                          onClick={() => {
-                            if (!isRewardable) {
-                              return
-                            }
-
-                            claimReward.mutate(quest.questId)
-                          }}
-                          className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
-                            isRewarded
-                              ? 'bg-[#edf7f6] text-[#6e9e99]'
-                              : isRewardable
-                                ? 'bg-[#3db9b9] text-white hover:bg-[#2a8282]'
-                                : 'bg-gray-100 text-gray-400'
-                          } ${claimReward.isPending ? 'cursor-not-allowed opacity-70' : ''}`}
+                          disabled={claimReward.isPending}
+                          onClick={() => claimReward.mutate(quest.questId)}
+                          className={`flex w-full items-center justify-center gap-1.5 rounded-lg bg-wefin-mint py-1.5 text-xs font-bold text-white transition hover:bg-wefin-mint-deep ${claimReward.isPending ? 'opacity-50' : ''}`}
                         >
-                          <Gift size={15} />
-                          {isRewarded ? '수령 완료' : isRewardable ? '보상 받기' : '진행 중'}
+                          <Gift size={13} />
+                          보상 받기
                         </button>
-                      </div>
+                      ) : null}
                     </div>
                   </div>
-                </article>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+
+            {quests.length > 1 && (
+              <div className="mt-2 flex justify-center gap-1.5">
+                {quests.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => scrollTo(i)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      i === activeIndex ? 'w-4 bg-wefin-mint' : 'w-1.5 bg-gray-200'
+                    }`}
+                    aria-label={`퀘스트 ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

@@ -38,9 +38,6 @@ function SettingsView() {
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-[180px_minmax(0,1fr)] gap-4 pt-12">
       <aside className="sticky top-20 self-start">
-        <div className="mb-7 text-[11px] font-bold uppercase tracking-widest text-wefin-subtle">
-          Settings
-        </div>
         <nav className="flex flex-col">
           {SIDEBAR_ITEMS.map((item) => {
             const isActive = active === item.id
@@ -49,10 +46,10 @@ function SettingsView() {
                 key={item.id}
                 type="button"
                 onClick={() => setActive(item.id)}
-                className={`relative px-3 py-3 text-left text-base transition-colors ${
+                className={`relative origin-left px-3 py-3 text-left transition-all ${
                   isActive
-                    ? 'font-bold text-wefin-mint-deep'
-                    : 'font-medium text-wefin-subtle hover:text-wefin-text'
+                    ? 'text-lg font-bold text-wefin-mint-deep'
+                    : 'text-base font-medium text-wefin-subtle hover:scale-105 hover:text-wefin-text'
                 }`}
               >
                 {isActive && (

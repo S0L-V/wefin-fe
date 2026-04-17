@@ -1,41 +1,55 @@
-import { Trophy } from 'lucide-react'
-
 import type { RankingItem } from '../api/fetch-user-ranking'
 
 interface RankingRowProps {
   item: RankingItem
 }
 
-const TROPHY_COLOR: Record<number, string> = {
-  1: 'text-amber-500',
-  2: 'text-slate-400',
-  3: 'text-orange-700'
-}
-
 export default function RankingRow({ item }: RankingRowProps) {
   const profit = Math.trunc(item.realizedProfit ?? 0)
   const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-600'
-  const trophyColor = TROPHY_COLOR[item.rank]
+  const isFirst = item.rank === 1
+
+  if (isFirst) {
+    return (
+      <div className="mb-2 rounded-xl bg-gradient-to-r from-[#0a2e2f] to-[#143d3e] px-4 py-4 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl font-extrabold tabular-nums tracking-tight text-white/80">
+              01
+            </span>
+            <div>
+              <p className="text-base font-bold">{item.nickname ?? '-'}</p>
+              <p className="text-xs text-white/45">{item.tradeCount}회 거래</p>
+            </div>
+          </div>
+          <span className="text-lg font-bold tabular-nums text-emerald-300">
+            {profit >= 0 ? '+' : ''}
+            {profit.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  const isTop3 = item.rank <= 3
 
   return (
-    <div className="flex items-center gap-3 py-3 text-sm">
-      <span className="flex w-10 items-center gap-1 font-semibold text-wefin-text">
-        {trophyColor && <Trophy className={`h-3.5 w-3.5 ${trophyColor}`} />}
-        {item.rank}
+    <div className={`flex items-center py-2 ${isTop3 ? '' : ''}`}>
+      <span
+        className={`w-7 text-center tabular-nums ${isTop3 ? 'text-sm font-bold text-wefin-mint-deep' : 'text-xs font-bold text-wefin-text/25'}`}
+      >
+        {String(item.rank).padStart(2, '0')}
       </span>
       <span
-        className="w-28 overflow-hidden whitespace-nowrap text-wefin-text"
-        style={{
-          maskImage: 'linear-gradient(to right, black 80%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, black 80%, transparent)'
-        }}
+        className={`min-w-0 flex-1 truncate ${isTop3 ? 'text-sm font-semibold text-wefin-text' : 'text-xs text-wefin-text'}`}
       >
         {item.nickname ?? '-'}
       </span>
-      <span className="w-14 text-right text-xs text-wefin-subtle">{item.tradeCount}회</span>
-      <span className={`flex-1 text-right font-medium ${profitColor}`}>
+      <span
+        className={`shrink-0 tabular-nums ${isTop3 ? 'text-sm font-semibold' : 'text-xs'} ${profitColor}`}
+      >
         {profit >= 0 ? '+' : ''}
-        {profit.toLocaleString()}원
+        {profit.toLocaleString()}
       </span>
     </div>
   )

@@ -6,17 +6,18 @@ import {
   HistogramSeries,
   type IChartApi,
   type ISeriesApi,
+  LineSeries,
   type Time
 } from 'lightweight-charts'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { CandleData } from '@/features/stock-detail/api/fetch-stock-detail'
 import {
-  fetchCandles,
   fetchCandlesByRange,
-  formatSeoulDate
+  getDateRangeForPeriod
 } from '@/features/stock-detail/api/fetch-stock-detail'
 import type { CandleMessage } from '@/features/stock-detail/api/stock-socket-messages'
+import { useCandlesQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
 import { useStockPriceQuery } from '@/features/stock-detail/model/use-stock-detail-queries'
 
 interface StockChartProps {
@@ -43,6 +44,27 @@ const datePeriods: PeriodTab[] = [
 const TOOLBAR_HEIGHT = 32
 const MINUTE_PERIODS = new Set(['1', '5', '15', '30', '60'])
 
+const MA_CONFIGS = [
+  { period: 5, color: '#f59e0b' },
+  { period: 20, color: '#3b82f6' },
+  { period: 60, color: '#a855f7' }
+] as const
+
+function calcMA(
+  candles: { time: Time; close: number }[],
+  period: number
+): { time: Time; value: number }[] {
+  const result: { time: Time; value: number }[] = []
+  for (let i = period - 1; i < candles.length; i++) {
+    let sum = 0
+    for (let j = i - period + 1; j <= i; j++) {
+      sum += candles[j].close
+    }
+    result.push({ time: candles[i].time, value: Math.trunc(sum / period) })
+  }
+  return result
+}
+
 /** 분봉이면 Unix timestamp (KST 보정), 일봉이면 "YYYY-MM-DD" 문자열 반환 */
 function toChartTime(date: string, periodCode: string): Time {
   if (MINUTE_PERIODS.has(periodCode)) {
@@ -63,8 +85,8 @@ interface OhlcInfo {
 
 export default function StockChart({ code, height = 340 }: StockChartProps) {
   const [periodCode, setPeriodCode] = useState('D')
-  const [allCandles, setAllCandles] = useState<CandleData[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [extraCandles, setExtraCandles] = useState<CandleData[]>([])
+  const { data: initialCandles, isLoading } = useCandlesQuery(code, periodCode)
   const [ohlc, setOhlc] = useState<OhlcInfo | null>(null)
   const { data: price } = useStockPriceQuery(code)
   const { data: latestCandle } = useQuery<CandleMessage>({
@@ -77,6 +99,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
+  const maSeriesRefs = useRef<ISeriesApi<'Line'>[]>([])
   const loadingMore = useRef(false)
   const oldestDate = useRef<string | null>(null)
   const hasMoreData = useRef(true)
@@ -94,30 +117,26 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   const prevTotalVolume = useRef<number>(0)
   const isInitialLoad = useRef(true)
 
-  // 초기 데이터 로딩
-  const loadInitialData = useCallback(async () => {
-    const currentRequestId = ++requestId.current
-    isInitialLoad.current = true
-    setIsLoading(true)
-    setAllCandles([])
-    oldestDate.current = null
+  const allCandles = useMemo(() => {
+    const base = initialCandles ?? []
+    if (extraCandles.length === 0) return base
+    const existingDates = new Set(base.map((c) => c.date))
+    const unique = extraCandles.filter((c) => !existingDates.has(c.date))
+    return [...unique, ...base].sort((a, b) => a.date.localeCompare(b.date))
+  }, [initialCandles, extraCandles])
+
+  useEffect(() => {
+    if (allCandles.length > 0) {
+      oldestDate.current = allCandles[0].date
+      isInitialLoad.current = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialCandles])
+
+  useEffect(() => {
+    setExtraCandles([])
     hasMoreData.current = true
     liveCandle.current = null
-    try {
-      const data = await fetchCandles(code, periodCode)
-      if (currentRequestId !== requestId.current) return
-      const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date))
-      setAllCandles(sorted)
-      if (sorted.length > 0) {
-        oldestDate.current = sorted[0].date
-      }
-    } catch {
-      // 에러 시 빈 상태 유지
-    } finally {
-      if (currentRequestId === requestId.current) {
-        setIsLoading(false)
-      }
-    }
   }, [code, periodCode])
 
   // 과거 데이터 추가 로딩
@@ -130,34 +149,9 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       // YYYY-MM-DD 문자열을 로컬 날짜로 파싱 (UTC 해석 방지)
       const [year, month, day] = oldestDate.current.split('-').map(Number)
       const endDate = new Date(year, month - 1, day - 1)
-      const startDate = new Date(endDate)
+      const { start, end } = getDateRangeForPeriod(periodCode, endDate)
 
-      // periodCode에 따라 추가 로딩 범위 결정
-      switch (periodCode) {
-        case '1':
-        case '5':
-        case '15':
-        case '30':
-        case '60':
-          startDate.setDate(endDate.getDate() - 7)
-          break
-        case 'D':
-          startDate.setFullYear(endDate.getFullYear() - 1)
-          break
-        case 'W':
-          startDate.setFullYear(endDate.getFullYear() - 1)
-          break
-        case 'M':
-          startDate.setFullYear(endDate.getFullYear() - 3)
-          break
-      }
-
-      const newData = await fetchCandlesByRange(
-        code,
-        periodCode,
-        formatSeoulDate(startDate),
-        formatSeoulDate(endDate)
-      )
+      const newData = await fetchCandlesByRange(code, periodCode, start, end)
 
       if (currentRequestId !== requestId.current) return
 
@@ -169,7 +163,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       const sorted = [...newData].sort((a, b) => a.date.localeCompare(b.date))
       oldestDate.current = sorted[0].date
 
-      setAllCandles((prev) => {
+      setExtraCandles((prev) => {
         const existingDates = new Set(prev.map((c) => c.date))
         const unique = sorted.filter((c) => !existingDates.has(c.date))
         return [...unique, ...prev]
@@ -185,11 +179,6 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   useEffect(() => {
     loadMoreRef.current = loadMoreData
   }, [loadMoreData])
-
-  // periodCode나 code 변경 시 초기 로딩
-  useEffect(() => {
-    loadInitialData()
-  }, [loadInitialData])
 
   // 차트 초기화 (한 번만)
   useEffect(() => {
@@ -214,6 +203,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
         timeVisible: true,
         secondsVisible: false,
         rightOffset: 5,
+        fixLeftEdge: true,
         fixRightEdge: true
       },
       rightPriceScale: { borderColor: '#e0e0e0' }
@@ -237,6 +227,16 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     chart.priceScale('volume').applyOptions({
       scaleMargins: { top: 0.85, bottom: 0 }
     })
+
+    maSeriesRefs.current = MA_CONFIGS.map(({ color }) =>
+      chart.addSeries(LineSeries, {
+        color,
+        lineWidth: 1,
+        priceLineVisible: false,
+        lastValueVisible: false,
+        crosshairMarkerVisible: false
+      })
+    )
 
     // 왼쪽 끝 도달 감지
     chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
@@ -331,6 +331,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     if (allCandles.length === 0) {
       candleSeriesRef.current.setData([])
       volumeSeriesRef.current.setData([])
+      maSeriesRefs.current.forEach((s) => s.setData([]))
       return
     }
 
@@ -360,16 +361,31 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
     try {
       candleSeriesRef.current.setData(candleData)
       volumeSeriesRef.current.setData(volumeData)
+
+      const closeData = candleData.map((c) => ({ time: c.time, close: c.close }))
+      MA_CONFIGS.forEach(({ period }, i) => {
+        const maSeries = maSeriesRefs.current[i]
+        if (maSeries) {
+          maSeries.setData(calcMA(closeData, period))
+        }
+      })
     } catch {
       // 시간 순서 충돌 시 무시
     }
 
-    // 최초 로딩 직후엔 레이아웃이 안정된 다음 프레임에 fitContent 재호출
-    // (컨테이너 너비 0으로 초기화되는 케이스 대응)
     if (candleData.length > 0 && isInitialLoad.current) {
-      const fit = () => chartRef.current?.timeScale().fitContent()
-      fit()
-      requestAnimationFrame(fit)
+      const showRecent = () => {
+        if (!chartRef.current) return
+        if (MINUTE_PERIODS.has(periodCode)) {
+          const visibleCount = Math.min(60, candleData.length)
+          const from = candleData.length - visibleCount
+          chartRef.current.timeScale().setVisibleLogicalRange({ from, to: candleData.length - 1 })
+        } else {
+          chartRef.current.timeScale().fitContent()
+        }
+      }
+      showRecent()
+      requestAnimationFrame(showRecent)
       isInitialLoad.current = false
     }
   }, [allCandles, periodCode])
@@ -533,9 +549,17 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
             </span>
           </div>
         )}
+        <div className="absolute top-8 left-2 z-[5] flex gap-3 text-[10px] font-medium">
+          {MA_CONFIGS.map(({ period, color }) => (
+            <span key={period} style={{ color }}>
+              MA{period}
+            </span>
+          ))}
+        </div>
         {isLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-            <span className="text-xs text-wefin-subtle">로딩 중...</span>
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-wefin-mint border-t-transparent" />
+            <span className="text-xs text-wefin-subtle">차트 불러오는 중...</span>
           </div>
         )}
         <div ref={chartContainerRef} />

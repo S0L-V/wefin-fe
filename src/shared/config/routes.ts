@@ -22,6 +22,6 @@ type NavigationItem = {
 
 export const navigationItems: NavigationItem[] = [
   { to: routes.home, label: '홈', end: true },
-  { to: routes.stocks, label: '실시간 주식' },
-  { to: routes.history, label: '과거 기반' }
+  { to: routes.stocks, label: '실시간 투자' },
+  { to: routes.history, label: '타임머신 투자' }
 ]
