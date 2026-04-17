@@ -18,10 +18,9 @@ export default function InterestSectorsPanel() {
   const registeredCodes = new Set(interests.map((i) => i.code))
   const isLimitReached = interests.length >= MAX_SECTOR_INTERESTS
 
-  function handleAddSector(code: string) {
-    // 서버 제한과 동일한 상한선을 클라이언트에서 선제 차단 — 쓸모없는 실패 요청을 예방한다
+  function handleAddSector(code: string, name: string) {
     if (isLimitReached) return
-    addMutation.mutate(code)
+    addMutation.mutate({ code, name })
   }
 
   return (
@@ -70,7 +69,7 @@ export default function InterestSectorsPanel() {
                   <button
                     type="button"
                     disabled={registered || isLimitReached || addMutation.isPending}
-                    onClick={() => handleAddSector(tag.code)}
+                    onClick={() => handleAddSector(tag.code, tag.name)}
                     className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors ${
                       registered
                         ? 'border-gray-200 bg-gray-50 text-gray-400'

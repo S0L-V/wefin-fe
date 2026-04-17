@@ -67,7 +67,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
     if (isSectorRegistered) {
       deleteSectorMutation.mutate(relatedSector.code)
     } else {
-      addSectorMutation.mutate(relatedSector.code)
+      addSectorMutation.mutate({ code: relatedSector.code, name: relatedSector.name })
     }
   }
 
