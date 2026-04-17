@@ -390,7 +390,7 @@ function ChangeBadge({ rate }: { rate: number | null }) {
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${colorClass}`}>
       {sign}
-      {rate.toFixed(0)}%
+      {Math.abs(rate) < 1 && rate !== 0 ? rate.toFixed(1) : rate.toFixed(0)}%
     </span>
   )
 }
@@ -424,9 +424,10 @@ function TrendBars({
   colors: string[] // 연한 → 진한 (길이 === periods.length)
   unit: Unit
 }) {
-  const values = periods.map((p) => p.value).filter((v): v is number => v !== null && v > 0)
+  const values = periods.map((p) => p.value).filter((v): v is number => v !== null && v !== 0)
   if (values.length === 0) return null
-  const max = Math.max(...values)
+  const absValues = values.map(Math.abs)
+  const max = Math.max(...absValues)
 
   const latest = periods[periods.length - 1].value
   const prev = periods[periods.length - 2]?.value ?? null
@@ -437,7 +438,8 @@ function TrendBars({
       <h4 className="mb-2 text-xs font-semibold text-wefin-fg">{title}</h4>
       <div className="flex flex-col gap-1.5">
         {periods.map((p, i) => {
-          const ratio = p.value !== null && p.value > 0 ? Math.max(2, (p.value / max) * 100) : 0
+          const ratio =
+            p.value !== null && p.value !== 0 ? Math.max(2, (Math.abs(p.value) / max) * 100) : 0
           const isLatest = i === periods.length - 1
           return (
             <div key={i} className="flex items-center gap-2 text-xs">
