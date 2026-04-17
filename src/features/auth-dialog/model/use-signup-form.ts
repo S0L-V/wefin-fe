@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type ChangeEvent, type FormEvent, useState } from 'react'
 
 import { ApiError, baseApi } from '@/shared/api/base-api'
 
@@ -10,6 +10,10 @@ import {
   validateSignupField,
   validateSignupForm
 } from './signup.schema'
+import {
+  useConfirmEmailVerificationMutation,
+  useSendEmailVerificationMutation
+} from './use-email-verification-mutation'
 import { useSignupMutation } from './use-signup-mutation'
 
 type UseSignupFormParams = {
@@ -17,32 +21,25 @@ type UseSignupFormParams = {
 }
 
 export function useSignupForm({ onSuccess }: UseSignupFormParams) {
-  // 폼 입력값 상태
   const [formData, setFormData] = useState<SignupFormData>(initialSignupFormData)
-
-  // 필드별 에러 메시지 상태
   const [fieldErrors, setFieldErrors] = useState<SignupFieldErrors>({})
-
-  // 사용자가 한 번이라도 건드린 필드 여부
   const [touchedFields, setTouchedFields] = useState<Partial<Record<SignupFieldName, boolean>>>({})
-
-  // 이메일 인증 여부
   const [isEmailVerified, setIsEmailVerified] = useState(false)
-
-  // 공통 에러 메시지
+  const [isCodeSent, setIsCodeSent] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verificationCodeError, setVerificationCodeError] = useState('')
   const [error, setError] = useState('')
-
-  // 회원가입 요청 로딩 상태
   const [loading, setLoading] = useState(false)
 
-  // 이메일 인증 버튼 로딩 상태
-  const [isVerifying, setIsVerifying] = useState(false)
+  const { mutateAsync: signupMutateAsync } = useSignupMutation()
+  const { mutateAsync: sendEmailVerificationMutateAsync, isPending: isSendingCode } =
+    useSendEmailVerificationMutation()
+  const { mutateAsync: confirmEmailVerificationMutateAsync, isPending: isConfirmingCode } =
+    useConfirmEmailVerificationMutation()
 
-  // 회원가입 mutation
-  const { mutateAsync } = useSignupMutation()
+  const isVerifying = isSendingCode || isConfirmingCode
 
-  // 입력값 변경 시 상태 갱신 및 실시간 검증
-  const handleChange = (field: SignupFieldName) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (field: SignupFieldName) => (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
     setFormData((prev) => {
@@ -51,22 +48,22 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         [field]: value
       }
 
-      // 이메일이 바뀌면 기존 인증 상태 초기화
       if (field === 'email') {
         setIsEmailVerified(false)
+        setIsCodeSent(false)
+        setVerificationCode('')
+        setVerificationCodeError('')
       }
 
       setFieldErrors((prevErrors) => {
         const nextErrors = { ...prevErrors }
 
-        // 이미 터치된 필드만 실시간 검증
         if (touchedFields[field]) {
           const message = validateSignupField(field, value, nextFormData)
           if (message) nextErrors[field] = message
           else delete nextErrors[field]
         }
 
-        // 비밀번호 변경 시 비밀번호 확인도 다시 검증
         if (field === 'password' && touchedFields.confirmPassword) {
           const confirmMessage = validateSignupField(
             'confirmPassword',
@@ -84,11 +81,9 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       return nextFormData
     })
 
-    // 공통 에러 메시지 초기화
     if (error) setError('')
   }
 
-  // blur 시 해당 필드 검증
   const handleBlur = (field: SignupFieldName) => () => {
     setTouchedFields((prev) => ({
       ...prev,
@@ -105,16 +100,29 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
     })
   }
 
-  // 이메일 인증 처리
-  const handleVerifyEmail = async () => {
-    const emailError = validateSignupField('email', formData.email, formData)
+  const handleVerificationCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+
+    setVerificationCode(value)
+
+    if (verificationCodeError) {
+      setVerificationCodeError('')
+    }
+
+    if (error) {
+      setError('')
+    }
+  }
+
+  const handleSendVerificationCode = async () => {
+    const trimmedEmail = formData.email.trim()
+    const emailError = validateSignupField('email', trimmedEmail, formData)
 
     setTouchedFields((prev) => ({
       ...prev,
       email: true
     }))
 
-    // 이메일 형식이 올바르지 않으면 인증 요청 중단
     if (emailError) {
       setFieldErrors((prev) => ({
         ...prev,
@@ -123,36 +131,132 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       return
     }
 
-    setIsVerifying(true)
     setError('')
+    setVerificationCodeError('')
 
     try {
-      // TODO: 실제 이메일 인증 API로 교체
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await sendEmailVerificationMutateAsync({
+        email: trimmedEmail,
+        purpose: 'SIGNUP'
+      })
+
+      setIsEmailVerified(false)
+      setIsCodeSent(true)
+      setVerificationCode('')
+
+      setFieldErrors((prev) => {
+        const next = { ...prev }
+        if (next.email === '이메일 인증이 필요합니다.') {
+          delete next.email
+        }
+        return next
+      })
+
+      window.alert('인증코드를 이메일로 전송했습니다.')
+    } catch (error) {
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case 'AUTH_VERIFICATION_TOO_FAST_REQUEST':
+            setError('요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.')
+            return
+
+          case 'AUTH_VERIFICATION_TOO_MANY_ATTEMPTS':
+            setError('인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.')
+            return
+
+          case 'AUTH_VERIFICATION_TOO_MANY_REQUESTS':
+            setError('인증코드 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.')
+            return
+
+          case 'AUTH_EMAIL_DUPLICATED':
+            setError('이미 사용 중인 이메일입니다.')
+            return
+
+          default:
+            setError('인증코드 전송 중 문제가 발생했습니다. 다시 시도해주세요.')
+            return
+        }
+      }
+
+      setError('서버와 통신 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleConfirmVerificationCode = async () => {
+    const trimmedEmail = formData.email.trim()
+    const trimmedCode = verificationCode.trim()
+    const emailError = validateSignupField('email', trimmedEmail, formData)
+
+    setTouchedFields((prev) => ({
+      ...prev,
+      email: true
+    }))
+
+    if (emailError) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: emailError
+      }))
+      return
+    }
+
+    if (!trimmedCode) {
+      setVerificationCodeError('인증코드를 입력해주세요.')
+      return
+    }
+
+    setError('')
+    setVerificationCodeError('')
+
+    try {
+      await confirmEmailVerificationMutateAsync({
+        email: trimmedEmail,
+        code: trimmedCode,
+        purpose: 'SIGNUP'
+      })
 
       setIsEmailVerified(true)
 
-      // 인증 완료 시 이메일 에러 제거
       setFieldErrors((prev) => {
         const next = { ...prev }
         delete next.email
         return next
       })
 
-      window.alert('이메일 인증이 완료되었습니다. (데모)')
-    } catch {
-      setError('이메일 인증 중 오류가 발생했습니다.')
-    } finally {
-      setIsVerifying(false)
+      window.alert('이메일 인증이 완료되었습니다.')
+    } catch (error) {
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case 'AUTH_VERIFICATION_CODE_INVALID':
+            setVerificationCodeError('인증코드가 올바르지 않습니다.')
+            return
+
+          case 'AUTH_VERIFICATION_CODE_EXPIRED':
+            setVerificationCodeError('인증코드가 만료되었습니다. 다시 요청해주세요.')
+            return
+
+          case 'AUTH_VERIFICATION_TOO_MANY_ATTEMPTS':
+            setVerificationCodeError('인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.')
+            return
+
+          case 'AUTH_EMAIL_NOT_VERIFIED':
+            setError('이메일 인증을 완료해주세요.')
+            return
+
+          default:
+            setError('이메일 인증 중 문제가 발생했습니다. 다시 시도해주세요.')
+            return
+        }
+      }
+
+      setError('서버와 통신 중 오류가 발생했습니다.')
     }
   }
 
-  // 회원가입 submit 처리
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
 
-    // 제출 시 모든 필드를 touched 처리
     setTouchedFields({
       nickname: true,
       email: true,
@@ -161,35 +265,32 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       inviteCode: true
     })
 
-    // 전체 폼 검증
     const nextErrors = validateSignupForm(formData, isEmailVerified)
     setFieldErrors(nextErrors)
 
-    // 검증 에러가 있으면 요청 중단
     if (Object.keys(nextErrors).length > 0) return
 
     setLoading(true)
 
     try {
-      // 회원가입 요청
-      await mutateAsync({
+      await signupMutateAsync({
         email: formData.email.trim(),
         nickname: formData.nickname.trim(),
         password: formData.password
       })
 
-      // 성공 시 폼 초기화
       setFormData(initialSignupFormData)
       setFieldErrors({})
       setTouchedFields({})
       setIsEmailVerified(false)
+      setIsCodeSent(false)
+      setVerificationCode('')
+      setVerificationCodeError('')
       setError('')
 
       onSuccess()
     } catch (error) {
-      // 인터셉터에서 변환한 서버 에러 처리
       if (error instanceof ApiError) {
-        // 필드 검증 에러 처리
         if (
           error.code === 'AUTH_VALIDATION_FAILED' &&
           error.data &&
@@ -198,7 +299,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
           const serverErrors = error.data as Record<string, string>
           const mappedErrors: SignupFieldErrors = {}
 
-          // 서버 에러 키를 폼 필드 에러로 매핑
           Object.entries(serverErrors).forEach(([key, message]) => {
             if (Object.prototype.hasOwnProperty.call(initialSignupFormData, key)) {
               mappedErrors[key as SignupFieldName] = message
@@ -211,23 +311,46 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
           }))
 
           const firstError = Object.values(serverErrors)[0]
-          setError(firstError || error.message || '입력값을 확인해주세요.')
+          setError(firstError || '입력값을 확인해주세요.')
           return
         }
 
-        // 일반 서버 에러 처리
-        setError(error.message || '회원가입 중 오류가 발생했습니다.')
-        return
+        if (
+          error.code === 'AUTH_EMAIL_NOT_VERIFIED' ||
+          error.code === 'AUTH_VERIFICATION_CODE_EXPIRED'
+        ) {
+          setIsEmailVerified(false)
+        }
+
+        switch (error.code) {
+          case 'AUTH_EMAIL_NOT_VERIFIED':
+            setError('이메일 인증을 완료해주세요.')
+            return
+
+          case 'AUTH_EMAIL_DUPLICATED':
+            setError('이미 사용 중인 이메일입니다.')
+            return
+
+          case 'AUTH_NICKNAME_DUPLICATED':
+            setError('이미 사용 중인 닉네임입니다.')
+            return
+
+          case 'AUTH_VERIFICATION_CODE_EXPIRED':
+            setError('이메일 인증이 만료되었습니다. 다시 인증해주세요.')
+            return
+
+          default:
+            setError('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.')
+            return
+        }
       }
 
-      // 네트워크 또는 알 수 없는 에러 처리
       setError('서버와 통신 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
   }
 
-  // OAuth 로그인 URL 조회 및 팝업 열기
   const handleOAuth = async (provider: 'google' | 'kakao') => {
     try {
       const response = await baseApi.get(`/auth/${provider}/url`)
@@ -248,7 +371,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
     }
   }
 
-  // 입력 필드 스타일 계산
   const inputClassName = (field: SignupFieldName) =>
     `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
       fieldErrors[field]
@@ -256,18 +378,30 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         : 'border-slate-200 focus:border-[#56c1c9]'
     }`
 
+  const verificationCodeInputClassName = `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
+    verificationCodeError
+      ? 'border-red-400 focus:border-red-500'
+      : 'border-slate-200 focus:border-[#56c1c9]'
+  }`
+
   return {
     formData,
     fieldErrors,
     isEmailVerified,
+    isCodeSent,
+    verificationCode,
+    verificationCodeError,
     error,
     loading,
     isVerifying,
     handleChange,
     handleBlur,
-    handleVerifyEmail,
+    handleVerificationCodeChange,
+    handleSendVerificationCode,
+    handleConfirmVerificationCode,
     handleSubmit,
     handleOAuth,
-    inputClassName
+    inputClassName,
+    verificationCodeInputClassName
   }
 }

@@ -30,14 +30,20 @@ function AuthDialog() {
     formData: signupFormData,
     fieldErrors,
     isEmailVerified,
+    isCodeSent,
+    verificationCode,
+    verificationCodeError,
     error: signupError,
     loading: signupLoading,
     isVerifying,
     handleChange: handleSignupChange,
     handleBlur,
-    handleVerifyEmail,
+    handleVerificationCodeChange,
+    handleSendVerificationCode,
+    handleConfirmVerificationCode,
     handleSubmit: handleSignupSubmit,
-    inputClassName
+    inputClassName,
+    verificationCodeInputClassName
   } = useSignupForm({
     onSuccess: () => {
       switchMode('login')
@@ -171,19 +177,59 @@ function AuthDialog() {
                     </div>
                     <button
                       type="button"
-                      onClick={handleVerifyEmail}
-                      disabled={isEmailVerified || isVerifying}
+                      onClick={handleSendVerificationCode}
+                      disabled={isVerifying || isEmailVerified}
                       className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {isVerifying ? '확인 중...' : isEmailVerified ? '인증됨' : '인증하기'}
+                      {isVerifying
+                        ? '전송 중...'
+                        : isEmailVerified
+                          ? '인증완료'
+                          : isCodeSent
+                            ? '재전송'
+                            : '인증코드'}
                     </button>
                   </div>
+
                   {fieldErrors.email ? (
                     <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
                   ) : isEmailVerified ? (
                     <p className="mt-1 text-sm text-emerald-600">이메일 인증이 완료되었습니다.</p>
                   ) : null}
                 </div>
+
+                {isCodeSent ? (
+                  <div>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <label htmlFor="signup-verification-code" className="sr-only">
+                          인증코드
+                        </label>
+                        <input
+                          id="signup-verification-code"
+                          type="text"
+                          placeholder="인증코드 6자리"
+                          value={verificationCode}
+                          onChange={handleVerificationCodeChange}
+                          className={verificationCodeInputClassName}
+                          disabled={isEmailVerified}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleConfirmVerificationCode}
+                        disabled={isVerifying || isEmailVerified}
+                        className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isVerifying ? '확인 중...' : '코드확인'}
+                      </button>
+                    </div>
+
+                    {verificationCodeError ? (
+                      <p className="mt-1 text-sm text-red-500">{verificationCodeError}</p>
+                    ) : null}
+                  </div>
+                ) : null}
 
                 <div>
                   <label htmlFor="signup-password" className="sr-only">
@@ -242,7 +288,7 @@ function AuthDialog() {
 
                 <button
                   type="submit"
-                  disabled={signupLoading}
+                  disabled={signupLoading || !isEmailVerified}
                   className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {signupLoading ? '처리 중...' : '회원가입'}
