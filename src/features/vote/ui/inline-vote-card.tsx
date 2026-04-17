@@ -1,6 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query'
+﻿import { useQueryClient } from '@tanstack/react-query'
 import { Loader2, MessageSquareReply } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 import { fetchVoteDetail, type VoteDetail } from '@/features/vote/api/fetch-vote-detail'
@@ -44,6 +44,17 @@ function formatVoteDateTime(deadline: string | null) {
   })
 }
 
+function hasSameSelection(left: number[], right: number[]) {
+  if (left.length !== right.length) {
+    return false
+  }
+
+  const leftSorted = [...left].sort((a, b) => a - b)
+  const rightSorted = [...right].sort((a, b) => a - b)
+
+  return leftSorted.every((value, index) => value === rightSorted[index])
+}
+
 export default function InlineVoteCard({
   voteShare,
   isMine,
@@ -63,6 +74,26 @@ export default function InlineVoteCard({
   useEffect(() => {
     let cancelled = false
 
+    const loadResult = async (voteId: number) => {
+      setIsLoadingResult(true)
+
+      try {
+        const nextResult = await fetchVoteResult(voteId)
+        if (!cancelled) {
+          setResult(nextResult)
+          setSelectedIds(
+            nextResult.options
+              .filter((option) => option.selectedByMe)
+              .map((option) => option.optionId)
+          )
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingResult(false)
+        }
+      }
+    }
+
     const load = async () => {
       setIsLoading(true)
       setErrorMessage(null)
@@ -77,18 +108,10 @@ export default function InlineVoteCard({
         setDetail(nextDetail)
         setSelectedIds(nextDetail.myOptionIds)
 
-        if (nextDetail.closed) {
-          setIsLoadingResult(true)
-          try {
-            const nextResult = await fetchVoteResult(voteShare.voteId)
-            if (!cancelled) {
-              setResult(nextResult)
-            }
-          } finally {
-            if (!cancelled) {
-              setIsLoadingResult(false)
-            }
-          }
+        if (nextDetail.closed || nextDetail.myOptionIds.length > 0) {
+          await loadResult(voteShare.voteId)
+        } else if (!cancelled) {
+          setResult(null)
         }
       } catch (error) {
         if (!cancelled) {
@@ -115,15 +138,21 @@ export default function InlineVoteCard({
   const currentMaxSelectCount = detail?.maxSelectCount ?? voteShare.maxSelectCount
   const currentEndsAt = detail?.endsAt ?? voteShare.endsAt
   const currentOptions = detail?.options ?? voteShare.options
+  const submittedIds = detail?.myOptionIds ?? []
+  const remainingSelectionCount = Math.max(currentMaxSelectCount - selectedIds.length, 0)
+  const hasPendingChange = detail ? !hasSameSelection(selectedIds, detail.myOptionIds) : false
+  const displayResult = !!result
 
-  const lockedIds = new Set(detail?.myOptionIds ?? [])
-  const newlySelectedIds = selectedIds.filter((optionId) => !lockedIds.has(optionId))
-  const remainingSelectionCount = detail
-    ? Math.max(detail.maxSelectCount - detail.myOptionIds.length, 0)
-    : currentMaxSelectCount
+  const resultOptionMap = useMemo(() => {
+    if (!result) {
+      return new Map<number, VoteResult['options'][number]>()
+    }
+
+    return new Map(result.options.map((option) => [option.optionId, option]))
+  }, [result])
 
   const toggleOption = (optionId: number) => {
-    if (!detail || currentClosed || lockedIds.has(optionId)) {
+    if (!detail || currentClosed) {
       return
     }
 
@@ -132,7 +161,7 @@ export default function InlineVoteCard({
         return current.filter((id) => id !== optionId)
       }
 
-      if (current.length >= detail.maxSelectCount) {
+      if (current.length >= currentMaxSelectCount) {
         return current
       }
 
@@ -151,6 +180,9 @@ export default function InlineVoteCard({
     try {
       const nextResult = await fetchVoteResult(voteShare.voteId)
       setResult(nextResult)
+      setSelectedIds(
+        nextResult.options.filter((option) => option.selectedByMe).map((option) => option.optionId)
+      )
     } catch (error) {
       setErrorMessage(
         error instanceof ApiError ? error.message : '투표 결과를 불러오지 못했습니다.'
@@ -161,7 +193,7 @@ export default function InlineVoteCard({
   }
 
   const handleSubmitVote = async () => {
-    if (!detail || currentClosed || newlySelectedIds.length === 0 || isSubmitting) {
+    if (!detail || currentClosed || selectedIds.length === 0 || isSubmitting || !hasPendingChange) {
       return
     }
 
@@ -169,13 +201,18 @@ export default function InlineVoteCard({
     setErrorMessage(null)
 
     try {
-      const nextResult = await submitVote(voteShare.voteId, { optionIds: newlySelectedIds })
+      const nextResult = await submitVote(voteShare.voteId, { optionIds: selectedIds })
+      const nextSelectedIds = nextResult.options
+        .filter((option) => option.selectedByMe)
+        .map((option) => option.optionId)
+
       setResult(nextResult)
+      setSelectedIds(nextSelectedIds)
       setDetail((current) =>
         current
           ? {
               ...current,
-              myOptionIds: selectedIds,
+              myOptionIds: nextSelectedIds,
               closed: nextResult.closed,
               status: nextResult.status
             }
@@ -218,63 +255,62 @@ export default function InlineVoteCard({
               <Loader2 size={16} className="animate-spin" />
               투표 정보를 불러오는 중...
             </div>
-          ) : result ? (
-            <div className="space-y-3 px-4 py-3">
-              <div className="text-xs font-semibold text-wefin-subtle">
-                참여자 {result.participantCount}명
-              </div>
-              {result.options.map((option) => (
-                <div
-                  key={option.optionId}
-                  className="space-y-1.5 rounded-xl border border-wefin-line p-3"
-                >
-                  <div className="flex items-center justify-between gap-3 text-sm text-wefin-text">
-                    <div className="flex items-center gap-2">
-                      <span>{option.optionText}</span>
-                      {option.selectedByMe && (
-                        <span className="rounded-full bg-wefin-mint-soft px-2 py-0.5 text-[11px] font-semibold text-wefin-mint-deep">
-                          내 선택
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-wefin-subtle">
-                      {option.voteCount}표 / {option.rate.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-wefin-bg">
-                    <div
-                      className="h-full rounded-full bg-wefin-mint"
-                      style={{ width: `${Math.max(Math.min(option.rate, 100), 0)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
           ) : (
             <div className="space-y-3 px-4 py-3">
               <div className="flex items-center justify-between text-xs text-wefin-subtle">
                 <span>남은 선택 {remainingSelectionCount}개</span>
                 <span>현재 선택 {selectedIds.length}개</span>
               </div>
+
+              {displayResult && (
+                <div className="text-xs font-semibold text-wefin-subtle">
+                  참여자 {result?.participantCount ?? 0}명
+                </div>
+              )}
+
               {currentOptions.map((option) => {
-                const isLocked = lockedIds.has(option.optionId)
+                const resultOption = resultOptionMap.get(option.optionId)
                 const isSelected = selectedIds.includes(option.optionId)
+                const wasSubmitted = submittedIds.includes(option.optionId)
+                const showBar = displayResult && resultOption
+
                 return (
                   <button
                     key={option.optionId}
                     type="button"
                     onClick={() => toggleOption(option.optionId)}
-                    disabled={!detail || currentClosed || isLocked}
-                    className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition ${isSelected ? 'border-wefin-mint bg-wefin-mint-soft/40 text-wefin-text' : 'border-wefin-line bg-white text-wefin-text hover:bg-wefin-bg'} ${isLocked ? 'cursor-default opacity-70' : ''}`}
+                    disabled={!detail || currentClosed}
+                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${isSelected ? 'border-wefin-mint bg-wefin-mint-soft/40' : 'border-wefin-line bg-white hover:bg-wefin-bg'} ${currentClosed ? 'cursor-default' : ''}`}
                   >
-                    <span>{option.optionText}</span>
-                    {isLocked ? (
-                      <span className="text-[11px] font-semibold text-wefin-mint-deep">
-                        투표 완료
-                      </span>
-                    ) : isSelected ? (
-                      <span className="text-[11px] font-semibold text-wefin-mint-deep">선택됨</span>
-                    ) : null}
+                    <div className="flex items-center justify-between gap-3 text-sm text-wefin-text">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="truncate">{option.optionText}</span>
+                        {isSelected && (
+                          <span className="shrink-0 rounded-full bg-wefin-mint-soft px-2 py-0.5 text-[11px] font-semibold text-wefin-mint-deep">
+                            내 선택
+                          </span>
+                        )}
+                        {!isSelected && wasSubmitted && !hasPendingChange && (
+                          <span className="shrink-0 rounded-full bg-wefin-bg px-2 py-0.5 text-[11px] font-semibold text-wefin-subtle">
+                            제출됨
+                          </span>
+                        )}
+                      </div>
+                      {showBar && (
+                        <span className="shrink-0 text-xs text-wefin-subtle">
+                          {resultOption.voteCount}표 / {resultOption.rate.toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
+
+                    {showBar && (
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-wefin-bg">
+                        <div
+                          className={`h-full rounded-full ${isSelected ? 'bg-wefin-mint-deep' : 'bg-wefin-mint'}`}
+                          style={{ width: `${Math.max(Math.min(resultOption.rate, 100), 0)}%` }}
+                        />
+                      </div>
+                    )}
                   </button>
                 )
               })}
@@ -288,7 +324,7 @@ export default function InlineVoteCard({
           )}
 
           <div className="flex justify-end gap-2 border-t border-wefin-line px-4 py-3">
-            {!result && (
+            {!displayResult && (
               <button
                 type="button"
                 onClick={() => {
@@ -300,16 +336,20 @@ export default function InlineVoteCard({
                 {isLoadingResult ? '불러오는 중...' : '결과 보기'}
               </button>
             )}
-            {!result && (
+            {!currentClosed && (
               <button
                 type="button"
                 onClick={() => {
                   void handleSubmitVote()
                 }}
-                disabled={!detail || currentClosed || newlySelectedIds.length === 0 || isSubmitting}
+                disabled={!detail || selectedIds.length === 0 || isSubmitting || !hasPendingChange}
                 className="h-9 rounded-xl bg-wefin-mint px-3 text-sm font-medium text-white transition hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {isSubmitting ? '제출 중...' : '투표하기'}
+                {isSubmitting
+                  ? '제출 중...'
+                  : detail?.myOptionIds.length
+                    ? '다시 투표하기'
+                    : '투표하기'}
               </button>
             )}
           </div>
