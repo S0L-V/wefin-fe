@@ -10,6 +10,8 @@ import { useStockSocket } from '@/features/stock-detail/model/use-stock-socket'
 import OrderbookPanel from '@/features/stock-detail/ui/orderbook-panel'
 import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
 import StockChart from '@/features/stock-detail/ui/stock-chart'
+import StockInfoPanel from '@/features/stock-detail/ui/stock-info-panel'
+import StockNewsDisclosurePanel from '@/features/stock-detail/ui/stock-news-disclosure-panel'
 import StockPriceHeader, { type DetailTab } from '@/features/stock-detail/ui/stock-price-header'
 import StockPriceTable from '@/features/stock-detail/ui/stock-price-table'
 import { routes } from '@/shared/config/routes'
@@ -119,14 +121,14 @@ function StockDetailPage() {
             )}
 
             {activeTab === 'info' && (
-              <div className="flex flex-1 items-center justify-center rounded-xl border border-wefin-line bg-white">
-                <p className="text-xs text-wefin-subtle">종목정보 (추후 구현)</p>
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white">
+                <StockInfoPanel code={code} enabled={activeTab === 'info'} />
               </div>
             )}
 
             {activeTab === 'news' && (
-              <div className="flex flex-1 items-center justify-center rounded-xl border border-wefin-line bg-white">
-                <p className="text-xs text-wefin-subtle">뉴스·공시 (추후 구현)</p>
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white">
+                <StockNewsDisclosurePanel code={code} enabled={activeTab === 'news'} />
               </div>
             )}
           </div>

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import type { InvestorTrendItem } from '@/features/stock-detail/api/fetch-investor-trend'
 import {
   useCandlesQuery,
+  useInvestorTrendQuery,
   useRecentTradesQuery
 } from '@/features/stock-detail/model/use-stock-detail-queries'
 import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
@@ -27,6 +29,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { data: candles = [], isLoading: candlesLoading } = useCandlesQuery(code, 'D')
   const { data: trades = [], isLoading: tradesLoading } = useRecentTradesQuery(code)
+  const { data: investorTrend, isLoading: investorLoading } = useInvestorTrendQuery(code)
 
   useEffect(() => {
     if (leftWidth !== null) return
@@ -55,9 +58,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
           <span className="text-sm font-semibold text-wefin-text">개인·외국인·기관</span>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
-          <div className="px-3 py-6 text-center text-xs text-wefin-subtle">
-            투자자 매매동향 (추후 연동)
-          </div>
+          <InvestorTrendTable items={investorTrend?.items ?? []} isLoading={investorLoading} />
         </div>
       </div>
 
@@ -227,4 +228,70 @@ function formatTradeTime(tradeTime: string): string {
     return `${tradeTime.slice(0, 2)}:${tradeTime.slice(2, 4)}:${tradeTime.slice(4, 6)}`
   }
   return tradeTime
+}
+
+function InvestorTrendTable({
+  items,
+  isLoading
+}: {
+  items: InvestorTrendItem[]
+  isLoading: boolean
+}) {
+  if (isLoading) {
+    return <div className="px-3 py-6 text-center text-xs text-wefin-subtle">로딩 중...</div>
+  }
+
+  if (items.length === 0) {
+    return <div className="px-3 py-6 text-center text-xs text-wefin-subtle">데이터 없음</div>
+  }
+
+  return (
+    <table className="w-full text-xs">
+      <thead className="sticky top-0 bg-wefin-bg">
+        <tr className="text-wefin-subtle">
+          <th className="px-2 py-1.5 text-left font-semibold">일자</th>
+          <th className="px-2 py-1.5 text-right font-semibold">개인</th>
+          <th className="px-2 py-1.5 text-right font-semibold">외국인</th>
+          <th className="px-2 py-1.5 text-right font-semibold">기관</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item, i) => (
+          <tr
+            key={item.date ?? `idx-${i}`}
+            className="border-t border-wefin-line hover:bg-wefin-bg"
+          >
+            <td className="px-2 py-1 font-medium text-wefin-subtle tabular-nums">
+              {formatInvestorDate(item.date)}
+            </td>
+            <NetBuyCell value={item.individualNetBuy} />
+            <NetBuyCell value={item.foreignNetBuy} />
+            <NetBuyCell value={item.institutionNetBuy} />
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function NetBuyCell({ value }: { value: number }) {
+  const colorClass = value > 0 ? 'text-red-500' : value < 0 ? 'text-blue-500' : 'text-wefin-text'
+  return (
+    <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
+      {formatNetBuyQty(value)}
+    </td>
+  )
+}
+
+// 순매수 수량을 천 단위 구분으로 표기. 부호는 값 그대로 (음수면 '-').
+function formatNetBuyQty(value: number): string {
+  if (value === 0) return '0'
+  const sign = value > 0 ? '+' : ''
+  return `${sign}${value.toLocaleString()}`
+}
+
+// BE에서 ISO 날짜 (yyyy-MM-dd) 로 내려옴. "MM.DD" 로 축약.
+function formatInvestorDate(raw: string | null): string {
+  if (!raw) return '-'
+  return raw.length >= 10 ? `${raw.slice(5, 7)}.${raw.slice(8, 10)}` : raw
 }

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { fetchInvestorTrend } from '@/features/stock-detail/api/fetch-investor-trend'
 import {
   fetchCandles,
   fetchOrderbook,
@@ -7,6 +8,11 @@ import {
   fetchStockInfo,
   fetchStockPrice
 } from '@/features/stock-detail/api/fetch-stock-detail'
+import { fetchStockInfoDetail } from '@/features/stock-detail/api/fetch-stock-info-detail'
+import {
+  fetchStockDisclosures,
+  fetchStockNews
+} from '@/features/stock-detail/api/fetch-stock-news-disclosure'
 import { isWsActive } from '@/features/stock-detail/model/use-stock-socket'
 
 export function useStockInfoQuery(code: string) {
@@ -57,5 +63,45 @@ export function useRecentTradesQuery(code: string) {
     queryFn: () => fetchRecentTrades(code),
     enabled: !!code,
     staleTime: 5_000
+  })
+}
+
+export function useStockInfoDetailQuery(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['stocks', code, 'info-detail'],
+    queryFn: () => fetchStockInfoDetail(code),
+    enabled: !!code && enabled,
+    // BE 캐시가 6h~24h 이라 FE는 10분 staleTime으로 충분
+    staleTime: 10 * 60_000
+  })
+}
+
+export function useStockNewsQuery(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['stocks', code, 'news'],
+    queryFn: () => fetchStockNews(code),
+    enabled: !!code && enabled,
+    // BE 뉴스 캐시 10분
+    staleTime: 5 * 60_000
+  })
+}
+
+export function useStockDisclosuresQuery(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['stocks', code, 'disclosures'],
+    queryFn: () => fetchStockDisclosures(code),
+    enabled: !!code && enabled,
+    // BE 공시 캐시 30분
+    staleTime: 15 * 60_000
+  })
+}
+
+export function useInvestorTrendQuery(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['stocks', code, 'investor-trend'],
+    queryFn: () => fetchInvestorTrend(code),
+    enabled: !!code && enabled,
+    // BE investorTrend 캐시 10분
+    staleTime: 10 * 60_000
   })
 }
