@@ -42,7 +42,7 @@ export async function submitVote(
   const parsed = apiResponseSchema.safeParse(response.data)
 
   if (!parsed.success) {
-    console.error('vote submit response parse failed', parsed.error.flatten())
+    console.error('투표 제출 응답 파싱 실패', parsed.error.flatten())
     throw parsed.error
   }
 

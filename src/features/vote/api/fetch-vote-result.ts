@@ -35,7 +35,7 @@ export async function fetchVoteResult(voteId: number): Promise<VoteResult> {
   const parsed = apiResponseSchema.safeParse(response.data)
 
   if (!parsed.success) {
-    console.error('vote result response parse failed', parsed.error.flatten())
+    console.error('투표 결과 응답 파싱 실패', parsed.error.flatten())
     throw parsed.error
   }
 

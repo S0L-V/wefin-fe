@@ -126,7 +126,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   if (isLoading) {
     return (
       <div className={`${bare ? 'h-full' : 'h-[640px]'} p-6 text-sm text-wefin-subtle`}>
-        Loading group chat...
+        그룹 채팅을 불러오는 중...
       </div>
     )
   }
@@ -363,13 +363,13 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 }
 
 function ReplyButton({ onClick }: { onClick: () => void }) {
-  // hover ?섍꼍?먯꽑 ?됱냼 ?④린怨?硫붿떆吏 hover/focus ???몄텧
-  // ?곗튂(hover 誘몄??? ?섍꼍?먯꽑 ??긽 ?몄텧 ??pointer:fine 誘몃뵒??荑쇰━濡?遺꾧린
+  // hover 환경에선 평소 숨기고 메시지 hover/focus 시 노출
+  // 터치(hover 미지원) 환경에선 항상 노출 — pointer:fine 미디어 쿼리로 분기
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="?듭옣"
+      aria-label="답장"
       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-wefin-subtle transition-opacity hover:bg-wefin-bg hover:text-wefin-mint-deep focus-visible:opacity-100 group-hover/msg:opacity-100 [@media(pointer:fine)]:opacity-0"
     >
       <MessageSquareReply size={16} />

@@ -89,7 +89,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
           if (error instanceof ApiError) {
             setErrorMessage(error.message)
           } else {
-            setErrorMessage('Failed to load vote.')
+            setErrorMessage('투표를 불러오지 못했습니다.')
           }
         }
       } finally {
@@ -148,7 +148,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
       if (error instanceof ApiError) {
         setErrorMessage(error.message)
       } else {
-        setErrorMessage('Failed to load vote results.')
+        setErrorMessage('투표 결과를 불러오지 못했습니다.')
       }
     } finally {
       setIsLoadingResult(false)
@@ -181,7 +181,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
       if (error instanceof ApiError) {
         setErrorMessage(error.message)
       } else {
-        setErrorMessage('Failed to submit vote.')
+        setErrorMessage('투표 제출에 실패했습니다.')
       }
     } finally {
       setIsSubmitting(false)
@@ -195,16 +195,16 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
         <Dialog.Content className="dialog-content" style={{ zIndex: 73, maxWidth: 560 }}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <Dialog.Title className="text-lg font-semibold text-wefin-text">Vote</Dialog.Title>
+              <Dialog.Title className="text-lg font-semibold text-wefin-text">투표</Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-wefin-subtle">
-                Join the vote or check the latest result.
+                투표에 참여하거나 최신 결과를 확인해보세요.
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
               <button
                 type="button"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition hover:bg-wefin-bg"
-                aria-label="Close vote details"
+                aria-label="투표 상세 닫기"
               >
                 <X size={18} />
               </button>
@@ -215,7 +215,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
             {isLoading ? (
               <div className="flex h-[220px] items-center justify-center text-sm text-wefin-subtle">
                 <Loader2 size={18} className="mr-2 animate-spin" />
-                Loading vote...
+                투표를 불러오는 중...
               </div>
             ) : detail ? (
               <div className="space-y-4">
@@ -233,7 +233,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                         detail.closed ? 'bg-gray-100 text-gray-600' : 'bg-[#daf4ef] text-[#157969]'
                       }`}
                     >
-                      {detail.closed ? 'Closed' : 'Open'}
+                      {detail.closed ? '마감' : '진행중'}
                     </span>
                   </div>
                 </div>
@@ -295,11 +295,11 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                           <span>{option.optionText}</span>
                           {isLocked ? (
                             <span className="text-xs font-semibold text-wefin-mint-deep">
-                              Voted
+                              투표 완료
                             </span>
                           ) : isSelected ? (
                             <span className="text-xs font-semibold text-wefin-mint-deep">
-                              Selected
+                              내 선택
                             </span>
                           ) : null}
                         </button>
@@ -324,7 +324,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                       disabled={isLoadingResult}
                       className="h-11 rounded-xl border border-wefin-line px-4 text-sm font-medium text-wefin-text transition hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {isLoadingResult ? 'Loading...' : 'View results'}
+                      {isLoadingResult ? '로딩중...' : '결과 보기'}
                     </button>
                   )}
                   {!result && (
@@ -336,14 +336,14 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                       disabled={detail.closed || newlySelectedIds.length === 0 || isSubmitting}
                       className="h-11 rounded-xl bg-wefin-mint px-4 text-sm font-medium text-white transition hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {isSubmitting ? 'Submitting...' : 'Submit vote'}
+                      {isSubmitting ? '제출 중...' : '투표하기'}
                     </button>
                   )}
                 </div>
               </div>
             ) : (
               <div className="flex h-[220px] items-center justify-center text-sm text-wefin-subtle">
-                {errorMessage ?? 'Vote not found.'}
+                {errorMessage ?? '투표를 찾을 수 없습니다.'}
               </div>
             )}
           </div>

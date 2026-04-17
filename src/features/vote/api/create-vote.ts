@@ -32,7 +32,7 @@ export async function createVote(input: CreateVoteInput): Promise<CreateVoteResu
   const parsed = apiResponseSchema.safeParse(response.data)
 
   if (!parsed.success) {
-    console.error('vote create response parse failed', parsed.error.flatten())
+    console.error('투표 생성 응답 파싱 실패', parsed.error.flatten())
     throw parsed.error
   }
 

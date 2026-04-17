@@ -32,7 +32,7 @@ export async function fetchVoteDetail(voteId: number): Promise<VoteDetail> {
   const parsed = apiResponseSchema.safeParse(response.data)
 
   if (!parsed.success) {
-    console.error('vote detail response parse failed', parsed.error.flatten())
+    console.error('투표 상세 응답 파싱 실패', parsed.error.flatten())
     throw parsed.error
   }
 
