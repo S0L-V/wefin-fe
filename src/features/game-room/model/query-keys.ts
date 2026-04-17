@@ -11,7 +11,8 @@ export const gameRoomKeys = {
   result: (roomId: string) => ['game-room', 'result', roomId] as const,
   snapshots: (roomId: string) => ['game-room', 'snapshots', roomId] as const,
   orders: (roomId: string) => ['game-room', 'orders', roomId] as const,
-  report: (roomId: string) => ['game-room', 'report', roomId] as const
+  report: (roomId: string) => ['game-room', 'report', roomId] as const,
+  history: (page: number, size: number) => ['game-room', 'history', page, size] as const
 }
 
 export const gameTurnKeys = {

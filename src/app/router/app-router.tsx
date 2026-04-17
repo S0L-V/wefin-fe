@@ -4,6 +4,7 @@ import ProtectedRoute from '@/app/providers/protected-route'
 import AccountPage from '@/pages/account/ui/account-page'
 import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
+import ArchivePage from '@/pages/history/ui/archive-page'
 import CreateRoomPage from '@/pages/history/ui/create-room-page'
 import HistoryPage from '@/pages/history/ui/history-page'
 import PlayPage from '@/pages/history/ui/play-page'
@@ -32,6 +33,14 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="history/archive"
+          element={
+            <ProtectedRoute>
+              <ArchivePage />
             </ProtectedRoute>
           }
         />

@@ -1,13 +1,19 @@
-import { useGameRoomsQuery } from './use-game-room-query'
+import { useGameHistoryQuery, useGameRoomsQuery } from './use-game-room-query'
 
 export function useGameLobby() {
-  const { data, isLoading } = useGameRoomsQuery()
+  const { data: roomsData, isLoading: roomsLoading } = useGameRoomsQuery()
+  const { data: historyData, isLoading: historyLoading } = useGameHistoryQuery(0, 3)
 
-  const rooms = data?.data ?? []
+  const rooms = roomsData?.data ?? []
   const activeRoom = rooms.find(
     (room) => room.status === 'WAITING' || room.status === 'IN_PROGRESS'
   )
-  const finishedRooms = rooms.filter((room) => room.status === 'FINISHED')
 
-  return { activeRoom, finishedRooms, isLoading }
+  const recentHistory = historyData?.data.content ?? []
+
+  return {
+    activeRoom,
+    recentHistory,
+    isLoading: roomsLoading || historyLoading
+  }
 }
