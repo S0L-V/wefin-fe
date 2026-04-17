@@ -142,7 +142,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
           startDate.setDate(endDate.getDate() - 7)
           break
         case 'D':
-          startDate.setMonth(endDate.getMonth() - 3)
+          startDate.setFullYear(endDate.getFullYear() - 1)
           break
         case 'W':
           startDate.setFullYear(endDate.getFullYear() - 1)

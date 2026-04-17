@@ -104,7 +104,7 @@ function getDefaultDateRange(periodCode: string): { start: string; end: string }
       start.setDate(end.getDate() - 7)
       break
     case 'D':
-      start.setMonth(end.getMonth() - 3)
+      start.setFullYear(end.getFullYear() - 1)
       break
     case 'W':
       start.setFullYear(end.getFullYear() - 1)
