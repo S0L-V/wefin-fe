@@ -2,6 +2,7 @@ import { Play } from 'lucide-react'
 
 interface PlayHeaderProps {
   currentRound: number
+  totalTurns: number
   currentDate: string
   seed: number
   totalAssets: number
@@ -17,6 +18,7 @@ interface PlayHeaderProps {
 
 function PlayHeader({
   currentRound,
+  totalTurns,
   currentDate,
   seed,
   totalAssets,
@@ -38,7 +40,7 @@ function PlayHeader({
           </div>
           <span className="font-bold text-wefin-text">타임머신 모의투자</span>
           <span className="rounded-full bg-wefin-mint-soft px-2 py-0.5 text-xs font-bold text-wefin-mint">
-            {currentRound}턴
+            {currentRound}/{totalTurns}턴
           </span>
           <span className="flex items-center gap-1 text-xs font-bold text-wefin-text">
             참가 인원 : {activePlayers}/6

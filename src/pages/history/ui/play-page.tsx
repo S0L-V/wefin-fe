@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import GroupChatRoom from '@/features/chat/ui/group-chat-room'
 import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
 import { useEndGameMutation } from '@/features/game-room/model/use-end-game-mutation'
+import { useGameFinishedStore } from '@/features/game-room/model/use-game-finished-store'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
 import { useGameRoomSocket } from '@/features/game-room/model/use-game-room-socket'
 import { useLeaveRoomGuard } from '@/features/game-room/model/use-leave-room-guard'
@@ -39,9 +40,19 @@ function PlayPage() {
   const isVoting = useVoteStore((s) => s.isVoting)
   const rankChanges = useRankChangeStore((s) => s.rankChanges)
   const clearRankChanges = useRankChangeStore((s) => s.clearRankChanges)
+  const isGameFinished = useGameFinishedStore((s) => s.isGameFinished)
+  const resetGameFinished = useGameFinishedStore((s) => s.resetGameFinished)
   useGameRoomSocket(roomId ?? '')
   useTurnChangeSocket(roomId ?? '')
   useVoteSocket(roomId ?? '')
+
+  // 게임 종료 WebSocket 수신 시 결과 페이지로 이동
+  useEffect(() => {
+    if (isGameFinished && roomId) {
+      resetGameFinished()
+      navigate(`/history/room/${roomId}/result`, { replace: true })
+    }
+  }, [isGameFinished, roomId, navigate, resetGameFinished])
 
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
@@ -63,6 +74,7 @@ function PlayPage() {
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
+  const totalTurns = roomDetail?.data.totalTurns ?? 0
   const totalAssets = portfolio?.data.totalAsset ?? seed
   const profitRate = portfolio?.data.profitRate ?? 0
   const cash = portfolio?.data.cash ?? seed
@@ -73,6 +85,7 @@ function PlayPage() {
       <div className="relative left-1/2 -ml-[50vw] -mt-6 w-screen">
         <PlayHeader
           currentRound={currentRound}
+          totalTurns={totalTurns}
           currentDate={currentDate}
           seed={seed}
           totalAssets={totalAssets}
