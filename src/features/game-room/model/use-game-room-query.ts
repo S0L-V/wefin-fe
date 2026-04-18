@@ -17,7 +17,8 @@ import { gameRoomKeys } from './query-keys'
 export function useGameRoomsQuery() {
   return useQuery({
     queryKey: gameRoomKeys.list(),
-    queryFn: fetchGameRooms
+    queryFn: fetchGameRooms,
+    refetchInterval: 5_000
   })
 }
 

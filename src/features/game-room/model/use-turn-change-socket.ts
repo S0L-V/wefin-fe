@@ -4,6 +4,9 @@ import { useEffect } from 'react'
 import { onStompConnect, stompClient } from '@/shared/api/stomp-client'
 
 import { gameRoomKeys, gameTurnKeys } from './query-keys'
+import type { RankingItem, RankingsResponse } from './ranking.schema'
+import type { RankChange } from './use-rank-change-store'
+import { useRankChangeStore } from './use-rank-change-store'
 import { useSelectedStockStore } from './use-selected-stock-store'
 
 /**
@@ -27,13 +30,51 @@ export function useTurnChangeSocket(roomId: string) {
 
           if (data.type === 'TURN_CHANGE') {
             console.log('[TURN_CHANGE] invalidating queries for roomId:', roomId)
+
+            // 랭킹 invalidate 전에 현재 순위 스냅샷 저장
+            const prevRankings = queryClient.getQueryData<RankingsResponse>(
+              gameRoomKeys.rankings(roomId)
+            )
+            const prevMap = new Map<string, RankingItem>()
+            prevRankings?.data.forEach((r) => prevMap.set(r.userId, r))
+
             queryClient.invalidateQueries({ queryKey: gameTurnKeys.current(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
-            queryClient.invalidateQueries({ queryKey: gameRoomKeys.rankings(roomId) })
             queryClient
               .invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
               .then(() => console.log('[TURN_CHANGE] briefing invalidation complete'))
+
+            // 랭킹 invalidate 후 새 데이터와 비교
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.rankings(roomId) }).then(() => {
+              if (prevMap.size === 0) return
+
+              const newRankings = queryClient.getQueryData<RankingsResponse>(
+                gameRoomKeys.rankings(roomId)
+              )
+              if (!newRankings?.data) return
+
+              const changes: RankChange[] = []
+              for (const newItem of newRankings.data) {
+                const prev = prevMap.get(newItem.userId)
+                if (!prev) continue
+                const delta = prev.rank - newItem.rank
+                if (delta !== 0) {
+                  changes.push({
+                    userName: newItem.userName,
+                    prevRank: prev.rank,
+                    newRank: newItem.rank,
+                    delta
+                  })
+                }
+              }
+
+              if (changes.length > 0) {
+                // 상승(delta 큰 순) 먼저, 같으면 새 순위 낮은 순
+                changes.sort((a, b) => b.delta - a.delta || a.newRank - b.newRank)
+                useRankChangeStore.getState().setRankChanges(changes)
+              }
+            })
 
             // 선택된 종목이 있으면 차트도 갱신 (턴 전환 → 종가 변경)
             const selectedSymbol = useSelectedStockStore.getState().selectedStock?.symbol

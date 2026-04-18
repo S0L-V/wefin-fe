@@ -1,4 +1,5 @@
 import { TrendingUp } from 'lucide-react'
+import { useState } from 'react'
 
 import { type OrderSide, type OrderType, useOrderForm } from '../model/use-order-form'
 import StockSearch from './stock-search'
@@ -10,10 +11,31 @@ interface OrderPanelProps {
 
 function OrderPanel({ roomId, cash }: OrderPanelProps) {
   const form = useOrderForm({ roomId, cash })
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [resultMessage, setResultMessage] = useState<string | null>(null)
   const isDisabled = !form.selectedStock || form.quantity === 0
   const sideAccent =
     form.side === 'buy' ? 'bg-red-500 shadow-red-500/20' : 'bg-blue-500 shadow-blue-500/20'
   const submitLabel = resolveSubmitLabel(form.side, form.selectedStock != null)
+  const sideLabel = form.side === 'buy' ? '매수' : '매도'
+
+  function handleOrderClick() {
+    if (isDisabled || form.isSubmitting) return
+    setShowConfirm(true)
+  }
+
+  function handleConfirm() {
+    setShowConfirm(false)
+    form.submit({
+      onSuccess: (data) => {
+        const result = data.data
+        const feeAndTax = result.fee + result.tax
+        setResultMessage(
+          `${sideLabel} 체결: ${result.stockName} ${result.quantity}주 / ${(result.price * result.quantity).toLocaleString()}원 (수수료+세금 ${feeAndTax.toLocaleString()}원)`
+        )
+      }
+    })
+  }
 
   return (
     <section className="rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
@@ -60,10 +82,23 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
           </div>
         )}
 
+        {resultMessage && (
+          <div className="flex items-center justify-between rounded-xl bg-green-50 px-3 py-2">
+            <span className="text-xs font-medium text-green-600">{resultMessage}</span>
+            <button
+              type="button"
+              onClick={() => setResultMessage(null)}
+              className="text-xs text-green-400 hover:text-green-600"
+            >
+              닫기
+            </button>
+          </div>
+        )}
+
         <button
           type="button"
           disabled={isDisabled || form.isSubmitting}
-          onClick={form.submit}
+          onClick={handleOrderClick}
           className={`w-full rounded-2xl py-3.5 text-base font-bold shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 ${
             !form.selectedStock ? 'bg-wefin-line text-wefin-subtle' : `${sideAccent} text-white`
           }`}
@@ -71,6 +106,18 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
           {form.isSubmitting ? '주문 중...' : submitLabel}
         </button>
       </div>
+
+      {showConfirm && form.selectedStock && (
+        <OrderConfirmDialog
+          stockName={form.selectedStock.stockName}
+          side={sideLabel}
+          quantity={form.quantity}
+          price={form.currentPrice}
+          totalAmount={form.totalAmount}
+          onConfirm={handleConfirm}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </section>
   )
 }
@@ -260,6 +307,78 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
     <div className="flex justify-between text-xs">
       <span className="text-wefin-subtle">{label}</span>
       <span className="font-bold text-wefin-text">{value}</span>
+    </div>
+  )
+}
+
+interface OrderConfirmDialogProps {
+  stockName: string
+  side: string
+  quantity: number
+  price: number
+  totalAmount: number
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+function OrderConfirmDialog({
+  stockName,
+  side,
+  quantity,
+  price,
+  totalAmount,
+  onConfirm,
+  onCancel
+}: OrderConfirmDialogProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="w-80 rounded-2xl bg-white p-6 shadow-xl">
+        <h3 className="mb-4 text-center text-base font-bold text-wefin-text">주문 확인</h3>
+
+        <div className="space-y-2 rounded-xl bg-wefin-bg p-4">
+          <div className="flex justify-between text-xs">
+            <span className="text-wefin-subtle">종목</span>
+            <span className="font-bold text-wefin-text">{stockName}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-wefin-subtle">구분</span>
+            <span className={`font-bold ${side === '매수' ? 'text-red-500' : 'text-blue-500'}`}>
+              {side}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-wefin-subtle">수량</span>
+            <span className="font-bold text-wefin-text">{quantity}주</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-wefin-subtle">단가</span>
+            <span className="font-bold text-wefin-text">{price.toLocaleString()}원</span>
+          </div>
+          <div className="flex justify-between border-t border-wefin-line pt-2 text-sm">
+            <span className="font-bold text-wefin-text">총 금액</span>
+            <span className="font-bold text-wefin-text">{totalAmount.toLocaleString()}원</span>
+          </div>
+        </div>
+
+        <div className="mt-5 flex gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-xl border border-wefin-line bg-white py-2.5 text-sm font-bold text-wefin-subtle transition-colors hover:bg-wefin-bg"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className={`flex-1 rounded-xl py-2.5 text-sm font-bold text-white transition-colors ${
+              side === '매수' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
+            }`}
+          >
+            {side} 확인
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
