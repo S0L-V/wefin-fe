@@ -102,25 +102,10 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       ? error.message
       : '그룹 정보를 불러오는 중 오류가 발생했어요.'
 
-  const leaveErrorMessage =
-    leaveGroupMutation.isError && leaveGroupMutation.error instanceof ApiError
-      ? leaveGroupMutation.error.message
-      : '그룹 탈퇴 중 오류가 발생했어요.'
-
   const inviteErrorMessage =
     createInviteMutation.isError && createInviteMutation.error instanceof ApiError
       ? createInviteMutation.error.message
       : '초대 코드 생성 중 오류가 발생했어요.'
-
-  const joinErrorMessage =
-    joinGroupMutation.isError && joinGroupMutation.error instanceof ApiError
-      ? joinGroupMutation.error.message
-      : '그룹 참여 중 오류가 발생했어요.'
-
-  const createGroupErrorMessage =
-    createGroupMutation.isError && createGroupMutation.error instanceof ApiError
-      ? createGroupMutation.error.message
-      : '새 그룹 생성 중 오류가 발생했어요.'
 
   useEffect(() => {
     return () => {
@@ -151,7 +136,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
     setCopyState('idle')
     leaveGroupMutation.mutate(group.groupId, {
       onSuccess: () => toast.success('그룹에서 탈퇴했어요'),
-      onError: () => toast.error(leaveErrorMessage)
+      onError: (error) =>
+        toast.error(error instanceof ApiError ? error.message : '그룹 탈퇴 중 오류가 발생했어요')
     })
   }
 
@@ -186,7 +172,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
           setHomeGroupMode('idle')
           toast.success('그룹에 참여했어요')
         },
-        onError: () => toast.error(joinErrorMessage)
+        onError: (error) =>
+          toast.error(error instanceof ApiError ? error.message : '그룹 참여 중 오류가 발생했어요')
       }
     )
   }
@@ -207,7 +194,10 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
           setHomeGroupMode('idle')
           toast.success('새 그룹이 생성되었어요')
         },
-        onError: () => toast.error(createGroupErrorMessage)
+        onError: (error) =>
+          toast.error(
+            error instanceof ApiError ? error.message : '새 그룹 생성 중 오류가 발생했어요'
+          )
       }
     )
   }

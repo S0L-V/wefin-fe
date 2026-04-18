@@ -118,7 +118,10 @@ export default function ProfitAnalysisTab() {
             </span>
           </div>
           {(() => {
-            const questReward = diff - realizedProfit
+            const totalPnL = Math.trunc(
+              (portfolio ?? []).reduce((sum, item) => sum + (item.profitLoss ?? 0), 0)
+            )
+            const questReward = diff - realizedProfit - totalPnL
             return questReward > 0 ? (
               <div className="flex items-baseline justify-between">
                 <span className="text-wefin-subtle">퀘스트 보상</span>

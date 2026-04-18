@@ -57,7 +57,7 @@ function AuthDialog() {
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
-          {toastMsg && (
+          {isLogin && toastMsg && (
             <div className="mb-4 animate-[slideDown_0.2s_ease-out] rounded-xl bg-rose-50 px-4 py-3 text-center text-sm font-semibold text-rose-600 shadow-sm">
               {toastMsg}
             </div>
