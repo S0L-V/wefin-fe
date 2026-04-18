@@ -25,6 +25,21 @@ export function useLeaveRoomGuard(roomId: string) {
     return () => deactivate()
   }, [roomId, activate, deactivate])
 
+  // 브라우저 뒤로가기 / 앞으로가기 차단
+  useEffect(() => {
+    // 현재 위치를 history에 한 번 더 push해서 뒤로가기 시 같은 페이지에 머무르게 함
+    window.history.pushState(null, '', window.location.href)
+
+    function handlePopState() {
+      // 뒤로가기가 발생하면 다시 push해서 페이지 이탈 방지
+      window.history.pushState(null, '', window.location.href)
+      requestLeave()
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [requestLeave])
+
   // 브라우저 탭 닫기 / 새로고침 차단
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
