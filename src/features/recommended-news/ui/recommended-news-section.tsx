@@ -26,7 +26,7 @@ export default function RecommendedNewsSection() {
   const canRefresh = data.hasMore && !limitReached
 
   return (
-    <div>
+    <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles size={20} className="text-[#3db9b9]" />
@@ -53,7 +53,7 @@ export default function RecommendedNewsSection() {
       <div className="flex flex-col gap-4">
         {data.cards.map((card, index) => (
           <RecommendedCard
-            key={`${card.cardType}-${card.interestCode}`}
+            key={`${card.cardType}-${card.interestCode}-${index}`}
             card={card}
             index={index}
           />
@@ -111,7 +111,7 @@ function RecommendedCard({ card, index }: { card: RecommendedCard; index: number
 
 function SectionSkeleton() {
   return (
-    <div>
+    <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
         <div className="h-5 w-5 animate-pulse rounded bg-gray-100" />
         <div className="h-5 w-24 animate-pulse rounded bg-gray-100" />

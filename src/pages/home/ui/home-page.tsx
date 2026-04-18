@@ -14,9 +14,7 @@ function HomePage() {
         <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
           <MarketTrendsSection />
         </div>
-        <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
-          <RecommendedNewsSection />
-        </div>
+        <RecommendedNewsSection />
         <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
           <NewsListSection />
         </div>
