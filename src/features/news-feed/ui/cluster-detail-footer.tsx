@@ -110,6 +110,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
             <FeedbackButton
               icon={<ThumbsUp className="h-4 w-4" />}
               label=""
+              ariaLabel="도움돼요"
               active={currentFeedback === 'HELPFUL'}
               dimmed={currentFeedback !== null && currentFeedback !== 'HELPFUL'}
               disabled={currentFeedback !== null || feedbackMutation.isPending}
@@ -120,6 +121,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
             <FeedbackButton
               icon={<ThumbsDown className="h-4 w-4" />}
               label=""
+              ariaLabel="아쉬워요"
               active={currentFeedback === 'NOT_HELPFUL'}
               dimmed={currentFeedback !== null && currentFeedback !== 'NOT_HELPFUL'}
               disabled={currentFeedback !== null || feedbackMutation.isPending}
@@ -203,7 +205,8 @@ function FeedbackButton({
   active,
   dimmed,
   disabled,
-  onClick
+  onClick,
+  ariaLabel
 }: {
   icon: React.ReactNode
   label: string
@@ -211,6 +214,7 @@ function FeedbackButton({
   dimmed: boolean
   disabled: boolean
   onClick: () => void
+  ariaLabel?: string
 }) {
   const activeClass = 'border-[#3db9b9] bg-[#3db9b9]/10 text-[#2a8282]'
   const idleClass = 'border-wefin-line bg-white text-wefin-subtle hover:bg-wefin-bg'
@@ -221,6 +225,7 @@ function FeedbackButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
       className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition-colors ${
         active ? activeClass : idleClass
       } ${dimmed ? dimmedClass : ''} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}

@@ -154,6 +154,8 @@ function SummaryBlock({
     if (hasPersonalized) setActiveSlide('personalized')
   }
 
+  const showingPersonalized = hasPersonalized && activeSlide === 'personalized'
+
   const modeLabel =
     personalizedMode === 'MATCHED'
       ? '내 관심 종목 맞춤 동향'
@@ -210,25 +212,17 @@ function SummaryBlock({
       )}
 
       <SummaryContent
-        summary={hasPersonalized && activeSlide === 'personalized' ? personalizedSummary : summary}
-        articleCount={
-          hasPersonalized && activeSlide === 'personalized'
-            ? personalizedArticleCount
-            : articleCount
-        }
-        sources={hasPersonalized && activeSlide === 'personalized' ? pBadgeSources : badgeSources}
-        sourceClusters={
-          hasPersonalized && activeSlide === 'personalized'
-            ? personalizedSourceClusters
-            : sourceClusters
-        }
+        summary={showingPersonalized ? personalizedSummary : summary}
+        articleCount={showingPersonalized ? personalizedArticleCount : articleCount}
+        sources={showingPersonalized ? pBadgeSources : badgeSources}
+        sourceClusters={showingPersonalized ? personalizedSourceClusters : sourceClusters}
         onSourceClick={() => setIsModalOpen(true)}
       />
 
       {isModalOpen && (
         <ClusterSourceModal
-          articleCount={activeSlide === 'personalized' ? personalizedArticleCount : articleCount}
-          clusters={activeSlide === 'personalized' ? personalizedSourceClusters : sourceClusters}
+          articleCount={showingPersonalized ? personalizedArticleCount : articleCount}
+          clusters={showingPersonalized ? personalizedSourceClusters : sourceClusters}
           onClose={() => setIsModalOpen(false)}
         />
       )}

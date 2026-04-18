@@ -99,6 +99,7 @@ export default function NewsFeedSection() {
               <button
                 type="button"
                 onClick={() => scroll('left')}
+                aria-label="이전 뉴스"
                 className="absolute -left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-text shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all hover:scale-110 active:scale-95"
               >
                 <ChevronLeft size={18} />
@@ -111,6 +112,7 @@ export default function NewsFeedSection() {
               <button
                 type="button"
                 onClick={() => scroll('right')}
+                aria-label="다음 뉴스"
                 className="absolute -right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-text shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all hover:scale-110 active:scale-95"
               >
                 <ChevronRight size={18} />
