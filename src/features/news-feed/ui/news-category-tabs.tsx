@@ -17,15 +17,15 @@ interface NewsCategoryTabsProps {
 
 export default function NewsCategoryTabs({ activeTab, onTabChange }: NewsCategoryTabsProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       {TABS.map((tab) => (
         <button
           key={tab.value}
           onClick={() => onTabChange(tab.value)}
-          className={`cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors ${
+          className={`origin-center cursor-pointer px-3 py-1.5 text-sm font-semibold transition-all ${
             activeTab === tab.value
-              ? 'bg-wefin-text text-white'
-              : 'bg-gray-100 text-wefin-subtle hover:bg-gray-200'
+              ? 'scale-110 text-wefin-mint-deep underline decoration-2 underline-offset-6'
+              : 'text-wefin-subtle hover:scale-105 hover:text-wefin-text'
           }`}
         >
           {tab.label}

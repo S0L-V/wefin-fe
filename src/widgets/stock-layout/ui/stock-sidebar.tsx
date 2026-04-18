@@ -34,7 +34,7 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
 
   return (
     <div
-      className={`flex flex-col rounded-2xl border border-wefin-line bg-white shadow-sm transition-all duration-300 ${
+      className={`flex flex-col rounded-2xl bg-white transition-all duration-300 ${
         expanded
           ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
           : heightClass

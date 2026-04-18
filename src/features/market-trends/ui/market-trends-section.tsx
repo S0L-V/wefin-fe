@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { BookOpen, RefreshCw, Sparkles } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
 import SourceBadge from '@/shared/ui/source-badge'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 import type {
   MarketTrendsOverview,
@@ -72,20 +73,16 @@ function MarketTrendsSection() {
   }
 
   return (
-    <div className="mt-6 border-t border-wefin-line pt-6">
-      <header className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h2 className="text-lg font-bold text-wefin-text">오늘 시장 한눈에 보기</h2>
-        {data.trendDate && (
-          <span className="text-sm text-wefin-subtle">{formatTrendDate(data.trendDate)}</span>
-        )}
-        {data.updatedAt && (
-          <span className="ml-auto text-xs text-wefin-subtle">
-            업데이트 {formatUpdatedAt(data.updatedAt)}
-          </span>
-        )}
+    <div>
+      <header className="mb-5">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-wefin-text">오늘 시장 한눈에 보기</h2>
+          <MarketSnapshotStrip
+            snapshots={data.marketSnapshots}
+            updatedAt={data.updatedAt ? formatUpdatedAt(data.updatedAt) : null}
+          />
+        </div>
       </header>
-
-      <MarketSnapshotStrip snapshots={data.marketSnapshots} />
 
       {data.generated ? (
         <div className="mt-6 flex flex-col gap-5">
@@ -98,15 +95,11 @@ function MarketTrendsSection() {
             personalizedLoading={personalizedQuery.isFetching}
             personalizedError={personalizedQuery.isError}
             onAnalyzeClick={handleAnalyzeClick}
+            personalizedSummary={personalizedData?.summary ?? null}
+            personalizedArticleCount={personalizedData?.sourceArticleCount ?? 0}
+            personalizedSourceClusters={personalizedData?.sourceClusters ?? []}
+            personalizedMode={personalizedMode ?? null}
           />
-          {(isPersonalizedActive || isActionBriefing) && personalizedData && (
-            <PersonalizedSummaryBlock
-              mode={personalizedMode!}
-              summary={personalizedData.summary}
-              articleCount={personalizedData.sourceArticleCount}
-              sourceClusters={personalizedData.sourceClusters}
-            />
-          )}
           <InsightCardList cards={display.insightCards} sourceClusters={display.sourceClusters} />
         </div>
       ) : (
@@ -127,6 +120,10 @@ type SummaryBlockProps = {
   personalizedLoading: boolean
   personalizedError: boolean
   onAnalyzeClick: () => void
+  personalizedSummary: string | null
+  personalizedArticleCount: number
+  personalizedSourceClusters: SourceCluster[]
+  personalizedMode: PersonalizationMode | null
 }
 
 function SummaryBlock({
@@ -137,18 +134,40 @@ function SummaryBlock({
   personalizedFallback,
   personalizedLoading,
   personalizedError,
-  onAnalyzeClick
+  onAnalyzeClick,
+  personalizedSummary,
+  personalizedArticleCount,
+  personalizedSourceClusters,
+  personalizedMode
 }: SummaryBlockProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeSlide, setActiveSlide] = useState<'general' | 'personalized'>('general')
+  const hasPersonalized = personalizedActive && !!personalizedSummary
   const badgeSources = sourceClusters.slice(0, 2).map((c) => ({ publisherName: c.title }))
+  const pBadgeSources = personalizedSourceClusters
+    .slice(0, 2)
+    .map((c) => ({ publisherName: c.title }))
+
+  const [prevHasPersonalized, setPrevHasPersonalized] = useState(false)
+  if (prevHasPersonalized !== hasPersonalized) {
+    setPrevHasPersonalized(hasPersonalized)
+    if (hasPersonalized) setActiveSlide('personalized')
+  }
+
+  const modeLabel =
+    personalizedMode === 'MATCHED'
+      ? '내 관심 종목 맞춤 동향'
+      : personalizedMode === 'ACTION_BRIEFING'
+        ? '시장 액션 브리핑'
+        : '맞춤 분석'
 
   return (
     <div>
-      <div className="mb-2 flex items-center gap-1.5">
-        <BookOpen size={16} className="text-wefin-mint" />
-        <h3 className="text-sm font-bold text-wefin-text">시장 개요</h3>
-      </div>
-      <div className="mb-3">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <WefinLogoIcon size={18} className="text-wefin-mint-deep" />
+          <h3 className="text-sm font-bold text-wefin-text">오늘의 브리핑</h3>
+        </div>
         <PersonalizedTrendButton
           analyzed={personalizedActive}
           loading={personalizedLoading}
@@ -165,77 +184,51 @@ function SummaryBlock({
           맞춤 분석을 가져오지 못했어요. 잠시 후 다시 시도해주세요.
         </p>
       )}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
-        {summary && (
-          <p className="whitespace-pre-line text-[13px] leading-relaxed text-wefin-text">
-            {summary}
-          </p>
-        )}
-        {sourceClusters.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="cursor-pointer self-end transition-opacity hover:opacity-80"
-          >
-            <SourceBadge sourceCount={articleCount} sources={badgeSources} size="sm" />
-          </button>
-        )}
-      </div>
-      {isModalOpen && (
-        <ClusterSourceModal
-          articleCount={articleCount}
-          clusters={sourceClusters}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
-    </div>
-  )
-}
 
-type PersonalizedSummaryBlockProps = {
-  mode: PersonalizationMode
-  summary: string | null
-  articleCount: number
-  sourceClusters: SourceCluster[]
-}
-
-function PersonalizedSummaryBlock({
-  mode,
-  summary,
-  articleCount,
-  sourceClusters
-}: PersonalizedSummaryBlockProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const badgeSources = sourceClusters.slice(0, 2).map((c) => ({ publisherName: c.title }))
-  // MATCHED: 사용자 관심사 기반 맞춤 분석 / ACTION_BRIEFING: 매칭 없을 때의 일반 시장 액션 분석
-  const headerLabel = mode === 'MATCHED' ? '내 관심 종목 맞춤 동향' : '오늘의 시장 액션'
-
-  return (
-    <div>
-      <div className="flex flex-col gap-3 rounded-xl border border-wefin-mint/30 bg-gradient-to-br from-wefin-mint/10 to-blue-500/5 p-4">
-        <div className="flex items-center gap-1.5 text-sm font-bold text-wefin-text">
-          <Sparkles size={16} className="text-wefin-mint" />
-          {headerLabel}
+      {hasPersonalized && (
+        <div className="mb-4 flex gap-4 border-b border-wefin-line/50">
+          {(
+            [
+              ['general', '시장 개요'],
+              ['personalized', modeLabel]
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setActiveSlide(key)}
+              className={`origin-center relative pb-2 text-sm font-semibold transition-all ${
+                activeSlide === key
+                  ? 'scale-110 text-wefin-mint-deep after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-wefin-mint-deep'
+                  : 'text-wefin-subtle hover:scale-105 hover:text-wefin-text'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-        {summary && (
-          <p className="whitespace-pre-line text-[13px] leading-relaxed text-wefin-text">
-            {summary}
-          </p>
-        )}
-        {sourceClusters.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="cursor-pointer self-end transition-opacity hover:opacity-80"
-          >
-            <SourceBadge sourceCount={articleCount} sources={badgeSources} size="sm" />
-          </button>
-        )}
-      </div>
+      )}
+
+      <SummaryContent
+        summary={hasPersonalized && activeSlide === 'personalized' ? personalizedSummary : summary}
+        articleCount={
+          hasPersonalized && activeSlide === 'personalized'
+            ? personalizedArticleCount
+            : articleCount
+        }
+        sources={hasPersonalized && activeSlide === 'personalized' ? pBadgeSources : badgeSources}
+        sourceClusters={
+          hasPersonalized && activeSlide === 'personalized'
+            ? personalizedSourceClusters
+            : sourceClusters
+        }
+        onSourceClick={() => setIsModalOpen(true)}
+      />
+
       {isModalOpen && (
         <ClusterSourceModal
-          articleCount={articleCount}
-          clusters={sourceClusters}
+          articleCount={activeSlide === 'personalized' ? personalizedArticleCount : articleCount}
+          clusters={activeSlide === 'personalized' ? personalizedSourceClusters : sourceClusters}
           onClose={() => setIsModalOpen(false)}
         />
       )}
@@ -262,25 +255,80 @@ function PersonalizedTrendButton({ analyzed, loading, onClick }: PersonalizedTre
     onClick()
   }
 
-  const label = analyzed ? '맞춤 분석 새로고침' : '내 관심 분야 · 종목 맞춤 동향 분석하기'
-
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={loading}
-      className="group flex w-full items-center justify-center gap-2 rounded-xl border border-wefin-mint/20 bg-gradient-to-r from-wefin-mint/10 to-blue-500/10 px-4 py-3 transition-colors hover:from-wefin-mint/20 hover:to-blue-500/20 disabled:opacity-60"
-    >
-      {loading ? (
-        <RefreshCw size={16} className="animate-spin text-wefin-mint" />
-      ) : (
-        <Sparkles
-          size={16}
-          className="text-wefin-mint transition-transform group-hover:scale-110"
-        />
+    <div className="relative inline-flex items-center gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="group/btn relative inline-flex items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-[#1a8a8c] to-[#0f6b6d] px-3.5 py-1.5 text-[13px] font-semibold text-white shadow-sm transition-all duration-300 hover:from-[#24a8ab] hover:to-[#1a8a8c] hover:shadow-[0_4px_20px_rgba(36,168,171,0.3)] active:scale-[0.97] disabled:opacity-60"
+      >
+        {loading ? (
+          <WefinLogoIcon
+            size={15}
+            className="relative z-10 animate-[spinPause_2s_ease-in-out_infinite]"
+          />
+        ) : (
+          <WefinLogoIcon
+            size={15}
+            className="relative z-10 transition-transform duration-300 group-hover/btn:scale-110"
+          />
+        )}
+        <span className="relative z-10">
+          {loading ? '분석 중...' : analyzed ? '새로고침' : '맞춤 분석'}
+        </span>
+      </button>
+      <span className="group/info relative inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full text-wefin-subtle transition-colors hover:text-wefin-mint-deep">
+        <Info size={14} />
+        <span className="pointer-events-none invisible absolute right-0 top-full z-20 mt-2 w-[220px] rounded-xl bg-wefin-text px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity group-hover/info:visible group-hover/info:opacity-100">
+          내 관심 분야와 보유 종목을 기반으로 AI가 시장 동향을 분석해요
+        </span>
+      </span>
+    </div>
+  )
+}
+
+function SummaryContent({
+  summary,
+  articleCount,
+  sources,
+  sourceClusters,
+  onSourceClick
+}: {
+  summary: string | null
+  articleCount: number
+  sources: { publisherName: string }[]
+  sourceClusters: SourceCluster[]
+  onSourceClick: () => void
+}) {
+  return (
+    <div className="rounded-2xl bg-gradient-to-br from-[#f8fffe] to-[#f0f7f7] px-5 py-4">
+      {summary && (
+        <div className="whitespace-pre-line text-[14px] leading-7 text-wefin-text">
+          {(() => {
+            const firstBreak = summary.indexOf('\n')
+            if (firstBreak === -1) return <p className="font-semibold">{summary}</p>
+            return (
+              <>
+                <p className="font-semibold">{summary.slice(0, firstBreak)}</p>
+                <p className="mt-2">{summary.slice(firstBreak + 1)}</p>
+              </>
+            )
+          })()}
+        </div>
       )}
-      <span className="text-sm font-bold text-wefin-text">{loading ? '분석 중...' : label}</span>
-    </button>
+      {sourceClusters.length > 0 && (
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={onSourceClick}
+            className="cursor-pointer transition-opacity hover:opacity-80"
+          >
+            <SourceBadge sourceCount={articleCount} sources={sources} size="sm" />
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -296,24 +344,9 @@ function formatUpdatedAt(iso: string) {
   })
 }
 
-function formatTrendDate(date: string) {
-  // ISO date-only(YYYY-MM-DD)는 new Date()로 파싱하면 UTC 기준 00:00로 해석돼
-  // KST(UTC+9) 환경에서 하루 밀릴 수 있어 수동 파싱한다
-  const isoDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
-  const d = isoDateOnly
-    ? new Date(Number(isoDateOnly[1]), Number(isoDateOnly[2]) - 1, Number(isoDateOnly[3]))
-    : new Date(date)
-  if (Number.isNaN(d.getTime())) return date
-  return d.toLocaleDateString('ko-KR', {
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long'
-  })
-}
-
 function SectionSkeleton() {
   return (
-    <div className="mt-6 border-t border-wefin-line pt-6">
+    <div>
       <div className="h-6 w-56 animate-pulse rounded bg-wefin-line" />
       <div className="mt-6 h-24 animate-pulse rounded-2xl bg-wefin-line/60" />
     </div>
@@ -322,7 +355,7 @@ function SectionSkeleton() {
 
 function SectionError() {
   return (
-    <div className="mt-6 border-t border-wefin-line pt-6">
+    <div>
       <h2 className="text-lg font-bold text-wefin-text">오늘 시장 한눈에 보기</h2>
       <p className="mt-4 text-sm text-wefin-subtle">동향을 불러오지 못했습니다.</p>
     </div>

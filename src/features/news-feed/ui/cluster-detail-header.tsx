@@ -1,5 +1,7 @@
-﻿import { ArrowLeft, Share2, Sparkles } from 'lucide-react'
+﻿import { ArrowLeft, Share2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 import type { ClusterDetail } from '../api/fetch-cluster-detail'
 import { getTimeAgo } from '../lib/get-time-ago'
@@ -52,7 +54,7 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
       {cluster.sources.length > 0 && (
         <div className="mt-6">
           <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-wefin-text">
-            <Sparkles className="h-3.5 w-3.5 text-wefin-mint" /> AI 요약 출처
+            <WefinLogoIcon size={16} className="text-wefin-mint" /> AI 요약 출처
           </h3>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {cluster.sources.map((src) => {

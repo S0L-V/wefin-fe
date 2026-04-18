@@ -1,13 +1,10 @@
-import { Lightbulb } from 'lucide-react'
-import { Activity, Flame, type LucideIcon, ShieldCheck, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
 import SourceBadge from '@/shared/ui/source-badge'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 import type { InsightCard, SourceCluster } from '../api/fetch-market-trends-overview'
 import ClusterSourceModal from './cluster-source-modal'
-
-const CARD_ICONS: LucideIcon[] = [TrendingUp, Activity, Flame, ShieldCheck]
 
 type Props = {
   cards: InsightCard[]
@@ -21,13 +18,8 @@ function InsightCardList({ cards, sourceClusters }: Props) {
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {cards.map((card, index) => (
-        <InsightCardItem
-          key={`${card.headline}-${index}`}
-          card={card}
-          index={index}
-          clusterById={clusterById}
-        />
+      {cards.map((card, i) => (
+        <InsightCardItem key={`${card.headline}-${i}`} card={card} clusterById={clusterById} />
       ))}
     </div>
   )
@@ -35,15 +27,12 @@ function InsightCardList({ cards, sourceClusters }: Props) {
 
 function InsightCardItem({
   card,
-  index,
   clusterById
 }: {
   card: InsightCard
-  index: number
   clusterById: Map<number, SourceCluster>
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const Icon = CARD_ICONS[index % CARD_ICONS.length]
 
   const cardClusters: SourceCluster[] = card.relatedClusterIds
     .map((id) => clusterById.get(id))
@@ -54,19 +43,18 @@ function InsightCardItem({
   const hasAdvice = Boolean(card.advice && card.adviceLabel)
 
   return (
-    <article className="flex h-full flex-col rounded-xl border border-wefin-line bg-white p-4">
-      <div className="mb-2 flex items-center gap-2">
-        <Icon className="h-4 w-4 text-wefin-mint" />
-        <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
-      </div>
-      <p className="mb-3 flex-grow text-xs leading-relaxed text-wefin-subtle">{card.body}</p>
+    <article className="flex h-full flex-col rounded-2xl bg-wefin-bg/60 p-5 transition-colors hover:bg-wefin-bg">
+      <h3 className="mb-2 text-sm font-bold text-wefin-text">{card.headline}</h3>
+      <p className="mb-3 flex-grow text-[13px] font-medium leading-relaxed text-wefin-text/70">
+        {card.body}
+      </p>
       {hasAdvice && (
-        <div className="mb-3 rounded-lg border border-gray-100 bg-white p-3">
+        <div className="mb-3 rounded-xl bg-gradient-to-r from-wefin-mint-soft/60 to-transparent px-4 py-3">
           <div className="mb-1 flex items-center gap-1.5">
-            <Lightbulb size={14} className="text-blue-500" />
-            <span className="text-xs font-bold text-wefin-text">{card.adviceLabel}</span>
+            <WefinLogoIcon size={13} className="text-wefin-mint-deep" />
+            <span className="text-xs font-bold text-wefin-mint-deep">{card.adviceLabel}</span>
           </div>
-          <p className="text-xs text-wefin-subtle">{card.advice}</p>
+          <p className="text-[13px] font-medium leading-relaxed text-wefin-text">{card.advice}</p>
         </div>
       )}
       {sourceCount > 0 && (

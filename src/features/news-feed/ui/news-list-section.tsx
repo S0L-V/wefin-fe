@@ -63,7 +63,7 @@ export default function NewsListSection() {
   }
 
   return (
-    <div className="mt-6 border-t border-wefin-line pt-6">
+    <div>
       <NewsFilterBar
         mode={mode}
         onModeChange={handleModeChange}

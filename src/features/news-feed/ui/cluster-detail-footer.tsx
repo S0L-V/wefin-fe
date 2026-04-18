@@ -1,15 +1,5 @@
 ﻿import { useQueryClient } from '@tanstack/react-query'
-import {
-  ChevronRight,
-  Layers,
-  MessageCircle,
-  Share2,
-  Sparkles,
-  Star,
-  ThumbsDown,
-  ThumbsUp,
-  TrendingUp
-} from 'lucide-react'
+import { Layers, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -23,10 +13,10 @@ import {
 } from '@/features/sector-interest/model/use-sector-interest-queries'
 import StockPriceCard from '@/features/stock-price/ui/stock-price-card'
 import { ApiError } from '@/shared/api/base-api'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 import type { ClusterDetail, FeedbackType } from '../api/fetch-cluster-detail'
 import { useClusterFeedbackMutation } from '../model/use-cluster-feedback-mutation'
-import { useShareClusterNewsAction } from '../model/use-share-cluster-news-action'
 
 interface ClusterDetailFooterProps {
   cluster: ClusterDetail
@@ -39,7 +29,6 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
   const feedbackMutation = useClusterFeedbackMutation(cluster.clusterId)
   const queryClient = useQueryClient()
-  const { handleShareNews, isPending } = useShareClusterNewsAction(cluster.clusterId)
   // 낙관적 상태: mutate 시점에 즉시 반영해 refetch가 완료되기 전에도 버튼이 다시 활성화되지 않도록 한다
   const [optimisticFeedback, setOptimisticFeedback] = useState<FeedbackType | null>(null)
   const currentFeedback = optimisticFeedback ?? cluster.feedbackType ?? null
@@ -110,71 +99,52 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   }
 
   return (
-    <div className="mt-10 space-y-12">
+    <div className="mt-10 space-y-8">
       {/* Feedback */}
-      <div className="rounded-2xl bg-wefin-bg py-6 text-center">
-        <p className="text-sm font-semibold text-wefin-text">
-          {currentFeedback ? '피드백을 남겨주셨어요' : '도움이 되셨나요?'}
-        </p>
-        <div className="mt-3 flex justify-center gap-3">
-          <FeedbackButton
-            icon={<ThumbsUp className="h-3.5 w-3.5" />}
-            label="도움돼요"
-            active={currentFeedback === 'HELPFUL'}
-            dimmed={currentFeedback !== null && currentFeedback !== 'HELPFUL'}
-            disabled={currentFeedback !== null || feedbackMutation.isPending}
-            onClick={() => handleFeedback('HELPFUL')}
-          />
-          <FeedbackButton
-            icon={<ThumbsDown className="h-3.5 w-3.5" />}
-            label="아쉬워요"
-            active={currentFeedback === 'NOT_HELPFUL'}
-            dimmed={currentFeedback !== null && currentFeedback !== 'NOT_HELPFUL'}
-            disabled={currentFeedback !== null || feedbackMutation.isPending}
-            onClick={() => handleFeedback('NOT_HELPFUL')}
-          />
+      <div className="border-t border-wefin-line/50 pt-6">
+        <div className="flex items-center justify-center gap-4">
+          <span className="text-sm text-wefin-subtle">
+            {currentFeedback ? '피드백 감사합니다' : '이 분석이 도움이 되셨나요?'}
+          </span>
+          {(!currentFeedback || currentFeedback === 'HELPFUL') && (
+            <FeedbackButton
+              icon={<ThumbsUp className="h-4 w-4" />}
+              label=""
+              active={currentFeedback === 'HELPFUL'}
+              dimmed={currentFeedback !== null && currentFeedback !== 'HELPFUL'}
+              disabled={currentFeedback !== null || feedbackMutation.isPending}
+              onClick={() => handleFeedback('HELPFUL')}
+            />
+          )}
+          {(!currentFeedback || currentFeedback === 'NOT_HELPFUL') && (
+            <FeedbackButton
+              icon={<ThumbsDown className="h-4 w-4" />}
+              label=""
+              active={currentFeedback === 'NOT_HELPFUL'}
+              dimmed={currentFeedback !== null && currentFeedback !== 'NOT_HELPFUL'}
+              disabled={currentFeedback !== null || feedbackMutation.isPending}
+              onClick={() => handleFeedback('NOT_HELPFUL')}
+            />
+          )}
         </div>
-      </div>
-
-      {/* Chat share CTA */}
-      <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#3db9b9]/20 bg-gradient-to-r from-[#3db9b9]/10 to-blue-500/10 p-6 sm:flex-row">
-        <div>
-          <h3 className="mb-1 flex items-center gap-2 text-lg font-bold text-wefin-text">
-            <MessageCircle size={20} className="text-[#3db9b9]" />이 뉴스에 대해 어떻게
-            생각하시나요?
-          </h3>
-          <p className="text-sm text-wefin-subtle">
-            그룹 채팅방에 공유하고 다른 투자자들과 의견을 나누어보세요.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleShareNews}
-          disabled={isPending}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-[#3db9b9] px-6 py-3 font-bold text-white transition hover:bg-[#2a8282] disabled:cursor-not-allowed disabled:bg-[#3db9b9]/50 disabled:text-white/70"
-        >
-          <Share2 size={18} />
-          <span>채팅방에 공유하기</span>
-        </button>
       </div>
 
       {/* AI Questions */}
       {cluster.suggestedQuestions.length > 0 && (
-        <div>
-          <div className="mb-4 flex items-center gap-2">
-            <Sparkles size={20} className="text-[#3db9b9]" />
-            <h3 className="text-lg font-bold text-wefin-text">AI에게 더 물어보기</h3>
+        <div className="rounded-2xl bg-gradient-to-br from-[#f8fffe] to-[#f0f7f7] p-5">
+          <div className="mb-3 flex items-center gap-1.5">
+            <WefinLogoIcon size={16} className="text-wefin-mint-deep" />
+            <h3 className="text-sm font-bold text-wefin-text">더 궁금한 점이 있나요?</h3>
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
             {cluster.suggestedQuestions.map((q, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleQuestionClick(q)}
-                className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-wefin-line px-4 py-3 text-left text-sm text-wefin-text transition-colors hover:border-[#3db9b9]/40 hover:bg-[#3db9b9]/5"
+                className="cursor-pointer rounded-full bg-white px-4 py-2 text-[13px] text-wefin-text shadow-sm transition-all hover:text-wefin-mint-deep hover:shadow-md"
               >
-                <span className="line-clamp-1">{q}</span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-wefin-subtle" />
+                {q}
               </button>
             ))}
           </div>
@@ -183,43 +153,31 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
 
       {/* Related sector interest */}
       {relatedSector && (
-        <div className="flex items-center justify-between rounded-xl border border-[#3db9b9]/20 bg-gradient-to-r from-[#3db9b9]/10 to-transparent p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#2a8282] shadow-sm">
-              <Star size={20} />
-            </div>
-            <div>
-              <h4 className="font-bold text-gray-900">
-                이 뉴스와 관련된 &apos;{relatedSector.name}&apos; 분야
-              </h4>
-              <p className="text-sm text-wefin-subtle">
-                관심 분야로 등록하고 맞춤 뉴스를 받아보세요.
-              </p>
-            </div>
-          </div>
+        <div className="inline-flex items-center gap-2">
+          <span className="rounded-full bg-wefin-bg px-3 py-1.5 text-[13px] font-semibold text-wefin-text">
+            {relatedSector.name}
+          </span>
           <button
             type="button"
             onClick={handleSectorInterestClick}
             disabled={isSectorToggleDisabled}
-            className={
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-semibold transition-all ${
               isSectorRegistered
-                ? 'shrink-0 rounded-lg border border-[#3db9b9] bg-white px-5 py-2.5 text-sm font-bold text-[#2a8282] transition-colors hover:bg-[#3db9b9]/10 disabled:opacity-60'
-                : 'shrink-0 rounded-lg bg-[#3db9b9] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2a8282] disabled:opacity-60'
-            }
+                ? 'bg-wefin-mint-soft text-wefin-mint-deep'
+                : 'text-wefin-subtle hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'
+            } disabled:opacity-60`}
           >
+            <Star size={12} className={isSectorRegistered ? 'fill-current' : ''} />
             {isSectorRegistered ? '등록됨' : '관심 등록'}
           </button>
         </div>
       )}
 
-      {/* AI Recommended Stocks */}
+      {/* Related Stocks */}
       {cluster.relatedStocks.length > 0 && (
         <div>
-          <div className="mb-4 flex items-center gap-2">
-            <TrendingUp size={20} className="text-[#3db9b9]" />
-            <h3 className="text-lg font-bold text-wefin-text">AI 추천 관련 종목</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <h3 className="mb-3 text-sm font-bold text-wefin-text">관련 종목</h3>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {cluster.relatedStocks.map((stock) => (
               <StockPriceCard key={stock.code} code={stock.code} name={stock.name} />
             ))}

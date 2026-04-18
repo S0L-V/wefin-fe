@@ -1,5 +1,5 @@
-import { Check, ChevronDown, Heart, Newspaper, Search, SlidersHorizontal, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Check, ChevronDown, Heart, Search, SlidersHorizontal, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
@@ -37,6 +37,19 @@ export default function NewsFilterBar({
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
+  const tabContainerRef = useRef<HTMLDivElement>(null)
+  const indicatorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!tabContainerRef.current || !indicatorRef.current) return
+    const activeBtn = tabContainerRef.current.querySelector<HTMLElement>('[data-active="true"]')
+    if (activeBtn) {
+      const containerRect = tabContainerRef.current.getBoundingClientRect()
+      const btnRect = activeBtn.getBoundingClientRect()
+      indicatorRef.current.style.width = `${btnRect.width}px`
+      indicatorRef.current.style.transform = `translateX(${btnRect.left - containerRect.left}px)`
+    }
+  }, [mode])
 
   const userId = useAuthUserId()
   const { data: watchlist = [] } = useWatchlistQuery()
@@ -125,24 +138,25 @@ export default function NewsFilterBar({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wefin-mint">
-          <Newspaper className="h-4 w-4 text-white" />
-        </div>
-        <span className="text-base font-bold text-wefin-text">뉴스</span>
-      </div>
+      <span className="text-base font-bold text-wefin-text">뉴스</span>
 
-      <div className="h-5 w-px bg-gray-200" />
-
-      <div className="flex items-center gap-0.5 rounded-xl bg-gray-100 p-1">
+      <div
+        ref={tabContainerRef}
+        className="relative flex items-center gap-0.5 rounded-xl bg-wefin-mint-soft p-1"
+      >
+        <div
+          ref={indicatorRef}
+          className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all duration-300"
+        />
         {MODE_TABS.map((tab) => (
           <button
             key={tab.value}
+            data-active={mode === tab.value}
             onClick={() => handleModeChange(tab.value)}
-            className={`cursor-pointer rounded-lg px-4 py-1.5 text-[13px] font-medium transition-all ${
+            className={`relative z-10 cursor-pointer rounded-lg px-4 py-1.5 text-[13px] font-medium transition-colors ${
               mode === tab.value
-                ? 'bg-white font-semibold text-wefin-text shadow-sm'
-                : 'text-wefin-subtle hover:text-wefin-text'
+                ? 'font-semibold text-wefin-mint-deep'
+                : 'text-wefin-subtle hover:text-wefin-mint-deep'
             }`}
           >
             {tab.label}
