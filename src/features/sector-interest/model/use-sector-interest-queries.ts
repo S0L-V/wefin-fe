@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import {
   addSectorInterest,
@@ -39,7 +40,7 @@ export function useAddSectorInterest() {
       if (context && 'previous' in context) {
         queryClient.setQueryData(SECTOR_INTERESTS_KEY, context.previous)
       }
-      if (error instanceof ApiError) window.alert(error.message)
+      toast.error(error instanceof ApiError ? error.message : '관심 분야 등록에 실패했어요')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: SECTOR_INTERESTS_KEY })
@@ -66,7 +67,7 @@ export function useDeleteSectorInterest() {
       if (context && 'previous' in context) {
         queryClient.setQueryData(SECTOR_INTERESTS_KEY, context.previous)
       }
-      if (error instanceof ApiError) window.alert(error.message)
+      toast.error(error instanceof ApiError ? error.message : '관심 분야 삭제에 실패했어요')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: SECTOR_INTERESTS_KEY })

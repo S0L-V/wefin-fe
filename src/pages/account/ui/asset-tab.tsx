@@ -12,6 +12,7 @@ export default function AssetTab() {
   }
 
   const balance = Math.trunc(account?.balance ?? 0)
+  const initialBalance = Math.trunc(account?.initialBalance ?? 0)
   const frozenAmount = Math.trunc(
     pendingOrders
       .filter((o) => o.side === 'BUY')
@@ -25,6 +26,7 @@ export default function AssetTab() {
     (portfolio ?? []).reduce((sum, item) => sum + (item.profitLoss ?? 0), 0)
   )
   const totalAsset = balance + frozenAmount + investedAmount
+  const questReward = totalAsset - initialBalance - realizedProfit - totalPnL
   const profitColor = realizedProfit >= 0 ? 'text-red-500' : 'text-blue-600'
   const pnlColor = totalPnL >= 0 ? 'text-red-500' : 'text-blue-600'
 
@@ -54,6 +56,13 @@ export default function AssetTab() {
         value={`${realizedProfit >= 0 ? '+' : ''}${realizedProfit.toLocaleString()}원`}
         valueClass={profitColor}
       />
+      {questReward > 0 && (
+        <Row
+          title="퀘스트 보상"
+          value={`+${questReward.toLocaleString()}원`}
+          valueClass="text-emerald-500"
+        />
+      )}
     </div>
   )
 }

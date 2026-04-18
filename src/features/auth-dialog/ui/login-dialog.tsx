@@ -7,7 +7,7 @@ function LoginDialog() {
     <button
       type="button"
       onClick={openLogin}
-      className="inline-flex h-[34px] min-w-[88px] items-center justify-center rounded-[9px] bg-[#56c1c9] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc]"
+      className="inline-flex h-9 items-center justify-center rounded-full border border-wefin-mint-deep/30 bg-wefin-mint-deep/5 px-5 text-sm font-bold text-wefin-mint-deep backdrop-blur-sm transition-all hover:border-wefin-mint-deep/50 hover:bg-wefin-mint-deep hover:text-white hover:shadow-[0_0_16px_rgba(36,168,171,0.25)]"
     >
       로그인
     </button>

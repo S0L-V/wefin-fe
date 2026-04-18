@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { ApiError } from '@/shared/api/base-api'
 
@@ -53,7 +54,7 @@ export function useLeaveRoomGuard(roomId: string) {
             ? err.message
             : '방 나가기에 실패했습니다. 잠시 후 다시 시도해주세요.'
         cancelLeave()
-        window.alert(message)
+        toast.error(message)
       }
     })
   }, [roomId, leaveMutation, getPendingPath, cancelLeave])

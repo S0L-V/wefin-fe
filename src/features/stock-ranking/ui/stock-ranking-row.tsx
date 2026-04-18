@@ -24,7 +24,7 @@ function formatTradingValue(won: number): string {
 
 export default function StockRankingRow({ stock }: StockRankingRowProps) {
   const navigate = useNavigate()
-  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(stock.stockCode)
+  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(stock.stockCode, stock.stockName)
 
   const isUp = stock.changeRate > 0
   const isDown = stock.changeRate < 0

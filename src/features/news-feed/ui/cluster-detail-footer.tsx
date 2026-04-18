@@ -11,6 +11,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
@@ -103,7 +104,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
         }
         // 그 외 실패는 롤백 후 안내
         setOptimisticFeedback(null)
-        window.alert('피드백 전송에 실패했습니다. 잠시 후 다시 시도해주세요.')
+        toast.error('피드백 전송에 실패했어요')
       }
     })
   }

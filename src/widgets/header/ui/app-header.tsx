@@ -1,11 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query'
+import { ChevronDown, LogOut, Settings, Wallet } from 'lucide-react'
 import { type MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
+import { useAccountQuery } from '@/features/account/model/use-account-queries'
 import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
 import { useLeaveGuardStore } from '@/features/game-room/model/use-leave-guard-store'
 import { navigationItems, routes } from '@/shared/config/routes'
+import ConfirmDialog from '@/shared/ui/confirm-dialog'
 
 type AuthUser = {
   isLoggedIn: boolean
@@ -173,56 +176,85 @@ function UserMenu({
   onAccountClick: () => void
   onSettingsClick: () => void
 }) {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const initial = (user.nickname || '?').charAt(0).toUpperCase()
+  const { data: account } = useAccountQuery()
+  const totalAsset = Math.trunc(account?.balance ?? 0)
 
   return (
     <div className="group relative">
       <button
         type="button"
-        className="inline-flex h-10 items-center gap-2 rounded-full pl-1 pr-4 text-base font-bold text-wefin-text transition-colors hover:bg-wefin-bg"
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent pl-0.5 pr-3 text-sm font-bold text-wefin-text transition-all hover:border-wefin-mint-deep/20 hover:shadow-[0_0_12px_rgba(36,168,171,0.15)]"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-wefin-mint-soft text-sm font-bold text-wefin-mint-deep">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-wefin-mint-deep to-emerald-400 text-sm font-bold text-white ring-2 ring-wefin-mint-soft">
           {initial}
         </span>
         {user.nickname}
+        <ChevronDown
+          size={14}
+          className="text-wefin-subtle transition-transform group-hover:rotate-180"
+        />
       </button>
-      {/* 호버 영역 끊기지 않도록 padding-top으로 다리 */}
-      <div className="invisible absolute right-0 top-full z-30 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
-        <div className="w-60 overflow-hidden rounded-xl border border-wefin-line bg-white shadow-[0_8px_24px_-8px_rgba(36,168,171,0.2)]">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-wefin-mint-soft text-sm font-bold text-wefin-mint-deep">
-              {initial}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-wefin-text">{user.nickname}</p>
-              {user.email && <p className="truncate text-xs text-wefin-subtle">{user.email}</p>}
+      <div className="invisible absolute right-0 top-full z-30 pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100">
+        <div className="w-64 overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-[0_12px_32px_-8px_rgba(36,168,171,0.2)]">
+          <div className="bg-gradient-to-br from-wefin-mint-deep/5 to-transparent px-4 py-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-wefin-mint-deep to-emerald-400 text-base font-bold text-white ring-2 ring-wefin-mint-soft">
+                {initial}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-wefin-text">{user.nickname}</p>
+                {user.email && <p className="truncate text-xs text-wefin-subtle">{user.email}</p>}
+              </div>
             </div>
+            {account && (
+              <p className="mt-3 rounded-lg bg-white/60 px-3 py-2 text-right text-sm font-bold tabular-nums text-wefin-text">
+                {totalAsset.toLocaleString()}원
+              </p>
+            )}
           </div>
           <div className="border-t border-wefin-line py-1">
             <button
               type="button"
               onClick={onAccountClick}
-              className="block w-full px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-bg"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-bg"
             >
-              내 계좌
+              <Wallet size={16} className="text-wefin-subtle" />내 계좌
             </button>
             <button
               type="button"
               onClick={onSettingsClick}
-              className="block w-full px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-bg"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-bg"
             >
+              <Settings size={16} className="text-wefin-subtle" />
               설정
             </button>
             <button
               type="button"
-              onClick={onLogout}
-              className="block w-full px-4 py-2.5 text-left text-sm font-medium text-rose-500 transition-colors hover:bg-rose-50"
+              onClick={() => setShowLogoutConfirm(true)}
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-rose-500 transition-colors hover:bg-rose-50"
             >
+              <LogOut size={16} />
               로그아웃
             </button>
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        open={showLogoutConfirm}
+        onConfirm={() => {
+          setShowLogoutConfirm(false)
+          onLogout()
+        }}
+        onCancel={() => setShowLogoutConfirm(false)}
+        title="로그아웃 하시겠어요?"
+        description="다시 로그인하면 이어서 이용할 수 있어요"
+        confirmLabel="로그아웃"
+        cancelLabel="취소"
+        confirmVariant="danger"
+        icon={<LogOut size={22} className="text-rose-500" />}
+      />
     </div>
   )
 }

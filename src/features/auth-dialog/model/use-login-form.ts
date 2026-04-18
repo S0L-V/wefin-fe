@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { type ChangeEvent, type FormEvent, useState } from 'react'
+import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/shared/api/base-api'
@@ -20,8 +20,21 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
     password: ''
   })
 
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
+  const toastTimer = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) window.clearTimeout(toastTimer.current)
+    }
+  }, [])
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    if (toastTimer.current) window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToastMsg(''), 3000)
+  }
 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -35,13 +48,10 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
       ...prev,
       [field]: e.target.value
     }))
-
-    if (error) setError('')
   }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
 
     try {
@@ -64,9 +74,9 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
       navigate(from, { replace: true })
     } catch (error) {
       if (error instanceof ApiError) {
-        setError(error.message || '로그인 실패')
+        showToast(error.message || '로그인에 실패했어요')
       } else {
-        setError('서버 통신 오류')
+        showToast('서버 통신 오류가 발생했어요')
       }
     } finally {
       setLoading(false)
@@ -75,8 +85,8 @@ export function useLoginForm({ onSuccess }: UseLoginFormParams) {
 
   return {
     formData,
-    error,
     loading,
+    toastMsg,
     handleChange,
     handleSubmit
   }

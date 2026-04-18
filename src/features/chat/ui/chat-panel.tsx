@@ -7,8 +7,13 @@ import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs
 
 type InnerTab = 'group' | 'global'
 
-const TABS: SegmentedTabItem<InnerTab>[] = [
+const GROUP_TABS: SegmentedTabItem<InnerTab>[] = [
   { key: 'group', label: '그룹' },
+  { key: 'global', label: '전체' }
+]
+
+const MEMO_TABS: SegmentedTabItem<InnerTab>[] = [
+  { key: 'group', label: '메모' },
   { key: 'global', label: '전체' }
 ]
 
@@ -31,26 +36,25 @@ function useIsLoggedIn(): boolean {
 export default function ChatPanel() {
   const isLoggedIn = useIsLoggedIn()
   const { data: group } = useMyGroupQuery({ enabled: isLoggedIn })
-  const canUseGroupChat = isLoggedIn && group != null && !group.isHomeGroup
+  const hasGroup = isLoggedIn && group != null
+  const isHomeGroup = hasGroup && group.isHomeGroup
+  const tabs = isHomeGroup ? MEMO_TABS : GROUP_TABS
 
-  const [innerTab, setInnerTab] = useState<InnerTab>('group')
-  // 멤버십이 변할 때 적절한 탭으로 자동 전환 (React docs "adjust state when prop changes" 패턴)
-  // 프로젝트 ESLint 룰(react-hooks/set-state-in-effect)이 useEffect 내 setState를 금지함
-  const [prevCanUseGroup, setPrevCanUseGroup] = useState<boolean | null>(null)
-  if (prevCanUseGroup !== canUseGroupChat) {
-    setPrevCanUseGroup(canUseGroupChat)
-    setInnerTab(canUseGroupChat ? 'group' : 'global')
+  const [innerTab, setInnerTab] = useState<InnerTab>('global')
+  const [prevIsHomeGroup, setPrevIsHomeGroup] = useState(isHomeGroup)
+  if (prevIsHomeGroup !== isHomeGroup) {
+    setPrevIsHomeGroup(isHomeGroup)
+    if (isHomeGroup) setInnerTab('global')
   }
 
-  // 비그룹/비로그인은 토글 없이 전체 채팅만
-  if (!canUseGroupChat) {
+  if (!hasGroup) {
     return <GlobalChatRoom bare />
   }
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 justify-center px-3 pt-2 pb-1">
-        <SegmentedTabs items={TABS} activeKey={innerTab} onChange={setInnerTab} />
+        <SegmentedTabs items={tabs} activeKey={innerTab} onChange={setInnerTab} />
       </div>
       <div className="min-h-0 flex-1">
         {innerTab === 'group' ? <GroupChatRoom bare /> : <GlobalChatRoom bare />}

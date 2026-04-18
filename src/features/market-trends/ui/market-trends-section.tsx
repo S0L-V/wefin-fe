@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { BookOpen, RefreshCw, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
@@ -53,9 +54,9 @@ function MarketTrendsSection() {
       const elapsedMs = Date.now() - lastAt
       if (elapsedMs < PERSONALIZED_REFRESH_INTERVAL_MS) {
         const remainingMin = Math.ceil((PERSONALIZED_REFRESH_INTERVAL_MS - elapsedMs) / 60_000)
-        window.alert(
-          `방금 분석한 결과가 있어요. ${remainingMin}분 후에 새 분석을 받아볼 수 있어요.`
-        )
+        toast('방금 분석한 결과가 있어요', {
+          description: `${remainingMin}분 후에 새 분석을 받아볼 수 있어요`
+        })
         return
       }
     }

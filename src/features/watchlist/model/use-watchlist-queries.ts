@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import {
   addWatchlistItem,
@@ -41,9 +42,7 @@ export function useAddWatchlist() {
       if (context?.previous) {
         queryClient.setQueryData(WATCHLIST_KEY, context.previous)
       }
-      if (error instanceof ApiError) {
-        window.alert(error.message)
-      }
+      toast.error(error instanceof ApiError ? error.message : '관심종목 추가에 실패했어요')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: WATCHLIST_KEY })
@@ -69,9 +68,7 @@ export function useDeleteWatchlist() {
       if (context?.previous) {
         queryClient.setQueryData(WATCHLIST_KEY, context.previous)
       }
-      if (error instanceof ApiError) {
-        window.alert(error.message)
-      }
+      toast.error(error instanceof ApiError ? error.message : '관심종목 제거에 실패했어요')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: WATCHLIST_KEY })
@@ -79,19 +76,24 @@ export function useDeleteWatchlist() {
   })
 }
 
-export function useToggleWatchlist(code: string) {
+export function useToggleWatchlist(code: string, name?: string) {
   const isWatchlisted = useIsWatchlisted(code)
   const addMutation = useAddWatchlist()
   const deleteMutation = useDeleteWatchlist()
 
   const isPending = addMutation.isPending || deleteMutation.isPending
+  const label = name || code
 
   function toggle() {
     if (isPending) return
     if (isWatchlisted) {
-      deleteMutation.mutate(code)
+      deleteMutation.mutate(code, {
+        onSuccess: () => toast(`${label} 관심종목에서 제거했어요`)
+      })
     } else {
-      addMutation.mutate(code)
+      addMutation.mutate(code, {
+        onSuccess: () => toast.success(`${label} 관심종목에 추가했어요`)
+      })
     }
   }
 
