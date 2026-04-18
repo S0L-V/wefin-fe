@@ -48,24 +48,6 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
           />
         </div>
       </section>
-
-      <section>
-        <h3 className="mb-4 text-lg font-bold text-wefin-text">보안 인증</h3>
-        <SettingRow
-          title="2단계 인증 (2FA)"
-          description="로그인 시 추가 보안 코드를 요구하여 계정을 보호합니다."
-          action={
-            <button
-              type="button"
-              disabled
-              aria-label="2단계 인증 토글"
-              className="relative h-6 w-11 cursor-not-allowed rounded-full bg-wefin-line opacity-60"
-            >
-              <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white" />
-            </button>
-          }
-        />
-      </section>
     </div>
   )
 }

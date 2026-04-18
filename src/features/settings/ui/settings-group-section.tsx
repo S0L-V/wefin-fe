@@ -1,7 +1,9 @@
 import { ArrowLeft, Check, Copy, Info, LogIn, LogOut, Plus, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { ApiError } from '@/shared/api/base-api'
+import ConfirmDialog from '@/shared/ui/confirm-dialog'
 
 import { useCreateGroupInviteCodeMutation } from '../model/use-create-group-invite-code-mutation'
 import { useCreateGroupMutation } from '../model/use-create-group-mutation'
@@ -45,6 +47,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
   const [newGroupName, setNewGroupName] = useState('')
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
   const [homeGroupMode, setHomeGroupMode] = useState<HomeGroupMode>('idle')
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   const copyTimeoutRef = useRef<number | null>(null)
 
   const isHomeGroup = group?.isHomeGroup ?? true
@@ -99,25 +102,10 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       ? error.message
       : '그룹 정보를 불러오는 중 오류가 발생했어요.'
 
-  const leaveErrorMessage =
-    leaveGroupMutation.isError && leaveGroupMutation.error instanceof ApiError
-      ? leaveGroupMutation.error.message
-      : '그룹 탈퇴 중 오류가 발생했어요.'
-
   const inviteErrorMessage =
     createInviteMutation.isError && createInviteMutation.error instanceof ApiError
       ? createInviteMutation.error.message
       : '초대 코드 생성 중 오류가 발생했어요.'
-
-  const joinErrorMessage =
-    joinGroupMutation.isError && joinGroupMutation.error instanceof ApiError
-      ? joinGroupMutation.error.message
-      : '그룹 참여 중 오류가 발생했어요.'
-
-  const createGroupErrorMessage =
-    createGroupMutation.isError && createGroupMutation.error instanceof ApiError
-      ? createGroupMutation.error.message
-      : '새 그룹 생성 중 오류가 발생했어요.'
 
   useEffect(() => {
     return () => {
@@ -137,18 +125,20 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
   }
 
   const handleLeaveGroup = () => {
-    if (!group || !canLeaveGroup || isLeaving) {
-      return
-    }
+    if (!group || !canLeaveGroup || isLeaving) return
+    setShowLeaveConfirm(true)
+  }
 
-    const confirmed = window.confirm('정말로 현재 그룹에서 탈퇴하시겠어요?')
-    if (!confirmed) {
-      return
-    }
-
+  const confirmLeaveGroup = () => {
+    setShowLeaveConfirm(false)
+    if (!group) return
     resetOtherMutations('leave')
     setCopyState('idle')
-    leaveGroupMutation.mutate(group.groupId)
+    leaveGroupMutation.mutate(group.groupId, {
+      onSuccess: () => toast.success('그룹에서 탈퇴했어요'),
+      onError: (error) =>
+        toast.error(error instanceof ApiError ? error.message : '그룹 탈퇴 중 오류가 발생했어요')
+    })
   }
 
   const handleCreateInvite = () => {
@@ -180,7 +170,10 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       {
         onSuccess: () => {
           setHomeGroupMode('idle')
-        }
+          toast.success('그룹에 참여했어요')
+        },
+        onError: (error) =>
+          toast.error(error instanceof ApiError ? error.message : '그룹 참여 중 오류가 발생했어요')
       }
     )
   }
@@ -199,7 +192,12 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       {
         onSuccess: () => {
           setHomeGroupMode('idle')
-        }
+          toast.success('새 그룹이 생성되었어요')
+        },
+        onError: (error) =>
+          toast.error(
+            error instanceof ApiError ? error.message : '새 그룹 생성 중 오류가 발생했어요'
+          )
       }
     )
   }
@@ -256,10 +254,6 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
             <div>
               <p className="text-xs text-wefin-subtle">현재 소속 그룹</p>
               <p className="mt-0.5 text-base font-bold text-wefin-text">{groupName}</p>
-
-              {leaveGroupMutation.isError ? (
-                <p className="mt-2 text-sm text-red-500">{leaveErrorMessage}</p>
-              ) : null}
             </div>
 
             <button
@@ -277,29 +271,6 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
               {isLeaving ? '탈퇴 중...' : '그룹 탈퇴'}
             </button>
           </div>
-        </div>
-      )}
-
-      {/* 성공/에러 토스트 (홈 그룹에서도 표시) */}
-      {(joinGroupMutation.isSuccess ||
-        joinGroupMutation.isError ||
-        createGroupMutation.isSuccess ||
-        createGroupMutation.isError ||
-        leaveGroupMutation.isSuccess) && (
-        <div className="px-4 py-2">
-          {leaveGroupMutation.isSuccess && (
-            <p className="text-sm text-wefin-mint">그룹에서 탈퇴했어요.</p>
-          )}
-          {joinGroupMutation.isSuccess && (
-            <p className="text-sm text-wefin-mint">그룹에 성공적으로 참여했어요.</p>
-          )}
-          {joinGroupMutation.isError && <p className="text-sm text-red-500">{joinErrorMessage}</p>}
-          {createGroupMutation.isSuccess && (
-            <p className="text-sm text-wefin-mint">새 그룹이 생성되었어요.</p>
-          )}
-          {createGroupMutation.isError && (
-            <p className="text-sm text-red-500">{createGroupErrorMessage}</p>
-          )}
         </div>
       )}
 
@@ -525,6 +496,17 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
           )}
         </div>
       )}
+      <ConfirmDialog
+        open={showLeaveConfirm}
+        onConfirm={confirmLeaveGroup}
+        onCancel={() => setShowLeaveConfirm(false)}
+        title="그룹에서 탈퇴하시겠어요?"
+        description="탈퇴하면 그룹 채팅과 활동 내역을 볼 수 없어요"
+        confirmLabel="탈퇴"
+        cancelLabel="취소"
+        confirmVariant="danger"
+        icon={<LogOut size={22} className="text-rose-500" />}
+      />
     </div>
   )
 }

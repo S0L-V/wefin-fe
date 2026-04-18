@@ -1,4 +1,5 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { ApiError } from '@/shared/api/base-api'
 
@@ -40,6 +41,8 @@ export function useClaimQuestReward(userId: string) {
   return useMutation({
     mutationFn: (questId: number) => claimQuestReward(questId),
     onSuccess: () => {
+      toast.success('보상을 받았어요')
+
       if (userId) {
         void queryClient.invalidateQueries({ queryKey: getTodayQuestQueryKey(userId) })
         return

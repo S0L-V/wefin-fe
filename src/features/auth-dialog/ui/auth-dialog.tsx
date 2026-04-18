@@ -18,8 +18,8 @@ function AuthDialog() {
 
   const {
     formData: loginFormData,
-    error: loginError,
     loading: loginLoading,
+    toastMsg,
     handleChange: handleLoginChange,
     handleSubmit: handleLoginSubmit
   } = useLoginForm({
@@ -32,8 +32,7 @@ function AuthDialog() {
     isEmailVerified,
     isCodeSent,
     verificationCode,
-    verificationCodeError,
-    error: signupError,
+    codeCooldown,
     loading: signupLoading,
     isVerifying,
     handleChange: handleSignupChange,
@@ -58,6 +57,11 @@ function AuthDialog() {
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
+          {isLogin && toastMsg && (
+            <div className="mb-4 animate-[slideDown_0.2s_ease-out] rounded-xl bg-rose-50 px-4 py-3 text-center text-sm font-semibold text-rose-600 shadow-sm">
+              {toastMsg}
+            </div>
+          )}
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2">
               <Dialog.Title className="text-xl font-semibold text-slate-900">
@@ -113,8 +117,6 @@ function AuthDialog() {
                     className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
                   />
                 </div>
-
-                {loginError ? <p className="text-sm text-red-500">{loginError}</p> : null}
 
                 <button
                   type="submit"
@@ -178,23 +180,23 @@ function AuthDialog() {
                     <button
                       type="button"
                       onClick={handleSendVerificationCode}
-                      disabled={isVerifying || isEmailVerified}
-                      className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={isVerifying || isEmailVerified || codeCooldown > 0}
+                      className="min-w-[88px] rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isVerifying
                         ? '전송 중...'
                         : isEmailVerified
                           ? '인증완료'
-                          : isCodeSent
-                            ? '재전송'
-                            : '인증코드'}
+                          : codeCooldown > 0
+                            ? `${codeCooldown}초`
+                            : isCodeSent
+                              ? '재전송'
+                              : '인증코드'}
                     </button>
                   </div>
 
                   {fieldErrors.email ? (
                     <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
-                  ) : isEmailVerified ? (
-                    <p className="mt-1 text-sm text-emerald-600">이메일 인증이 완료되었습니다.</p>
                   ) : null}
                 </div>
 
@@ -224,10 +226,6 @@ function AuthDialog() {
                         {isVerifying ? '확인 중...' : '코드확인'}
                       </button>
                     </div>
-
-                    {verificationCodeError ? (
-                      <p className="mt-1 text-sm text-red-500">{verificationCodeError}</p>
-                    ) : null}
                   </div>
                 ) : null}
 
@@ -283,8 +281,6 @@ function AuthDialog() {
                     className={inputClassName('inviteCode')}
                   />
                 </div>
-
-                {signupError ? <p className="text-sm text-red-500">{signupError}</p> : null}
 
                 <button
                   type="submit"

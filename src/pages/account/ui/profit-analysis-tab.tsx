@@ -26,7 +26,7 @@ export default function ProfitAnalysisTab() {
   const { data: account } = useAccountQuery()
   const { data: portfolio } = usePortfolioQuery()
   const { data: assetHistory, isLoading } = useAssetHistoryQuery()
-  const { data: tradeData } = useTradeHistoryQuery({}, 200)
+  const { data: tradeData } = useTradeHistoryQuery({}, 100)
   const trades = tradeData?.pages.flatMap((page) => page.content) ?? []
 
   const realizedProfit = Math.trunc(account?.totalRealizedProfit ?? 0)
@@ -58,15 +58,30 @@ export default function ProfitAnalysisTab() {
           }
         ]
 
-  // 가입 당일이라 1포인트만 있으면 시작점(initialBalance)을 하루 앞에 추가해 평평한 라인으로 표시
+  const periodDays = PERIOD_OPTIONS.find((o) => o.key === period)?.days ?? null
+  const cutoffDate = (() => {
+    if (periodDays === null) return null
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - periodDays)
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(cutoff)
+  })()
+
+  const firstSnapshotDate = withToday[0]?.date?.substring(0, 10) ?? null
+  const startDate =
+    cutoffDate ??
+    (firstSnapshotDate
+      ? (() => {
+          const d = new Date(firstSnapshotDate)
+          d.setDate(d.getDate() - 1)
+          return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(d)
+        })()
+      : null)
+
   let chartHistory = withToday
-  if (withToday.length === 1 && initialTotal > 0) {
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(yesterday)
+  if (initialTotal > 0 && startDate && (!firstSnapshotDate || startDate < firstSnapshotDate)) {
     chartHistory = [
       {
-        date: yDate,
+        date: startDate,
         totalAsset: initialTotal,
         balance: initialTotal,
         evaluationAmount: 0,
@@ -76,13 +91,6 @@ export default function ProfitAnalysisTab() {
     ]
   }
 
-  const periodDays = PERIOD_OPTIONS.find((o) => o.key === period)?.days ?? null
-  const cutoffDate = (() => {
-    if (periodDays === null) return null
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - periodDays)
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(cutoff)
-  })()
   const filteredHistory =
     cutoffDate === null
       ? chartHistory
@@ -91,26 +99,44 @@ export default function ProfitAnalysisTab() {
   return (
     <div className="space-y-6">
       <section className="max-w-md">
-        <p className="text-xs text-wefin-subtle">총 실현수익</p>
-        <p className={`mt-1 text-2xl font-bold ${profitColor}`}>
+        <p className="text-sm text-wefin-subtle">총 실현수익</p>
+        <p className={`mt-1 text-3xl font-bold ${profitColor}`}>
           {realizedProfit >= 0 ? '+' : ''}
           {realizedProfit.toLocaleString()}원
         </p>
-        <div className="mt-3 flex items-baseline justify-between text-xs">
-          <span className="text-wefin-subtle">
-            총 자산{' '}
-            <span className="font-medium text-wefin-text">{currentTotal.toLocaleString()}원</span>
-          </span>
-          <span className={diffColor}>
-            {diff >= 0 ? '+' : ''}
-            {diff.toLocaleString()}원 ({diffRate.toFixed(2)}%)
-          </span>
+        <div className="mt-3 space-y-1.5 text-sm">
+          <div className="flex items-baseline justify-between">
+            <span className="text-wefin-subtle">
+              총 자산{' '}
+              <span className="font-semibold text-wefin-text">
+                {currentTotal.toLocaleString()}원
+              </span>
+            </span>
+            <span className={`font-semibold ${diffColor}`}>
+              {diff >= 0 ? '+' : ''}
+              {diff.toLocaleString()}원 ({diffRate.toFixed(2)}%)
+            </span>
+          </div>
+          {(() => {
+            const totalPnL = Math.trunc(
+              (portfolio ?? []).reduce((sum, item) => sum + (item.profitLoss ?? 0), 0)
+            )
+            const questReward = diff - realizedProfit - totalPnL
+            return questReward > 0 ? (
+              <div className="flex items-baseline justify-between">
+                <span className="text-wefin-subtle">퀘스트 보상</span>
+                <span className="font-semibold text-emerald-500">
+                  +{questReward.toLocaleString()}원
+                </span>
+              </div>
+            ) : null
+          })()}
         </div>
       </section>
 
       <section className="max-w-xl border-t border-wefin-line pt-5">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-wefin-text">자산 추이</h3>
+          <h3 className="text-base font-semibold text-wefin-text">자산 추이</h3>
           <div className="flex gap-1">
             {PERIOD_OPTIONS.map(({ key, label }) => {
               const isActive = period === key
@@ -119,7 +145,7 @@ export default function ProfitAnalysisTab() {
                   key={key}
                   type="button"
                   onClick={() => setPeriod(key)}
-                  className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-wefin-mint-soft text-wefin-mint-deep'
                       : 'text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
@@ -140,16 +166,16 @@ export default function ProfitAnalysisTab() {
 
       <section className="max-w-xl border-t border-wefin-line pt-5">
         <div className="mb-3 flex items-baseline justify-between">
-          <h3 className="text-sm font-semibold text-wefin-text">일별 실현손익</h3>
-          <span className="text-[11px] text-wefin-subtle">최근 거래 200건 기준</span>
+          <h3 className="text-base font-semibold text-wefin-text">일별 실현손익</h3>
+          <span className="text-xs text-wefin-subtle">최근 거래 100건 기준</span>
         </div>
         <DailyRealizedChart trades={trades} cutoffDate={cutoffDate} />
       </section>
 
       <section className="max-w-xl border-t border-wefin-line pt-5">
         <div className="mb-3 flex items-baseline justify-between">
-          <h3 className="text-sm font-semibold text-wefin-text">종목별 손익</h3>
-          <span className="text-[11px] text-wefin-subtle">최근 거래 200건 기준</span>
+          <h3 className="text-base font-semibold text-wefin-text">종목별 손익</h3>
+          <span className="text-xs text-wefin-subtle">최근 거래 100건 기준</span>
         </div>
         <PerStockProfitList portfolio={portfolio ?? []} trades={trades} cutoffDate={cutoffDate} />
       </section>

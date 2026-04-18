@@ -1,4 +1,5 @@
-import { type ChangeEvent, type FormEvent, useState } from 'react'
+import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { ApiError, baseApi } from '@/shared/api/base-api'
 
@@ -27,9 +28,26 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
   const [isEmailVerified, setIsEmailVerified] = useState(false)
   const [isCodeSent, setIsCodeSent] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
-  const [verificationCodeError, setVerificationCodeError] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [codeCooldown, setCodeCooldown] = useState(0)
+  const cooldownRef = useRef<number | null>(null)
+
+  const isCooldownActive = codeCooldown > 0
+  useEffect(() => {
+    if (!isCooldownActive) return
+    cooldownRef.current = window.setInterval(() => {
+      setCodeCooldown((prev) => {
+        if (prev <= 1) {
+          if (cooldownRef.current) window.clearInterval(cooldownRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => {
+      if (cooldownRef.current) window.clearInterval(cooldownRef.current)
+    }
+  }, [isCooldownActive])
 
   const { mutateAsync: signupMutateAsync } = useSignupMutation()
   const { mutateAsync: sendEmailVerificationMutateAsync, isPending: isSendingCode } =
@@ -52,7 +70,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         setIsEmailVerified(false)
         setIsCodeSent(false)
         setVerificationCode('')
-        setVerificationCodeError('')
       }
 
       setFieldErrors((prevErrors) => {
@@ -80,8 +97,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
 
       return nextFormData
     })
-
-    if (error) setError('')
   }
 
   const handleBlur = (field: SignupFieldName) => () => {
@@ -104,14 +119,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
     const value = e.target.value
 
     setVerificationCode(value)
-
-    if (verificationCodeError) {
-      setVerificationCodeError('')
-    }
-
-    if (error) {
-      setError('')
-    }
   }
 
   const handleSendVerificationCode = async () => {
@@ -131,9 +138,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       return
     }
 
-    setError('')
-    setVerificationCodeError('')
-
     try {
       await sendEmailVerificationMutateAsync({
         email: trimmedEmail,
@@ -152,33 +156,34 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         return next
       })
 
-      window.alert('인증코드를 이메일로 전송했습니다.')
+      toast.success('인증코드를 이메일로 전송했어요')
+      setCodeCooldown(30)
     } catch (error) {
       if (error instanceof ApiError) {
         switch (error.code) {
           case 'AUTH_VERIFICATION_TOO_FAST_REQUEST':
-            setError('요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.')
+            toast.error('요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.')
             return
 
           case 'AUTH_VERIFICATION_TOO_MANY_ATTEMPTS':
-            setError('인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.')
+            toast.error('인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.')
             return
 
           case 'AUTH_VERIFICATION_TOO_MANY_REQUESTS':
-            setError('인증코드 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.')
+            toast.error('인증코드 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.')
             return
 
           case 'AUTH_EMAIL_DUPLICATED':
-            setError('이미 사용 중인 이메일입니다.')
+            toast.error('이미 사용 중인 이메일입니다.')
             return
 
           default:
-            setError('인증코드 전송 중 문제가 발생했습니다. 다시 시도해주세요.')
+            toast.error('인증코드 전송 중 문제가 발생했습니다. 다시 시도해주세요.')
             return
         }
       }
 
-      setError('서버와 통신 중 오류가 발생했습니다.')
+      toast.error('서버와 통신 중 오류가 발생했습니다.')
     }
   }
 
@@ -201,12 +206,9 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
     }
 
     if (!trimmedCode) {
-      setVerificationCodeError('인증코드를 입력해주세요.')
+      toast.error('인증코드를 입력해주세요.')
       return
     }
-
-    setError('')
-    setVerificationCodeError('')
 
     try {
       await confirmEmailVerificationMutateAsync({
@@ -223,39 +225,39 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         return next
       })
 
-      window.alert('이메일 인증이 완료되었습니다.')
+      toast.success('이메일 인증이 완료되었어요')
     } catch (error) {
       if (error instanceof ApiError) {
         switch (error.code) {
           case 'AUTH_VERIFICATION_CODE_INVALID':
-            setVerificationCodeError('인증코드가 올바르지 않습니다.')
+            toast.error('인증코드가 올바르지 않습니다.')
             return
 
           case 'AUTH_VERIFICATION_CODE_EXPIRED':
-            setVerificationCodeError('인증코드가 만료되었습니다. 다시 요청해주세요.')
+            toast.error('인증코드가 만료되었습니다. 다시 요청해주세요.')
             return
 
           case 'AUTH_VERIFICATION_TOO_MANY_ATTEMPTS':
-            setVerificationCodeError('인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.')
+            toast.error('인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.')
             return
 
           case 'AUTH_EMAIL_NOT_VERIFIED':
-            setError('이메일 인증을 완료해주세요.')
+            toast.error('이메일 인증을 완료해주세요.')
             return
 
           default:
-            setError('이메일 인증 중 문제가 발생했습니다. 다시 시도해주세요.')
+            toast.error('이메일 인증 중 문제가 발생했습니다. 다시 시도해주세요.')
             return
         }
       }
 
-      setError('서버와 통신 중 오류가 발생했습니다.')
+      toast.error('서버와 통신 중 오류가 발생했습니다.')
     }
   }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
+    toast.error('')
 
     setTouchedFields({
       nickname: true,
@@ -285,8 +287,7 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       setIsEmailVerified(false)
       setIsCodeSent(false)
       setVerificationCode('')
-      setVerificationCodeError('')
-      setError('')
+      toast.error('')
 
       onSuccess()
     } catch (error) {
@@ -311,7 +312,7 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
           }))
 
           const firstError = Object.values(serverErrors)[0]
-          setError(firstError || '입력값을 확인해주세요.')
+          toast.error(firstError || '입력값을 확인해주세요.')
           return
         }
 
@@ -324,28 +325,28 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
 
         switch (error.code) {
           case 'AUTH_EMAIL_NOT_VERIFIED':
-            setError('이메일 인증을 완료해주세요.')
+            toast.error('이메일 인증을 완료해주세요.')
             return
 
           case 'AUTH_EMAIL_DUPLICATED':
-            setError('이미 사용 중인 이메일입니다.')
+            toast.error('이미 사용 중인 이메일입니다.')
             return
 
           case 'AUTH_NICKNAME_DUPLICATED':
-            setError('이미 사용 중인 닉네임입니다.')
+            toast.error('이미 사용 중인 닉네임입니다.')
             return
 
           case 'AUTH_VERIFICATION_CODE_EXPIRED':
-            setError('이메일 인증이 만료되었습니다. 다시 인증해주세요.')
+            toast.error('이메일 인증이 만료되었습니다. 다시 인증해주세요.')
             return
 
           default:
-            setError('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.')
+            toast.error('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.')
             return
         }
       }
 
-      setError('서버와 통신 중 오류가 발생했습니다.')
+      toast.error('서버와 통신 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
@@ -363,11 +364,11 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       const popup = window.open(url, 'oauth_popup', 'width=600,height=700')
 
       if (!popup) {
-        setError('팝업이 차단되었습니다. 브라우저 팝업 차단을 해제해주세요.')
+        toast.error('팝업이 차단되었습니다. 브라우저 팝업 차단을 해제해주세요.')
         return
       }
     } catch {
-      setError(`${provider} 로그인 URL을 가져오는 데 실패했습니다.`)
+      toast.error(`${provider} 로그인 URL을 가져오는 데 실패했습니다.`)
     }
   }
 
@@ -378,11 +379,8 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
         : 'border-slate-200 focus:border-[#56c1c9]'
     }`
 
-  const verificationCodeInputClassName = `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
-    verificationCodeError
-      ? 'border-red-400 focus:border-red-500'
-      : 'border-slate-200 focus:border-[#56c1c9]'
-  }`
+  const verificationCodeInputClassName =
+    'h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]'
 
   return {
     formData,
@@ -390,8 +388,7 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
     isEmailVerified,
     isCodeSent,
     verificationCode,
-    verificationCodeError,
-    error,
+    codeCooldown,
     loading,
     isVerifying,
     handleChange,

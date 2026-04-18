@@ -76,10 +76,21 @@ export default function PerStockProfitList({
               <StockLogo code={row.code} name={row.name} size={32} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-wefin-text">{row.name}</div>
-                <div className="text-[11px] text-wefin-subtle tabular-nums">
-                  미실현 {row.unrealized >= 0 ? '+' : ''}
-                  {row.unrealized.toLocaleString()} · 실현 {row.realized >= 0 ? '+' : ''}
-                  {Math.trunc(row.realized).toLocaleString()}
+                <div className="flex gap-2 text-xs tabular-nums">
+                  <span className="text-wefin-subtle">
+                    미실현{' '}
+                    <span className={row.unrealized >= 0 ? 'text-red-500' : 'text-blue-600'}>
+                      {row.unrealized >= 0 ? '+' : ''}
+                      {row.unrealized.toLocaleString()}원
+                    </span>
+                  </span>
+                  <span className="text-wefin-subtle">
+                    실현{' '}
+                    <span className={row.realized >= 0 ? 'text-red-500' : 'text-blue-600'}>
+                      {row.realized >= 0 ? '+' : ''}
+                      {Math.trunc(row.realized).toLocaleString()}원
+                    </span>
+                  </span>
                 </div>
               </div>
               <div className={`text-sm font-semibold tabular-nums ${totalColor}`}>

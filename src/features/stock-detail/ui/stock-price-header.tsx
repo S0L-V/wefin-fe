@@ -30,7 +30,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
   const { data: stockInfo } = useStockInfoQuery(code)
   const { data: price, isLoading } = useStockPriceQuery(code)
   const [searchOpen, setSearchOpen] = useState(false)
-  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(code)
+  const { isWatchlisted, toggle, isPending } = useToggleWatchlist(code, stockInfo?.stockName)
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

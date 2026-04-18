@@ -1,4 +1,5 @@
 ﻿import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { useShareClusterNews } from './use-share-cluster-news'
 
@@ -10,7 +11,7 @@ export function useShareClusterNewsAction(clusterId: number) {
     },
     onError: (error) => {
       console.error('Failed to share cluster news:', error)
-      window.alert('뉴스 공유에 실패했어요. 잠시 후 다시 시도해주세요.')
+      toast.error('뉴스 공유에 실패했어요')
     }
   })
 
