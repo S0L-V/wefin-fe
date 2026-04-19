@@ -41,8 +41,16 @@ export function useGameRoomDetailQuery(roomId: string) {
 // === Mutation ===
 
 export function useCreateGameRoomMutation() {
+  const queryClient = useQueryClient()
+
   return useMutation({
-    mutationFn: (request: CreateRoomRequest) => createGameRoom(request)
+    mutationFn: (request: CreateRoomRequest) => createGameRoom(request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: gameRoomKeys.list(),
+        refetchType: 'none'
+      })
+    }
   })
 }
 
