@@ -1,6 +1,3 @@
-import { Activity, Globe, TrendingUp } from 'lucide-react'
-import type { ReactNode } from 'react'
-
 import type {
   ChangeDirection,
   MarketSnapshot,
@@ -9,6 +6,7 @@ import type {
 
 type Props = {
   snapshots: MarketSnapshot[]
+  updatedAt?: string | null
 }
 
 const METRIC_ORDER: Record<MetricType, number> = {
@@ -18,7 +16,7 @@ const METRIC_ORDER: Record<MetricType, number> = {
   USD_KRW: 3
 }
 
-function MarketSnapshotStrip({ snapshots }: Props) {
+function MarketSnapshotStrip({ snapshots, updatedAt }: Props) {
   if (snapshots.length === 0) return null
 
   const ordered = [...snapshots].sort(
@@ -26,45 +24,30 @@ function MarketSnapshotStrip({ snapshots }: Props) {
   )
 
   return (
-    <ul className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {ordered.map((s) => (
-        <li key={s.metricType} className="rounded-xl border border-wefin-line p-3">
-          <div className="mb-1.5 flex items-center gap-1 text-wefin-subtle">
-            {metricIcon(s.metricType)}
-            <span className="text-xs font-medium">{s.label}</span>
+    <div className="flex items-center gap-5 overflow-x-auto whitespace-nowrap">
+      {ordered.map((s) => {
+        const isIndex = s.metricType === 'KOSPI' || s.metricType === 'NASDAQ'
+        const color = isIndex ? directionTextColor(s.changeDirection) : 'text-wefin-subtle'
+        return (
+          <div key={s.metricType} className="flex items-baseline gap-1.5">
+            <span className="text-xs text-wefin-subtle">{s.label}</span>
+            <span className="text-sm font-bold tabular-nums text-wefin-text">{formatValue(s)}</span>
+            {isIndex && (
+              <span className={`text-xs font-semibold tabular-nums ${color}`}>
+                {formatChange(s)}
+              </span>
+            )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-bold text-wefin-text">{formatValue(s)}</span>
-            <span
-              className={`flex items-center text-xs font-bold ${directionColor(s.changeDirection)}`}
-            >
-              {changeIcon(s.changeDirection)}
-              {formatChange(s)}
-            </span>
-          </div>
-        </li>
-      ))}
-    </ul>
+        )
+      })}
+      {updatedAt && (
+        <span className="flex items-center gap-1 text-[11px] text-wefin-subtle">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+          {updatedAt}
+        </span>
+      )}
+    </div>
   )
-}
-
-function metricIcon(metricType: MetricType): ReactNode {
-  switch (metricType) {
-    case 'KOSPI':
-      return <TrendingUp size={14} />
-    case 'NASDAQ':
-      return <Globe size={14} />
-    case 'BASE_RATE':
-      return <Activity size={14} />
-    case 'USD_KRW':
-      return <span className="text-xs font-medium">$</span>
-  }
-}
-
-function changeIcon(direction: ChangeDirection): ReactNode {
-  if (direction === 'UP') return <TrendingUp size={12} className="mr-0.5" />
-  if (direction === 'DOWN') return <TrendingUp size={12} className="mr-0.5 rotate-180" />
-  return null
 }
 
 function formatValue(s: MarketSnapshot) {
@@ -87,7 +70,7 @@ function formatChange(s: MarketSnapshot) {
   return `${sign}${Math.abs(s.changeRate).toFixed(2)}%`
 }
 
-function directionColor(direction: ChangeDirection) {
+function directionTextColor(direction: ChangeDirection) {
   if (direction === 'UP') return 'text-red-500'
   if (direction === 'DOWN') return 'text-blue-500'
   return 'text-wefin-subtle'

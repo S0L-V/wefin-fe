@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import SubscribeButton from '@/features/payment/ui/subscribe-button'
+
 import SettingsGroupSection from './settings-group-section'
 import SettingsPaymentSection from './settings-payment-section'
 import SettingsProfileSection from './settings-profile-section'
@@ -81,7 +83,12 @@ function SettingsView() {
             />
           )}
           {active === 'group' && <SettingsGroupSection isLoggedIn={isLoggedIn} />}
-          {active === 'subscription' && <SettingsSubscriptionSection />}
+          {active === 'subscription' && (
+            <div className="space-y-4">
+              <SettingsSubscriptionSection />
+              <SubscribeButton planId={1} />
+            </div>
+          )}
           {active === 'billing' && <SettingsPaymentSection isLoggedIn={isLoggedIn} />}
         </div>
       </main>

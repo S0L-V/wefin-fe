@@ -33,7 +33,7 @@ describe('AppHeader', () => {
       </QueryClientProvider>
     )
 
-    expect(screen.getByText('wefin')).toBeInTheDocument()
+    expect(screen.getByLabelText('wefin 홈')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '로그인' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '실시간 투자' })).toHaveClass('text-wefin-mint-deep')
   })

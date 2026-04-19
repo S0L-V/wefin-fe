@@ -4,6 +4,7 @@ import MarketTrendsSection from '@/features/market-trends/ui/market-trends-secti
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
 import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
+import RecommendedNewsSection from '@/features/recommended-news/ui/recommended-news-section'
 import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
 
 const SIDEBAR_WIDTH_STORAGE_KEY = 'home-sidebar-width'
@@ -54,6 +55,7 @@ function HomePage() {
           <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
             <MarketTrendsSection />
           </div>
+          <RecommendedNewsSection />
           <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
             <NewsListSection />
           </div>
@@ -70,6 +72,7 @@ function HomePage() {
       </aside>
     </div>
   )
+
 }
 
 export default HomePage

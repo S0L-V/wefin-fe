@@ -8,75 +8,44 @@ interface NewsListCardProps {
   cluster: ClusterItem
 }
 
-const INITIAL_COLORS = ['#2b3a4a', '#24a8ab', '#6b7b8d', '#3b82f6', '#8b5cf6']
-
 export default function NewsListCard({ cluster }: NewsListCardProps) {
   return (
     <Link
       to={`/news/${cluster.clusterId}`}
-      className="group flex gap-5 border-b border-wefin-line py-5 last:border-b-0"
+      className="group flex gap-4 rounded-2xl p-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-wefin-bg/50 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
     >
-      {/* Thumbnail */}
-      <div className="h-[140px] w-[220px] shrink-0 overflow-hidden rounded-xl bg-gray-100">
+      <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-100">
         {cluster.thumbnailUrl ? (
           <img
             src={cluster.thumbnailUrl}
             alt={cluster.title}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-            <Layers className="h-10 w-10 text-wefin-subtle" />
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <Layers className="h-5 w-5 text-wefin-line" />
           </div>
         )}
       </div>
-
-      {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col justify-between">
         <div>
-          <h3 className="line-clamp-2 text-base font-bold leading-snug text-wefin-text">
+          <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-wefin-text transition-colors group-hover:text-wefin-mint-deep">
             {cluster.title}
           </h3>
-          <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-wefin-subtle">
+          <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-wefin-text/60">
             {cluster.summary}
           </p>
         </div>
-
-        {/* Footer */}
-        <div className="flex items-center gap-3 text-xs text-wefin-subtle">
+        <div className="mt-1.5 flex items-center gap-2 text-xs text-wefin-subtle">
           <span>{getTimeAgo(cluster.publishedAt)}</span>
-          <SourceBadge sources={cluster.sources} sourceCount={cluster.sourceCount} />
+          {cluster.sourceCount > 0 && (
+            <>
+              <span className="text-wefin-line">·</span>
+              <span>{cluster.sourceCount}개 출처</span>
+            </>
+          )}
         </div>
       </div>
     </Link>
-  )
-}
-
-function SourceBadge({
-  sources,
-  sourceCount
-}: {
-  sources: ClusterItem['sources']
-  sourceCount: number
-}) {
-  const visibleSources = sources.slice(0, 2)
-
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2 py-1 text-[10px] leading-none text-wefin-subtle">
-      {visibleSources.length > 0 && (
-        <span className="flex -space-x-1">
-          {visibleSources.map((src, i) => (
-            <span
-              key={i}
-              className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-[7px] font-bold text-white ring-1 ring-white"
-              style={{ backgroundColor: INITIAL_COLORS[i % INITIAL_COLORS.length] }}
-            >
-              {src.publisherName.charAt(0).toUpperCase()}
-            </span>
-          ))}
-        </span>
-      )}
-      {sourceCount}개 출처
-    </span>
   )
 }

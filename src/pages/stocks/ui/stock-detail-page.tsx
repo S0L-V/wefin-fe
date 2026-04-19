@@ -98,7 +98,7 @@ function StockDetailPage() {
   return (
     <StockLayout sidebarWidth="narrow">
       <div className="flex h-[calc(100vh-80px)] flex-col gap-2">
-        <div className="shrink-0 rounded-xl border border-wefin-line bg-white px-3 pt-2 pb-2 shadow-sm">
+        <div className="shrink-0 rounded-2xl bg-white px-3 pt-2 pb-2">
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 

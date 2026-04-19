@@ -14,7 +14,7 @@ export default function InterestsPage() {
   const [tab, setTab] = useState<Tab>('stocks')
 
   return (
-    <div className="mx-auto max-w-3xl rounded-3xl border border-wefin-line bg-white p-6 shadow-sm">
+    <div className="mx-auto max-w-3xl rounded-3xl bg-white p-6">
       <header className="mb-6">
         <h1 className="text-xl font-bold text-wefin-text">관심 목록 관리</h1>
         <p className="mt-1 text-sm text-wefin-subtle">

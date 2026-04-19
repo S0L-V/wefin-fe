@@ -1,12 +1,18 @@
+import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import GroupChatRoom from '@/features/chat/ui/group-chat-room'
 import { useCurrentTurnQuery } from '@/features/game-room/model/use-current-turn-query'
 import { useEndGameMutation } from '@/features/game-room/model/use-end-game-mutation'
+import { useGameFinishedStore } from '@/features/game-room/model/use-game-finished-store'
 import { useGameRoomDetailQuery } from '@/features/game-room/model/use-game-room-query'
 import { useGameRoomSocket } from '@/features/game-room/model/use-game-room-socket'
 import { useLeaveRoomGuard } from '@/features/game-room/model/use-leave-room-guard'
 import { usePortfolioQuery } from '@/features/game-room/model/use-portfolio-query'
+import {
+  type RankChange,
+  useRankChangeStore
+} from '@/features/game-room/model/use-rank-change-store'
 import { useTurnChangeSocket } from '@/features/game-room/model/use-turn-change-socket'
 import { useVoteMutation } from '@/features/game-room/model/use-vote-mutation'
 import { useVoteSocket } from '@/features/game-room/model/use-vote-socket'
@@ -32,15 +38,34 @@ function PlayPage() {
   const endGameMutation = useEndGameMutation(roomId ?? '')
   const markVoted = useVoteStore((s) => s.markVoted)
   const isVoting = useVoteStore((s) => s.isVoting)
+  const rankChanges = useRankChangeStore((s) => s.rankChanges)
+  const clearRankChanges = useRankChangeStore((s) => s.clearRankChanges)
+  const isGameFinished = useGameFinishedStore((s) => s.isGameFinished)
+  const resetGameFinished = useGameFinishedStore((s) => s.resetGameFinished)
   useGameRoomSocket(roomId ?? '')
   useTurnChangeSocket(roomId ?? '')
   useVoteSocket(roomId ?? '')
+
+  // 게임 종료 WebSocket 수신 시 결과 페이지로 이동
+  useEffect(() => {
+    if (isGameFinished && roomId) {
+      resetGameFinished()
+      navigate(`/history/room/${roomId}/result`, { replace: true })
+    }
+  }, [isGameFinished, roomId, navigate, resetGameFinished])
 
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
   }
 
   const userId = getCurrentUserId()
+
+  // 이미 게임을 종료한 참가자가 뒤로가기로 돌아올 경우 결과 페이지로 리다이렉트
+  const myParticipant = roomDetail?.data.participants.find((p) => p.userId === userId)
+  if (myParticipant?.status === 'FINISHED') {
+    navigate(`/history/room/${roomId}/result`, { replace: true })
+    return null
+  }
   const isHost =
     roomDetail?.data.participants.some((p) => p.isLeader && p.userId === userId) ?? false
 
@@ -99,6 +124,10 @@ function PlayPage() {
 
       <VoteModal roomId={roomId} />
 
+      {rankChanges.length > 0 && (
+        <RankChangePopup changes={rankChanges} onClose={clearRankChanges} />
+      )}
+
       <LeaveRoomDialog
         open={guard.showDialog}
         onConfirm={guard.confirmLeave}
@@ -106,6 +135,56 @@ function PlayPage() {
         isLeaving={guard.isLeaving}
       />
     </>
+  )
+}
+
+interface RankChangePopupProps {
+  changes: RankChange[]
+  onClose: () => void
+}
+
+function RankChangePopup({ changes, onClose }: RankChangePopupProps) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000)
+    return () => clearTimeout(timer)
+  }, [onClose])
+
+  return (
+    <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2">
+      <div className="w-80 rounded-2xl border border-wefin-line bg-white p-5 shadow-xl">
+        <div className="mb-3 flex items-center justify-between">
+          <h4 className="text-sm font-bold text-wefin-text">순위 변동 알림</h4>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm text-wefin-subtle hover:text-wefin-text"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {changes.map((c) => {
+            const isUp = c.delta > 0
+            const color = isUp ? 'text-red-500' : 'text-blue-500'
+            const arrow = isUp ? 'UP' : 'DOWN'
+            return (
+              <div key={c.userName} className="flex items-center gap-2 text-xs">
+                <span className="w-16 shrink-0 font-medium text-wefin-text">{c.userName}</span>
+                <span className="rounded bg-wefin-bg px-2 py-0.5 font-bold text-wefin-subtle">
+                  {c.prevRank}위
+                </span>
+                <span className="text-wefin-subtle">→</span>
+                <span className="rounded bg-wefin-bg px-2 py-0.5 font-bold text-wefin-text">
+                  {c.newRank}위
+                </span>
+                <span className={`font-bold ${color}`}>{arrow}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -23,7 +23,7 @@ export default function HomeSidebar() {
       </div>
 
       <div
-        className={`flex min-h-0 flex-col overflow-hidden rounded-3xl border border-wefin-line bg-white shadow-sm transition-all duration-300 ${
+        className={`flex min-h-0 flex-col overflow-hidden rounded-3xl bg-white transition-all duration-300 ${
           expanded
             ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
             : 'min-h-0 flex-1'

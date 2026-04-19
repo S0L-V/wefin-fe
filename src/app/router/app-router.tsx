@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router-dom'
 
 import ProtectedRoute from '@/app/providers/protected-route'
+import PaymentFailPage from '@/features/payment/ui/payment-fail-page'
+import PaymentSuccessPage from '@/features/payment/ui/payment-success-page'
 import AccountPage from '@/pages/account/ui/account-page'
 import AdminPage from '@/pages/admin/ui/admin-page'
 import ChatPage from '@/pages/chat/ui/chat-page'
@@ -113,6 +115,9 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="payment/success" element={<PaymentSuccessPage />} />
+        <Route path="payment/fail" element={<PaymentFailPage />} />
 
         <Route
           path="admin"

@@ -61,7 +61,20 @@ export function useLightweightChart({ data, interval, symbol }: UseLightweightCh
       },
       crosshair: { mode: CrosshairMode.Normal },
       rightPriceScale: { borderVisible: false },
-      timeScale: { borderVisible: false, timeVisible: false },
+      timeScale: {
+        borderVisible: false,
+        timeVisible: false,
+        tickMarkFormatter: (time: string) => {
+          const parts = time.split('-')
+          return `${parts[1]}/${parts[2]}`
+        }
+      },
+      localization: {
+        timeFormatter: (time: string) => {
+          const parts = time.split('-')
+          return `${parts[1]}/${parts[2]}`
+        }
+      },
       width: containerRef.current.clientWidth,
       height: 280
     })

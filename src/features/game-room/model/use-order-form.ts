@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 
 import { ApiError } from '@/shared/api/base-api'
 
+import type { OrderResponse } from './stock.schema'
 import { useOrderMutation } from './use-order-mutation'
 import { useHoldingsQuery } from './use-portfolio-query'
 import { useSelectedStockStore } from './use-selected-stock-store'
@@ -70,7 +71,7 @@ export function useOrderForm({ roomId, cash }: UseOrderFormArgs) {
     setErrorMessage(null)
   }
 
-  function submit() {
+  function submit(callbacks?: { onSuccess?: (data: OrderResponse) => void }) {
     if (!selectedStock || quantity <= 0) return
     if (orderMutation.isPending) return
 
@@ -84,8 +85,9 @@ export function useOrderForm({ roomId, cash }: UseOrderFormArgs) {
         quantity
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setQuantity(0)
+          callbacks?.onSuccess?.(data)
         },
         onError: (error) => {
           if (error instanceof ApiError) {
