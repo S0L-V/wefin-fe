@@ -77,7 +77,6 @@ export const roomDetailResponseSchema = z.object({
     startDate: z.iso.date(),
     endDate: z.iso.date(),
     status: roomStatusSchema,
-    totalTurns: z.number().int().min(1),
     participants: z.array(participantDetailSchema)
   })
 })
