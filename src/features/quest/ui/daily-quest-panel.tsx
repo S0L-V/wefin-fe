@@ -11,9 +11,18 @@ import {
   useTodayQuests
 } from '../model/use-today-quests'
 
-function getProgressPercent(progress: number, target: number) {
-  if (target <= 0) return 0
-  return Math.min(100, Math.round((progress / target) * 100))
+function getProgressPercent(quest: Quest) {
+  const { progress, targetValue, code } = quest
+
+  if (targetValue <= 0) return 0
+
+  if (code === 'GAME_RANK_DAILY') {
+    if (progress <= 0) return 0
+    if (progress <= targetValue) return 100
+    return Math.max(0, Math.min(100, Math.round((targetValue / progress) * 100)))
+  }
+
+  return Math.min(100, Math.round((progress / targetValue) * 100))
 }
 
 function getStatusLabel(quest: Quest) {
@@ -21,6 +30,22 @@ function getStatusLabel(quest: Quest) {
   if (quest.status === 'COMPLETED') return '보상 받기'
   if (quest.status === 'IN_PROGRESS') return '진행 중'
   return '시작 전'
+}
+
+function getProgressText(quest: Quest) {
+  if (quest.code === 'PROFIT_RATE_DAILY') {
+    return `${quest.progress}% / 목표 ${quest.targetValue}%`
+  }
+
+  if (quest.code === 'GAME_RANK_DAILY') {
+    if (quest.progress <= 0) {
+      return `목표 ${quest.targetValue}위 이내`
+    }
+
+    return `현재 ${quest.progress}위 / 목표 ${quest.targetValue}위 이내`
+  }
+
+  return `${quest.progress}/${quest.targetValue}`
 }
 
 export default function DailyQuestPanel() {
@@ -36,16 +61,18 @@ export default function DailyQuestPanel() {
   const scrollTo = (index: number) => {
     const container = scrollRef.current
     if (!container) return
+
     const card = container.children[index] as HTMLElement | undefined
-    if (card) {
-      container.scrollTo({ left: card.offsetLeft, behavior: 'smooth' })
-      setActiveIndex(index)
-    }
+    if (!card) return
+
+    container.scrollTo({ left: card.offsetLeft, behavior: 'smooth' })
+    setActiveIndex(index)
   }
 
   const handleScroll = () => {
     const container = scrollRef.current
     if (!container || quests.length === 0) return
+
     const scrollLeft = container.scrollLeft
     const cardWidth = container.scrollWidth / quests.length
     setActiveIndex(Math.round(scrollLeft / cardWidth))
@@ -132,7 +159,7 @@ export default function DailyQuestPanel() {
               className="flex snap-x snap-mandatory gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
               {quests.map((quest) => {
-                const percent = getProgressPercent(quest.progress, quest.targetValue)
+                const percent = getProgressPercent(quest)
                 const isRewardable = quest.status === 'COMPLETED'
                 const isRewarded = quest.status === 'REWARDED'
 
@@ -176,7 +203,7 @@ export default function DailyQuestPanel() {
                               {getStatusLabel(quest)}
                             </span>
                             <span className="tabular-nums text-wefin-subtle">
-                              {quest.progress}/{quest.targetValue}
+                              {getProgressText(quest)}
                             </span>
                           </div>
                           <div className="h-1.5 rounded-full bg-gray-100">
