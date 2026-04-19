@@ -33,20 +33,16 @@ export function useGameRoomDetailQuery(roomId: string) {
   return useQuery({
     queryKey: gameRoomKeys.detail(roomId),
     queryFn: () => fetchGameRoomDetail(roomId),
-    enabled: !!roomId
+    enabled: !!roomId,
+    retry: 2
   })
 }
 
 // === Mutation ===
 
 export function useCreateGameRoomMutation() {
-  const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: (request: CreateRoomRequest) => createGameRoom(request),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: gameRoomKeys.list() })
-    }
+    mutationFn: (request: CreateRoomRequest) => createGameRoom(request)
   })
 }
 
