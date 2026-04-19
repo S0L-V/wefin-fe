@@ -24,7 +24,7 @@ function MarketSnapshotStrip({ snapshots, updatedAt }: Props) {
   )
 
   return (
-    <div className="flex items-center gap-5">
+    <div className="flex items-center gap-5 overflow-x-auto whitespace-nowrap">
       {ordered.map((s) => {
         const isIndex = s.metricType === 'KOSPI' || s.metricType === 'NASDAQ'
         const color = isIndex ? directionTextColor(s.changeDirection) : 'text-wefin-subtle'

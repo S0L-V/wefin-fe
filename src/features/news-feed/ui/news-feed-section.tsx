@@ -63,7 +63,7 @@ export default function NewsFeedSection() {
     <div>
       <SectionHeader activeTab={tab} onTabChange={handleTabChange} />
 
-      {isLoading ? (
+      {isLoading || isPlaceholderData ? (
         <div className="flex gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div

@@ -4,7 +4,10 @@ import ChatPanel from '@/features/chat/ui/chat-panel'
 import ClusterDetailContent from '@/features/news-feed/ui/cluster-detail-content'
 
 function ReadingProgressBar() {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(() => {
+    const h = document.documentElement.scrollHeight - window.innerHeight
+    return h > 0 ? Math.min((window.scrollY / h) * 100, 100) : 0
+  })
 
   useEffect(() => {
     function handleScroll() {

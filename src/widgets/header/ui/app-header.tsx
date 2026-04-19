@@ -40,6 +40,7 @@ function AppHeader() {
   const queryClient = useQueryClient()
   const navRef = useRef<HTMLElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
+  const hasMeasuredRef = useRef(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -57,13 +58,18 @@ function AppHeader() {
     if (activeLink) {
       const navRect = navRef.current.getBoundingClientRect()
       const linkRect = activeLink.getBoundingClientRect()
-      indicator.style.transition = 'none'
+      if (!hasMeasuredRef.current) {
+        indicator.style.transition = 'none'
+      }
       indicator.style.width = `${linkRect.width}px`
       indicator.style.transform = `translateX(${linkRect.left - navRect.left}px)`
       indicator.style.opacity = '1'
-      requestAnimationFrame(() => {
-        indicator.style.transition = ''
-      })
+      if (!hasMeasuredRef.current) {
+        requestAnimationFrame(() => {
+          indicator.style.transition = ''
+        })
+        hasMeasuredRef.current = true
+      }
     } else {
       indicator.style.opacity = '0'
     }
@@ -101,6 +107,7 @@ function AppHeader() {
 
     // 사용자 스코프 캐시(그룹/계정 등) 제거 — 다른 사용자가 로그인 시 stale data 방지
     queryClient.removeQueries({ queryKey: ['settings', 'my-group'] })
+    queryClient.removeQueries({ queryKey: ['portfolio', 'list'] })
     window.dispatchEvent(new Event('auth-changed'))
   }
 
