@@ -62,7 +62,7 @@ export function validateResetPasswordForm(
     if (message) nextErrors[field] = message
   })
 
-  if (!isEmailVerified) {
+  if (!isEmailVerified && !nextErrors.email) {
     nextErrors.email = '이메일 인증이 필요합니다.'
   }
 
