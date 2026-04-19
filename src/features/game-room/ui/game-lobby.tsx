@@ -48,6 +48,13 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
         if (error instanceof Error && 'code' in error && error.code === 'ROOM_ALREADY_JOINED') {
           navigate(`/history/room/${room.roomId}`)
         }
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          error.code === 'PARTICIPANT_ALREADY_FINISHED'
+        ) {
+          alert('이미 종료한 게임입니다. 다른 플레이어의 게임이 끝나면 결과를 확인할 수 있습니다.')
+        }
       }
     })
   }

@@ -72,15 +72,20 @@ function HoldingRow({ item }: { item: HoldingItem }) {
   const sign = item.profitRate >= 0 ? '+' : ''
 
   return (
-    <div className="flex items-center justify-between rounded-xl bg-wefin-bg px-4 py-3">
-      <div className="flex flex-col">
+    <div className="rounded-xl bg-wefin-bg px-4 py-3">
+      <div className="flex items-center justify-between">
         <span className="text-xs font-bold text-wefin-text">{item.stockName}</span>
-        <span className="text-[10px] text-wefin-subtle">{item.quantity}주</span>
-      </div>
-      <div className="flex flex-col text-right">
         <span className="text-xs font-bold text-wefin-text">
           {item.evalAmount.toLocaleString()}원
         </span>
+      </div>
+      <div className="flex justify-end">
+        <span className="text-[10px] font-bold text-wefin-subtle">
+          평단 {Math.round(item.avgPrice).toLocaleString()}원
+        </span>
+      </div>
+      <div className="mt-1 flex items-center justify-between border-t border-wefin-line pt-1">
+        <span className="text-[10px] text-wefin-subtle">{item.quantity}주</span>
         <span className={`text-[10px] font-medium ${profitColor}`}>
           {sign}
           {item.profitRate.toFixed(2)}%

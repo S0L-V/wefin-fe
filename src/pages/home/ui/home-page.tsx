@@ -1,6 +1,7 @@
 import MarketTrendsSection from '@/features/market-trends/ui/market-trends-section'
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
+import RecommendedNewsSection from '@/features/recommended-news/ui/recommended-news-section'
 import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
 
 function HomePage() {
@@ -13,6 +14,7 @@ function HomePage() {
         <div className="rounded-2xl bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
           <MarketTrendsSection />
         </div>
+        <RecommendedNewsSection />
         <div className="rounded-2xl bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
           <NewsListSection />
         </div>
