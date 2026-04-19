@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { ApiError } from '@/shared/api/base-api'
 
@@ -48,7 +49,7 @@ export function useRefreshRecommendedNews() {
         })
         return
       }
-      window.alert('새로운 추천 뉴스를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.')
+      toast.error('새로운 추천 뉴스를 불러오지 못했어요')
     }
   })
 }

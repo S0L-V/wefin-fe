@@ -34,10 +34,10 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
           type="button"
           onClick={handleShareNews}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-full bg-wefin-mint px-4 py-2 text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-wefin-mint/50 disabled:text-white/70"
+          aria-label="채팅방에 공유"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-wefin-mint-deep/20 bg-wefin-mint-soft/50 text-wefin-mint-deep transition-all hover:bg-wefin-mint-deep hover:text-white hover:shadow-[0_0_12px_rgba(36,168,171,0.25)] disabled:opacity-50"
         >
-          <Share2 className="h-3.5 w-3.5" />
-          채팅방 공유
+          <Share2 className="h-4 w-4" />
         </button>
       </div>
 

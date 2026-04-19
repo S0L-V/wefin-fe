@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import HighlightedText from '@/shared/ui/highlighted-text'
 import SourceBadge from '@/shared/ui/source-badge'
 import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
@@ -43,29 +44,31 @@ function InsightCardItem({
   const hasAdvice = Boolean(card.advice && card.adviceLabel)
 
   return (
-    <article className="flex h-full flex-col rounded-2xl bg-wefin-bg/60 p-5 transition-colors hover:bg-wefin-bg">
-      <h3 className="mb-2 text-sm font-bold text-wefin-text">{card.headline}</h3>
-      <p className="mb-3 flex-grow text-[13px] font-medium leading-relaxed text-wefin-text/70">
-        {card.body}
-      </p>
-      {hasAdvice && (
-        <div className="mb-3 rounded-xl bg-gradient-to-r from-wefin-mint-soft/60 to-transparent px-4 py-3">
-          <div className="mb-1 flex items-center gap-1.5">
-            <WefinLogoIcon size={13} className="text-wefin-mint-deep" />
-            <span className="text-xs font-bold text-wefin-mint-deep">{card.adviceLabel}</span>
-          </div>
-          <p className="text-[13px] font-medium leading-relaxed text-wefin-text">{card.advice}</p>
+    <article className="flex h-full flex-col rounded-2xl bg-wefin-bg/60 px-4 py-3.5 transition-colors hover:bg-wefin-bg">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
+          <p className="mt-1 text-[13px] font-medium leading-relaxed text-wefin-text">
+            <HighlightedText text={card.body} />
+          </p>
         </div>
-      )}
-      {sourceCount > 0 && (
-        <div className="mt-auto flex justify-end">
+        {sourceCount > 0 && (
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="cursor-pointer transition-opacity hover:opacity-80"
+            className="shrink-0 cursor-pointer transition-opacity hover:opacity-80"
           >
             <SourceBadge sourceCount={sourceCount} sources={badgeSources} size="sm" />
           </button>
+        )}
+      </div>
+      {hasAdvice && (
+        <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-wefin-mint-soft/40 px-3 py-2">
+          <WefinLogoIcon size={12} className="mt-0.5 shrink-0 text-wefin-mint-deep" />
+          <div className="text-xs leading-relaxed text-wefin-mint-deep">
+            <p className="font-bold">{card.adviceLabel}</p>
+            <p className="mt-0.5 text-wefin-text/75">{card.advice}</p>
+          </div>
         </div>
       )}
       {isModalOpen && (

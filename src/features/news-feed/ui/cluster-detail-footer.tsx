@@ -1,5 +1,5 @@
 ﻿import { useQueryClient } from '@tanstack/react-query'
-import { Layers, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Check, Plus, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -23,7 +23,7 @@ interface ClusterDetailFooterProps {
 }
 
 export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProps) {
-  const relatedSector = cluster.relatedSectors[0]
+  const relatedSectors = cluster.relatedSectors
   const userId = useAuthUserId()
   const openLogin = useLoginDialogStore((s) => s.openLogin)
   const openChatWithPrompt = useWefiniChatStore((s) => s.openWithPrompt)
@@ -40,24 +40,23 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
   const isSectorMutating = addSectorMutation.isPending || deleteSectorMutation.isPending
   // 로딩/뮤테이션 중이면 등록 여부를 신뢰할 수 없으므로 토글 차단. data가 아직 없을 때 false로 간주되어
   // 이미 등록된 분야에 중복 add가 발생하는 문제를 막는다
-  const isSectorToggleDisabled =
-    !relatedSector || sectorInterestsQuery.isLoading || isSectorMutating
-  const isSectorRegistered =
-    !sectorInterestsQuery.isLoading &&
-    Boolean(
-      relatedSector && sectorInterestsQuery.data?.some((item) => item.code === relatedSector.code)
+  function isSectorRegistered(code: string) {
+    return (
+      !sectorInterestsQuery.isLoading &&
+      Boolean(sectorInterestsQuery.data?.some((item) => item.code === code))
     )
+  }
 
-  function handleSectorInterestClick() {
+  function handleSectorInterestClick(sector: { code: string; name: string }) {
     if (!userId) {
       openLogin()
       return
     }
-    if (isSectorToggleDisabled || !relatedSector) return
-    if (isSectorRegistered) {
-      deleteSectorMutation.mutate(relatedSector.code)
+    if (sectorInterestsQuery.isLoading || isSectorMutating) return
+    if (isSectorRegistered(sector.code)) {
+      deleteSectorMutation.mutate(sector.code)
     } else {
-      addSectorMutation.mutate({ code: relatedSector.code, name: relatedSector.name })
+      addSectorMutation.mutate({ code: sector.code, name: sector.name })
     }
   }
 
@@ -80,9 +79,9 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
     if (currentFeedback || feedbackMutation.isPending) return
 
     setOptimisticFeedback(type)
+    setTimeout(() => toast.success('더 나은 분석을 위해 활용할게요'), 300)
     feedbackMutation.mutate(type, {
       onSuccess: () => {
-        // 서버 확정 후 cluster.feedbackType이 채워지면 옵티미스틱 상태는 해제
         setOptimisticFeedback(null)
       },
       onError: (error) => {
@@ -100,35 +99,63 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
 
   return (
     <div className="mt-10 space-y-8">
-      {/* Feedback */}
-      <div className="border-t border-wefin-line/50 pt-6">
-        <div className="flex items-center justify-center gap-4">
-          <span className="text-sm text-wefin-subtle">
-            {currentFeedback ? '피드백 감사합니다' : '이 분석이 도움이 되셨나요?'}
+      {/* Feedback + Sectors */}
+      <div className="flex flex-wrap items-center justify-center gap-3 border-t border-wefin-line/50 pt-5">
+        {currentFeedback ? (
+          <span className="inline-flex h-8 w-8 animate-[slideDown_0.3s_ease-out] items-center justify-center rounded-full border border-wefin-mint-deep/30 text-wefin-mint-deep">
+            {currentFeedback === 'HELPFUL' ? (
+              <ThumbsUp className="h-4 w-4" />
+            ) : (
+              <ThumbsDown className="h-4 w-4" />
+            )}
           </span>
-          {(!currentFeedback || currentFeedback === 'HELPFUL') && (
+        ) : (
+          <>
+            <span className="text-xs text-wefin-subtle">도움이 되셨나요?</span>
             <FeedbackButton
-              icon={<ThumbsUp className="h-4 w-4" />}
+              icon={<ThumbsUp className="h-3.5 w-3.5" />}
               label=""
               ariaLabel="도움돼요"
-              active={currentFeedback === 'HELPFUL'}
-              dimmed={currentFeedback !== null && currentFeedback !== 'HELPFUL'}
-              disabled={currentFeedback !== null || feedbackMutation.isPending}
+              active={false}
+              dimmed={false}
+              disabled={feedbackMutation.isPending}
               onClick={() => handleFeedback('HELPFUL')}
             />
-          )}
-          {(!currentFeedback || currentFeedback === 'NOT_HELPFUL') && (
             <FeedbackButton
-              icon={<ThumbsDown className="h-4 w-4" />}
+              icon={<ThumbsDown className="h-3.5 w-3.5" />}
               label=""
               ariaLabel="아쉬워요"
-              active={currentFeedback === 'NOT_HELPFUL'}
-              dimmed={currentFeedback !== null && currentFeedback !== 'NOT_HELPFUL'}
-              disabled={currentFeedback !== null || feedbackMutation.isPending}
+              active={false}
+              dimmed={false}
+              disabled={feedbackMutation.isPending}
               onClick={() => handleFeedback('NOT_HELPFUL')}
             />
-          )}
-        </div>
+          </>
+        )}
+        {relatedSectors.length > 0 && (
+          <>
+            <span className="h-4 w-px bg-wefin-line/50" />
+            {relatedSectors.map((sector) => {
+              const registered = isSectorRegistered(sector.code)
+              return (
+                <button
+                  key={sector.code}
+                  type="button"
+                  onClick={() => handleSectorInterestClick(sector)}
+                  disabled={sectorInterestsQuery.isLoading || isSectorMutating}
+                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                    registered
+                      ? 'bg-wefin-mint-soft text-wefin-mint-deep'
+                      : 'bg-wefin-bg text-wefin-subtle hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'
+                  } disabled:opacity-60`}
+                >
+                  {registered ? <Check size={10} /> : <Plus size={10} />}
+                  {sector.name}
+                </button>
+              )
+            })}
+          </>
+        )}
       </div>
 
       {/* AI Questions */}
@@ -153,28 +180,6 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
         </div>
       )}
 
-      {/* Related sector interest */}
-      {relatedSector && (
-        <div className="inline-flex items-center gap-2">
-          <span className="rounded-full bg-wefin-bg px-3 py-1.5 text-[13px] font-semibold text-wefin-text">
-            {relatedSector.name}
-          </span>
-          <button
-            type="button"
-            onClick={handleSectorInterestClick}
-            disabled={isSectorToggleDisabled}
-            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-semibold transition-all ${
-              isSectorRegistered
-                ? 'bg-wefin-mint-soft text-wefin-mint-deep'
-                : 'text-wefin-subtle hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'
-            } disabled:opacity-60`}
-          >
-            <Star size={12} className={isSectorRegistered ? 'fill-current' : ''} />
-            {isSectorRegistered ? '등록됨' : '관심 등록'}
-          </button>
-        </div>
-      )}
-
       {/* Related Stocks */}
       {cluster.relatedStocks.length > 0 && (
         <div>
@@ -186,15 +191,6 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
           </div>
         </div>
       )}
-
-      {/* AI Recommended News */}
-      <div>
-        <div className="mb-4 flex items-center gap-2">
-          <Layers size={20} className="text-[#3db9b9]" />
-          <h3 className="text-lg font-bold text-wefin-text">AI 추천 관련 뉴스</h3>
-        </div>
-        <p className="py-8 text-center text-sm text-wefin-subtle">준비 중입니다</p>
-      </div>
     </div>
   )
 }

@@ -1,17 +1,16 @@
-import { ChevronRight, Lightbulb, Link2, RefreshCw, Sparkles } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
+import HighlightedText from '@/shared/ui/highlighted-text'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 import type { RecommendedCard } from '../api/fetch-recommended-news'
 import {
   useRecommendedNewsQuery,
   useRefreshRecommendedNews
 } from '../model/use-recommended-news-query'
-
-const BORDER_COLORS = ['border-[#3db9b9]/20', 'border-blue-500/20', 'border-green-500/20']
-const BG_COLORS = ['bg-[#3db9b9]', 'bg-blue-500', 'bg-green-500']
-const TEXT_COLORS = ['text-[#3db9b9]', 'text-blue-500', 'text-green-500']
 
 export default function RecommendedNewsSection() {
   const userId = useAuthUserId()
@@ -23,86 +22,85 @@ export default function RecommendedNewsSection() {
   if (isError || !data || data.cards.length === 0) return null
 
   const limitReached = data.refreshCount >= data.refreshLimit
-  const canRefresh = data.hasMore && !limitReached
 
   return (
-    <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles size={20} className="text-[#3db9b9]" />
+          <WefinLogoIcon size={18} className="text-wefin-mint-deep" />
           <h2 className="text-lg font-bold text-wefin-text">나를 위한 뉴스</h2>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-wefin-subtle">
-            {data.refreshCount} / {data.refreshLimit}회
-          </span>
-          {canRefresh && (
-            <button
-              type="button"
-              onClick={() => refreshMutation.mutate()}
-              disabled={refreshMutation.isPending}
-              className="flex items-center gap-1 text-xs text-wefin-subtle transition-colors hover:text-wefin-mint"
-            >
-              <RefreshCw size={14} className={refreshMutation.isPending ? 'animate-spin' : ''} />
-              <span>다른 뉴스 보기</span>
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            if (limitReached) {
+              toast('오늘 추천 횟수를 모두 사용했어요')
+              return
+            }
+            if (!data.hasMore) {
+              toast('더 이상 추천할 뉴스가 없어요')
+              return
+            }
+            refreshMutation.mutate(undefined, {
+              onSuccess: (newData) => {
+                if (!newData.hasMore) {
+                  toast('더 이상 추천할 뉴스가 없어요')
+                }
+              }
+            })
+          }}
+          disabled={refreshMutation.isPending}
+          className="flex items-center gap-1.5 rounded-full bg-wefin-bg px-3 py-1.5 text-xs font-semibold text-wefin-text transition-all hover:bg-wefin-mint-soft hover:text-wefin-mint-deep disabled:opacity-60"
+        >
+          <WefinLogoIcon
+            size={13}
+            className={
+              refreshMutation.isPending ? 'animate-[spinPause_2s_ease-in-out_infinite]' : ''
+            }
+          />
+          다른 뉴스 보기
+        </button>
       </div>
 
       <div className="flex flex-col gap-4">
         {data.cards.map((card, index) => (
-          <RecommendedCard
-            key={`${card.cardType}-${card.interestCode}-${index}`}
-            card={card}
-            index={index}
-          />
+          <RecommendedCardItem key={`${card.cardType}-${card.interestCode}-${index}`} card={card} />
         ))}
       </div>
     </div>
   )
 }
 
-function RecommendedCard({ card, index }: { card: RecommendedCard; index: number }) {
-  const colorIdx = index % 3
-  const mainReason = card.reasons
-    .map((r) => r.label)
-    .filter(Boolean)
-    .join(' · ')
+function RecommendedCardItem({ card }: { card: RecommendedCard }) {
+  const reasons = card.reasons.map((r) => r.label).filter(Boolean)
 
   return (
-    <div className={`rounded-2xl border p-5 shadow-sm ${BORDER_COLORS[colorIdx]}`}>
-      <div className="mb-4">
-        <div className="mb-2 flex items-center gap-2">
-          <h3 className="text-[16px] font-bold text-wefin-text">{card.title}</h3>
-        </div>
-        <p className="text-[14px] font-medium leading-relaxed text-gray-700">{card.summary}</p>
-      </div>
+    <div className="border-l-[3px] border-wefin-mint-deep/30 py-1 pl-5">
+      <h3 className="mb-2 text-base font-bold text-wefin-text">{card.title}</h3>
+      <p className="text-[14px] font-medium leading-7 text-wefin-text">
+        <HighlightedText text={card.summary} />
+      </p>
 
-      {mainReason && (
-        <div className="mb-5 flex items-start gap-2 rounded-xl border border-wefin-line bg-wefin-bg p-3.5">
-          <Lightbulb size={16} className={`mt-0.5 shrink-0 ${TEXT_COLORS[colorIdx]}`} />
-          <p className="text-[13px] font-bold leading-relaxed text-gray-600">{mainReason}</p>
+      {reasons.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {reasons.map((reason, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1 rounded-full bg-wefin-mint-soft/50 px-3 py-1 text-xs font-semibold text-wefin-mint-deep"
+            >
+              {reason}
+            </span>
+          ))}
         </div>
       )}
 
       {card.linkedCluster && (
         <Link
           to={`/news/${card.linkedCluster.clusterId}`}
-          className="group flex items-center gap-3 rounded-xl border border-wefin-line bg-white px-4 py-3 shadow-sm transition-all hover:border-gray-300 hover:shadow-md"
+          className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-wefin-mint-deep transition-colors hover:underline hover:underline-offset-4"
         >
-          <div
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow-sm ${BG_COLORS[colorIdx]}`}
-          >
-            <Link2 size={14} className="text-white" />
-          </div>
-          <div className="flex flex-1 flex-col">
-            <span className="mb-0.5 text-[11px] font-bold text-gray-400">이 뉴스를 읽어보세요</span>
-            <span className="line-clamp-1 text-[14px] font-bold text-gray-800 transition-colors">
-              {card.linkedCluster.title}
-            </span>
-          </div>
-          <ChevronRight size={18} className="text-gray-400 group-hover:text-gray-600" />
+          {card.linkedCluster.title}
+          <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
         </Link>
       )}
     </div>
@@ -111,14 +109,14 @@ function RecommendedCard({ card, index }: { card: RecommendedCard; index: number
 
 function SectionSkeleton() {
   return (
-    <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
       <div className="mb-4 flex items-center gap-2">
         <div className="h-5 w-5 animate-pulse rounded bg-gray-100" />
         <div className="h-5 w-24 animate-pulse rounded bg-gray-100" />
       </div>
       <div className="flex flex-col gap-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="h-48 animate-pulse rounded-2xl bg-gray-50" />
+          <div key={i} className="h-40 animate-pulse rounded-2xl bg-wefin-bg/60" />
         ))}
       </div>
     </div>

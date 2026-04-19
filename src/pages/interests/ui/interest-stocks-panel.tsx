@@ -7,6 +7,7 @@ import {
   useDeleteWatchlist,
   useWatchlistQuery
 } from '@/features/watchlist/model/use-watchlist-queries'
+import StockLogo from '@/shared/ui/stock-logo'
 
 const MAX_WATCHLIST_ITEMS = 10
 
@@ -46,11 +47,18 @@ export default function InterestStocksPanel() {
                 key={item.stockCode}
                 className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3"
               >
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-wefin-text">
-                    {item.stockName || item.stockCode}
-                  </span>
-                  <span className="text-xs text-wefin-subtle">{item.stockCode}</span>
+                <div className="flex items-center gap-3">
+                  <StockLogo
+                    code={item.stockCode}
+                    name={item.stockName || item.stockCode}
+                    size={32}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-wefin-text">
+                      {item.stockName || item.stockCode}
+                    </span>
+                    <span className="text-xs text-wefin-subtle">{item.stockCode}</span>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -90,12 +98,15 @@ export default function InterestStocksPanel() {
                   key={s.stockCode}
                   className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3"
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-wefin-text">{s.stockName}</span>
-                    <span className="text-xs text-wefin-subtle">
-                      {s.stockCode} · {s.market}
-                      {s.sector ? ` · ${s.sector}` : ''}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <StockLogo code={s.stockCode} name={s.stockName} size={32} />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-wefin-text">{s.stockName}</span>
+                      <span className="text-xs text-wefin-subtle">
+                        {s.stockCode} · {s.market}
+                        {s.sector ? ` · ${s.sector}` : ''}
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"

@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useLoginDialogStore } from '@/features/auth-dialog/model/use-login-dialog-store'
+import HighlightedText from '@/shared/ui/highlighted-text'
 import SourceBadge from '@/shared/ui/source-badge'
 import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
@@ -296,16 +297,25 @@ function SummaryContent({
   onSourceClick: () => void
 }) {
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-[#f8fffe] to-[#f0f7f7] px-5 py-4">
+    <div className="border-l-[3px] border-wefin-mint-deep/30 pl-5 py-1">
       {summary && (
         <div className="whitespace-pre-line text-[14px] leading-7 text-wefin-text">
           {(() => {
             const firstBreak = summary.indexOf('\n')
-            if (firstBreak === -1) return <p className="font-semibold">{summary}</p>
+            if (firstBreak === -1)
+              return (
+                <p className="font-semibold">
+                  <HighlightedText text={summary} />
+                </p>
+              )
             return (
               <>
-                <p className="font-semibold">{summary.slice(0, firstBreak)}</p>
-                <p className="mt-2">{summary.slice(firstBreak + 1)}</p>
+                <p className="font-semibold">
+                  <HighlightedText text={summary.slice(0, firstBreak)} />
+                </p>
+                <p className="mt-2">
+                  <HighlightedText text={summary.slice(firstBreak + 1)} />
+                </p>
               </>
             )
           })()}

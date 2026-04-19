@@ -1,13 +1,12 @@
-import { Check, ChevronDown, Heart, Search, SlidersHorizontal, X } from 'lucide-react'
+import { Check, ChevronDown, Heart, Search, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useSectorInterestsQuery } from '@/features/sector-interest/model/use-sector-interest-queries'
 import { useWatchlistQuery } from '@/features/watchlist/model/use-watchlist-queries'
-import { routes } from '@/shared/config/routes'
 
 import type { PopularTag } from '../api/fetch-popular-tags'
+import InterestsModal from './interests-modal'
 
 export type FilterMode = 'ALL' | 'SECTOR' | 'STOCK'
 
@@ -35,6 +34,7 @@ export default function NewsFilterBar({
   stockTags
 }: NewsFilterBarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [interestsModalOpen, setInterestsModalOpen] = useState(false)
   const [search, setSearch] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const tabContainerRef = useRef<HTMLDivElement>(null)
@@ -110,10 +110,6 @@ export default function NewsFilterBar({
     } else {
       onTagsChange([...selectedTags, tag])
     }
-  }
-
-  function removeTag(tag: PopularTag) {
-    onTagsChange(selectedTags.filter((t) => t.name !== tag.name))
   }
 
   function openDropdown() {
@@ -233,58 +229,41 @@ export default function NewsFilterBar({
       )}
 
       {userId && (
-        <div className="inline-flex items-center gap-1.5">
+        <>
           <button
             type="button"
-            onClick={handleInterestFilterClick}
+            onClick={() => {
+              if (interestModeActive) {
+                handleInterestFilterClick()
+              } else if (hasAnyInterest) {
+                handleInterestFilterClick()
+              } else {
+                setInterestsModalOpen(true)
+              }
+            }}
             aria-pressed={interestModeActive}
             aria-label="내 관심사로 필터"
-            title={
-              !hasAnyInterest
-                ? '등록된 관심사가 없습니다. 편집에서 추가해주세요.'
-                : interestModeActive
-                  ? '관심사 필터 해제'
-                  : '내 관심사로 필터'
-            }
-            className={`inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
+            className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors ${
               interestModeActive
-                ? 'border-red-300 bg-red-50 text-red-500'
-                : 'border-gray-200 bg-white text-wefin-subtle hover:border-red-200 hover:text-red-400'
+                ? 'border-wefin-mint-deep/30 bg-wefin-mint-soft text-wefin-mint-deep'
+                : 'border-gray-200 bg-white text-wefin-subtle hover:border-wefin-mint-deep/20 hover:text-wefin-mint-deep'
             }`}
           >
-            <Heart className={`h-4 w-4 ${interestModeActive ? 'fill-current' : ''}`} />
+            <Heart className={`h-3.5 w-3.5 ${interestModeActive ? 'fill-current' : ''}`} />
+            {interestModeActive ? '내 관심' : '관심'}
           </button>
           {interestModeActive && (
-            <Link
-              to={routes.interests}
-              className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-wefin-subtle transition-colors hover:bg-gray-200 hover:text-wefin-text"
+            <button
+              type="button"
+              onClick={() => setInterestsModalOpen(true)}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text"
+              aria-label="관심 목록 편집"
             >
-              <SlidersHorizontal className="h-3 w-3" />
-              편집
-            </Link>
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+            </button>
           )}
-        </div>
-      )}
-
-      {/* Selected tag chips */}
-      {selectedTags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          {selectedTags.map((tag) => (
-            <span
-              key={tag.name}
-              className="inline-flex items-center gap-1 rounded-full bg-wefin-mint-soft px-2.5 py-1 text-xs font-medium text-wefin-mint"
-            >
-              {tag.name}
-              <button
-                onClick={() => removeTag(tag)}
-                aria-label={`${tag.name} 필터 제거`}
-                className="cursor-pointer hover:text-wefin-text"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
-        </div>
+          <InterestsModal open={interestsModalOpen} onClose={() => setInterestsModalOpen(false)} />
+        </>
       )}
     </div>
   )
