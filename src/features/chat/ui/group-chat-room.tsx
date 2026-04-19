@@ -43,12 +43,19 @@ interface GroupChatRoomProps {
 }
 
 const VOTE_COMMAND = '/vote'
+const WEFINI_COMMAND = '/wefini'
+const CHAT_COMMANDS = [
+  { command: VOTE_COMMAND, description: '투표 만들기' },
+  { command: WEFINI_COMMAND, description: '위피니에게 질문하기' }
+] as const
 
 export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false)
+  const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const inputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
   const shouldRestoreScrollRef = useRef(false)
@@ -73,6 +80,22 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
   const isVoteCommandInput =
     message.trim() === VOTE_COMMAND || message.trim().startsWith(`${VOTE_COMMAND} `)
+  const commandSuggestions = useMemo(() => {
+    const trimmed = message.trimStart()
+
+    if (!trimmed.startsWith('/')) {
+      return []
+    }
+
+    const hasWhitespaceAfterCommand = trimmed.includes(' ')
+    if (hasWhitespaceAfterCommand) {
+      return []
+    }
+
+    return CHAT_COMMANDS.filter(
+      ({ command }) => command.startsWith(trimmed) || trimmed.startsWith(command)
+    )
+  }, [message])
 
   useEffect(() => {
     const shouldScrollToBottom =
@@ -106,6 +129,31 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 
     setIsVoteModalOpen(true)
     setMessage('')
+    return true
+  }
+
+  const handleCommandSuggestionClick = (command: (typeof CHAT_COMMANDS)[number]['command']) => {
+    if (command === VOTE_COMMAND) {
+      setIsVoteModalOpen(true)
+      setMessage('')
+      return
+    }
+
+    setMessage(`${command} `)
+
+    requestAnimationFrame(() => {
+      inputRef.current?.focus()
+    })
+  }
+
+  const applySelectedCommandSuggestion = (index: number) => {
+    const selectedCommand = commandSuggestions[index]
+
+    if (!selectedCommand) {
+      return false
+    }
+
+    handleCommandSuggestionClick(selectedCommand.command)
     return true
   }
 
@@ -337,17 +385,85 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
             </div>
           )}
 
+          {commandSuggestions.length > 0 && (
+            <div className="mb-2 overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
+              {commandSuggestions.map(({ command, description }) => (
+                <button
+                  key={command}
+                  type="button"
+                  onClick={() => handleCommandSuggestionClick(command)}
+                  onMouseEnter={() =>
+                    setSelectedCommandIndex(
+                      commandSuggestions.findIndex((item) => item.command === command)
+                    )
+                  }
+                  className={`flex w-full items-center justify-between px-4 py-3 text-left transition ${
+                    commandSuggestions[selectedCommandIndex]?.command === command
+                      ? 'bg-wefin-bg'
+                      : 'hover:bg-wefin-bg'
+                  }`}
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-wefin-text">{command}</span>
+                    <span className="text-xs text-wefin-subtle">{description}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
             <input
+              ref={inputRef}
               type="text"
               value={message}
-              onChange={(event) => setMessage(event.target.value)}
+              onChange={(event) => {
+                setMessage(event.target.value)
+                setSelectedCommandIndex(0)
+              }}
               onKeyDown={(event) => {
                 if (event.nativeEvent.isComposing) {
                   return
                 }
 
+                if (commandSuggestions.length > 0) {
+                  if (event.key === 'ArrowDown') {
+                    event.preventDefault()
+                    setSelectedCommandIndex((prev) => (prev + 1) % commandSuggestions.length)
+                    return
+                  }
+
+                  if (event.key === 'ArrowUp') {
+                    event.preventDefault()
+                    setSelectedCommandIndex(
+                      (prev) => (prev - 1 + commandSuggestions.length) % commandSuggestions.length
+                    )
+                    return
+                  }
+
+                  if (event.key === 'Tab') {
+                    event.preventDefault()
+                    applySelectedCommandSuggestion(selectedCommandIndex)
+                    return
+                  }
+
+                  if (event.key === 'Escape') {
+                    event.preventDefault()
+                    setMessage('')
+                    return
+                  }
+                }
+
                 if (event.key === 'Enter') {
+                  if (commandSuggestions.length > 0 && message.trimStart().startsWith('/')) {
+                    const didApplyCommand = applySelectedCommandSuggestion(selectedCommandIndex)
+
+                    if (didApplyCommand) {
+                      event.preventDefault()
+                      return
+                    }
+                  }
+
                   const trimmedMessage = event.currentTarget.value.trim()
 
                   if (handleCommandMessage(trimmedMessage)) {
