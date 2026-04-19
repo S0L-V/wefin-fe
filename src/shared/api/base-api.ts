@@ -110,7 +110,9 @@ baseApi.interceptors.response.use(
     const isAuthRequest =
       requestUrl.includes('/auth/login') ||
       requestUrl.includes('/auth/signup') ||
-      requestUrl.includes('/auth/refresh')
+      requestUrl.includes('/auth/refresh') ||
+      requestUrl.includes('/auth/password/reset') ||
+      requestUrl.includes('/auth/email-verifications')
 
     const errorCode = getResponseErrorCode(error)
 
