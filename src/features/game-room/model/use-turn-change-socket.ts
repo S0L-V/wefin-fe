@@ -5,6 +5,7 @@ import { onStompConnect, stompClient } from '@/shared/api/stomp-client'
 
 import { gameRoomKeys, gameTurnKeys } from './query-keys'
 import type { RankingItem, RankingsResponse } from './ranking.schema'
+import { useGameFinishedStore } from './use-game-finished-store'
 import type { RankChange } from './use-rank-change-store'
 import { useRankChangeStore } from './use-rank-change-store'
 import { useSelectedStockStore } from './use-selected-stock-store'
@@ -83,6 +84,11 @@ export function useTurnChangeSocket(roomId: string) {
                 queryKey: gameRoomKeys.stockChart(selectedSymbol, roomId)
               })
             }
+          }
+
+          if (data.type === 'GAME_FINISHED') {
+            console.log('[GAME_FINISHED] roomId:', roomId)
+            useGameFinishedStore.getState().setGameFinished()
           }
         } catch {
           console.warn('[WebSocket] 턴 전환 메시지 파싱 실패:', message.body)
