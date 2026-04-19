@@ -17,14 +17,16 @@ export default function HomeSidebar() {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="flex flex-col gap-4">
-      <DailyQuestPanel />
+    <div className="flex h-full min-h-0 flex-col gap-2">
+      <div className="shrink-0 overflow-hidden">
+        <DailyQuestPanel />
+      </div>
 
       <div
         className={`flex min-h-0 flex-col overflow-hidden rounded-3xl border border-wefin-line bg-white shadow-sm transition-all duration-300 ${
           expanded
             ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
-            : 'h-[688px]'
+            : 'min-h-0 flex-1'
         }`}
       >
         <div className="flex items-center gap-2 p-2.5">
