@@ -2,6 +2,7 @@ import { baseApi } from '@/shared/api/base-api'
 
 import {
   chartResponseSchema,
+  keywordListResponseSchema,
   orderResponseSchema,
   type OrderType,
   sectorListResponseSchema,
@@ -25,7 +26,7 @@ export async function fetchSectors(roomId: string) {
 // 특정 섹터의 키워드 목록 조회
 export async function fetchKeywords(roomId: string, sector: string) {
   const response = await baseApi.get(`/rooms/${roomId}/stocks/sectors/${sector}/keywords`)
-  return response.data as { status: number; data: string[] }
+  return keywordListResponseSchema.parse(response.data)
 }
 
 // 섹터+키워드로 종목 목록 조회

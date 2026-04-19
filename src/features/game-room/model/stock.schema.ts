@@ -19,6 +19,15 @@ export const sectorListResponseSchema = z.object({
   data: z.array(sectorItemSchema)
 })
 
+// === 키워드 목록 ===
+
+export const keywordListResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: z.array(z.string())
+})
+
 // === 종목 검색 ===
 
 export const stockSearchItemSchema = z.object({
