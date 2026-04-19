@@ -44,9 +44,11 @@ interface GroupChatRoomProps {
 
 const VOTE_COMMAND = '/vote'
 const WEFINI_COMMAND = '/wefini'
+const YOUNG_COMMAND = '/영'
 const CHAT_COMMANDS = [
   { command: VOTE_COMMAND, description: '투표 만들기' },
-  { command: WEFINI_COMMAND, description: '위피니에게 질문하기' }
+  { command: WEFINI_COMMAND, description: '위피니에게 질문하기' },
+  { command: YOUNG_COMMAND, description: '영차!' }
 ] as const
 
 export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
@@ -136,6 +138,15 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
     if (command === VOTE_COMMAND) {
       setIsVoteModalOpen(true)
       setMessage('')
+      return
+    }
+
+    if (command === YOUNG_COMMAND) {
+      setMessage(command)
+
+      requestAnimationFrame(() => {
+        inputRef.current?.focus()
+      })
       return
     }
 
@@ -233,9 +244,17 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 
             if (isSystem) {
               return (
-                <div key={getMessageKey(msg)} className="flex justify-center">
-                  <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
-                    {msg.content}
+                <div key={getMessageKey(msg)} className="flex flex-col items-start">
+                  <div className="mb-1 flex items-center gap-2">
+                    <img
+                      src="/wefin.png"
+                      alt="위피니"
+                      className="h-7 w-7 rounded-full border border-wefin-line object-cover"
+                    />
+                    <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
+                  </div>
+                  <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-white px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm [overflow-wrap:anywhere]">
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
                   </div>
                 </div>
               )
@@ -456,11 +475,17 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 
                 if (event.key === 'Enter') {
                   if (commandSuggestions.length > 0 && message.trimStart().startsWith('/')) {
-                    const didApplyCommand = applySelectedCommandSuggestion(selectedCommandIndex)
+                    const selectedCommand = commandSuggestions[selectedCommandIndex]
+                    const shouldExecuteImmediately =
+                      selectedCommand?.command === YOUNG_COMMAND && message.trim() === YOUNG_COMMAND
 
-                    if (didApplyCommand) {
-                      event.preventDefault()
-                      return
+                    if (!shouldExecuteImmediately) {
+                      const didApplyCommand = applySelectedCommandSuggestion(selectedCommandIndex)
+
+                      if (didApplyCommand) {
+                        event.preventDefault()
+                        return
+                      }
                     }
                   }
 
