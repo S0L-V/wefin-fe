@@ -74,7 +74,6 @@ function PlayPage() {
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
-  const totalTurns = roomDetail?.data.totalTurns ?? 0
   const totalAssets = portfolio?.data.totalAsset ?? seed
   const profitRate = portfolio?.data.profitRate ?? 0
   const cash = portfolio?.data.cash ?? seed
@@ -85,7 +84,6 @@ function PlayPage() {
       <div className="relative left-1/2 -ml-[50vw] -mt-6 w-screen">
         <PlayHeader
           currentRound={currentRound}
-          totalTurns={totalTurns}
           currentDate={currentDate}
           seed={seed}
           totalAssets={totalAssets}
