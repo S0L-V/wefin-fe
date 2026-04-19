@@ -13,6 +13,10 @@ export function useJoinGroupMutation(onSuccess?: () => void) {
       void queryClient.invalidateQueries({
         queryKey: ['settings', 'my-group']
       })
+
+      void queryClient.invalidateQueries({
+        queryKey: ['settings', 'group-invite-code']
+      })
     }
   })
 }
