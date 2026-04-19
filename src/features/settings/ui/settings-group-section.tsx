@@ -18,12 +18,8 @@ type SettingsGroupSectionProps = {
 
 function getInviteStatusDisplay(status: string): { label: string; className: string } {
   switch (status.toUpperCase()) {
-    case 'ACTIVE':
-      return { label: '사용 가능', className: 'text-wefin-mint bg-wefin-mint-soft' }
     case 'PENDING':
       return { label: '사용 가능', className: 'text-wefin-mint bg-wefin-mint-soft' }
-    case 'USED':
-      return { label: '사용됨', className: 'text-orange-600 bg-orange-50' }
     case 'EXPIRED':
       return { label: '만료됨', className: 'text-wefin-subtle bg-gray-100' }
     default:
@@ -69,8 +65,19 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
   const currentInviteCodeData = inviteCodeQuery.data ?? createInviteMutation.data ?? null
   const inviteCode = currentInviteCodeData?.inviteCode ?? ''
   const inviteStatus = currentInviteCodeData?.status ?? null
+  const inviteExpiredAt = currentInviteCodeData?.expiredAt ?? null
   const hasInviteCode = !!inviteCode
-  const isCodeConsumed = inviteStatus === 'USED' || inviteStatus === 'EXPIRED'
+  const isCodeExpired = inviteStatus === 'EXPIRED'
+
+  const inviteExpiredAtText = inviteExpiredAt
+    ? new Date(inviteExpiredAt).toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    : null
 
   const canLeaveGroup = isLoggedIn && !isLoading && !isError && !!group && !isHomeGroup
   const canCreateInvite = isLoggedIn && !isLoading && !isError && !!group && !isHomeGroup
@@ -211,7 +218,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
   }
 
   const handleCopy = async (text: string) => {
-    if (!text || !hasInviteCode || isCodeConsumed) {
+    if (!text || !hasInviteCode || isCodeExpired) {
       return
     }
 
@@ -283,7 +290,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
             <span className="group relative inline-flex h-4 w-4 items-center justify-center text-wefin-subtle">
               <Info size={13} />
               <span className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-1.5 w-[260px] -translate-x-1/2 rounded-lg bg-wefin-text px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
-                1인당 초대 코드는 1개만 발급할 수 있어요. 사용되면 재발급이 필요해요.
+                초대 코드는 24시간 동안 사용할 수 있어요. 만료되기 전까지 같은 코드를 다시 사용할 수
+                있어요.
               </span>
             </span>
 
@@ -313,7 +321,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
               }
               className="h-11 flex-1 rounded-xl border border-wefin-line bg-wefin-bg px-4 text-sm text-wefin-subtle outline-none"
             />
-            {hasInviteCode && !isCodeConsumed ? (
+            {hasInviteCode && !isCodeExpired ? (
               <button
                 type="button"
                 onClick={() => handleCopy(inviteCode)}
@@ -353,13 +361,18 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                 ].join(' ')}
               >
                 <Plus size={16} />
-                {isCreatingInvite ? '생성 중...' : isCodeConsumed ? '재생성' : '생성'}
+                {isCreatingInvite ? '발급 중...' : isCodeExpired ? '재발급' : '코드 발급'}
               </button>
             )}
           </div>
-          {isCodeConsumed && (
+          {hasInviteCode && inviteExpiredAtText && !isCodeExpired && (
+            <p className="mt-2 text-xs text-wefin-subtle">
+              {inviteExpiredAtText}까지 사용할 수 있어요.
+            </p>
+          )}
+          {isCodeExpired && (
             <p className="mt-2 text-xs text-orange-600">
-              초대 코드가 사용되었어요. 재생성해주세요.
+              초대 코드가 만료되었어요. 새 코드를 발급해주세요.
             </p>
           )}
           {createInviteMutation.isError && (
