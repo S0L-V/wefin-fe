@@ -162,9 +162,7 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
 
       setFieldErrors((prev) => {
         const next = { ...prev }
-        if (next.email === '이메일 인증이 필요합니다.') {
-          delete next.email
-        }
+        delete next.email
         return next
       })
 
