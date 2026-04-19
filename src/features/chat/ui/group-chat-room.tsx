@@ -563,7 +563,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                   handleSendMessage()
                 }
               }}
-              placeholder="메시지를 입력하세요"
+              placeholder="/커맨드 또는 메시지를 입력하세요"
               className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
             />
             <button
