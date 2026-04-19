@@ -19,7 +19,7 @@ export default function NewsListSection() {
   const resetPagination = useNewsListStore((s) => s.resetPagination)
 
   const [pageIndex, setPageIndex] = useState(0)
-  const [cursorHistory, setCursorHistory] = useState<(number | null)[]>([null])
+  const [cursorHistory, setCursorHistory] = useState<(string | null)[]>([null])
 
   const { data: sectorTags = [] } = usePopularTagsQuery('SECTOR')
   const { data: stockTags = [] } = usePopularTagsQuery('STOCK')
