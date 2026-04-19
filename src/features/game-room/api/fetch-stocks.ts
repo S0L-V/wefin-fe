@@ -4,12 +4,33 @@ import {
   chartResponseSchema,
   orderResponseSchema,
   type OrderType,
+  sectorListResponseSchema,
   stockSearchResponseSchema
 } from '../model/stock.schema'
 
 // 종목 검색
 export async function searchStocks(roomId: string, keyword: string) {
   const response = await baseApi.get(`/rooms/${roomId}/stocks/search`, {
+    params: { keyword }
+  })
+  return stockSearchResponseSchema.parse(response.data)
+}
+
+// 섹터 목록 조회
+export async function fetchSectors(roomId: string) {
+  const response = await baseApi.get(`/rooms/${roomId}/stocks/sectors`)
+  return sectorListResponseSchema.parse(response.data)
+}
+
+// 특정 섹터의 키워드 목록 조회
+export async function fetchKeywords(roomId: string, sector: string) {
+  const response = await baseApi.get(`/rooms/${roomId}/stocks/sectors/${sector}/keywords`)
+  return response.data as { status: number; data: string[] }
+}
+
+// 섹터+키워드로 종목 목록 조회
+export async function fetchStocksByKeyword(roomId: string, sector: string, keyword: string) {
+  const response = await baseApi.get(`/rooms/${roomId}/stocks/sectors/${sector}/stocks`, {
     params: { keyword }
   })
   return stockSearchResponseSchema.parse(response.data)

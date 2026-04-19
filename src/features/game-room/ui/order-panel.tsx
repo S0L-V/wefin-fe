@@ -1,190 +1,63 @@
-import {
-  Banknote,
-  BatteryCharging,
-  Beaker,
-  Bolt,
-  Building2,
-  ChevronDown,
-  ChevronLeft,
-  ChevronUp,
-  Factory,
-  HeartPulse,
-  Landmark,
-  Search,
-  Signal,
-  Smartphone,
-  TrendingUp,
-  X
-} from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ChevronDown, ChevronLeft, ChevronUp, Search, TrendingUp, X } from 'lucide-react'
+import { useState } from 'react'
 
-import type { StockSearchItem } from '../model/stock.schema'
+import type { SectorItem, StockSearchItem } from '../model/stock.schema'
 import { type OrderSide, type OrderType, useOrderForm } from '../model/use-order-form'
 import { useSelectedStockStore } from '../model/use-selected-stock-store'
-import { useStockSearch } from '../model/use-stock-search'
+import {
+  useSectorKeywords,
+  useSectors,
+  useSectorStocks,
+  useStockSearch
+} from '../model/use-stock-search'
 
 interface OrderPanelProps {
   roomId: string
   cash: number
 }
 
-type SectorOption = {
-  id: string
-  label: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  accentClass: string
-  keywords: string[]
-}
-
 type PanelStep = 'sector' | 'keyword' | 'stock'
 
 const PANEL_BODY_HEIGHT_CLASS = 'h-[620px]'
-
-const SECTORS: SectorOption[] = [
-  {
-    id: 'energy',
-    label: '에너지',
-    icon: Bolt,
-    accentClass: 'bg-amber-50 text-amber-600',
-    keywords: [
-      '석유/가스',
-      '정유',
-      '석유화학',
-      'LNG',
-      '신재생에너지',
-      '2차전지',
-      '2차전지 소재',
-      '수소'
-    ]
-  },
-  {
-    id: 'utilities',
-    label: '유틸리티',
-    icon: Signal,
-    accentClass: 'bg-sky-50 text-sky-600',
-    keywords: ['전력', '가스', '수도', '신재생 발전', '에너지 인프라']
-  },
-  {
-    id: 'materials',
-    label: '기본 소재',
-    icon: Beaker,
-    accentClass: 'bg-violet-50 text-violet-600',
-    keywords: ['철강', '비철금속', '화학', '정밀화학', '건자재', '제지/펄프', '비료', '신소재']
-  },
-  {
-    id: 'industrials',
-    label: '산업재',
-    icon: Factory,
-    accentClass: 'bg-orange-50 text-orange-600',
-    keywords: [
-      '건설',
-      '플랜트',
-      '기계',
-      '로봇/자동화',
-      '조선',
-      '항공/방산',
-      '물류/운송',
-      '철도',
-      '산업부품'
-    ]
-  },
-  {
-    id: 'consumer-discretionary',
-    label: '경기소비재',
-    icon: Smartphone,
-    accentClass: 'bg-rose-50 text-rose-600',
-    keywords: [
-      '자동차',
-      '자동차 부품',
-      '전기차',
-      '의류/패션',
-      '화장품',
-      '유통',
-      '호텔/레저',
-      '여행/항공',
-      '가전',
-      '콘텐츠',
-      '게임',
-      '외식'
-    ]
-  },
-  {
-    id: 'consumer-staples',
-    label: '필수소비재',
-    icon: Banknote,
-    accentClass: 'bg-emerald-50 text-emerald-600',
-    keywords: ['식품', '음료/주류', '생활용품', '담배', '유통(마트/편의점)', '농축산']
-  },
-  {
-    id: 'healthcare',
-    label: '헬스케어',
-    icon: HeartPulse,
-    accentClass: 'bg-pink-50 text-pink-600',
-    keywords: ['제약', '바이오', '의료기기', '진단', '헬스케어 서비스']
-  },
-  {
-    id: 'financials',
-    label: '금융',
-    icon: Landmark,
-    accentClass: 'bg-indigo-50 text-indigo-600',
-    keywords: ['은행', '보험', '증권', '자산운용', '카드', '핀테크', '리스/캐피탈']
-  },
-  {
-    id: 'it',
-    label: 'IT',
-    icon: BatteryCharging,
-    accentClass: 'bg-cyan-50 text-cyan-600',
-    keywords: [
-      '반도체',
-      '반도체 장비',
-      '반도체 소재',
-      '디스플레이',
-      '하드웨어',
-      '소프트웨어',
-      '클라우드/AI',
-      '보안'
-    ]
-  },
-  {
-    id: 'communication',
-    label: '통신서비스',
-    icon: Signal,
-    accentClass: 'bg-blue-50 text-blue-600',
-    keywords: ['통신사', '인터넷 플랫폼', '광고/마케팅', '미디어', '엔터테인먼트', '게임 퍼블리싱']
-  },
-  {
-    id: 'real-estate',
-    label: '부동산',
-    icon: Building2,
-    accentClass: 'bg-stone-50 text-stone-600',
-    keywords: ['리츠', '상업용 부동산', '주거용 부동산', '물류센터', '데이터센터', '부동산 개발']
-  }
-]
 
 function OrderPanel({ roomId, cash }: OrderPanelProps) {
   const form = useOrderForm({ roomId, cash })
   const { clearStock, selectStock } = useSelectedStockStore()
 
   const [stockSearchKeyword, setStockSearchKeyword] = useState('')
-  const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null)
+  const [selectedSectorName, setSelectedSectorName] = useState<string | null>(null)
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null)
   const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
   const [resultMessage, setResultMessage] = useState<string | null>(null)
 
-  const selectedSector = useMemo(
-    () => SECTORS.find((sector) => sector.id === selectedSectorId) ?? null,
-    [selectedSectorId]
-  )
+  // 백엔드 API 연결
+  const { data: sectors = [] } = useSectors(roomId)
+  const { data: keywords = [] } = useSectorKeywords(roomId, selectedSectorName)
+  const {
+    data: sectorStocks = [],
+    isLoading: isSectorStocksLoading,
+    isError: isSectorStocksError
+  } = useSectorStocks(roomId, selectedSectorName, selectedKeyword)
 
-  const activeQuery = stockSearchKeyword.trim() || selectedKeyword || ''
-  const { data: stocks = [], isError, isLoading } = useStockSearch(roomId, activeQuery)
+  // 텍스트 검색 (기존)
+  const searchQuery = stockSearchKeyword.trim()
+  const {
+    data: searchStocks = [],
+    isLoading: isSearchLoading,
+    isError: isSearchError
+  } = useStockSearch(roomId, searchQuery)
+
+  // 현재 표시할 종목 + 로딩/에러 상태
+  const stocks = searchQuery ? searchStocks : sectorStocks
+  const isLoading = searchQuery ? isSearchLoading : isSectorStocksLoading
+  const isError = searchQuery ? isSearchError : isSectorStocksError
 
   const step: PanelStep = stockSearchKeyword.trim()
     ? 'stock'
     : selectedKeyword
       ? 'stock'
-      : selectedSector
+      : selectedSectorName
         ? 'keyword'
         : 'sector'
 
@@ -202,16 +75,16 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
     setStockSearchKeyword(value)
 
     if (value.trim()) {
-      setSelectedSectorId(null)
+      setSelectedSectorName(null)
       setSelectedKeyword(null)
     }
   }
 
-  function handleSelectSector(sectorId: string) {
+  function handleSelectSector(sectorName: string) {
     resetExpandedSelection()
     setStockSearchKeyword('')
     setSelectedKeyword(null)
-    setSelectedSectorId(sectorId)
+    setSelectedSectorName(sectorName)
   }
 
   function handleSelectKeyword(keyword: string) {
@@ -244,15 +117,15 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
       return
     }
 
-    if (selectedSectorId) {
-      setSelectedSectorId(null)
+    if (selectedSectorName) {
+      setSelectedSectorName(null)
     }
   }
 
   function handleResetFilters() {
     resetExpandedSelection()
     setStockSearchKeyword('')
-    setSelectedSectorId(null)
+    setSelectedSectorName(null)
     setSelectedKeyword(null)
   }
 
@@ -279,7 +152,7 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
     step === 'sector'
       ? '섹터를 선택해보세요'
       : step === 'keyword'
-        ? `${selectedSector?.label ?? ''} 키워드`
+        ? `${selectedSectorName ?? ''} 키워드`
         : stockSearchKeyword.trim()
           ? `"${stockSearchKeyword.trim()}" 검색 결과`
           : `${selectedKeyword ?? ''} 관련 종목`
@@ -364,7 +237,7 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
                 뒤로
               </button>
             )}
-            {(selectedSectorId || selectedKeyword || stockSearchKeyword) && (
+            {(selectedSectorName || selectedKeyword || stockSearchKeyword) && (
               <button
                 type="button"
                 onClick={handleResetFilters}
@@ -382,9 +255,9 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
           </StageBadge>
           <span className="text-xs text-wefin-subtle">/</span>
           <StageBadge
-            active={Boolean(selectedSector)}
+            active={Boolean(selectedSectorName)}
             onClick={
-              selectedSector
+              selectedSectorName
                 ? () => {
                     resetExpandedSelection()
                     setStockSearchKeyword('')
@@ -393,7 +266,7 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
                 : undefined
             }
           >
-            {selectedSector?.label ?? '섹터'}
+            {selectedSectorName ?? '섹터'}
           </StageBadge>
           <span className="text-xs text-wefin-subtle">/</span>
           <StageBadge
@@ -414,21 +287,21 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
         <div className="min-h-0 flex-1 overflow-hidden">
           {step === 'sector' && (
             <div className="grid h-full min-h-0 grid-cols-2 gap-2 overflow-y-auto pr-1 xl:grid-cols-3">
-              {SECTORS.map((sector) => (
+              {sectors.map((sector) => (
                 <SectorCard
-                  key={sector.id}
+                  key={sector.sector}
                   sector={sector}
-                  active={sector.id === selectedSectorId}
-                  onClick={() => handleSelectSector(sector.id)}
+                  active={sector.sector === selectedSectorName}
+                  onClick={() => handleSelectSector(sector.sector)}
                 />
               ))}
             </div>
           )}
 
-          {step === 'keyword' && selectedSector && (
+          {step === 'keyword' && selectedSectorName && (
             <div className="h-full overflow-y-auto pr-1">
               <div className="grid grid-cols-2 gap-2">
-                {selectedSector.keywords.map((keyword) => (
+                {keywords.map((keyword) => (
                   <button
                     key={keyword}
                     type="button"
@@ -513,12 +386,10 @@ function SectorCard({
   active,
   onClick
 }: {
-  sector: SectorOption
+  sector: SectorItem
   active: boolean
   onClick: () => void
 }) {
-  const Icon = sector.icon
-
   return (
     <button
       type="button"
@@ -529,16 +400,9 @@ function SectorCard({
           : 'border-wefin-line bg-white hover:border-wefin-mint/35 hover:bg-wefin-bg'
       }`}
     >
-      <div className="flex items-center gap-3">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${sector.accentClass}`}
-        >
-          <Icon size={18} />
-        </div>
-        <div className="min-w-0">
-          <div className="truncate text-sm font-bold text-wefin-text">{sector.label}</div>
-          <div className="mt-0.5 text-xs text-wefin-subtle">{sector.keywords.length}개 키워드</div>
-        </div>
+      <div className="min-w-0">
+        <div className="truncate text-sm font-bold text-wefin-text">{sector.sector}</div>
+        <div className="mt-0.5 text-xs text-wefin-subtle">{sector.keywordCount}개 키워드</div>
       </div>
     </button>
   )

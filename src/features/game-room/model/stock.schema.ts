@@ -5,6 +5,20 @@ import { z } from 'zod'
 //   - JS 정수 안전 범위 이내 (BigDecimal → number 역직렬화 시 정밀도 손실 방지)
 const nonNegativeSafeNumber = z.number().nonnegative().max(Number.MAX_SAFE_INTEGER)
 
+// === 섹터 목록 ===
+
+export const sectorItemSchema = z.object({
+  sector: z.string(),
+  keywordCount: z.number().int().nonnegative()
+})
+
+export const sectorListResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: z.array(sectorItemSchema)
+})
+
 // === 종목 검색 ===
 
 export const stockSearchItemSchema = z.object({
@@ -64,6 +78,7 @@ export const orderResponseSchema = z.object({
 
 // === Type exports ===
 
+export type SectorItem = z.infer<typeof sectorItemSchema>
 export type StockSearchItem = z.infer<typeof stockSearchItemSchema>
 export type StockSearchResponse = z.infer<typeof stockSearchResponseSchema>
 export type ChartItem = z.infer<typeof chartItemSchema>
