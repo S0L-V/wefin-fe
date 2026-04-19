@@ -1,13 +1,11 @@
-import { Lightbulb } from 'lucide-react'
-import { Activity, Flame, type LucideIcon, ShieldCheck, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
+import HighlightedText from '@/shared/ui/highlighted-text'
 import SourceBadge from '@/shared/ui/source-badge'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 import type { InsightCard, SourceCluster } from '../api/fetch-market-trends-overview'
 import ClusterSourceModal from './cluster-source-modal'
-
-const CARD_ICONS: LucideIcon[] = [TrendingUp, Activity, Flame, ShieldCheck]
 
 type Props = {
   cards: InsightCard[]
@@ -21,13 +19,8 @@ function InsightCardList({ cards, sourceClusters }: Props) {
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {cards.map((card, index) => (
-        <InsightCardItem
-          key={`${card.headline}-${index}`}
-          card={card}
-          index={index}
-          clusterById={clusterById}
-        />
+      {cards.map((card, i) => (
+        <InsightCardItem key={`${card.headline}-${i}`} card={card} clusterById={clusterById} />
       ))}
     </div>
   )
@@ -35,15 +28,12 @@ function InsightCardList({ cards, sourceClusters }: Props) {
 
 function InsightCardItem({
   card,
-  index,
   clusterById
 }: {
   card: InsightCard
-  index: number
   clusterById: Map<number, SourceCluster>
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const Icon = CARD_ICONS[index % CARD_ICONS.length]
 
   const cardClusters: SourceCluster[] = card.relatedClusterIds
     .map((id) => clusterById.get(id))
@@ -54,30 +44,31 @@ function InsightCardItem({
   const hasAdvice = Boolean(card.advice && card.adviceLabel)
 
   return (
-    <article className="flex h-full flex-col rounded-xl border border-wefin-line bg-white p-4">
-      <div className="mb-2 flex items-center gap-2">
-        <Icon className="h-4 w-4 text-wefin-mint" />
-        <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
-      </div>
-      <p className="mb-3 flex-grow text-xs leading-relaxed text-wefin-subtle">{card.body}</p>
-      {hasAdvice && (
-        <div className="mb-3 rounded-lg border border-gray-100 bg-white p-3">
-          <div className="mb-1 flex items-center gap-1.5">
-            <Lightbulb size={14} className="text-blue-500" />
-            <span className="text-xs font-bold text-wefin-text">{card.adviceLabel}</span>
-          </div>
-          <p className="text-xs text-wefin-subtle">{card.advice}</p>
+    <article className="flex h-full flex-col rounded-2xl bg-wefin-bg/60 px-4 py-3.5 transition-colors hover:bg-wefin-bg">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
+          <p className="mt-1 text-[13px] font-medium leading-relaxed text-wefin-text">
+            <HighlightedText text={card.body} />
+          </p>
         </div>
-      )}
-      {sourceCount > 0 && (
-        <div className="mt-auto flex justify-end">
+        {sourceCount > 0 && (
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="cursor-pointer transition-opacity hover:opacity-80"
+            className="shrink-0 cursor-pointer transition-opacity hover:opacity-80"
           >
             <SourceBadge sourceCount={sourceCount} sources={badgeSources} size="sm" />
           </button>
+        )}
+      </div>
+      {hasAdvice && (
+        <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-wefin-mint-soft/40 px-3 py-2">
+          <WefinLogoIcon size={12} className="mt-0.5 shrink-0 text-wefin-mint-deep" />
+          <div className="text-xs leading-relaxed text-wefin-mint-deep">
+            <p className="font-bold">{card.adviceLabel}</p>
+            <p className="mt-0.5 text-wefin-text/75">{card.advice}</p>
+          </div>
         </div>
       )}
       {isModalOpen && (

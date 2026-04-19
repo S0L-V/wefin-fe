@@ -1,6 +1,6 @@
 ﻿import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { Maximize2, Minimize2, Send, Sparkles, X } from 'lucide-react'
+import { Maximize2, Minimize2, Send, X } from 'lucide-react'
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react'
 
 import {
@@ -24,6 +24,7 @@ import {
 } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { invalidateTodayQuests } from '@/features/quest/model/use-today-quests'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 const AI_POLL_DELAY_MS = 2500
 const AI_POLL_MAX_ATTEMPTS = 6
@@ -366,10 +367,10 @@ export default function WefinyChatWidget() {
       <button
         type="button"
         onClick={toggle}
-        className="fixed right-6 bottom-6 z-30 flex h-14 w-14 items-center justify-center rounded-2xl bg-wefin-mint-deep text-white shadow-[0_8px_24px_rgba(36,168,171,0.3)] transition-all hover:scale-105 hover:shadow-[0_12px_32px_rgba(36,168,171,0.4)]"
+        className="fixed right-6 bottom-6 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#1a8a8c] to-[#0f6b6d] text-white shadow-[0_4px_16px_rgba(36,168,171,0.3)] ring-2 ring-wefin-mint-soft transition-all duration-300 hover:scale-110 hover:from-[#24a8ab] hover:to-[#1a8a8c] hover:shadow-[0_8px_28px_rgba(36,168,171,0.4)] active:scale-95"
         aria-label={isOpen ? '위피니 채팅 닫기' : '위피니 채팅 열기'}
       >
-        {isOpen ? <X size={22} /> : <Sparkles size={22} />}
+        {isOpen ? <X size={22} /> : <WefinLogoIcon size={24} />}
       </button>
 
       {isOpen && (
@@ -379,13 +380,10 @@ export default function WefinyChatWidget() {
           <div className="flex items-center justify-between border-b border-wefin-line bg-gradient-to-r from-wefin-mint-soft/40 to-transparent px-4 py-3">
             <div className="flex items-center gap-2.5">
               <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-wefin-mint shadow-sm">
-                <Sparkles size={16} className="text-white" />
+                <WefinLogoIcon size={18} className="text-white" />
                 <span className="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
               </div>
-              <div>
-                <span className="text-sm font-bold text-wefin-text">위피니 AI</span>
-                <p className="text-[11px] text-wefin-subtle">투자 어시스턴트</p>
-              </div>
+              <span className="text-sm font-bold text-wefin-text">위피니 AI</span>
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -430,7 +428,7 @@ export default function WefinyChatWidget() {
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center gap-3 py-8 text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-wefin-mint-soft">
-                      <Sparkles size={22} className="text-wefin-mint-deep" />
+                      <WefinLogoIcon size={24} className="text-wefin-mint-deep" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-wefin-text">무엇이든 물어보세요</p>
@@ -451,7 +449,7 @@ export default function WefinyChatWidget() {
                     >
                       {!isMine && (
                         <div className="mb-1 flex items-center gap-1">
-                          <Sparkles size={10} className="text-wefin-mint" />
+                          <WefinLogoIcon size={12} className="text-wefin-mint" />
                           <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
                         </div>
                       )}
@@ -471,7 +469,7 @@ export default function WefinyChatWidget() {
                 {pendingLabel && (
                   <div className="flex flex-col items-start" role="status" aria-live="polite">
                     <div className="mb-1 flex items-center gap-1">
-                      <Sparkles size={10} className="text-wefin-mint" />
+                      <WefinLogoIcon size={12} className="text-wefin-mint" />
                       <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
                     </div>
                     <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-white px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm">

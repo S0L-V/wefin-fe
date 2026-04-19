@@ -1,5 +1,5 @@
-import { ChevronDown, RefreshCw } from 'lucide-react'
-import { useMemo } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 import type { PopularTag } from '../api/fetch-popular-tags'
 import { useFilteredFeedQuery } from '../model/use-filtered-feed-query'
@@ -9,61 +9,77 @@ import type { FilterMode } from './news-filter-bar'
 import NewsFilterBar from './news-filter-bar'
 import NewsListCard from './news-list-card'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 5
 
 export default function NewsListSection() {
   const mode = useNewsListStore((s) => s.mode)
   const selectedTags = useNewsListStore((s) => s.selectedTags)
-  const cursors = useNewsListStore((s) => s.cursors)
-  const loadedItems = useNewsListStore((s) => s.loadedItems)
   const setMode = useNewsListStore((s) => s.setMode)
   const setSelectedTags = useNewsListStore((s) => s.setSelectedTags)
-  const setCursors = useNewsListStore((s) => s.setCursors)
-  const setLoadedItems = useNewsListStore((s) => s.setLoadedItems)
   const resetPagination = useNewsListStore((s) => s.resetPagination)
+
+  const [pageIndex, setPageIndex] = useState(0)
+  const [cursorHistory, setCursorHistory] = useState<(string | null)[]>([null])
 
   const { data: sectorTags = [] } = usePopularTagsQuery('SECTOR')
   const { data: stockTags = [] } = usePopularTagsQuery('STOCK')
 
-  const latestCursor = cursors[cursors.length - 1] ?? null
+  const currentCursor = cursorHistory[pageIndex] ?? null
   const tagCodesKey = selectedTags.map((t) => t.code).join(',')
   const feedParams = useMemo(
     () => ({
       size: PAGE_SIZE,
-      cursor: latestCursor,
+      cursor: currentCursor,
       ...(tagCodesKey && mode !== 'ALL'
         ? { tagType: mode as 'SECTOR' | 'STOCK', tagCodes: tagCodesKey.split(',') }
         : {})
     }),
-    [latestCursor, mode, tagCodesKey]
+    [currentCursor, mode, tagCodesKey]
   )
 
-  const { data, isLoading, isError, isFetching, isPlaceholderData } =
-    useFilteredFeedQuery(feedParams)
+  const { data, isLoading, isError, isPlaceholderData } = useFilteredFeedQuery(feedParams)
 
-  const freshItems = isPlaceholderData ? [] : (data?.items ?? [])
-  const currentItems = cursors.length === 1 ? freshItems : [...loadedItems, ...freshItems]
+  const items = isPlaceholderData ? [] : (data?.items ?? [])
+  const hasNext = data?.hasNext ?? false
+  const totalPages = cursorHistory.length + (hasNext ? 1 : 0)
 
   function handleModeChange(newMode: FilterMode) {
     setMode(newMode)
     setSelectedTags([])
     resetPagination()
+    setPageIndex(0)
+    setCursorHistory([null])
   }
 
   function handleTagsChange(tags: PopularTag[]) {
     setSelectedTags(tags)
     resetPagination()
+    setPageIndex(0)
+    setCursorHistory([null])
   }
 
-  function handleLoadMore() {
-    if (!data?.hasNext || !data.nextCursor) return
-    const nextCursor = data.nextCursor
-    setLoadedItems(currentItems)
-    setCursors((prev) => [...prev, nextCursor])
+  function handleNext() {
+    if (hasNext && data?.nextCursor) {
+      const nextPage = pageIndex + 1
+      if (nextPage >= cursorHistory.length) {
+        setCursorHistory((prev) => [...prev, data.nextCursor])
+      }
+      setPageIndex(nextPage)
+    } else if (cursorHistory.length > 1) {
+      setPageIndex(0)
+    }
+  }
+
+  function handlePrev() {
+    if (pageIndex > 0) {
+      setPageIndex(pageIndex - 1)
+    } else if (cursorHistory.length > 1) {
+      setPageIndex(cursorHistory.length - 1)
+    }
   }
 
   return (
-    <div className="mt-6 border-t border-wefin-line pt-6">
+    <div>
       <NewsFilterBar
         mode={mode}
         onModeChange={handleModeChange}
@@ -75,46 +91,72 @@ export default function NewsListSection() {
 
       <div className="mt-4">
         {isLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex gap-5 py-5">
-                <div className="h-[140px] w-[220px] shrink-0 animate-pulse rounded-xl bg-gray-100" />
-                <div className="flex flex-1 flex-col gap-3">
-                  <div className="h-5 w-3/4 animate-pulse rounded bg-gray-100" />
-                  <div className="h-4 w-full animate-pulse rounded bg-gray-100" />
-                  <div className="h-4 w-2/3 animate-pulse rounded bg-gray-100" />
+          <div className="space-y-3">
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <div key={i} className="flex gap-4 rounded-2xl p-3">
+                <div className="h-24 w-24 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+                <div className="flex flex-1 flex-col gap-2">
+                  <div className="h-4 w-3/4 animate-pulse rounded bg-gray-100" />
+                  <div className="h-3 w-full animate-pulse rounded bg-gray-100" />
+                  <div className="h-3 w-1/2 animate-pulse rounded bg-gray-100" />
                 </div>
               </div>
             ))}
           </div>
-        ) : isError && currentItems.length === 0 ? (
+        ) : isError && items.length === 0 ? (
           <p className="py-16 text-center text-sm text-wefin-subtle">뉴스를 불러오지 못했습니다</p>
-        ) : !currentItems.length ? (
+        ) : !items.length ? (
           <p className="py-16 text-center text-sm text-wefin-subtle">뉴스가 없습니다</p>
         ) : (
           <>
             <div>
-              {currentItems.map((cluster) => (
+              {items.map((cluster) => (
                 <NewsListCard key={cluster.clusterId} cluster={cluster} />
               ))}
             </div>
 
-            {data?.hasNext && (
-              <div className="flex justify-center pt-4">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={isFetching}
-                  className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-wefin-line px-3 py-1.5 text-xs font-medium text-wefin-subtle transition-colors hover:bg-wefin-bg disabled:opacity-50"
-                >
-                  {isFetching ? (
-                    <RefreshCw className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <ChevronDown className="h-3 w-3" />
-                  )}
-                  더보기
-                </button>
-              </div>
-            )}
+            <div className="mt-4 flex items-center justify-center gap-1">
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={pageIndex === 0}
+                aria-label="이전 페이지"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:cursor-not-allowed disabled:text-wefin-line"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              {[pageIndex - 1, pageIndex, pageIndex + 1].map((i) => (
+                <span key={i} className="flex h-7 w-7 items-center justify-center">
+                  {i >= 0 && i < totalPages ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (i < cursorHistory.length) setPageIndex(i)
+                        else if (i === cursorHistory.length) handleNext()
+                      }}
+                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold tabular-nums transition-all ${
+                        i === pageIndex
+                          ? 'bg-wefin-mint-deep text-white'
+                          : i < cursorHistory.length
+                            ? 'text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
+                            : 'text-wefin-line hover:text-wefin-subtle'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ) : null}
+                </span>
+              ))}
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={!hasNext && pageIndex >= totalPages - 1}
+                aria-label="다음 페이지"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:cursor-not-allowed disabled:text-wefin-line"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
           </>
         )}
       </div>

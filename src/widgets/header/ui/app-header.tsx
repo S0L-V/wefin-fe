@@ -7,8 +7,10 @@ import { useAccountQuery } from '@/features/account/model/use-account-queries'
 import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
 import { useLeaveGuardStore } from '@/features/game-room/model/use-leave-guard-store'
+import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
 import { navigationItems, routes } from '@/shared/config/routes'
 import ConfirmDialog from '@/shared/ui/confirm-dialog'
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
 type AuthUser = {
   isLoggedIn: boolean
@@ -38,9 +40,10 @@ function AppHeader() {
   const queryClient = useQueryClient()
   const navRef = useRef<HTMLElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
+  const hasMeasuredRef = useRef(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
+    const onScroll = () => setScrolled(window.scrollY > 50)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -50,17 +53,27 @@ function AppHeader() {
 
   useEffect(() => {
     if (!navRef.current || !indicatorRef.current) return
+    const indicator = indicatorRef.current
     const activeLink = navRef.current.querySelector<HTMLElement>('[data-active="true"]')
     if (activeLink) {
       const navRect = navRef.current.getBoundingClientRect()
       const linkRect = activeLink.getBoundingClientRect()
-      indicatorRef.current.style.width = `${linkRect.width}px`
-      indicatorRef.current.style.transform = `translateX(${linkRect.left - navRect.left}px)`
-      indicatorRef.current.style.opacity = '1'
+      if (!hasMeasuredRef.current) {
+        indicator.style.transition = 'none'
+      }
+      indicator.style.width = `${linkRect.width}px`
+      indicator.style.transform = `translateX(${linkRect.left - navRect.left}px)`
+      indicator.style.opacity = '1'
+      if (!hasMeasuredRef.current) {
+        requestAnimationFrame(() => {
+          indicator.style.transition = ''
+        })
+        hasMeasuredRef.current = true
+      }
     } else {
-      indicatorRef.current.style.opacity = '0'
+      indicator.style.opacity = '0'
     }
-  }, [location.pathname])
+  }, [location.pathname, scrolled])
 
   const handleNavClick = useCallback(
     (e: MouseEvent, to: string) => {
@@ -94,6 +107,7 @@ function AppHeader() {
 
     // 사용자 스코프 캐시(그룹/계정 등) 제거 — 다른 사용자가 로그인 시 stale data 방지
     queryClient.removeQueries({ queryKey: ['settings', 'my-group'] })
+    queryClient.removeQueries({ queryKey: ['portfolio', 'list'] })
     window.dispatchEvent(new Event('auth-changed'))
   }
 
@@ -112,12 +126,18 @@ function AppHeader() {
           <NavLink
             to={routes.home}
             onClick={(e) => handleNavClick(e, routes.home)}
-            className={`font-extrabold tracking-tight text-wefin-mint-deep transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(36,168,171,0.35),0_0_40px_rgba(36,168,171,0.15)] ${
+            className={`group/logo font-extrabold tracking-tight text-wefin-mint-deep transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(36,168,171,0.35),0_0_40px_rgba(36,168,171,0.15)] ${
               scrolled ? 'text-[26px]' : 'text-[32px]'
             }`}
             aria-label="wefin 홈"
           >
-            wefin
+            <span className="inline-flex items-baseline">
+              <WefinLogoIcon
+                size={scrolled ? 24 : 30}
+                className="mr-[-3px] translate-y-[5px] transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(36,168,171,0.5)]"
+              />
+              <span>efin</span>
+            </span>
           </NavLink>
 
           <nav ref={navRef} className="relative flex items-center gap-1" aria-label="Primary">
@@ -179,7 +199,12 @@ function UserMenu({
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const initial = (user.nickname || '?').charAt(0).toUpperCase()
   const { data: account } = useAccountQuery()
-  const totalAsset = Math.trunc(account?.balance ?? 0)
+  const { data: portfolio } = usePortfolioQuery()
+  const balance = Math.trunc(account?.balance ?? 0)
+  const evaluationAmount = Math.trunc(
+    (portfolio ?? []).reduce((sum, item) => sum + (item.evaluationAmount ?? 0), 0)
+  )
+  const totalAsset = balance + evaluationAmount
 
   return (
     <div className="group relative">

@@ -5,7 +5,7 @@
   --color-wefin-mint: #24a8ab;
   --color-wefin-mint-soft: #e8f7f7;
   --color-wefin-mint-deep: #0f8385;
-  --color-wefin-bg: #f7f9fc;
+  --color-wefin-bg: #f2f4f8;
   --color-wefin-line: #dbe5ee;
   --color-wefin-text: #202b36;
   --color-wefin-subtle: #637282;
@@ -71,6 +71,18 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes spinPause {
+    0% {
+      transform: rotate(0deg);
+    }
+    40% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 
