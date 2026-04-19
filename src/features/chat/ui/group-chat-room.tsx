@@ -1,8 +1,9 @@
 ﻿import { useQueryClient } from '@tanstack/react-query'
-import { ArrowUp, CornerDownRight, ListChecks, MessageSquareReply, X } from 'lucide-react'
+import { ArrowUp, CornerDownRight, ListChecks, MessageSquareReply, Smile, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { useGroupChatStore } from '@/features/chat/model/group/group-chat-store'
 import { useGroupChatSocket } from '@/features/chat/model/group/use-group-chat-socket'
@@ -54,6 +55,7 @@ const CHAT_COMMANDS = [
 export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false)
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -182,6 +184,16 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setMessage('')
+  }
+
+  const handleSendEmoji = (emojiCode: keyof typeof emojiMap) => {
+    const didSend = sendMessage(client, emojiCode)
+    if (!didSend) {
+      return
+    }
+
+    refreshTodayQuestsAfterRealtimeAction(queryClient)
+    setIsEmojiPickerOpen(false)
   }
 
   const handleScroll = async () => {
@@ -352,7 +364,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                       <span className="font-bold text-wefin-text">{msg.replyTo.sender}</span>
                       <span className="text-wefin-subtle">
                         {' 답장 '}
-                        {msg.replyTo.content}
+                        {isEmojiCode(msg.replyTo.content) ? '이모티콘' : msg.replyTo.content}
                       </span>
                     </span>
                   </div>
@@ -361,15 +373,25 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                 <div
                   className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
                 >
-                  <div
-                    className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm leading-snug [overflow-wrap:anywhere] ${
-                      isMine
-                        ? 'rounded-tr-none bg-wefin-mint text-white'
-                        : 'rounded-tl-none bg-gray-100 text-wefin-text'
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
+                  {isEmojiCode(msg.content) ? (
+                    <div className="rounded-3xl bg-transparent p-0.5">
+                      <img
+                        src={emojiMap[msg.content]}
+                        alt={msg.content}
+                        className="h-24 w-24 object-contain sm:h-28 sm:w-28"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm leading-snug [overflow-wrap:anywhere] ${
+                        isMine
+                          ? 'rounded-tr-none bg-wefin-mint text-white'
+                          : 'rounded-tl-none bg-gray-100 text-wefin-text'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  )}
                   {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
                   <ReplyButton onClick={() => setReplyTarget(msg)} />
                 </div>
@@ -390,7 +412,9 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                     ? replyTarget.newsShare.title
                     : replyTarget.voteShare
                       ? replyTarget.voteShare.title
-                      : replyTarget.content}
+                      : isEmojiCode(replyTarget.content)
+                        ? '이모티콘'
+                        : replyTarget.content}
                 </div>
               </div>
               <button
@@ -401,6 +425,25 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
               >
                 <X size={14} />
               </button>
+            </div>
+          )}
+
+          {isEmojiPickerOpen && (
+            <div className="mb-2 rounded-2xl border border-wefin-line bg-white p-3 shadow-sm">
+              <div className="mb-2 text-xs font-semibold text-wefin-subtle">이모티콘</div>
+              <div className="grid max-h-48 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-5">
+                {emojiList.map(({ code, src }) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => handleSendEmoji(code)}
+                    className="flex aspect-square items-center justify-center rounded-2xl bg-wefin-bg p-2 transition hover:bg-wefin-mint-soft"
+                    aria-label={`${code} 이모티콘 보내기`}
+                  >
+                    <img src={src} alt={code} className="h-14 w-14 object-contain" />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -439,6 +482,9 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
               onChange={(event) => {
                 setMessage(event.target.value)
                 setSelectedCommandIndex(0)
+                if (isEmojiPickerOpen) {
+                  setIsEmojiPickerOpen(false)
+                }
               }}
               onKeyDown={(event) => {
                 if (event.nativeEvent.isComposing) {
@@ -504,7 +550,18 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
             />
             <button
               type="button"
-              onClick={() => setIsVoteModalOpen(true)}
+              onClick={() => setIsEmojiPickerOpen((prev) => !prev)}
+              aria-label="이모티콘 열기"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep"
+            >
+              <Smile size={17} />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsEmojiPickerOpen(false)
+                setIsVoteModalOpen(true)
+              }}
               disabled={!groupId}
               aria-label="투표 만들기"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-mint transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-40"
