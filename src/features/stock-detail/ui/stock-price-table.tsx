@@ -57,7 +57,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
         <div className="flex h-11 shrink-0 items-center px-3">
           <span className="text-sm font-semibold text-wefin-text">개인·외국인·기관</span>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin">
           <InvestorTrendTable items={investorTrend?.items ?? []} isLoading={investorLoading} />
         </div>
       </div>
@@ -70,7 +70,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
           <span className="text-sm font-semibold text-wefin-text">시세</span>
           <SegmentedTabs items={PRICE_SUB_TABS} activeKey={priceSubTab} onChange={setPriceSubTab} />
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin">
           {priceSubTab === 'realtime' ? (
             <RealtimeTab trades={trades} isLoading={tradesLoading} />
           ) : (
@@ -106,7 +106,7 @@ function RealtimeTab({
   }
 
   return (
-    <table className="w-full text-xs">
+    <table className="table-fixed w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
           <th className="px-2 py-1.5 text-left font-semibold">체결가</th>
@@ -171,7 +171,7 @@ function DailyTab({
   }
 
   return (
-    <table className="w-full text-xs">
+    <table className="table-fixed w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
           <th className="px-2 py-1.5 text-left font-semibold">일자</th>
@@ -246,7 +246,7 @@ function InvestorTrendTable({
   }
 
   return (
-    <table className="w-full text-xs">
+    <table className="table-fixed w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
         <tr className="text-wefin-subtle">
           <th className="px-2 py-1.5 text-left font-semibold">일자</th>

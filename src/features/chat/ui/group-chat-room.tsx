@@ -240,7 +240,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
           onScroll={() => {
             void handleScroll()
           }}
-          className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-white p-3 scrollbar-thin"
+          className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white p-3 scrollbar-thin"
         >
           {isLoadingOlder && (
             <div className="text-center text-xs text-wefin-subtle">
@@ -481,6 +481,18 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
           )}
 
           <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsEmojiPickerOpen(false)
+                setIsVoteModalOpen(true)
+              }}
+              disabled={!groupId}
+              aria-label="투표 만들기"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-mint transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ListChecks size={17} />
+            </button>
             <input
               ref={inputRef}
               type="text"
@@ -561,18 +573,6 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep"
             >
               <Smile size={17} />
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsEmojiPickerOpen(false)
-                setIsVoteModalOpen(true)
-              }}
-              disabled={!groupId}
-              aria-label="투표 만들기"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-mint transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ListChecks size={17} />
             </button>
             <button
               onClick={handleSendMessage}

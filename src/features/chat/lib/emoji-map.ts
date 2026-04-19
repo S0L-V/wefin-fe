@@ -6,6 +6,7 @@ import down from '@/features/chat/emoji/down.png'
 import ee from '@/features/chat/emoji/ee.png'
 import fallGgamja from '@/features/chat/emoji/fall_ggamja.png'
 import ggGgamja from '@/features/chat/emoji/gg_ggamja.png'
+import goodGgamja from '@/features/chat/emoji/good_ggamja.png'
 import goodmorningGgamja from '@/features/chat/emoji/goodmorning_ggamja.png'
 import goupGgamja from '@/features/chat/emoji/goup_ggamja.png'
 import idkGgamja from '@/features/chat/emoji/idk_ggamja.png'
@@ -65,7 +66,8 @@ export const emojiMap = {
   wefini_ggamja: createEmoji(wefiniGgamja, 1.04),
   yeah_ggamja: createEmoji(yeahGgamja, 0.96),
   yessir_ggamja: createEmoji(yessirGgamja, 0.96),
-  zz_ggamja: createEmoji(zzGgamja, 0.9)
+  zz_ggamja: createEmoji(zzGgamja, 0.9),
+  good_ggamja: createEmoji(goodGgamja, 1)
 } as const
 
 export type EmojiCode = keyof typeof emojiMap

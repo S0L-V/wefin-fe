@@ -144,7 +144,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         onScroll={() => {
           void handleScroll()
         }}
-        className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-white p-3 scrollbar-thin"
+        className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white p-3 scrollbar-thin"
       >
         {isLoadingOlder && (
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
