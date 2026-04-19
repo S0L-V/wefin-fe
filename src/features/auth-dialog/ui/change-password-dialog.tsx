@@ -71,6 +71,17 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
           else delete nextErrors.confirmPassword
         }
 
+        if (field === 'currentPassword' && touchedFields.newPassword) {
+          const newPasswordMessage = validateChangePasswordField(
+            'newPassword',
+            nextFormData.newPassword,
+            nextFormData
+          )
+
+          if (newPasswordMessage) nextErrors.newPassword = newPasswordMessage
+          else delete nextErrors.newPassword
+        }
+
         return nextErrors
       })
 
