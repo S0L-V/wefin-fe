@@ -376,9 +376,10 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                   {isEmojiCode(msg.content) ? (
                     <div className="rounded-3xl bg-transparent p-0.5">
                       <img
-                        src={emojiMap[msg.content]}
+                        src={emojiMap[msg.content].src}
                         alt={msg.content}
                         className="h-24 w-24 object-contain sm:h-28 sm:w-28"
+                        style={{ transform: `scale(${emojiMap[msg.content].messageScale})` }}
                       />
                     </div>
                   ) : (
@@ -432,7 +433,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
             <div className="mb-2 rounded-2xl border border-wefin-line bg-white p-3 shadow-sm">
               <div className="mb-2 text-xs font-semibold text-wefin-subtle">이모티콘</div>
               <div className="grid max-h-48 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-5">
-                {emojiList.map(({ code, src }) => (
+                {emojiList.map(({ code, src, pickerScale }) => (
                   <button
                     key={code}
                     type="button"
@@ -440,7 +441,12 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                     className="flex aspect-square items-center justify-center rounded-2xl bg-wefin-bg p-2 transition hover:bg-wefin-mint-soft"
                     aria-label={`${code} 이모티콘 보내기`}
                   >
-                    <img src={src} alt={code} className="h-14 w-14 object-contain" />
+                    <img
+                      src={src}
+                      alt={code}
+                      className="h-14 w-14 object-contain"
+                      style={{ transform: `scale(${pickerScale})` }}
+                    />
                   </button>
                 ))}
               </div>

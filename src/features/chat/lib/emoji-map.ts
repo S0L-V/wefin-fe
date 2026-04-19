@@ -25,40 +25,54 @@ import yeahGgamja from '@/features/chat/emoji/yeah_ggamja.png'
 import yessirGgamja from '@/features/chat/emoji/yessir_ggamja.png'
 import zzGgamja from '@/features/chat/emoji/zz_ggamja.png'
 
+type EmojiMeta = {
+  src: string
+  pickerScale: number
+  messageScale: number
+}
+
+function createEmoji(src: string, pickerScale = 1, messageScale = pickerScale): EmojiMeta {
+  return {
+    src,
+    pickerScale,
+    messageScale
+  }
+}
+
 export const emojiMap = {
-  angry_ggamja: angryGgamja,
-  burn_ggamja: burnGgamja,
-  buy_ggamja: buyGgamja,
-  cut_ggamja: cutGgamja,
-  down,
-  ee,
-  fall_ggamja: fallGgamja,
-  gg_ggamja: ggGgamja,
-  goodmorning_ggamja: goodmorningGgamja,
-  goup_ggamja: goupGgamja,
-  idk_ggamja: idkGgamja,
-  lazy_ggamja: lazyGgamja,
-  letsgo_ggamja: letsgoGgamja,
-  naga_gamja: nagaGamja,
-  okay_ggamja: okayGgamja,
-  sad_ggamja: sadGgamja,
-  search_ggamja: searchGgamja,
-  sell_ggamja: sellGgamja,
-  sleep_ggamja: sleepGgamja,
-  sosad_ggamja: sosadGgamja,
-  thanks_ggamja: thanksGgamja,
-  vacation_ggamja: vacationGgamja,
-  wefini_ggamja: wefiniGgamja,
-  yeah_ggamja: yeahGgamja,
-  yessir_ggamja: yessirGgamja,
-  zz_ggamja: zzGgamja
+  angry_ggamja: createEmoji(angryGgamja, 1),
+  burn_ggamja: createEmoji(burnGgamja, 2),
+  buy_ggamja: createEmoji(buyGgamja, 1),
+  cut_ggamja: createEmoji(cutGgamja, 1),
+  down: createEmoji(down, 1.02),
+  ee: createEmoji(ee, 1.3),
+  fall_ggamja: createEmoji(fallGgamja, 0.98),
+  gg_ggamja: createEmoji(ggGgamja, 1),
+  goodmorning_ggamja: createEmoji(goodmorningGgamja, 0.94),
+  goup_ggamja: createEmoji(goupGgamja, 1),
+  idk_ggamja: createEmoji(idkGgamja, 0.95),
+  lazy_ggamja: createEmoji(lazyGgamja, 0.96),
+  letsgo_ggamja: createEmoji(letsgoGgamja, 1),
+  naga_gamja: createEmoji(nagaGamja, 0.98),
+  okay_ggamja: createEmoji(okayGgamja, 1),
+  sad_ggamja: createEmoji(sadGgamja, 0.98),
+  search_ggamja: createEmoji(searchGgamja, 0.9),
+  sell_ggamja: createEmoji(sellGgamja, 1),
+  sleep_ggamja: createEmoji(sleepGgamja, 0.94),
+  sosad_ggamja: createEmoji(sosadGgamja, 0.96),
+  thanks_ggamja: createEmoji(thanksGgamja, 1),
+  vacation_ggamja: createEmoji(vacationGgamja, 0.94),
+  wefini_ggamja: createEmoji(wefiniGgamja, 1.04),
+  yeah_ggamja: createEmoji(yeahGgamja, 0.96),
+  yessir_ggamja: createEmoji(yessirGgamja, 0.96),
+  zz_ggamja: createEmoji(zzGgamja, 0.9)
 } as const
 
 export type EmojiCode = keyof typeof emojiMap
 
-export const emojiList = Object.entries(emojiMap).map(([code, src]) => ({
+export const emojiList = Object.entries(emojiMap).map(([code, emoji]) => ({
   code: code as EmojiCode,
-  src
+  ...emoji
 }))
 
 export function isEmojiCode(value: string): value is EmojiCode {
