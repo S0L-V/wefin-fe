@@ -17,7 +17,7 @@ export function useWaitingRoom(roomId: string) {
   const activeParticipants = participants.filter((p) => p.status === 'ACTIVE')
   const userId = getCurrentUserId()
   const isHost = activeParticipants.some((p) => p.isLeader && p.userId === userId)
-  const canStart = isHost && activeParticipants.length >= 2 && room?.status === 'WAITING'
+  const canStart = isHost && activeParticipants.length >= 1 && room?.status === 'WAITING'
 
   function handleJoin() {
     joinMutation.mutate(roomId)
