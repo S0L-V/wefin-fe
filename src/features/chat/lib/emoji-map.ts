@@ -45,7 +45,7 @@ export const emojiMap = {
   buy_ggamja: createEmoji(buyGgamja, 1),
   cut_ggamja: createEmoji(cutGgamja, 1),
   down: createEmoji(down, 1.02),
-  ee: createEmoji(ee, 1.3),
+  ee: createEmoji(ee, 1.1),
   fall_ggamja: createEmoji(fallGgamja, 0.98),
   gg_ggamja: createEmoji(ggGgamja, 1),
   goodmorning_ggamja: createEmoji(goodmorningGgamja, 0.94),

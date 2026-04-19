@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp, Smile } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 
@@ -39,6 +40,7 @@ interface GlobalChatRoomProps {
 
 export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {}) {
   const [message, setMessage] = useState('')
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const queryClient = useQueryClient()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
@@ -91,6 +93,14 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
     setMessage('')
   }
 
+  const handleSendEmoji = (emojiCode: keyof typeof emojiMap) => {
+    if (!client?.connected) return
+
+    sendMessage(emojiCode)
+    refreshTodayQuestsAfterRealtimeAction(queryClient)
+    setIsEmojiPickerOpen(false)
+  }
+
   const handleScroll = async () => {
     const container = scrollContainerRef.current
 
@@ -137,7 +147,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-white p-3 scrollbar-thin"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
+          <div className="text-center text-xs text-wefin-subtle">
+            ??곸읈 筌롫뗄?놅쭪????븍뜄???삳뮉 餓?..
+          </div>
         )}
 
         {chatMessages.map((msg) => {
@@ -171,15 +183,26 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
               )}
 
               <div className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
-                <div
-                  className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug [overflow-wrap:anywhere] ${
-                    isMine
-                      ? 'rounded-tr-none bg-wefin-mint text-white'
-                      : 'rounded-tl-none bg-gray-100 text-wefin-text'
-                  }`}
-                >
-                  {msg.content}
-                </div>
+                {isEmojiCode(msg.content) ? (
+                  <div className="rounded-3xl bg-transparent p-0.5">
+                    <img
+                      src={emojiMap[msg.content].src}
+                      alt={msg.content}
+                      className="h-24 w-24 object-contain sm:h-28 sm:w-28"
+                      style={{ transform: `scale(${emojiMap[msg.content].messageScale})` }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug [overflow-wrap:anywhere] ${
+                      isMine
+                        ? 'rounded-tr-none bg-wefin-mint text-white'
+                        : 'rounded-tl-none bg-gray-100 text-wefin-text'
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                )}
                 {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
               </div>
             </div>
@@ -188,11 +211,40 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       </div>
 
       <div className="border-t border-wefin-line bg-white p-3">
+        {isEmojiPickerOpen && (
+          <div className="mb-2 rounded-2xl border border-wefin-line bg-white p-3 shadow-sm">
+            <div className="mb-2 text-xs font-semibold text-wefin-subtle">이모티콘</div>
+            <div className="grid max-h-48 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-5">
+              {emojiList.map(({ code, src, pickerScale }) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => handleSendEmoji(code)}
+                  className="flex aspect-square items-center justify-center rounded-2xl bg-wefin-bg p-2 transition hover:bg-wefin-mint-soft"
+                  aria-label={`${code} 이모티콘 보내기`}
+                >
+                  <img
+                    src={src}
+                    alt={code}
+                    className="h-14 w-14 object-contain"
+                    style={{ transform: `scale(${pickerScale})` }}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}
-            onChange={(event) => setMessage(event.target.value)}
+            onChange={(event) => {
+              setMessage(event.target.value)
+              if (isEmojiPickerOpen) {
+                setIsEmojiPickerOpen(false)
+              }
+            }}
             onKeyDown={(event) => {
               if (event.nativeEvent.isComposing) {
                 return
@@ -206,9 +258,17 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
             className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
           />
           <button
+            type="button"
+            onClick={() => setIsEmojiPickerOpen((prev) => !prev)}
+            aria-label="이모티콘 열기"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep"
+          >
+            <Smile size={17} />
+          </button>
+          <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
-            aria-label="메시지 전송"
+            aria-label="硫붿떆吏 ?꾩넚"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
           >
             <ArrowUp size={18} strokeWidth={2.5} />
