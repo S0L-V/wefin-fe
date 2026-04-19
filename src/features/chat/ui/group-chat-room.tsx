@@ -42,6 +42,8 @@ interface GroupChatRoomProps {
   bare?: boolean
 }
 
+const VOTE_COMMAND = '/vote'
+
 export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false)
@@ -69,6 +71,8 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   useGroupChatSocket(userId)
 
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
+  const isVoteCommandInput =
+    message.trim() === VOTE_COMMAND || message.trim().startsWith(`${VOTE_COMMAND} `)
 
   useEffect(() => {
     const shouldScrollToBottom =
@@ -95,7 +99,23 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
     container.scrollTop = container.scrollHeight
   }, [isLoading, chatMessages.length])
 
+  const handleCommandMessage = (trimmedMessage: string) => {
+    if (trimmedMessage !== VOTE_COMMAND && !trimmedMessage.startsWith(`${VOTE_COMMAND} `)) {
+      return false
+    }
+
+    setIsVoteModalOpen(true)
+    setMessage('')
+    return true
+  }
+
   const handleSendMessage = () => {
+    const trimmedMessage = message.trim()
+
+    if (handleCommandMessage(trimmedMessage)) {
+      return
+    }
+
     const didSend = sendMessage(client, message)
     if (!didSend) {
       return
@@ -328,6 +348,13 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
                 }
 
                 if (event.key === 'Enter') {
+                  const trimmedMessage = event.currentTarget.value.trim()
+
+                  if (handleCommandMessage(trimmedMessage)) {
+                    event.preventDefault()
+                    return
+                  }
+
                   handleSendMessage()
                 }
               }}
@@ -345,7 +372,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
             </button>
             <button
               onClick={handleSendMessage}
-              disabled={!message.trim() || !client?.connected}
+              disabled={!message.trim() || (!isVoteCommandInput && !client?.connected)}
               aria-label="메시지 전송"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
             >
