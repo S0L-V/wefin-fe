@@ -147,9 +147,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-white p-3 scrollbar-thin"
       >
         {isLoadingOlder && (
-          <div className="text-center text-xs text-wefin-subtle">
-            ??곸읈 筌롫뗄?놅쭪????븍뜄???삳뮉 餓?..
-          </div>
+          <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
         )}
 
         {chatMessages.map((msg) => {
@@ -268,7 +266,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           <button
             onClick={handleSendMessage}
             disabled={!message.trim() || !client?.connected}
-            aria-label="硫붿떆吏 ?꾩넚"
+            aria-label="메시지 전송"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
           >
             <ArrowUp size={18} strokeWidth={2.5} />
