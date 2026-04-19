@@ -135,7 +135,10 @@ function AuthDialog() {
                 <p className="mt-3 text-right text-xs text-slate-500">
                   <button
                     type="button"
-                    onClick={() => setIsResetOpen(true)}
+                    onClick={() => {
+                      setOpen(false)
+                      setIsResetOpen(true)
+                    }}
                     className="hover:underline"
                   >
                     비밀번호를 잊어버리셨나요?
