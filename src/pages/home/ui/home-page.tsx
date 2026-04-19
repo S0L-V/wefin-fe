@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import MarketTrendsSection from '@/features/market-trends/ui/market-trends-section'
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
-import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
 import RecommendedNewsSection from '@/features/recommended-news/ui/recommended-news-section'
+import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
 
 import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
 
