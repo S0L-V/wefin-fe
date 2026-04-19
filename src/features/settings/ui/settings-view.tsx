@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import SubscribeButton from '@/features/payment/ui/subscribe-button'
-
 import SettingsGroupSection from './settings-group-section'
 import SettingsPaymentSection from './settings-payment-section'
 import SettingsProfileSection from './settings-profile-section'
@@ -31,6 +29,7 @@ function SettingsView() {
     const sync = () => setIsLoggedIn(!!localStorage.getItem('accessToken'))
     window.addEventListener('auth-changed', sync)
     window.addEventListener('storage', sync)
+
     return () => {
       window.removeEventListener('auth-changed', sync)
       window.removeEventListener('storage', sync)
@@ -43,6 +42,7 @@ function SettingsView() {
         <nav className="flex flex-col">
           {SIDEBAR_ITEMS.map((item) => {
             const isActive = active === item.id
+
             return (
               <button
                 key={item.id}
@@ -83,12 +83,7 @@ function SettingsView() {
             />
           )}
           {active === 'group' && <SettingsGroupSection isLoggedIn={isLoggedIn} />}
-          {active === 'subscription' && (
-            <div className="space-y-4">
-              <SettingsSubscriptionSection />
-              <SubscribeButton planId={1} />
-            </div>
-          )}
+          {active === 'subscription' && <SettingsSubscriptionSection />}
           {active === 'billing' && <SettingsPaymentSection isLoggedIn={isLoggedIn} />}
         </div>
       </main>
