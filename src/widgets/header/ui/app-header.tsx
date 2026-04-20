@@ -206,9 +206,22 @@ function UserMenu({
   onSettingsClick: () => void
 }) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [profileGrad, setProfileGrad] = useState(getProfileGradient)
   const { theme, setTheme } = useTheme()
+  const menuRef = useRef<HTMLDivElement>(null)
   const initial = (user.nickname || '?').charAt(0).toUpperCase()
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
 
   useEffect(() => {
     const sync = () => setProfileGrad(getProfileGradient())
@@ -224,9 +237,10 @@ function UserMenu({
   const totalAsset = balance + evaluationAmount
 
   return (
-    <div className="group relative">
+    <div ref={menuRef} className="relative">
       <button
         type="button"
+        onClick={() => setMenuOpen((v) => !v)}
         className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent pl-0.5 pr-1 text-sm font-bold text-wefin-text transition-all hover:border-wefin-mint-deep/20 hover:shadow-[0_0_12px_rgba(36,168,171,0.15)] sm:pr-3"
       >
         <span
@@ -238,10 +252,12 @@ function UserMenu({
         <span className="hidden sm:inline">{user.nickname}</span>
         <ChevronDown
           size={14}
-          className="hidden text-wefin-subtle transition-transform group-hover:rotate-180 sm:block"
+          className={`hidden text-wefin-subtle transition-transform sm:block ${menuOpen ? 'rotate-180' : ''}`}
         />
       </button>
-      <div className="invisible absolute right-0 top-full z-30 pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100">
+      <div
+        className={`absolute right-0 top-full z-30 pt-2 transition-all ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}
+      >
         <div className="w-64 overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-[0_12px_32px_-8px_rgba(36,168,171,0.2)]">
           <div className="bg-gradient-to-br from-wefin-mint-deep/5 to-transparent px-4 py-4">
             <div className="flex items-center gap-3">
@@ -267,14 +283,20 @@ function UserMenu({
           <div className="border-t border-wefin-line py-1">
             <button
               type="button"
-              onClick={onAccountClick}
+              onClick={() => {
+                setMenuOpen(false)
+                onAccountClick()
+              }}
               className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-bg"
             >
               <Wallet size={16} className="text-wefin-subtle" />내 계좌
             </button>
             <button
               type="button"
-              onClick={onSettingsClick}
+              onClick={() => {
+                setMenuOpen(false)
+                onSettingsClick()
+              }}
               className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-bg"
             >
               <Settings size={16} className="text-wefin-subtle" />

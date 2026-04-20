@@ -34,7 +34,7 @@ function GameWaitingRoom({
           <div className="space-y-5">
             <div className="h-48 animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
           </div>
-          <div className="h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
+          <div className="h-[calc(100dvh-220px)] min-h-[280px] animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
         </div>
       </div>
     )
@@ -173,7 +173,7 @@ function GameWaitingRoom({
           </div>
         </div>
 
-        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20">
           <ChatPanel />
         </div>
       </div>

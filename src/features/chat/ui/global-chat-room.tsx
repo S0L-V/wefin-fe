@@ -187,7 +187,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   if (isLoading) {
     return (
       <div
-        className={`${bare ? 'h-full' : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px]'} flex items-start justify-center pt-6`}
+        className={`${bare ? 'h-full' : 'h-[calc(100dvh-220px)] min-h-[280px]'} flex items-start justify-center pt-6`}
       >
         <div className="flex gap-1">
           {[0, 1, 2].map((i) => (
@@ -207,7 +207,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       className={`flex min-h-0 flex-col overflow-hidden ${
         bare
           ? 'h-full'
-          : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm'
+          : 'h-[calc(100dvh-220px)] min-h-[280px] rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm'
       }`}
     >
       {errorMessage && (

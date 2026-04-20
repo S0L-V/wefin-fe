@@ -110,7 +110,7 @@ function PlayPage() {
             </div>
           </div>
 
-          <div className="flex min-w-[280px] max-w-[380px] flex-[0.45] flex-col gap-2">
+          <div className="flex min-w-[200px] max-w-[380px] flex-[0.45] flex-col gap-2">
             <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupChatRoom bare />
             </div>

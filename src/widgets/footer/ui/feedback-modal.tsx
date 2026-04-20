@@ -60,7 +60,7 @@ export default function FeedbackModal({ open, onClose }: FeedbackModalProps) {
         }}
         onClick={onClose}
       />
-      <div className="relative w-[420px] animate-[slideDown_0.2s_ease-out] rounded-2xl bg-wefin-surface p-6 shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+      <div className="relative w-[min(420px,calc(100vw-32px))] animate-[slideDown_0.2s_ease-out] rounded-2xl bg-wefin-surface p-6 shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-wefin-text">의견 보내기</h3>
           <button

@@ -31,7 +31,7 @@ function GameLobby() {
             <div className="card-base h-[280px] animate-pulse" />
             <div className="card-base h-[200px] animate-pulse" />
           </div>
-          <div className="card-base h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse" />
+          <div className="card-base h-[calc(100dvh-220px)] min-h-[280px] animate-pulse" />
         </div>
       </div>
     )
@@ -50,7 +50,7 @@ function GameLobby() {
           <GameHistorySection items={recentHistory} />
         </div>
 
-        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20">
           <ChatPanel />
         </div>
       </div>

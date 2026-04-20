@@ -38,7 +38,7 @@ function ClusterDetailPage() {
       <ClusterDetailContent />
 
       <aside className="hidden lg:sticky lg:top-[76px] lg:block lg:self-start">
-        <div className="card-base flex h-[calc(100dvh-120px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden">
+        <div className="card-base flex h-[calc(100dvh-120px)] min-h-[280px] flex-col overflow-hidden">
           <ChatPanel />
         </div>
       </aside>
