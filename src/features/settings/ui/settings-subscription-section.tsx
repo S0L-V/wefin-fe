@@ -51,6 +51,15 @@ function SettingsSubscriptionSection() {
     return <p className="text-sm text-wefin-subtle">불러오는 중...</p>
   }
 
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-wefin-line bg-wefin-bg px-6 py-10 text-center">
+        <p className="text-base font-semibold text-wefin-text">구독 정보를 불러오지 못했습니다.</p>
+        <p className="mt-2 text-sm text-wefin-subtle">잠시 후 다시 시도해 주세요.</p>
+      </div>
+    )
+  }
+
   const isActive = data?.active ?? false
   const currentBillingCycle = data?.billingCycle
 
@@ -148,7 +157,7 @@ function SettingsSubscriptionSection() {
                     ))}
                   </div>
 
-                  {!isActive && (
+                  {!isCurrentPlan && (
                     <div className="pt-2">
                       <SubscribeButton planId={planId} />
                     </div>
