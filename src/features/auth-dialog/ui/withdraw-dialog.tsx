@@ -233,7 +233,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
             <button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-xl bg-wefin-red-soft0 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-xl bg-wefin-red text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? '탈퇴 처리 중...' : '회원 탈퇴'}
             </button>

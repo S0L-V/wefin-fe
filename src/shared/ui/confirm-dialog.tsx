@@ -42,7 +42,7 @@ export default function ConfirmDialog({
   const confirmClass =
     confirmVariant === 'danger'
       ? 'bg-rose-500 text-white hover:bg-rose-600'
-      : 'bg-wefin-mint-deep text-white hover:bg-[#0a6f71]'
+      : 'bg-wefin-mint-deep text-white hover:bg-wefin-mint-900'
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">

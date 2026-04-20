@@ -179,7 +179,7 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
             <button
               type="submit"
               disabled={loading || !isEmailVerified}
-              className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-xl bg-wefin-mint text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? '처리 중...' : '비밀번호 재설정'}
             </button>

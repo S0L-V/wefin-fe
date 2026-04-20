@@ -219,7 +219,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
               </div>
             ) : detail ? (
               <div className="space-y-4">
-                <div className="rounded-2xl border border-[#cde9e2] bg-[#f6fbfa] p-4">
+                <div className="rounded-2xl border border-wefin-mint/30 bg-wefin-mint-soft p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-lg font-semibold text-wefin-text">{detail.title}</div>

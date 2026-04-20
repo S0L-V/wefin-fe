@@ -43,7 +43,7 @@ function LeaveRoomDialog({ open, onConfirm, onCancel, isLeaving }: LeaveRoomDial
                 type="button"
                 onClick={onConfirm}
                 disabled={isLeaving}
-                className="flex-1 rounded-xl bg-wefin-red-soft0 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+                className="flex-1 rounded-xl bg-wefin-red py-3 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
               >
                 {isLeaving ? '나가는 중...' : '나가기'}
               </button>

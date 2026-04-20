@@ -684,7 +684,7 @@ function StockAccordionItem({
             disabled={form.quantity === 0 || form.isSubmitting}
             onClick={onSubmitClick}
             className={`w-full rounded-lg py-2 text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 ${
-              form.side === 'buy' ? 'bg-wefin-red-soft0' : 'bg-wefin-surface-20'
+              form.side === 'buy' ? 'bg-wefin-red' : 'bg-blue-400'
             }`}
           >
             {form.isSubmitting ? '주문 중...' : form.side === 'buy' ? '매수' : '매도'}
@@ -701,14 +701,14 @@ function SideTabs({ side, onChange }: { side: OrderSide; onChange: (s: OrderSide
       <button
         type="button"
         onClick={() => onChange('buy')}
-        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'buy' ? 'bg-wefin-red-soft0 text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
+        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'buy' ? 'bg-wefin-red text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
       >
         매수
       </button>
       <button
         type="button"
         onClick={() => onChange('sell')}
-        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'sell' ? 'bg-wefin-surface-20 text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
+        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'sell' ? 'bg-blue-400 text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
       >
         매도
       </button>
@@ -803,7 +803,7 @@ function OrderConfirmDialog({
           <button
             type="button"
             onClick={onConfirm}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-bold text-white ${side === '매수' ? 'bg-wefin-red-soft0' : 'bg-wefin-surface-20'}`}
+            className={`flex-1 rounded-xl py-2.5 text-sm font-bold text-white ${side === '매수' ? 'bg-wefin-red' : 'bg-blue-400'}`}
           >
             {side} 확인
           </button>

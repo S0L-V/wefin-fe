@@ -130,7 +130,7 @@ function AuthDialog() {
                   <button
                     type="submit"
                     disabled={loginLoading}
-                    className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-12 w-full rounded-xl bg-wefin-mint text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loginLoading ? '로그인 중...' : '로그인'}
                   </button>
@@ -154,7 +154,7 @@ function AuthDialog() {
                   <button
                     type="button"
                     onClick={() => switchMode('signup')}
-                    className="ml-2 font-semibold text-[#56c1c9] hover:underline"
+                    className="ml-2 font-semibold text-wefin-mint hover:underline"
                   >
                     회원가입
                   </button>
@@ -292,7 +292,7 @@ function AuthDialog() {
                   <button
                     type="submit"
                     disabled={signupLoading || !isEmailVerified}
-                    className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-12 w-full rounded-xl bg-wefin-mint text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {signupLoading ? '처리 중...' : '회원가입'}
                   </button>
@@ -303,7 +303,7 @@ function AuthDialog() {
                   <button
                     type="button"
                     onClick={() => switchMode('login')}
-                    className="ml-2 font-semibold text-[#56c1c9] hover:underline"
+                    className="ml-2 font-semibold text-wefin-mint hover:underline"
                   >
                     로그인
                   </button>

@@ -396,7 +396,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                 <button
                   type="button"
                   onClick={() => setHomeGroupMode('create')}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-wefin-mint px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2a8282]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-wefin-mint px-5 text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep"
                 >
                   <Plus size={16} />새 그룹 만들기
                 </button>

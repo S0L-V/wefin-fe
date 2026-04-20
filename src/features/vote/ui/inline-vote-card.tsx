@@ -231,11 +231,11 @@ export default function InlineVoteCard({
       {!isMine && <span className="mb-1 text-xs font-bold text-wefin-text">{sender}</span>}
 
       <div className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
-        <div className="w-full max-w-[360px] overflow-hidden rounded-2xl border border-[#cde9e2] bg-wefin-surface shadow-sm">
-          <div className="border-b border-[#e2f2ee] bg-[#f6fbfa] px-4 py-3">
+        <div className="w-full max-w-[360px] overflow-hidden rounded-2xl border border-wefin-mint/30 bg-wefin-surface shadow-sm">
+          <div className="border-b border-wefin-mint/20 bg-wefin-mint-soft px-4 py-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="mb-1 text-xs font-semibold text-[#1d9f8d]">투표</div>
+                <div className="mb-1 text-xs font-semibold text-wefin-mint-deep">투표</div>
                 <div className="line-clamp-2 text-sm font-bold text-wefin-text">{currentTitle}</div>
               </div>
               <span
