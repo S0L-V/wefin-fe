@@ -3,6 +3,7 @@ import { ArrowUp, Smile } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
+import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 
@@ -38,11 +39,24 @@ interface GlobalChatRoomProps {
   bare?: boolean
 }
 
+function UnreadDivider() {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <div className="h-px flex-1 bg-slate-200" />
+      <span className="shrink-0 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+        새 메시지
+      </span>
+      <div className="h-px flex-1 bg-slate-200" />
+    </div>
+  )
+}
+
 export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const queryClient = useQueryClient()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const unreadDividerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
   const shouldRestoreScrollRef = useRef(false)
   const previousLastMessageKeyRef = useRef('')
@@ -56,11 +70,58 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const errorMessage = useGlobalChatStore((state) => state.errorMessage)
   const sendMessage = useGlobalChatStore((state) => state.sendMessage)
   const loadOlderMessages = useGlobalChatStore((state) => state.loadOlderMessages)
+  const visibleGlobalUnreadLine = useChatUnreadStore((state) => state.visibleGlobalUnreadLine)
+  const visibleGlobalReadMessageId = useChatUnreadStore((state) => state.visibleGlobalReadMessageId)
 
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
+  const firstUnreadIndex = useMemo(() => {
+    if (!visibleGlobalUnreadLine) {
+      return -1
+    }
+
+    if (visibleGlobalReadMessageId == null) {
+      const firstUnreadMessage = chatMessages.find(
+        (message) => message.userId !== userId || message.role === 'SYSTEM'
+      )
+
+      if (!firstUnreadMessage) {
+        return -1
+      }
+
+      return chatMessages.findIndex(
+        (message) => getMessageKey(message) === getMessageKey(firstUnreadMessage)
+      )
+    }
+
+    const latestMyMessageId = chatMessages.reduce<number | null>((latest, message) => {
+      if (message.userId !== userId || message.messageId == null) {
+        return latest
+      }
+
+      if (message.messageId <= visibleGlobalReadMessageId) {
+        return latest
+      }
+
+      return latest == null || message.messageId > latest ? message.messageId : latest
+    }, null)
+
+    const effectiveReadMessageId =
+      latestMyMessageId != null && latestMyMessageId > visibleGlobalReadMessageId
+        ? latestMyMessageId
+        : visibleGlobalReadMessageId
+
+    return chatMessages.findIndex((message) => {
+      if (message.messageId == null || message.messageId <= effectiveReadMessageId) {
+        return false
+      }
+
+      return message.userId !== userId || message.role === 'SYSTEM'
+    })
+  }, [chatMessages, userId, visibleGlobalReadMessageId, visibleGlobalUnreadLine])
 
   useEffect(() => {
     const shouldScrollToBottom =
+      firstUnreadIndex < 0 &&
       !shouldRestoreScrollRef.current &&
       !!lastMessageKey &&
       previousLastMessageKeyRef.current !== lastMessageKey
@@ -73,16 +134,23 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
     }
 
     previousLastMessageKeyRef.current = lastMessageKey
-  }, [lastMessageKey])
+  }, [firstUnreadIndex, lastMessageKey])
 
   useLayoutEffect(() => {
     if (isLoading || chatMessages.length === 0 || !scrollContainerRef.current) {
       return
     }
 
+    if (firstUnreadIndex >= 0 && unreadDividerRef.current) {
+      unreadDividerRef.current.scrollIntoView({
+        block: 'center'
+      })
+      return
+    }
+
     const container = scrollContainerRef.current
     container.scrollTop = container.scrollHeight
-  }, [isLoading, chatMessages.length])
+  }, [firstUnreadIndex, isLoading, chatMessages.length])
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()
@@ -150,59 +218,70 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
         )}
 
-        {chatMessages.map((msg) => {
+        {chatMessages.map((msg, index) => {
           const isMine = msg.userId === userId
           const isSystem = msg.role === 'SYSTEM'
 
-          if (isSystem) {
-            return (
-              <div key={getMessageKey(msg)} className="flex justify-center">
-                <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
-                  {msg.content}
-                </div>
-              </div>
-            )
-          }
-
-          const time = msg.createdAt
-            ? new Date(msg.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-            : ''
-
           return (
-            <div
-              key={getMessageKey(msg)}
-              className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-            >
-              {!isMine && (
-                <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
+            <div key={getMessageKey(msg)}>
+              {index === firstUnreadIndex && (
+                <div ref={unreadDividerRef}>
+                  <UnreadDivider />
+                </div>
               )}
 
-              <div className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
-                {isEmojiCode(msg.content) ? (
-                  <div className="rounded-3xl bg-transparent p-0.5">
-                    <img
-                      src={emojiMap[msg.content].src}
-                      alt={msg.content}
-                      className="h-24 w-24 object-contain sm:h-28 sm:w-28"
-                      style={{ transform: `scale(${emojiMap[msg.content].messageScale})` }}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug [overflow-wrap:anywhere] ${
-                      isMine
-                        ? 'rounded-tr-none bg-wefin-mint text-white'
-                        : 'rounded-tl-none bg-gray-100 text-wefin-text'
-                    }`}
-                  >
+              {isSystem ? (
+                <div className="flex justify-center">
+                  <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                     {msg.content}
                   </div>
-                )}
-                {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
-              </div>
+                </div>
+              ) : (
+                (() => {
+                  const time = msg.createdAt
+                    ? new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })
+                    : ''
+
+                  return (
+                    <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                      {!isMine && (
+                        <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
+                      )}
+
+                      <div
+                        className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
+                      >
+                        {isEmojiCode(msg.content) ? (
+                          <div className="rounded-3xl bg-transparent p-0.5">
+                            <img
+                              src={emojiMap[msg.content].src}
+                              alt={msg.content}
+                              className="h-24 w-24 object-contain sm:h-28 sm:w-28"
+                              style={{ transform: `scale(${emojiMap[msg.content].messageScale})` }}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug [overflow-wrap:anywhere] ${
+                              isMine
+                                ? 'rounded-tr-none bg-wefin-mint text-white'
+                                : 'rounded-tl-none bg-gray-100 text-wefin-text'
+                            }`}
+                          >
+                            {msg.content}
+                          </div>
+                        )}
+                        {time && (
+                          <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })()
+              )}
             </div>
           )
         })}
