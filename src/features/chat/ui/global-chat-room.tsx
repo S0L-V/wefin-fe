@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ArrowUp, Smile } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
 import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
@@ -61,6 +62,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const shouldRestoreScrollRef = useRef(false)
   const previousLastMessageKeyRef = useRef('')
 
+  const authUserId = useAuthUserId()
   const userId = useGlobalChatStore((state) => state.userId)
   const client = useGlobalChatStore((state) => state.client)
   const chatMessages = useGlobalChatStore((state) => state.messages)
@@ -72,6 +74,8 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const loadOlderMessages = useGlobalChatStore((state) => state.loadOlderMessages)
   const visibleGlobalUnreadLine = useChatUnreadStore((state) => state.visibleGlobalUnreadLine)
   const visibleGlobalReadMessageId = useChatUnreadStore((state) => state.visibleGlobalReadMessageId)
+  const isLoggedIn = !!authUserId
+  const canSendMessage = isLoggedIn && !!client?.connected
 
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
   const firstUnreadIndex = useMemo(() => {
@@ -154,7 +158,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()
-    if (!trimmedMessage || !client?.connected) return
+    if (!trimmedMessage || !canSendMessage) return
 
     sendMessage(trimmedMessage)
     refreshTodayQuestsAfterRealtimeAction(queryClient)
@@ -162,7 +166,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   }
 
   const handleSendEmoji = (emojiCode: keyof typeof emojiMap) => {
-    if (!client?.connected) return
+    if (!canSendMessage) return
 
     sendMessage(emojiCode)
     refreshTodayQuestsAfterRealtimeAction(queryClient)
@@ -297,7 +301,8 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
                   key={code}
                   type="button"
                   onClick={() => handleSendEmoji(code)}
-                  className="flex aspect-square items-center justify-center rounded-2xl bg-wefin-bg p-2 transition hover:bg-wefin-mint-soft"
+                  disabled={!canSendMessage}
+                  className="flex aspect-square items-center justify-center rounded-2xl bg-wefin-bg p-2 transition hover:bg-wefin-mint-soft disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label={`${code} 이모티콘 보내기`}
                 >
                   <img
@@ -312,11 +317,20 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           </div>
         )}
 
+        {!isLoggedIn && (
+          <div className="mb-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
+            로그인하면 전체 채팅에 참여할 수 있어요.
+          </div>
+        )}
+
         <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}
             onChange={(event) => {
+              if (!isLoggedIn) {
+                return
+              }
               setMessage(event.target.value)
               if (isEmojiPickerOpen) {
                 setIsEmojiPickerOpen(false)
@@ -331,20 +345,22 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
                 handleSendMessage()
               }
             }}
-            placeholder="메시지를 입력하세요"
-            className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none"
+            placeholder={isLoggedIn ? '메시지를 입력하세요' : '로그인 후 채팅에 참여할 수 있어요'}
+            disabled={!isLoggedIn}
+            className="h-9 flex-1 border-none bg-transparent text-sm text-wefin-text focus:outline-none disabled:cursor-not-allowed disabled:text-wefin-subtle"
           />
           <button
             type="button"
             onClick={() => setIsEmojiPickerOpen((prev) => !prev)}
+            disabled={!canSendMessage}
             aria-label="이모티콘 열기"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Smile size={17} />
           </button>
           <button
             onClick={handleSendMessage}
-            disabled={!message.trim() || !client?.connected}
+            disabled={!message.trim() || !canSendMessage}
             aria-label="메시지 전송"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wefin-mint text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-40"
           >

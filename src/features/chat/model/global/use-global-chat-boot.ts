@@ -63,7 +63,7 @@ export function useGlobalChatBoot(userId: string) {
   }, [])
 
   useEffect(() => {
-    if (!userId || !accessToken || hasBootstrappedRef.current) {
+    if (hasBootstrappedRef.current) {
       return
     }
 
@@ -90,10 +90,8 @@ export function useGlobalChatBoot(userId: string) {
 
     const client = stompClient as Client
 
-    // 토큰이 갱신되면 effect가 다시 돌면서 최신 access token으로 CONNECT 헤더를 교체한다.
-    client.connectHeaders = {
-      Authorization: `Bearer ${accessToken}`
-    }
+    // 토큰이 있으면 인증 연결, 없으면 익명으로 글로벌 채팅만 구독한다.
+    client.connectHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 
     client.debug = (message) => {
       console.log('[STOMP]', message)
@@ -123,31 +121,33 @@ export function useGlobalChatBoot(userId: string) {
         })
       )
 
-      subscriptionsRef.current.push(
-        client.subscribe('/user/queue/errors', (frame) => {
-          try {
-            const error = JSON.parse(frame.body) as ChatErrorMessage
-            const timeoutMs = (error.remainingSeconds ?? 3) * 1000
+      if (userId) {
+        subscriptionsRef.current.push(
+          client.subscribe('/user/queue/errors', (frame) => {
+            try {
+              const error = JSON.parse(frame.body) as ChatErrorMessage
+              const timeoutMs = (error.remainingSeconds ?? 3) * 1000
 
-            // 도배 감지나 전송 실패는 채팅 화면을 없애지 않고 배너로만 보여준 뒤 자동으로 숨긴다.
-            setErrorMessage(error.message)
+              // 도배 감지나 전송 실패는 채팅 화면을 없애지 않고 배너로만 보여준 뒤 자동으로 숨긴다.
+              setErrorMessage(error.message)
 
-            if (errorTimeoutRef.current != null) {
-              window.clearTimeout(errorTimeoutRef.current)
+              if (errorTimeoutRef.current != null) {
+                window.clearTimeout(errorTimeoutRef.current)
+              }
+
+              errorTimeoutRef.current = window.setTimeout(
+                () => {
+                  setErrorMessage(null)
+                  errorTimeoutRef.current = null
+                },
+                Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
+              )
+            } catch {
+              console.error('전체 채팅 에러 메시지 파싱 실패')
             }
-
-            errorTimeoutRef.current = window.setTimeout(
-              () => {
-                setErrorMessage(null)
-                errorTimeoutRef.current = null
-              },
-              Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
-            )
-          } catch {
-            console.error('전체 채팅 에러 메시지 파싱 실패')
-          }
-        })
-      )
+          })
+        )
+      }
     })
 
     client.onDisconnect = () => {

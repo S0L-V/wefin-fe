@@ -103,9 +103,10 @@ export const useGlobalChatStore = create<GlobalChatState>((set, get) => ({
   setBootstrapped: (bootstrapped) => set({ bootstrapped }),
   sendMessage: (content) => {
     const client = get().client
+    const userId = get().userId
     const trimmedContent = content.trim()
 
-    if (!client?.connected || !trimmedContent) {
+    if (!client?.connected || !trimmedContent || !userId) {
       return
     }
 
