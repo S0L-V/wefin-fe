@@ -10,6 +10,7 @@ export function useBriefingQuery(roomId: string) {
     enabled: !!roomId,
     select: (response) => response.data,
     staleTime: 5 * 60 * 1000,
-    retry: 0
+    retry: 2,
+    retryDelay: 5_000
   })
 }
