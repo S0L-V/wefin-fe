@@ -3,7 +3,6 @@ export type SignupFormData = {
   email: string
   password: string
   confirmPassword: string
-  inviteCode: string
 }
 
 export type SignupFieldName = keyof SignupFormData
@@ -13,8 +12,7 @@ export const initialSignupFormData: SignupFormData = {
   nickname: '',
   email: '',
   password: '',
-  confirmPassword: '',
-  inviteCode: ''
+  confirmPassword: ''
 }
 
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -44,9 +42,6 @@ export function validateSignupField(
     case 'confirmPassword':
       if (!value) return '비밀번호 확인을 입력해주세요.'
       if (value !== currentFormData.password) return '비밀번호가 일치하지 않습니다.'
-      return ''
-
-    case 'inviteCode':
       return ''
 
     default:

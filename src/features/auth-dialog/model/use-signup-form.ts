@@ -262,8 +262,7 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       nickname: true,
       email: true,
       password: true,
-      confirmPassword: true,
-      inviteCode: true
+      confirmPassword: true
     })
 
     const nextErrors = validateSignupForm(formData, isEmailVerified)

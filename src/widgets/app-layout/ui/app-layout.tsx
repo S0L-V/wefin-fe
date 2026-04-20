@@ -3,6 +3,7 @@
 import WefinyChatWidget from '@/features/ai-chat/ui/wefini-chat-widget'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useGlobalChatBoot } from '@/features/chat/model/global/use-global-chat-boot'
+import { useChatUnreadBoot } from '@/features/chat/model/use-chat-unread-boot'
 import { routes } from '@/shared/config/routes'
 import AppFooter from '@/widgets/footer/ui/app-footer'
 import AppHeader from '@/widgets/header/ui/app-header'
@@ -13,6 +14,7 @@ function AppLayout() {
   const userId = useAuthUserId()
 
   useGlobalChatBoot(userId)
+  useChatUnreadBoot(userId)
 
   const shouldShowAiChatWidget =
     location.pathname === routes.home ||

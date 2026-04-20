@@ -289,21 +289,6 @@ function AuthDialog() {
                     ) : null}
                   </div>
 
-                  <div>
-                    <label htmlFor="signup-invite-code" className="sr-only">
-                      초대코드
-                    </label>
-                    <input
-                      id="signup-invite-code"
-                      type="text"
-                      placeholder="초대코드 (선택)"
-                      value={signupFormData.inviteCode}
-                      onChange={handleSignupChange('inviteCode')}
-                      onBlur={handleBlur('inviteCode')}
-                      className={inputClassName('inviteCode')}
-                    />
-                  </div>
-
                   <button
                     type="submit"
                     disabled={signupLoading || !isEmailVerified}
