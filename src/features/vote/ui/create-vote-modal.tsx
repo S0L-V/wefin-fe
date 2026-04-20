@@ -206,7 +206,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="무슨 주제를 토론하고 싶으신가요?"
-                className="h-11 w-full rounded-xl border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none focus:border-wefin-mint"
+                className="h-11 w-full rounded-xl border border-wefin-line bg-wefin-surface px-3 text-sm text-wefin-text outline-none focus:border-wefin-mint"
               />
             </div>
 
@@ -231,7 +231,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                       value={option}
                       onChange={(event) => handleOptionChange(index, event.target.value)}
                       placeholder={`선택지 ${index + 1}`}
-                      className="h-11 flex-1 rounded-xl border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none focus:border-wefin-mint"
+                      className="h-11 flex-1 rounded-xl border border-wefin-line bg-wefin-surface px-3 text-sm text-wefin-text outline-none focus:border-wefin-mint"
                     />
                     <button
                       type="button"
@@ -260,8 +260,8 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                     aria-expanded={isMaxSelectMenuOpen}
                     className={`flex h-12 w-full items-center justify-between rounded-2xl border px-4 text-left text-sm font-semibold text-wefin-text transition ${
                       isMaxSelectMenuOpen
-                        ? 'border-wefin-mint bg-white shadow-[0_0_0_3px_rgba(28,184,165,0.12)]'
-                        : 'border-wefin-line bg-wefin-bg hover:border-wefin-mint/60 hover:bg-white'
+                        ? 'border-wefin-mint bg-wefin-surface shadow-[0_0_0_3px_rgba(28,184,165,0.12)]'
+                        : 'border-wefin-line bg-wefin-bg hover:border-wefin-mint/60 hover:bg-wefin-surface'
                     }`}
                   >
                     <span>{selectedMaxSelectLabel}</span>
@@ -274,7 +274,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                   </button>
 
                   {isMaxSelectMenuOpen && (
-                    <div className="absolute top-[calc(100%+8px)] left-0 z-10 w-full overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
+                    <div className="absolute top-[calc(100%+8px)] left-0 z-10 w-full overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
                       <div
                         role="listbox"
                         aria-label="1인 투표 수 선택"
@@ -320,8 +320,8 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                     aria-expanded={isDurationMenuOpen}
                     className={`flex h-12 w-full items-center justify-between rounded-2xl border px-4 text-left text-sm font-semibold text-wefin-text transition ${
                       isDurationMenuOpen
-                        ? 'border-wefin-mint bg-white shadow-[0_0_0_3px_rgba(28,184,165,0.12)]'
-                        : 'border-wefin-line bg-wefin-bg hover:border-wefin-mint/60 hover:bg-white'
+                        ? 'border-wefin-mint bg-wefin-surface shadow-[0_0_0_3px_rgba(28,184,165,0.12)]'
+                        : 'border-wefin-line bg-wefin-bg hover:border-wefin-mint/60 hover:bg-wefin-surface'
                     }`}
                   >
                     <span>{selectedDurationLabel}</span>
@@ -334,7 +334,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
                   </button>
 
                   {isDurationMenuOpen && (
-                    <div className="absolute top-[calc(100%+8px)] left-0 z-10 w-full overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
+                    <div className="absolute top-[calc(100%+8px)] left-0 z-10 w-full overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
                       <div
                         role="listbox"
                         aria-label="지속 시간 선택"
@@ -374,7 +374,7 @@ export default function CreateVoteModal({ open, onOpenChange, groupId }: CreateV
             </div>
 
             {errorMessage && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              <div className="rounded-xl border border-wefin-line bg-wefin-amber-soft px-3 py-2 text-sm text-wefin-amber-text">
                 {errorMessage}
               </div>
             )}

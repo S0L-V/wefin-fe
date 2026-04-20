@@ -17,8 +17,8 @@ function LeaveRoomDialog({ open, onConfirm, onCancel, isLeaving }: LeaveRoomDial
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content">
           <div className="flex flex-col items-center gap-4 py-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-              <LogOut className="h-6 w-6 text-red-500" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-wefin-red-soft">
+              <LogOut className="h-6 w-6 text-wefin-red" />
             </div>
 
             <div className="text-center">
@@ -43,7 +43,7 @@ function LeaveRoomDialog({ open, onConfirm, onCancel, isLeaving }: LeaveRoomDial
                 type="button"
                 onClick={onConfirm}
                 disabled={isLeaving}
-                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+                className="flex-1 rounded-xl bg-wefin-red-soft0 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
               >
                 {isLeaving ? '나가는 중...' : '나가기'}
               </button>

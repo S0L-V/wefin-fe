@@ -20,7 +20,7 @@ export default function StockPriceCard({ code, name }: Props) {
   return (
     <Link
       to={routes.stockDetail(code)}
-      className="flex cursor-pointer flex-col gap-1 rounded-xl border border-wefin-line bg-white p-4 transition-colors hover:border-[#3db9b9]/50"
+      className="flex cursor-pointer flex-col gap-1 rounded-xl border border-wefin-line bg-wefin-surface p-4 transition-colors hover:border-[#3db9b9]/50"
     >
       <span className="font-bold text-wefin-text">{name}</span>
       <div className="flex items-center gap-1.5">
@@ -37,9 +37,9 @@ function ChangeBadge({ changeRate }: { changeRate: number }) {
   const isUp = changeRate > 0
   const isDown = changeRate < 0
   const colorClass = isUp
-    ? 'bg-red-50 text-red-500'
+    ? 'bg-wefin-red-soft text-wefin-red'
     : isDown
-      ? 'bg-blue-50 text-blue-500'
+      ? 'bg-wefin-surface-2 text-blue-400'
       : 'bg-wefin-bg text-wefin-subtle'
   const sign = isUp ? '+' : ''
   return (

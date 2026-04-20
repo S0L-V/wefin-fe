@@ -64,7 +64,7 @@ export default function InterestStocksPanel() {
                   type="button"
                   onClick={() => deleteMutation.mutate(item.stockCode)}
                   aria-label={`${item.stockName || item.stockCode} 해제`}
-                  className="rounded-full p-1 text-wefin-subtle transition-colors hover:bg-red-50 hover:text-red-500"
+                  className="rounded-full p-1 text-wefin-subtle transition-colors hover:bg-wefin-red-soft hover:text-wefin-red"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -114,7 +114,7 @@ export default function InterestStocksPanel() {
                     onClick={() => handleAddStock(s.stockCode)}
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                       registered
-                        ? 'bg-gray-100 text-gray-400'
+                        ? 'bg-wefin-surface-2 text-gray-400'
                         : 'bg-wefin-mint text-white hover:bg-wefin-mint/90 disabled:opacity-60'
                     }`}
                   >

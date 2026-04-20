@@ -160,7 +160,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
 
       {/* AI Questions */}
       {cluster.suggestedQuestions.length > 0 && (
-        <div className="rounded-2xl bg-gradient-to-br from-[#f8fffe] to-[#f0f7f7] p-5">
+        <div className="rounded-2xl bg-wefin-mint-soft p-5">
           <div className="mb-3 flex items-center gap-1.5">
             <WefinLogoIcon size={16} className="text-wefin-mint-deep" />
             <h3 className="text-sm font-bold text-wefin-text">더 궁금한 점이 있나요?</h3>
@@ -171,7 +171,7 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
                 key={i}
                 type="button"
                 onClick={() => handleQuestionClick(q)}
-                className="cursor-pointer rounded-full bg-white px-4 py-2 text-[13px] text-wefin-text shadow-sm transition-all hover:text-wefin-mint-deep hover:shadow-md"
+                className="cursor-pointer rounded-full bg-wefin-surface px-4 py-2 text-[13px] text-wefin-text shadow-sm transition-all hover:text-wefin-mint-deep hover:shadow-md"
               >
                 {q}
               </button>
@@ -213,7 +213,7 @@ function FeedbackButton({
   ariaLabel?: string
 }) {
   const activeClass = 'border-[#3db9b9] bg-[#3db9b9]/10 text-[#2a8282]'
-  const idleClass = 'border-wefin-line bg-white text-wefin-subtle hover:bg-wefin-bg'
+  const idleClass = 'border-wefin-line bg-wefin-surface text-wefin-subtle hover:bg-wefin-bg'
   const dimmedClass = 'opacity-50'
 
   return (

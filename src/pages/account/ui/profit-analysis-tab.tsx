@@ -39,8 +39,8 @@ export default function ProfitAnalysisTab() {
   const history = assetHistory?.history ?? []
   const diff = currentTotal - initialTotal
   const diffRate = initialTotal > 0 ? (diff / initialTotal) * 100 : 0
-  const profitColor = realizedProfit >= 0 ? 'text-red-500' : 'text-blue-600'
-  const diffColor = diff >= 0 ? 'text-red-500' : 'text-blue-600'
+  const profitColor = realizedProfit >= 0 ? 'text-wefin-red' : 'text-blue-400'
+  const diffColor = diff >= 0 ? 'text-wefin-red' : 'text-blue-400'
 
   const today = todayKstDate()
   const lastDate = history[history.length - 1]?.date?.substring(0, 10) ?? null

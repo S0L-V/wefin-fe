@@ -43,10 +43,10 @@ export default function InterestSectorsPanel() {
                 <button
                   type="button"
                   onClick={() => deleteMutation.mutate(item.code)}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-wefin-mint/30 bg-wefin-mint/10 px-3 py-1.5 text-sm text-wefin-text hover:border-red-300 hover:bg-red-50"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-wefin-mint/30 bg-wefin-mint/10 px-3 py-1.5 text-sm text-wefin-text hover:border-red-300 hover:bg-wefin-red-soft"
                 >
                   <span>{item.name}</span>
-                  <X className="h-3.5 w-3.5 text-wefin-mint group-hover:text-red-500" />
+                  <X className="h-3.5 w-3.5 text-wefin-mint group-hover:text-wefin-red" />
                 </button>
               </li>
             ))}
@@ -73,7 +73,7 @@ export default function InterestSectorsPanel() {
                     className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors ${
                       registered
                         ? 'border-gray-200 bg-gray-50 text-gray-400'
-                        : 'border-gray-200 bg-white text-wefin-text hover:border-wefin-mint hover:bg-wefin-mint/5'
+                        : 'border-gray-200 bg-wefin-surface text-wefin-text hover:border-wefin-mint hover:bg-wefin-mint/5'
                     }`}
                   >
                     <span>{tag.name}</span>

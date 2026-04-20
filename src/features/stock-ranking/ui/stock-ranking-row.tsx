@@ -29,8 +29,8 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
   const isUp = stock.changeRate > 0
   const isDown = stock.changeRate < 0
   const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : null
-  const rateTextColor = isUp ? 'text-red-500' : isDown ? 'text-blue-500' : 'text-wefin-subtle'
-  const rateBgColor = isUp ? 'bg-red-50' : isDown ? 'bg-blue-50' : 'bg-transparent'
+  const rateTextColor = isUp ? 'text-wefin-red' : isDown ? 'text-blue-400' : 'text-wefin-subtle'
+  const rateBgColor = isUp ? 'bg-wefin-red-soft' : isDown ? 'bg-wefin-surface-2' : 'bg-transparent'
   const signedChangeAmount = `${stock.changeAmount >= 0 ? '+' : ''}${Math.trunc(stock.changeAmount).toLocaleString()}`
   const tradingValue = stock.currentPrice * stock.volume
 
@@ -43,52 +43,56 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
   return (
     <div
       onClick={handleRowClick}
-      className="flex cursor-pointer items-center px-6 py-4.5 transition-colors hover:bg-wefin-bg"
+      className="flex cursor-pointer items-center px-4 py-3.5 transition-colors hover:bg-wefin-bg sm:px-7 sm:py-5"
     >
       <button
         type="button"
         onClick={handleHeartClick}
         disabled={isPending}
-        className={`mr-3 rounded-md p-1 transition-colors ${
+        className={`mr-2 hidden rounded-md p-1 transition-colors sm:block ${
           isWatchlisted
             ? 'text-rose-500 hover:text-rose-600'
             : 'text-wefin-subtle hover:text-rose-400'
         } ${isPending ? 'opacity-50' : ''}`}
         aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
       >
-        <Heart className={`h-5 w-5 ${isWatchlisted ? 'fill-current' : ''}`} />
+        <Heart className={`h-5.5 w-5.5 ${isWatchlisted ? 'fill-current' : ''}`} />
       </button>
-      <div className="w-9 text-[15px] font-bold text-wefin-text">{stock.rank}</div>
-      <div className="mr-3.5">
-        <StockLogo code={stock.stockCode} name={stock.stockName} size={36} />
+      <div className="w-7 text-[14px] font-extrabold text-wefin-text sm:w-10 sm:text-[17px]">
+        {stock.rank}
+      </div>
+      <div className="mr-2.5 hidden sm:block sm:mr-4">
+        <StockLogo code={stock.stockCode} name={stock.stockName} size={40} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-[15px] font-semibold text-wefin-text">
+        <span className="truncate text-[14px] font-bold text-wefin-text sm:text-[16px]">
           {stock.stockName}
         </span>
-        <span className="text-[12px] text-wefin-subtle">{stock.stockCode}</span>
+        <span className="hidden text-[13px] text-wefin-subtle sm:block">{stock.stockCode}</span>
       </div>
-      <div className="flex w-36 flex-col items-end">
-        <span className="font-num text-[16px] font-bold text-wefin-text tabular-nums">
+      <div className="flex w-auto flex-col items-end sm:w-40">
+        <span className="font-num text-[14px] font-bold text-wefin-text tabular-nums sm:text-[17px]">
           {stock.currentPrice.toLocaleString()}원
         </span>
-        <span className={`font-num text-[13px] font-medium ${rateTextColor} tabular-nums`}>
+        <span
+          className={`font-num hidden text-[13.5px] font-medium sm:block ${rateTextColor} tabular-nums`}
+        >
           {signedChangeAmount}원
         </span>
       </div>
-      <div className="flex w-32 justify-end">
+      <div className="ml-2 flex w-auto justify-end sm:ml-0 sm:w-36">
         <span
-          className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[14px] font-semibold tabular-nums ${rateTextColor} ${rateBgColor}`}
+          className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-bold tabular-nums sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-[15px] ${rateTextColor} ${rateBgColor}`}
         >
-          {TrendIcon && <TrendIcon className="h-4 w-4" />}
+          {TrendIcon && <TrendIcon className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />}
           {isUp ? '+' : ''}
           {stock.changeRate.toFixed(2)}%
         </span>
       </div>
-      <div className="font-num w-36 text-right text-[14px] font-semibold text-wefin-text tabular-nums">
+      <div className="font-num ml-2 w-auto text-right text-[12px] font-semibold text-wefin-text tabular-nums sm:ml-0 sm:w-40 sm:text-[15px]">
         {formatTradingValue(tradingValue)}
       </div>
-      <div className="font-num w-36 text-right text-[14px] text-wefin-subtle tabular-nums">
+      <div className="font-num hidden w-40 text-right text-[15px] text-wefin-subtle tabular-nums sm:block">
         {stock.volume.toLocaleString()}
       </div>
     </div>

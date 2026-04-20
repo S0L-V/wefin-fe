@@ -106,7 +106,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
     `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
       fieldErrors[field]
         ? 'border-red-400 focus:border-red-500'
-        : 'border-slate-200 focus:border-[#56c1c9]'
+        : 'border-wefin-line focus:border-[#56c1c9]'
     }`
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -188,7 +188,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
               <Dialog.Title className="text-xl font-semibold text-slate-900">
                 비밀번호 변경
               </Dialog.Title>
-              <Dialog.Description className="text-sm text-slate-500">
+              <Dialog.Description className="text-sm text-wefin-subtle">
                 현재 비밀번호를 확인한 뒤 새 비밀번호로 변경하세요.
               </Dialog.Description>
             </div>
@@ -196,7 +196,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-slate-100"
                 aria-label="닫기"
               >
                 <X className="size-4" />
@@ -228,7 +228,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
                 <p
                   id="change-password-current-error"
                   role="alert"
-                  className="mt-1 text-sm text-red-500"
+                  className="mt-1 text-sm text-wefin-red"
                 >
                   {fieldErrors.currentPassword}
                 </p>
@@ -256,7 +256,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
                 <p
                   id="change-password-new-error"
                   role="alert"
-                  className="mt-1 text-sm text-red-500"
+                  className="mt-1 text-sm text-wefin-red"
                 >
                   {fieldErrors.newPassword}
                 </p>
@@ -286,7 +286,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
                 <p
                   id="change-password-confirm-error"
                   role="alert"
-                  className="mt-1 text-sm text-red-500"
+                  className="mt-1 text-sm text-wefin-red"
                 >
                   {fieldErrors.confirmPassword}
                 </p>

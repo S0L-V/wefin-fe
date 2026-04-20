@@ -55,7 +55,7 @@ function StockSearch({ roomId }: StockSearchProps) {
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-lg bg-wefin-surface-2 px-3 py-2">
         <Search size={14} className="shrink-0 text-wefin-subtle" />
         <input
           ref={inputRef}
@@ -75,7 +75,7 @@ function StockSearch({ roomId }: StockSearchProps) {
       {isOpen && debouncedKeyword.length >= 1 && (
         <div
           ref={dropdownRef}
-          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[240px] overflow-y-auto rounded-xl bg-white p-1 shadow-lg ring-1 ring-wefin-line"
+          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[240px] overflow-y-auto rounded-xl bg-wefin-surface p-1 shadow-lg ring-1 ring-wefin-line"
         >
           {isLoading ? (
             <p className="py-6 text-center text-xs text-wefin-subtle">검색 중...</p>

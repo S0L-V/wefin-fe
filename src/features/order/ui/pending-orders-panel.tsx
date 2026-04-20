@@ -46,7 +46,7 @@ export default function PendingOrdersPanel({
         <div className="divide-y divide-wefin-line">
           {orders.map((order) => {
             const isBuy = order.side === 'BUY'
-            const sideColor = isBuy ? 'text-red-500' : 'text-blue-500'
+            const sideColor = isBuy ? 'text-wefin-red' : 'text-blue-400'
             const sideLabel = isBuy ? '매수' : '매도'
             const stockCode = order.stockCode ?? ''
             const stockName = order.stockName ?? stockCode
@@ -77,7 +77,7 @@ export default function PendingOrdersPanel({
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm tabular-nums">
-                    <span className="font-medium text-wefin-text/60">
+                    <span className="font-medium text-wefin-subtle">
                       주문가 {Math.trunc(order.requestPrice ?? 0).toLocaleString()}원
                     </span>
                     <button

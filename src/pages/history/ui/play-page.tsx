@@ -93,28 +93,28 @@ function PlayPage() {
       <div className="fixed inset-0 top-[56px] z-20 flex flex-col overflow-hidden bg-wefin-bg">
         <div className="flex min-h-0 flex-1 gap-2 p-2">
           <div className="flex min-w-0 flex-[1] flex-col gap-2">
-            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <StockChart roomId={roomId} />
             </div>
-            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <MarketBriefing roomId={roomId} />
             </div>
           </div>
 
           <div className="flex min-w-0 flex-[0.7] flex-col gap-2">
-            <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderPanel roomId={roomId} cash={cash} />
             </div>
-            <div className="min-h-0 flex-[0.8] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[0.8] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <HoldingsPanel roomId={roomId} />
             </div>
           </div>
 
           <div className="flex min-w-[280px] max-w-[380px] flex-[0.45] flex-col gap-2">
-            <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
+            <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupChatRoom bare />
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupRanking roomId={roomId} />
             </div>
           </div>
@@ -173,7 +173,7 @@ function RankChangePopup({ changes, onClose }: RankChangePopupProps) {
 
   return (
     <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2">
-      <div className="w-80 rounded-2xl border border-wefin-line bg-white p-5 shadow-xl">
+      <div className="w-80 rounded-2xl border border-wefin-line bg-wefin-surface p-5 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h4 className="text-sm font-bold text-wefin-text">순위 변동 알림</h4>
           <button
@@ -188,7 +188,7 @@ function RankChangePopup({ changes, onClose }: RankChangePopupProps) {
         <div className="space-y-2">
           {changes.map((c) => {
             const isUp = c.delta > 0
-            const color = isUp ? 'text-red-500' : 'text-blue-500'
+            const color = isUp ? 'text-wefin-red' : 'text-blue-400'
             const arrow = isUp ? 'UP' : 'DOWN'
             return (
               <div key={c.userName} className="flex items-center gap-2 text-xs">

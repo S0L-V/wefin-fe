@@ -55,10 +55,10 @@ export default function ConfirmDialog({
       </div>
       <div
         ref={dialogRef}
-        className="relative w-[340px] animate-[slideDown_0.2s_ease-out] rounded-2xl bg-white px-6 py-7 shadow-[0_16px_48px_rgba(0,0,0,0.12)]"
+        className="relative w-[340px] animate-[slideDown_0.2s_ease-out] rounded-2xl bg-wefin-surface px-6 py-7 shadow-[0_16px_48px_rgba(0,0,0,0.12)]"
       >
         {icon && (
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-50">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-wefin-red-soft">
             {icon}
           </div>
         )}

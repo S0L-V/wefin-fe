@@ -55,7 +55,7 @@ export default function PaymentSuccessPage() {
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="rounded-2xl border border-wefin-line bg-white px-6 py-8 text-center shadow-sm">
+      <div className="rounded-2xl border border-wefin-line bg-wefin-surface px-6 py-8 text-center shadow-sm">
         <h1 className="text-xl font-semibold text-wefin-text">결제 승인 대기</h1>
         <p className="mt-2 text-sm text-wefin-subtle">아래 버튼을 눌러 결제를 완료하세요.</p>
 

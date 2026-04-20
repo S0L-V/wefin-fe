@@ -190,7 +190,7 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
     >
       <div
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-          isWaiting ? 'bg-amber-50' : 'bg-gradient-to-br from-wefin-mint to-wefin-mint-deep'
+          isWaiting ? 'bg-wefin-amber-soft' : 'bg-gradient-to-br from-wefin-mint to-wefin-mint-deep'
         }`}
       >
         <Play size={18} className={isWaiting ? 'text-amber-500' : 'text-white'} />
@@ -206,7 +206,9 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
           </span>
           <span
             className={`rounded px-2 py-0.5 text-[11px] font-bold ${
-              isWaiting ? 'bg-amber-50 text-amber-600' : 'bg-wefin-mint-soft text-wefin-mint-deep'
+              isWaiting
+                ? 'bg-wefin-amber-soft text-amber-600'
+                : 'bg-wefin-mint-soft text-wefin-mint-deep'
             }`}
           >
             {isWaiting ? '대기 중' : '게임 중'}
@@ -261,7 +263,7 @@ function GameHistoryCard({ item }: { item: GameHistoryItem }) {
   const seedLabel = `${(item.seedMoney / 10000).toLocaleString()}만원`
   const periodLabel = `${item.periodMonths}개월`
   const isPositive = item.profitRate >= 0
-  const profitColor = isPositive ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = isPositive ? 'text-wefin-red' : 'text-blue-400'
   const profitSign = isPositive ? '+' : ''
   const rankLabel = item.finalRank != null ? `${item.finalRank}등` : '-'
 

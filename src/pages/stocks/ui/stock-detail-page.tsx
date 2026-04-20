@@ -23,8 +23,8 @@ function StockDetailPage() {
   const { code } = useParams<{ code: string }>()
   const [activeTab, setActiveTab] = useState<DetailTab>('chart')
 
-  const [orderbookW, setOrderbookW] = useState(320)
-  const [orderW, setOrderW] = useState(300)
+  const [orderbookW, setOrderbookW] = useState(340)
+  const [orderW, setOrderW] = useState(340)
   const [chartRatio, setChartRatio] = useState(0.55) // 차트가 좌측 컬럼 세로공간의 55%
   const [chartH, setChartH] = useState(360)
   const chartColumnRef = useRef<HTMLDivElement>(null)
@@ -61,11 +61,11 @@ function StockDetailPage() {
   const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolioQuery()
 
   const handleResize1 = useCallback(
-    (delta: number) => setOrderbookW((w) => Math.max(300, Math.min(420, w - delta))),
+    (delta: number) => setOrderbookW((w) => Math.max(320, Math.min(440, w - delta))),
     []
   )
   const handleResize2 = useCallback(
-    (delta: number) => setOrderW((w) => Math.max(280, Math.min(400, w - delta))),
+    (delta: number) => setOrderW((w) => Math.max(320, Math.min(440, w - delta))),
     []
   )
   // 컬럼 높이를 관측해서 ratio 기반으로 chartH를 계산 — 어떤 해상도에서도 비율 유지
@@ -98,7 +98,7 @@ function StockDetailPage() {
   return (
     <StockLayout sidebarWidth="narrow">
       <div className="flex h-[calc(100vh-80px)] flex-col gap-2">
-        <div className="shrink-0 rounded-2xl bg-white px-3 pt-2 pb-2">
+        <div className="shrink-0 rounded-2xl bg-wefin-surface px-3 pt-2 pb-2">
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
@@ -108,7 +108,7 @@ function StockDetailPage() {
               <>
                 <div ref={chartColumnRef} className="flex min-w-0 flex-1 flex-col overflow-hidden">
                   <div
-                    className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
+                    className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
                     style={{ height: chartH }}
                   >
                     <StockChart code={code} height={chartH} />
@@ -122,7 +122,7 @@ function StockDetailPage() {
                 <ResizeHandle onResize={handleResize1} />
 
                 <div
-                  className="relative shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
+                  className="relative shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
                   style={{ width: orderbookW }}
                 >
                   <OrderbookPanel
@@ -135,13 +135,13 @@ function StockDetailPage() {
             )}
 
             {activeTab === 'info' && (
-              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
                 <StockInfoPanel code={code} enabled={activeTab === 'info'} />
               </div>
             )}
 
             {activeTab === 'news' && (
-              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
                 <StockNewsDisclosurePanel code={code} enabled={activeTab === 'news'} />
               </div>
             )}
@@ -153,7 +153,7 @@ function StockDetailPage() {
             className="relative flex shrink-0 flex-col gap-2 overflow-y-auto"
             style={{ width: orderW }}
           >
-            <div className="rounded-xl border border-wefin-line bg-white">
+            <div className="rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderForm
                 key={`${code}-${modifyTarget?.ts ?? 0}`}
                 stockCode={code}
@@ -170,7 +170,7 @@ function StockDetailPage() {
               />
             </div>
             <div className="flex min-h-0 flex-1 flex-col gap-2">
-              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-white">
+              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-wefin-surface">
                 <div className="flex w-full flex-col overflow-y-auto">
                   <HoldingsPanel
                     currentStockCode={code}
@@ -180,7 +180,7 @@ function StockDetailPage() {
                   />
                 </div>
               </div>
-              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-white">
+              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-wefin-surface">
                 <div className="flex w-full flex-col overflow-y-auto">
                   <PendingOrdersPanel currentStockCode={code} onModify={handleModify} />
                 </div>
@@ -188,7 +188,7 @@ function StockDetailPage() {
             </div>
             <Link
               to={routes.accountTab('order-history')}
-              className="block shrink-0 rounded-xl border border-wefin-line bg-white px-3 py-2.5 text-center text-xs text-wefin-subtle transition-colors hover:bg-wefin-bg"
+              className="block shrink-0 rounded-xl border border-wefin-line bg-wefin-surface px-3 py-2.5 text-center text-xs text-wefin-subtle transition-colors hover:bg-wefin-bg"
             >
               주문내역 보기 →
             </Link>
@@ -205,7 +205,7 @@ function BlurOverlay() {
     <div
       className="absolute inset-0 z-10 rounded-xl"
       style={{
-        background: 'rgba(255, 255, 255, 0.55)',
+        background: 'color-mix(in srgb, var(--surface) 75%, transparent)',
         backdropFilter: 'blur(12px) saturate(1.2)',
         WebkitBackdropFilter: 'blur(12px) saturate(1.2)'
       }}

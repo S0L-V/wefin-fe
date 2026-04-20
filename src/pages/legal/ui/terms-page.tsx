@@ -1,11 +1,11 @@
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl py-4">
-      <div className="rounded-2xl bg-white p-8">
+      <div className="rounded-2xl bg-wefin-surface p-8">
         <h1 className="text-2xl font-bold text-wefin-text">이용약관</h1>
         <p className="mt-2 text-xs text-wefin-subtle">최종 수정일: 2026년 4월 19일</p>
 
-        <div className="mt-8 space-y-8 text-sm leading-relaxed text-wefin-text/80">
+        <div className="mt-8 space-y-8 text-sm leading-relaxed text-wefin-text-2">
           <section>
             <h2 className="text-base font-bold text-wefin-text">제1조 (목적)</h2>
             <p className="mt-2">

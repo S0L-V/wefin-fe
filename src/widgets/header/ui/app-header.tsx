@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, LogOut, Settings, Wallet } from 'lucide-react'
+import { ChevronDown, LogOut, Moon, Settings, Sun, Wallet } from 'lucide-react'
 import { type MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -11,6 +11,7 @@ import { MY_SUBSCRIPTION_KEY } from '@/features/payment/model/use-my-subscriptio
 import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
 import { getProfileGradient } from '@/features/settings/lib/profile-gradient'
 import { navigationItems, routes } from '@/shared/config/routes'
+import { useTheme } from '@/shared/model/use-theme'
 import ConfirmDialog from '@/shared/ui/confirm-dialog'
 import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
 
@@ -117,37 +118,41 @@ function AppHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-20 bg-white/80 backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 ${
+      className={`sticky top-0 z-20 bg-wefin-surface/80 backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 ${
         scrolled ? 'shadow-[0_1px_3px_rgba(0,0,0,0.06)]' : 'shadow-none'
       }`}
     >
       <div
-        className={`flex w-full items-center justify-between gap-6 px-6 transition-all duration-300 ${
-          scrolled ? 'h-12' : 'h-16'
+        className={`flex w-full items-center justify-between gap-3 px-4 transition-all duration-300 sm:gap-6 sm:px-6 ${
+          scrolled ? 'h-12' : 'h-14 sm:h-16'
         }`}
       >
-        <div className="flex min-w-0 items-center gap-10">
+        <div className="flex min-w-0 items-center gap-4 sm:gap-10">
           <NavLink
             to={routes.home}
             onClick={(e) => handleNavClick(e, routes.home)}
             className={`group/logo font-extrabold tracking-tight text-wefin-mint-600 transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(20,184,166,0.3),0_0_40px_rgba(20,184,166,0.1)] ${
-              scrolled ? 'text-[26px]' : 'text-[32px]'
+              scrolled ? 'text-[22px] sm:text-[26px]' : 'text-[26px] sm:text-[32px]'
             }`}
             aria-label="wefin 홈"
           >
             <span className="inline-flex items-baseline">
               <WefinLogoIcon
-                size={scrolled ? 28 : 36}
-                className="mr-[-4px] translate-y-[5px] transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)]"
+                size={scrolled ? 24 : 28}
+                className="mr-[-4px] translate-y-[4px] transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)] sm:translate-y-[5px]"
               />
-              <span>efin</span>
+              <span className="hidden sm:inline">efin</span>
             </span>
           </NavLink>
 
-          <nav ref={navRef} className="relative flex items-center gap-1" aria-label="Primary">
+          <nav
+            ref={navRef}
+            className="relative flex items-center gap-0 sm:gap-1"
+            aria-label="Primary"
+          >
             <div
               ref={indicatorRef}
-              className="absolute bottom-0 h-[2px] rounded-full bg-wefin-mint-deep opacity-0 transition-all duration-300"
+              className="absolute bottom-0 h-[2px] rounded-full bg-wefin-mint opacity-0 transition-all duration-300"
             />
             {navigationItems.map(({ to, label, end }) => (
               <NavLink
@@ -157,8 +162,8 @@ function AppHeader() {
                 onClick={(e) => handleNavClick(e, to)}
                 className={({ isActive }) =>
                   [
-                    'inline-flex h-10 items-center px-4 text-base font-bold whitespace-nowrap transition-colors',
-                    isActive ? 'text-wefin-mint-deep' : 'text-wefin-subtle hover:text-wefin-text'
+                    'inline-flex h-10 items-center px-2 text-sm font-bold whitespace-nowrap transition-colors sm:px-4 sm:text-base',
+                    isActive ? 'text-wefin-mint' : 'text-wefin-text-2 hover:text-wefin-text'
                   ].join(' ')
                 }
                 {...(isNavActive(to, end) ? { 'data-active': 'true' } : {})}
@@ -202,6 +207,7 @@ function UserMenu({
 }) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [profileGrad, setProfileGrad] = useState(getProfileGradient)
+  const { theme, setTheme } = useTheme()
   const initial = (user.nickname || '?').charAt(0).toUpperCase()
 
   useEffect(() => {
@@ -221,7 +227,7 @@ function UserMenu({
     <div className="group relative">
       <button
         type="button"
-        className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent pl-0.5 pr-3 text-sm font-bold text-wefin-text transition-all hover:border-wefin-mint-deep/20 hover:shadow-[0_0_12px_rgba(36,168,171,0.15)]"
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent pl-0.5 pr-1 text-sm font-bold text-wefin-text transition-all hover:border-wefin-mint-deep/20 hover:shadow-[0_0_12px_rgba(36,168,171,0.15)] sm:pr-3"
       >
         <span
           className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white ring-2 ring-white/50"
@@ -229,14 +235,14 @@ function UserMenu({
         >
           {initial}
         </span>
-        {user.nickname}
+        <span className="hidden sm:inline">{user.nickname}</span>
         <ChevronDown
           size={14}
-          className="text-wefin-subtle transition-transform group-hover:rotate-180"
+          className="hidden text-wefin-subtle transition-transform group-hover:rotate-180 sm:block"
         />
       </button>
       <div className="invisible absolute right-0 top-full z-30 pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100">
-        <div className="w-64 overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-[0_12px_32px_-8px_rgba(36,168,171,0.2)]">
+        <div className="w-64 overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-[0_12px_32px_-8px_rgba(36,168,171,0.2)]">
           <div className="bg-gradient-to-br from-wefin-mint-deep/5 to-transparent px-4 py-4">
             <div className="flex items-center gap-3">
               <span
@@ -253,7 +259,7 @@ function UserMenu({
               </div>
             </div>
             {account && (
-              <p className="mt-3 rounded-lg bg-white/60 px-3 py-2 text-right text-sm font-bold tabular-nums text-wefin-text">
+              <p className="mt-3 rounded-lg bg-wefin-surface-2 px-3 py-2 text-right text-sm font-bold tabular-nums text-wefin-text">
                 {totalAsset.toLocaleString()}원
               </p>
             )}
@@ -276,8 +282,20 @@ function UserMenu({
             </button>
             <button
               type="button"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-surface-2"
+            >
+              {theme === 'dark' ? (
+                <Sun size={16} className="text-wefin-subtle" />
+              ) : (
+                <Moon size={16} className="text-wefin-subtle" />
+              )}
+              {theme === 'dark' ? '라이트 모드' : '다크 모드'}
+            </button>
+            <button
+              type="button"
               onClick={() => setShowLogoutConfirm(true)}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-rose-500 transition-colors hover:bg-rose-50"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-rose-500 transition-colors hover:bg-wefin-red-soft"
             >
               <LogOut size={16} />
               로그아웃

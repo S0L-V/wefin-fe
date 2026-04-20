@@ -184,12 +184,12 @@ function SummaryBlock({
         />
       </div>
       {personalizedFallback && !personalizedLoading && (
-        <p className="mb-3 rounded-xl bg-amber-50 px-4 py-2.5 text-xs text-amber-700">
+        <p className="mb-3 rounded-xl bg-wefin-amber-soft px-4 py-2.5 text-xs text-wefin-amber-text">
           이번에는 맞춤 분석을 만들지 못했어요. 일반 시황을 보여드립니다.
         </p>
       )}
       {personalizedError && !personalizedLoading && (
-        <p className="mb-3 rounded-xl bg-red-50 px-4 py-2.5 text-xs text-red-600">
+        <p className="mb-3 rounded-xl bg-wefin-red-soft px-4 py-2.5 text-xs text-red-600">
           맞춤 분석을 가져오지 못했어요. 잠시 후 다시 시도해주세요.
         </p>
       )}
@@ -281,7 +281,7 @@ function PersonalizedTrendButton({ analyzed, loading, onClick }: PersonalizedTre
       </button>
       <span className="group/info relative inline-flex h-4 w-4 cursor-default items-center justify-center rounded-full text-wefin-subtle transition-colors hover:text-wefin-mint-deep">
         <Info size={14} />
-        <span className="pointer-events-none invisible absolute right-0 top-full z-20 mt-2 w-[220px] rounded-xl bg-wefin-text px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity group-hover/info:visible group-hover/info:opacity-100">
+        <span className="pointer-events-none invisible absolute right-0 top-full z-20 mt-2 w-[220px] rounded-xl bg-gray-900 px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity group-hover/info:visible group-hover/info:opacity-100">
           내 관심 분야와 보유 종목을 기반으로 AI가 시장 동향을 분석해요
         </span>
       </span>

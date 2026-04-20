@@ -209,7 +209,7 @@ export default function OrderForm({
                         }`}
                       >
                         <span
-                          className={`text-xs font-bold ${isBuy ? 'text-red-500' : 'text-blue-500'}`}
+                          className={`text-xs font-bold ${isBuy ? 'text-wefin-red' : 'text-blue-400'}`}
                         >
                           {isBuy ? '매수' : '매도'}
                         </span>
@@ -247,7 +247,7 @@ export default function OrderForm({
                 maxQuantity={null}
                 maxLabel="최대"
               />
-              {errorMessage && <p className="text-xs text-red-500">{errorMessage}</p>}
+              {errorMessage && <p className="text-xs text-wefin-red">{errorMessage}</p>}
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -260,7 +260,7 @@ export default function OrderForm({
                 type="button"
                 onClick={handleCancel}
                 disabled={cancelMutation.isPending}
-                className="w-full rounded-md border border-wefin-line py-2.5 text-sm font-bold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-md border border-wefin-line py-2.5 text-sm font-bold text-wefin-red transition-colors hover:bg-wefin-red-soft disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {cancelMutation.isPending ? '취소 중...' : '주문 취소'}
               </button>
@@ -336,14 +336,14 @@ export default function OrderForm({
           </div>
         </div>
 
-        {exceedsBalance && <p className="text-xs font-medium text-red-500">잔고가 부족해요</p>}
+        {exceedsBalance && <p className="text-xs font-medium text-wefin-red">잔고가 부족해요</p>}
         {exceedsHolding && (
-          <p className="text-xs font-medium text-red-500">보유 수량을 초과했어요</p>
+          <p className="text-xs font-medium text-wefin-red">보유 수량을 초과했어요</p>
         )}
         {invalidPrice && qtyNumber > 0 && (
-          <p className="text-xs font-medium text-red-500">주문 가격을 입력해주세요</p>
+          <p className="text-xs font-medium text-wefin-red">주문 가격을 입력해주세요</p>
         )}
-        {errorMessage && <p className="text-xs text-red-500">{errorMessage}</p>}
+        {errorMessage && <p className="text-xs text-wefin-red">{errorMessage}</p>}
 
         <button
           type="button"

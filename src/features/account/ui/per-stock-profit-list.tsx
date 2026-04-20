@@ -66,7 +66,7 @@ export default function PerStockProfitList({
   return (
     <ul className="divide-y divide-wefin-line">
       {rows.map((row) => {
-        const totalColor = row.total >= 0 ? 'text-red-500' : 'text-blue-600'
+        const totalColor = row.total >= 0 ? 'text-wefin-red' : 'text-blue-400'
         return (
           <li key={row.code}>
             <Link
@@ -79,14 +79,14 @@ export default function PerStockProfitList({
                 <div className="flex gap-2 text-xs tabular-nums">
                   <span className="text-wefin-subtle">
                     미실현{' '}
-                    <span className={row.unrealized >= 0 ? 'text-red-500' : 'text-blue-600'}>
+                    <span className={row.unrealized >= 0 ? 'text-wefin-red' : 'text-blue-400'}>
                       {row.unrealized >= 0 ? '+' : ''}
                       {row.unrealized.toLocaleString()}원
                     </span>
                   </span>
                   <span className="text-wefin-subtle">
                     실현{' '}
-                    <span className={row.realized >= 0 ? 'text-red-500' : 'text-blue-600'}>
+                    <span className={row.realized >= 0 ? 'text-wefin-red' : 'text-blue-400'}>
                       {row.realized >= 0 ? '+' : ''}
                       {Math.trunc(row.realized).toLocaleString()}원
                     </span>

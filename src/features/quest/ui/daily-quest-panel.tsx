@@ -80,7 +80,7 @@ export default function DailyQuestPanel() {
 
   if (!userId) {
     return (
-      <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
+      <section className="overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm">
         <div className="flex h-10 items-center  px-3">
           <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
         </div>
@@ -103,7 +103,7 @@ export default function DailyQuestPanel() {
   }
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm">
       <div className="flex h-10 items-center justify-between  px-3">
         <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
         {quests.length > 1 && (
@@ -130,21 +130,21 @@ export default function DailyQuestPanel() {
 
       <div className="p-2.5">
         {isLoading && (
-          <div className="animate-pulse rounded-xl border border-gray-200 bg-white p-3.5">
+          <div className="animate-pulse rounded-xl border border-gray-200 bg-wefin-surface p-3.5">
             <div className="h-5 w-36 rounded bg-gray-200" />
-            <div className="mt-2.5 h-2 w-full rounded-full bg-gray-100" />
+            <div className="mt-2.5 h-2 w-full rounded-full bg-wefin-surface-2" />
           </div>
         )}
 
         {isError && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-center text-sm text-amber-900">
+          <div className="rounded-xl border border-wefin-line bg-wefin-amber-soft px-4 py-3.5 text-center text-sm text-wefin-amber-text">
             <p>{getQuestErrorMessage(error)}</p>
             <button
               type="button"
               onClick={() => {
                 void refetch()
               }}
-              className="mt-2 text-xs font-semibold text-amber-700 underline"
+              className="mt-2 text-xs font-semibold text-wefin-amber-text underline"
             >
               다시 불러오기
             </button>
@@ -206,7 +206,7 @@ export default function DailyQuestPanel() {
                               {getProgressText(quest)}
                             </span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-gray-100">
+                          <div className="h-1.5 rounded-full bg-wefin-surface-2">
                             <div
                               className="h-full rounded-full bg-wefin-mint transition-all"
                               style={{ width: `${percent}%` }}

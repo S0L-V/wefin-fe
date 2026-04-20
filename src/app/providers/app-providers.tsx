@@ -30,7 +30,7 @@ function AppProviders({ children }: PropsWithChildren) {
           classNames: {
             success: '!bg-[#f0fafa] !text-[#1a7a7c] !border-[#24a8ab]/20',
             error: '!bg-rose-50 !text-rose-600 !border-rose-200',
-            default: '!bg-white !text-[#1a2b3c]'
+            default: '!bg-wefin-surface !text-[#1a2b3c]'
           }
         }}
         offset={20}

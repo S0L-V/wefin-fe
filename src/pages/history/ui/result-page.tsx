@@ -61,7 +61,7 @@ function ResultPage() {
   const finalAsset = lastSnapshot?.totalAsset ?? 0
   const finalProfitRate = lastSnapshot?.profitRate ?? 0
   const isWin = finalProfitRate >= 0
-  const profitColor = isWin ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = isWin ? 'text-wefin-red' : 'text-blue-400'
 
   const chartData = snapshots.map((s, idx) => ({
     label: idx === 0 ? '시작' : s.turnDate?.replaceAll('-', '.'),
@@ -211,7 +211,7 @@ function ResultPage() {
                           </td>
                           <td className="py-3">
                             <span
-                              className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${isBuy ? 'bg-wefin-red-soft text-wefin-red' : 'bg-blue-50 text-blue-500'}`}
+                              className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${isBuy ? 'bg-wefin-red-soft text-wefin-red' : 'bg-wefin-surface-2 text-blue-400'}`}
                             >
                               {isBuy ? '매수' : '매도'}
                             </span>
@@ -318,7 +318,7 @@ function ResultPage() {
                     className="rounded-xl border-l-[3px] border-wefin-mint bg-wefin-surface-2 py-5 pr-6 pl-5"
                   >
                     <h4 className="text-[15px] font-extrabold text-wefin-text">{s.title}</h4>
-                    <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.85] text-wefin-text-2">
+                    <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.85] text-wefin-text">
                       {s.body}
                     </p>
                   </div>

@@ -86,7 +86,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
     `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
       fieldErrors[field]
         ? 'border-red-400 focus:border-red-500'
-        : 'border-slate-200 focus:border-red-400'
+        : 'border-wefin-line focus:border-red-400'
     }`
 
   const clearAuthState = () => {
@@ -177,7 +177,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
               <Dialog.Title className="text-xl font-semibold text-slate-900">
                 회원 탈퇴
               </Dialog.Title>
-              <Dialog.Description className="text-sm text-slate-500">
+              <Dialog.Description className="text-sm text-wefin-subtle">
                 탈퇴 후 계정은 복구할 수 없습니다. 계속하려면 비밀번호를 입력해주세요.
               </Dialog.Description>
             </div>
@@ -185,7 +185,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-slate-100"
                 aria-label="닫기"
               >
                 <X className="size-4" />
@@ -193,9 +193,9 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
             </Dialog.Close>
           </div>
 
-          <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3">
+          <div className="mt-4 rounded-xl border border-red-100 bg-wefin-red-soft px-4 py-3">
             <p className="text-sm font-medium text-red-600">주의</p>
-            <p className="mt-1 text-sm text-red-500">
+            <p className="mt-1 text-sm text-wefin-red">
               탈퇴하면 계정 정보 접근이 불가능하며, 진행 중인 서비스 이용 정보도 함께 정리될 수
               있습니다.
             </p>
@@ -220,7 +220,11 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
                 className={inputClassName('password')}
               />
               {fieldErrors.password ? (
-                <p id="withdraw-password-error" role="alert" className="mt-1 text-sm text-red-500">
+                <p
+                  id="withdraw-password-error"
+                  role="alert"
+                  className="mt-1 text-sm text-wefin-red"
+                >
                   {fieldErrors.password}
                 </p>
               ) : null}
@@ -229,7 +233,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
             <button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-xl bg-red-500 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-xl bg-wefin-red-soft0 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? '탈퇴 처리 중...' : '회원 탈퇴'}
             </button>

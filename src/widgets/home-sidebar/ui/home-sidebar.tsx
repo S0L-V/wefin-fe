@@ -76,7 +76,7 @@ function StockRankingList() {
               </p>
               <p
                 className={`font-num text-[12.5px] font-semibold ${
-                  isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-500' : 'text-wefin-muted'
+                  isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-400' : 'text-wefin-muted'
                 }`}
               >
                 {sign}

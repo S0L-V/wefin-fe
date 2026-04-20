@@ -76,7 +76,7 @@ function AuthDialog() {
                 <Dialog.Title className="text-xl font-semibold text-slate-900">
                   {isLogin ? (data?.title ?? '로그인') : '회원가입'}
                 </Dialog.Title>
-                <Dialog.Description className="text-sm text-slate-500">
+                <Dialog.Description className="text-sm text-wefin-subtle">
                   {isLogin
                     ? (data?.description ?? '이메일과 비밀번호를 입력하세요')
                     : '새로운 계정을 만들고 시작하세요'}
@@ -86,7 +86,7 @@ function AuthDialog() {
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100"
+                  className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-slate-100"
                   aria-label="닫기"
                 >
                   <X className="size-4" />
@@ -108,7 +108,7 @@ function AuthDialog() {
                       required
                       value={loginFormData.email}
                       onChange={handleLoginChange('email')}
-                      className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
                     />
                   </div>
 
@@ -123,7 +123,7 @@ function AuthDialog() {
                       required
                       value={loginFormData.password}
                       onChange={handleLoginChange('password')}
-                      className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
                     />
                   </div>
 
@@ -136,7 +136,7 @@ function AuthDialog() {
                   </button>
                 </form>
 
-                <p className="mt-3 text-right text-xs text-slate-500">
+                <p className="mt-3 text-right text-xs text-wefin-subtle">
                   <button
                     type="button"
                     onClick={() => {
@@ -149,7 +149,7 @@ function AuthDialog() {
                   </button>
                 </p>
 
-                <p className="mt-6 text-center text-sm text-slate-500">
+                <p className="mt-6 text-center text-sm text-wefin-subtle">
                   계정이 없으신가요?
                   <button
                     type="button"
@@ -178,7 +178,7 @@ function AuthDialog() {
                       className={inputClassName('nickname')}
                     />
                     {fieldErrors.nickname ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.nickname}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.nickname}</p>
                     ) : null}
                   </div>
 
@@ -203,7 +203,7 @@ function AuthDialog() {
                         type="button"
                         onClick={handleSendVerificationCode}
                         disabled={isVerifying || isEmailVerified || codeCooldown > 0}
-                        className="min-w-[88px] rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="min-w-[88px] rounded-xl border border-wefin-line px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isVerifying
                           ? '전송 중...'
@@ -218,7 +218,7 @@ function AuthDialog() {
                     </div>
 
                     {fieldErrors.email ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.email}</p>
                     ) : null}
                   </div>
 
@@ -243,7 +243,7 @@ function AuthDialog() {
                           type="button"
                           onClick={handleConfirmVerificationCode}
                           disabled={isVerifying || isEmailVerified}
-                          className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl border border-wefin-line px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {isVerifying ? '확인 중...' : '코드확인'}
                         </button>
@@ -266,7 +266,7 @@ function AuthDialog() {
                       className={inputClassName('password')}
                     />
                     {fieldErrors.password ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.password}</p>
                     ) : null}
                   </div>
 
@@ -285,7 +285,7 @@ function AuthDialog() {
                       className={inputClassName('confirmPassword')}
                     />
                     {fieldErrors.confirmPassword ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.confirmPassword}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.confirmPassword}</p>
                     ) : null}
                   </div>
 
@@ -298,7 +298,7 @@ function AuthDialog() {
                   </button>
                 </form>
 
-                <p className="mt-6 text-center text-sm text-slate-500">
+                <p className="mt-6 text-center text-sm text-wefin-subtle">
                   이미 계정이 있으신가요?
                   <button
                     type="button"

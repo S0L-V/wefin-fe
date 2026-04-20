@@ -35,7 +35,7 @@ function MarketSnapshotTable() {
                   snapshot.changeDirection === 'UP'
                     ? 'text-red-600'
                     : snapshot.changeDirection === 'DOWN'
-                      ? 'text-blue-600'
+                      ? 'text-blue-400'
                       : 'text-wefin-subtle'
                 }
               >

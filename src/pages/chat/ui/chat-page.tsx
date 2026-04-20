@@ -7,7 +7,7 @@ function ChatPage() {
         <h2 className="text-2xl font-bold text-wefin-text">채팅</h2>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-hidden rounded-2xl bg-white">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-2xl bg-wefin-surface">
         <ChatPanel />
       </div>
     </div>

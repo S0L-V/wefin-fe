@@ -41,7 +41,7 @@ export default function StockLogo({ code, name, size = 36 }: StockLogoProps) {
       width={size}
       height={size}
       onError={handleError}
-      className="shrink-0 rounded-full bg-white object-contain"
+      className="shrink-0 rounded-full bg-wefin-surface object-contain"
       style={{ width: size, height: size }}
     />
   )

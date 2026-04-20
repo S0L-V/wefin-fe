@@ -18,7 +18,7 @@ function HoldingsPanel({ roomId }: HoldingsPanelProps) {
   const seedMoney = portfolio?.data.seedMoney ?? 0
   const profitAmount = totalAsset - seedMoney
   const profitRate = seedMoney > 0 ? (profitAmount / seedMoney) * 100 : 0
-  const profitColor = profitAmount >= 0 ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = profitAmount >= 0 ? 'text-wefin-red' : 'text-blue-400'
   const sign = profitAmount >= 0 ? '+' : ''
 
   const holdingItems = holdings?.data ?? []
@@ -86,7 +86,7 @@ function SummaryCell({ label, value, border }: { label: string; value: number; b
 
 function HoldingRow({ item }: { item: HoldingItem }) {
   const { selectStock } = useSelectedStockStore()
-  const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-blue-400'
   const sign = item.profitRate >= 0 ? '+' : ''
 
   return (

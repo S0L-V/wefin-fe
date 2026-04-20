@@ -44,7 +44,7 @@ function UnreadDivider() {
   return (
     <div className="flex items-center gap-3 py-2">
       <div className="h-px flex-1 bg-slate-200" />
-      <span className="shrink-0 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+      <span className="shrink-0 rounded-full border border-wefin-line bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-wefin-subtle">
         새 메시지
       </span>
       <div className="h-px flex-1 bg-slate-200" />
@@ -207,11 +207,11 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       className={`flex min-h-0 flex-col overflow-hidden ${
         bare
           ? 'h-full'
-          : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] rounded-2xl border border-wefin-line bg-white shadow-sm'
+          : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm'
       }`}
     >
       {errorMessage && (
-        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="border-b border-wefin-line bg-wefin-amber-soft px-4 py-3 text-sm text-wefin-amber-text">
           {errorMessage}
         </div>
       )}
@@ -221,7 +221,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         onScroll={() => {
           void handleScroll()
         }}
-        className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white px-4 py-3 scrollbar-thin"
+        className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-wefin-surface px-4 py-3 scrollbar-thin"
       >
         {isLoadingOlder && (
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
@@ -241,7 +241,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
 
               {isSystem ? (
                 <div className="flex justify-center">
-                  <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+                  <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-wefin-amber-text shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                     {msg.content}
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
                             className={`max-w-[70%] rounded-2xl px-3 py-1.5 text-sm leading-snug [overflow-wrap:anywhere] ${
                               isMine
                                 ? 'rounded-tr-none bg-wefin-mint text-white'
-                                : 'rounded-tl-none bg-gray-100 text-wefin-text'
+                                : 'rounded-tl-none bg-wefin-line text-wefin-text'
                             }`}
                           >
                             {msg.content}
@@ -296,9 +296,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         })}
       </div>
 
-      <div className="border-t border-wefin-line bg-white p-3">
+      <div className="border-t border-wefin-line bg-wefin-surface p-3">
         {isEmojiPickerOpen && (
-          <div className="mb-2 rounded-2xl border border-wefin-line bg-white p-3 shadow-sm">
+          <div className="mb-2 rounded-2xl border border-wefin-line bg-wefin-surface p-3 shadow-sm">
             <div className="mb-2 text-xs font-semibold text-wefin-subtle">이모티콘</div>
             <div className="grid max-h-48 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-5">
               {emojiList.map(({ code, src, pickerScale }) => (
@@ -323,12 +323,12 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         )}
 
         {!isLoggedIn && (
-          <div className="mb-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
+          <div className="mb-2 rounded-2xl border border-wefin-line bg-wefin-surface-2 px-3 py-2 text-xs text-wefin-subtle">
             로그인하면 전체 채팅에 참여할 수 있어요.
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
+        <div className="flex items-center gap-1.5 rounded-full bg-wefin-surface-2 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}

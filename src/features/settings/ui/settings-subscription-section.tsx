@@ -111,7 +111,7 @@ function SettingsSubscriptionSection() {
                 className={`rounded-2xl border p-6 shadow-sm ${
                   isCurrentPlan
                     ? 'border-wefin-mint bg-wefin-mint text-white'
-                    : 'border-wefin-line bg-white text-wefin-text'
+                    : 'border-wefin-line bg-wefin-surface text-wefin-text'
                 }`}
               >
                 <div className="space-y-5">
@@ -119,7 +119,7 @@ function SettingsSubscriptionSection() {
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-2xl font-bold">{plan.title}</p>
                       {isCurrentPlan && (
-                        <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-wefin-mint-deep">
+                        <span className="rounded-full bg-wefin-surface px-2 py-1 text-xs font-bold text-wefin-mint-deep">
                           현재 이용 중
                         </span>
                       )}

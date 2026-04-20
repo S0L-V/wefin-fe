@@ -51,7 +51,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
     <div ref={containerRef} className="flex h-full">
       {/* 좌측 모듈: 개인·외국인·기관 */}
       <div
-        className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white"
+        className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
         style={{ width: leftWidth ?? '50%' }}
       >
         <div className="flex h-11 shrink-0 items-center px-3">
@@ -65,7 +65,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
       <ResizeHandle onResize={handleResize} />
 
       {/* 우측 모듈: 시세 */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
         <div className="flex h-11 shrink-0 items-center justify-between px-3">
           <span className="text-sm font-semibold text-wefin-text">시세</span>
           <SegmentedTabs items={PRICE_SUB_TABS} activeKey={priceSubTab} onChange={setPriceSubTab} />
@@ -119,7 +119,7 @@ function RealtimeTab({
         {trades.map((t, i) => {
           const isPositive = t.changeRate > 0
           const isNegative = t.changeRate < 0
-          const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : ''
+          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-400' : ''
           const timeDisplay = formatTradeTime(t.tradeTime)
 
           return (
@@ -189,7 +189,7 @@ function DailyTab({
           const changeRate = prevClose !== 0 ? ((c.closePrice - prevClose) / prevClose) * 100 : 0
           const isPositive = changeRate > 0
           const isNegative = changeRate < 0
-          const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : ''
+          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-400' : ''
 
           return (
             <tr key={c.date} className="border-t border-wefin-line hover:bg-wefin-bg">
@@ -275,7 +275,7 @@ function InvestorTrendTable({
 }
 
 function NetBuyCell({ value }: { value: number }) {
-  const colorClass = value > 0 ? 'text-red-500' : value < 0 ? 'text-blue-500' : 'text-wefin-text'
+  const colorClass = value > 0 ? 'text-wefin-red' : value < 0 ? 'text-blue-400' : 'text-wefin-text'
   return (
     <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
       {formatNetBuyQty(value)}

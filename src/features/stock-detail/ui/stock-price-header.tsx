@@ -79,11 +79,11 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
 
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex w-60 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm text-wefin-subtle transition-colors hover:bg-gray-200"
+            className="flex w-60 items-center gap-2 rounded-lg bg-wefin-surface-2 px-3 py-2 text-sm text-wefin-subtle transition-colors hover:bg-wefin-line"
           >
             <Search className="h-4 w-4" />
             <span className="flex items-center gap-1">
-              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-wefin-line bg-white px-1.5 font-mono text-xs text-wefin-subtle">
+              <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-wefin-line bg-wefin-surface px-1.5 font-mono text-xs text-wefin-subtle">
                 /
               </kbd>
               를 눌러 검색하세요
@@ -116,9 +116,9 @@ function PriceDisplay({ price }: { price: PriceData }) {
   const isPositive = price.changePrice > 0
   const isNegative = price.changePrice < 0
   const pillClass = isPositive
-    ? 'bg-red-50 text-red-600'
+    ? 'bg-wefin-red-soft text-red-600'
     : isNegative
-      ? 'bg-blue-50 text-blue-600'
+      ? 'bg-wefin-surface-2 text-blue-400'
       : 'bg-wefin-bg text-wefin-subtle'
   const sign = isPositive ? '+' : ''
   const arrow = isPositive ? '▲' : isNegative ? '▼' : ''

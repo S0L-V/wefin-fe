@@ -34,7 +34,7 @@ function CreateRoomForm() {
     <div className="mx-auto max-w-lg">
       <Header onBack={() => navigate('/history')} />
 
-      <div className="mt-6 rounded-2xl border border-wefin-line bg-white p-6">
+      <div className="mt-6 rounded-2xl border border-wefin-line bg-wefin-surface p-6">
         <h2 className="mb-6 text-lg font-bold text-wefin-text">게임 설정</h2>
 
         <OptionGroup label="시드머니">
@@ -75,7 +75,7 @@ function CreateRoomForm() {
         </OptionGroup>
 
         {errorMessage && (
-          <p className="mt-4 text-center text-sm text-red-500" role="alert">
+          <p className="mt-4 text-center text-sm text-wefin-red" role="alert">
             {errorMessage}
           </p>
         )}
@@ -160,7 +160,7 @@ function OptionButton({
       className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-colors ${
         selected
           ? 'border-wefin-mint bg-wefin-mint-soft text-wefin-mint'
-          : 'border-wefin-line bg-white text-wefin-text hover:bg-wefin-bg'
+          : 'border-wefin-line bg-wefin-surface text-wefin-text hover:bg-wefin-bg'
       }`}
     >
       {children}

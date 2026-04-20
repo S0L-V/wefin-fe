@@ -39,7 +39,7 @@ export default function PriceInput({
   return (
     <div
       className={`flex items-center rounded-md border-[1.5px] border-wefin-line ${
-        disabled ? 'bg-wefin-bg' : 'bg-white'
+        disabled ? 'bg-wefin-bg' : 'bg-wefin-surface'
       }`}
     >
       <input

@@ -21,11 +21,11 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
 
   return (
     <div
-      className={`flex flex-col rounded-2xl bg-white transition-all duration-300 ${heightClass}`}
+      className={`flex flex-col rounded-2xl bg-wefin-surface transition-all duration-300 ${heightClass}`}
     >
       {/* 탭 헤더 */}
       <div className="flex items-center gap-2 p-2.5">
-        <div className="flex flex-1 gap-1 rounded-full bg-gray-100 p-1">
+        <div className="flex flex-1 gap-1 rounded-full bg-wefin-surface-2 p-1">
           {TABS.map(({ key, label }) => {
             const isActive = activeTab === key
             return (
@@ -35,7 +35,7 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
                 onClick={() => setActiveTab(key)}
                 className={`flex-1 rounded-full py-2 text-sm font-bold transition-colors ${
                   isActive
-                    ? 'bg-white text-wefin-text shadow-sm'
+                    ? 'bg-wefin-surface text-wefin-text shadow-sm'
                     : 'text-wefin-subtle hover:text-wefin-text'
                 }`}
               >

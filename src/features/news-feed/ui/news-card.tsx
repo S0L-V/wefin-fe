@@ -14,10 +14,10 @@ export default function NewsCard({ cluster }: NewsCardProps) {
   return (
     <Link
       to={`/news/${cluster.clusterId}`}
-      className="group flex gap-4 rounded-2xl p-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-wefin-bg/50 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
+      className="group flex gap-4 rounded-2xl p-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-wefin-surface-2 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
     >
       {/* Thumbnail */}
-      <div className="h-[120px] w-[180px] shrink-0 overflow-hidden rounded-xl bg-gray-100">
+      <div className="h-[120px] w-[180px] shrink-0 overflow-hidden rounded-xl bg-wefin-surface-2">
         {cluster.thumbnailUrl ? (
           <img
             src={cluster.thumbnailUrl}
@@ -37,7 +37,7 @@ export default function NewsCard({ cluster }: NewsCardProps) {
           <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-wefin-text">
             {cluster.title}
           </h3>
-          <p className="mt-1.5 line-clamp-2 text-[13px] font-medium leading-relaxed text-wefin-text/65">
+          <p className="mt-1.5 line-clamp-2 text-[13px] font-medium leading-relaxed text-wefin-subtle">
             {cluster.summary}
           </p>
         </div>

@@ -25,14 +25,14 @@ function StocksPage() {
   return (
     <StockLayout>
       <div className="flex h-[calc(100vh-80px)] flex-col gap-2">
-        <div className="shrink-0 rounded-2xl bg-white p-5">
+        <div className="shrink-0 rounded-2xl bg-wefin-surface p-5">
           <StockRankingControls
             activeTab={activeTab}
             onTabChange={setActiveTab}
             onSearchClick={() => setSearchOpen(true)}
           />
         </div>
-        <div className="min-h-0 flex-1 overflow-hidden rounded-2xl bg-white">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-2xl bg-wefin-surface">
           <StockRankingTable activeTab={activeTab} />
         </div>
       </div>
