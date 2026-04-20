@@ -129,6 +129,7 @@ function StockDetailPage() {
                     code={code}
                     onPriceClick={isLoggedIn ? setPriceFromOrderbook : undefined}
                   />
+                  {!isLoggedIn && <BlurOverlay />}
                 </div>
               </>
             )}
