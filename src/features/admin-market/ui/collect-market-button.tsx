@@ -14,7 +14,7 @@ function CollectMarketButton() {
         {isPending ? '수집 중...' : '시장 지표 수집'}
       </button>
       {isSuccess && <p className="text-sm text-green-600">수집 완료</p>}
-      {isError && <p className="text-sm text-red-600">수집 실패: {error.message}</p>}
+      {isError && <p className="text-sm text-wefin-red">수집 실패: {error.message}</p>}
     </div>
   )
 }

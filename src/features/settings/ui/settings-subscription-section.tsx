@@ -135,7 +135,7 @@ function SettingsSubscriptionSection() {
                   </div>
 
                   <div className="flex items-end gap-1 tabular-nums">
-                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-2xl font-bold sm:text-4xl">{plan.price}</span>
                     <span className={isCurrentPlan ? 'text-white/80' : 'text-wefin-subtle'}>
                       {plan.period}
                     </span>

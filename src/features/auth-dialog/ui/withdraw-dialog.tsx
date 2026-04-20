@@ -194,7 +194,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
           </div>
 
           <div className="mt-4 rounded-xl border border-red-100 bg-wefin-red-soft px-4 py-3">
-            <p className="text-sm font-medium text-red-600">주의</p>
+            <p className="text-sm font-medium text-wefin-red">주의</p>
             <p className="mt-1 text-sm text-wefin-red">
               탈퇴하면 계정 정보 접근이 불가능하며, 진행 중인 서비스 이용 정보도 함께 정리될 수
               있습니다.

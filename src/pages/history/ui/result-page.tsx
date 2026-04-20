@@ -261,7 +261,7 @@ function ResultPage() {
                         r.rank === 1
                           ? 'bg-amber-400 text-white'
                           : r.rank === 2
-                            ? 'bg-gray-400 text-white'
+                            ? 'bg-wefin-muted text-white'
                             : r.rank === 3
                               ? 'bg-amber-600 text-white'
                               : 'bg-wefin-surface-2 text-wefin-muted'

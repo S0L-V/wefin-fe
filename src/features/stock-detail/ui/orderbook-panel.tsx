@@ -174,7 +174,7 @@ function BidRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps)
       <span className="relative z-10 text-center font-medium text-wefin-text tabular-nums">
         {entry.price.toLocaleString()}
       </span>
-      <span className="relative z-10 pr-2 text-right font-semibold text-red-600 tabular-nums">
+      <span className="relative z-10 pr-2 text-right font-semibold text-wefin-red tabular-nums">
         {entry.quantity.toLocaleString()}
       </span>
     </div>

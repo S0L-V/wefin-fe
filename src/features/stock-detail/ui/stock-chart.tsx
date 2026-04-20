@@ -519,7 +519,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
             onClick={() => setPeriodCode(p.code)}
           />
         ))}
-        <div className="mx-1 h-3 w-px bg-gray-200" />
+        <div className="mx-1 h-3 w-px bg-wefin-line" />
         {datePeriods.map((p) => (
           <PeriodButton
             key={p.code}

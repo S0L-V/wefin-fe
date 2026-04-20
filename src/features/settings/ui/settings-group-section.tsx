@@ -330,7 +330,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                   copyState === 'copied'
                     ? 'border-wefin-mint bg-wefin-mint text-white'
                     : copyState === 'failed'
-                      ? 'border-red-300 bg-wefin-red-soft text-red-600'
+                      ? 'border-red-300 bg-wefin-red-soft text-wefin-red'
                       : 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
                 ].join(' ')}
               >

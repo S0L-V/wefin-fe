@@ -189,7 +189,7 @@ function SummaryBlock({
         </p>
       )}
       {personalizedError && !personalizedLoading && (
-        <p className="mb-3 rounded-xl bg-wefin-red-soft px-4 py-2.5 text-xs text-red-600">
+        <p className="mb-3 rounded-xl bg-wefin-red-soft px-4 py-2.5 text-xs text-wefin-red">
           맞춤 분석을 가져오지 못했어요. 잠시 후 다시 시도해주세요.
         </p>
       )}

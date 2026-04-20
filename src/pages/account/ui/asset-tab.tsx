@@ -34,7 +34,9 @@ export default function AssetTab() {
     <div className="max-w-md divide-y divide-wefin-line">
       <div className="pb-5">
         <p className="text-sm text-wefin-subtle">총 자산</p>
-        <p className="mt-1 text-3xl font-bold text-wefin-text">{totalAsset.toLocaleString()}원</p>
+        <p className="mt-1 text-xl font-bold sm:text-3xl text-wefin-text">
+          {totalAsset.toLocaleString()}원
+        </p>
       </div>
 
       <Row title="주문 가능 금액" value={`${balance.toLocaleString()}원`} />

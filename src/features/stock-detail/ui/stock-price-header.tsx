@@ -118,7 +118,7 @@ function PriceDisplay({ price }: { price: PriceData }) {
   const isPositive = price.changePrice > 0
   const isNegative = price.changePrice < 0
   const pillClass = isPositive
-    ? 'bg-wefin-red-soft text-red-600'
+    ? 'bg-wefin-red-soft text-wefin-red'
     : isNegative
       ? 'bg-wefin-surface-2 text-blue-400'
       : 'bg-wefin-bg text-wefin-subtle'

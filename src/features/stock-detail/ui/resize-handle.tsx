@@ -53,7 +53,7 @@ export default function ResizeHandle({ direction = 'horizontal', onResize }: Res
         onMouseDown={handleMouseDown}
         className="group flex h-2 shrink-0 cursor-row-resize items-center justify-center"
       >
-        <div className="h-0.5 w-8 rounded-full bg-gray-200 transition-colors group-hover:bg-gray-400" />
+        <div className="h-0.5 w-8 rounded-full bg-wefin-line transition-colors group-hover:bg-wefin-muted" />
       </div>
     )
   }
@@ -63,7 +63,7 @@ export default function ResizeHandle({ direction = 'horizontal', onResize }: Res
       onMouseDown={handleMouseDown}
       className="group flex w-2 shrink-0 cursor-col-resize items-center justify-center"
     >
-      <div className="h-8 w-0.5 rounded-full bg-gray-200 transition-colors group-hover:bg-gray-400" />
+      <div className="h-8 w-0.5 rounded-full bg-wefin-line transition-colors group-hover:bg-wefin-muted" />
     </div>
   )
 }

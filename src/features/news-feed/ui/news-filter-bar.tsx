@@ -246,7 +246,7 @@ export default function NewsFilterBar({
             className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors ${
               interestModeActive
                 ? 'border-wefin-mint-deep/30 bg-wefin-mint-soft text-wefin-mint-deep'
-                : 'border-gray-200 bg-wefin-surface text-wefin-subtle hover:border-wefin-mint-deep/20 hover:text-wefin-mint-deep'
+                : 'border-wefin-line bg-wefin-surface text-wefin-subtle hover:border-wefin-mint-deep/20 hover:text-wefin-mint-deep'
             }`}
           >
             <Heart className={`h-3.5 w-3.5 ${interestModeActive ? 'fill-current' : ''}`} />

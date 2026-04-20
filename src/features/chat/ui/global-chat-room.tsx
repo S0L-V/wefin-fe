@@ -241,7 +241,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
 
               {isSystem ? (
                 <div className="flex justify-center">
-                  <div className="w-full max-w-[88%] rounded-xl border border-amber-300/70 bg-amber-100/75 px-4 py-3 text-center text-sm font-semibold leading-6 text-wefin-amber-text shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+                  <div className="w-full max-w-[88%] rounded-xl border border-wefin-amber/30 bg-wefin-amber-soft px-4 py-3 text-center text-sm font-semibold leading-6 text-wefin-amber-text shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                     {msg.content}
                   </div>
                 </div>

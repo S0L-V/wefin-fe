@@ -72,8 +72,8 @@ export default function InterestSectorsPanel() {
                     onClick={() => handleAddSector(tag.code, tag.name)}
                     className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors ${
                       registered
-                        ? 'border-gray-200 bg-gray-50 text-gray-400'
-                        : 'border-gray-200 bg-wefin-surface text-wefin-text hover:border-wefin-mint hover:bg-wefin-mint/5'
+                        ? 'border-wefin-line bg-wefin-surface-2 text-wefin-muted'
+                        : 'border-wefin-line bg-wefin-surface text-wefin-text hover:border-wefin-mint hover:bg-wefin-mint/5'
                     }`}
                   >
                     <span>{tag.name}</span>
@@ -93,7 +93,7 @@ function SkeletonRows({ count }: { count: number }) {
   return (
     <ul className="flex flex-col gap-2">
       {Array.from({ length: count }).map((_, i) => (
-        <li key={i} className="h-10 animate-pulse rounded-full bg-gray-50" />
+        <li key={i} className="h-10 animate-pulse rounded-full bg-wefin-surface-2" />
       ))}
     </ul>
   )
@@ -101,7 +101,7 @@ function SkeletonRows({ count }: { count: number }) {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-wefin-subtle">
+    <div className="rounded-xl border border-dashed border-wefin-line px-4 py-6 text-center text-sm text-wefin-subtle">
       {message}
     </div>
   )

@@ -25,7 +25,6 @@ function StockDetailPage() {
   const { code } = useParams<{ code: string }>()
   const [activeTab, setActiveTab] = useState<DetailTab>('chart')
   const [mobileTab, setMobileTab] = useState<MobileTab>('chart')
-  const [mobileOrderOpen, setMobileOrderOpen] = useState(false)
 
   const [orderbookW, setOrderbookW] = useState(340)
   const [orderW, setOrderW] = useState(340)
@@ -283,20 +282,14 @@ function StockDetailPage() {
           <div className="flex shrink-0 gap-2 border-t border-wefin-line bg-wefin-surface p-3">
             <button
               type="button"
-              onClick={() => {
-                setMobileOrderOpen(true)
-                setMobileTab('order')
-              }}
+              onClick={() => setMobileTab('order')}
               className="flex-1 rounded-xl bg-wefin-red py-3 text-[15px] font-bold text-white transition-colors hover:opacity-90"
             >
               매수
             </button>
             <button
               type="button"
-              onClick={() => {
-                setMobileOrderOpen(true)
-                setMobileTab('order')
-              }}
+              onClick={() => setMobileTab('order')}
               className="flex-1 rounded-xl bg-blue-400 py-3 text-[15px] font-bold text-white transition-colors hover:opacity-90"
             >
               매도

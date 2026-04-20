@@ -239,7 +239,7 @@ export default function InlineVoteCard({
                 <div className="line-clamp-2 text-sm font-bold text-wefin-text">{currentTitle}</div>
               </div>
               <span
-                className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${currentClosed ? 'bg-wefin-surface-2 text-gray-600' : 'bg-[#daf4ef] text-[#157969]'}`}
+                className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${currentClosed ? 'bg-wefin-surface-2 text-wefin-subtle' : 'bg-wefin-mint-soft text-wefin-mint-deep'}`}
               >
                 {currentClosed ? '마감' : '진행중'}
               </span>

@@ -50,7 +50,7 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
       <p className="mt-1.5 text-xs text-wefin-subtle sm:mt-2">{getTimeAgo(cluster.publishedAt)}</p>
 
       {/* Lead summary */}
-      <p className="mt-4 text-[14px] leading-relaxed text-wefin-text sm:mt-5 sm:text-[15px]">
+      <p className="mt-4 text-[14px] leading-relaxed text-wefin-text [overflow-wrap:anywhere] sm:mt-5 sm:text-[15px]">
         {cluster.summary}
       </p>
 

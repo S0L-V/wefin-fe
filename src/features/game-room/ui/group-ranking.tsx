@@ -64,7 +64,7 @@ function RankingRow({ item, index }: { item: RankingItem; index: number }) {
           index === 0
             ? 'bg-amber-400 text-white'
             : index === 1
-              ? 'bg-gray-400 text-white'
+              ? 'bg-wefin-muted text-white'
               : index === 2
                 ? 'bg-amber-600 text-white'
                 : 'bg-wefin-surface-2 text-wefin-muted'

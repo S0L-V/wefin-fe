@@ -26,11 +26,11 @@ function NewsCollectButtons() {
       </div>
       {collect.isSuccess && <p className="text-sm text-green-600">뉴스 수집 완료</p>}
       {collect.isError && (
-        <p className="text-sm text-red-600">뉴스 수집 실패: {collect.error.message}</p>
+        <p className="text-sm text-wefin-red">뉴스 수집 실패: {collect.error.message}</p>
       )}
       {crawl.isSuccess && <p className="text-sm text-green-600">뉴스 크롤링 완료</p>}
       {crawl.isError && (
-        <p className="text-sm text-red-600">뉴스 크롤링 실패: {crawl.error.message}</p>
+        <p className="text-sm text-wefin-red">뉴스 크롤링 실패: {crawl.error.message}</p>
       )}
     </div>
   )

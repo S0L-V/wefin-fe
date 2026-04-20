@@ -231,8 +231,8 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
                         detail.closed
-                          ? 'bg-wefin-surface-2 text-gray-600'
-                          : 'bg-[#daf4ef] text-[#157969]'
+                          ? 'bg-wefin-surface-2 text-wefin-subtle'
+                          : 'bg-wefin-mint-soft text-wefin-mint-deep'
                       }`}
                     >
                       {detail.closed ? '마감' : '진행중'}

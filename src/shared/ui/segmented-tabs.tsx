@@ -25,7 +25,7 @@ const TONE_BG: Record<SegmentedTone, string> = {
   mint: 'bg-wefin-mint',
   red: 'bg-wefin-red',
   blue: 'bg-blue-400',
-  gray: 'bg-gray-500'
+  gray: 'bg-wefin-subtle'
 }
 
 export default function SegmentedTabs<T extends string>({

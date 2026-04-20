@@ -19,7 +19,7 @@ export default function ClusterDetailSections({
   if (sections.length === 0 && articleContent) {
     return (
       <div className="mt-6 sm:mt-8">
-        <p className="whitespace-pre-line text-[14px] leading-relaxed text-wefin-text sm:text-[15px]">
+        <p className="whitespace-pre-line text-[14px] leading-relaxed text-wefin-text [overflow-wrap:anywhere] sm:text-[15px]">
           {articleContent}
         </p>
       </div>
@@ -34,7 +34,7 @@ export default function ClusterDetailSections({
         {sections.map((section) => (
           <div key={section.sectionOrder}>
             <h2 className="text-base font-bold text-wefin-text sm:text-lg">{section.heading}</h2>
-            <p className="mt-2.5 whitespace-pre-line text-[14px] leading-relaxed text-wefin-text sm:mt-3 sm:text-[15px]">
+            <p className="mt-2.5 whitespace-pre-line text-[14px] leading-relaxed text-wefin-text [overflow-wrap:anywhere] sm:mt-3 sm:text-[15px]">
               {section.body}
             </p>
 

@@ -130,8 +130,8 @@ export default function DailyQuestPanel() {
 
       <div className="p-2.5">
         {isLoading && (
-          <div className="animate-pulse rounded-xl border border-gray-200 bg-wefin-surface p-3.5">
-            <div className="h-5 w-36 rounded bg-gray-200" />
+          <div className="animate-pulse rounded-xl border border-wefin-line bg-wefin-surface p-3.5">
+            <div className="h-5 w-36 rounded bg-wefin-line" />
             <div className="mt-2.5 h-2 w-full rounded-full bg-wefin-surface-2" />
           </div>
         )}
@@ -228,7 +228,7 @@ export default function DailyQuestPanel() {
                     type="button"
                     onClick={() => scrollTo(i)}
                     className={`h-1.5 rounded-full transition-all ${
-                      i === activeIndex ? 'w-4 bg-wefin-mint' : 'w-1.5 bg-gray-200'
+                      i === activeIndex ? 'w-4 bg-wefin-mint' : 'w-1.5 bg-wefin-line'
                     }`}
                     aria-label={`퀘스트 ${i + 1}`}
                   />

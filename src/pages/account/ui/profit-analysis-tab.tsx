@@ -100,7 +100,7 @@ export default function ProfitAnalysisTab() {
     <div className="space-y-6">
       <section className="max-w-md">
         <p className="text-sm text-wefin-subtle">총 실현수익</p>
-        <p className={`mt-1 text-3xl font-bold ${profitColor}`}>
+        <p className={`mt-1 text-xl font-bold sm:text-3xl ${profitColor}`}>
           {realizedProfit >= 0 ? '+' : ''}
           {realizedProfit.toLocaleString()}원
         </p>

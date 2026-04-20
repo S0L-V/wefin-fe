@@ -20,7 +20,7 @@ export default function ManageInterestsButton({ compact = false }: Props) {
   if (!userId) return null
 
   const baseClass =
-    'inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-wefin-surface text-xs font-medium text-wefin-text transition-colors hover:border-wefin-mint/40 hover:bg-wefin-mint/5'
+    'inline-flex items-center gap-1.5 rounded-full border border-wefin-line bg-wefin-surface text-xs font-medium text-wefin-text transition-colors hover:border-wefin-mint/40 hover:bg-wefin-mint/5'
 
   if (compact) {
     return (

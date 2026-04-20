@@ -383,9 +383,9 @@ function ChangeBadge({ rate }: { rate: number | null }) {
   const sign = rate > 0 ? '+' : ''
   const colorClass =
     rate > 0
-      ? 'bg-green-100 text-green-700'
+      ? 'bg-wefin-green-soft text-wefin-green'
       : rate < 0
-        ? 'bg-red-100 text-red-700'
+        ? 'bg-wefin-red-soft text-wefin-red'
         : 'bg-wefin-bg text-wefin-subtle'
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${colorClass}`}>
