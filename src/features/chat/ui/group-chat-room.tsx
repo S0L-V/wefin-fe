@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
+import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { useGroupChatStore } from '@/features/chat/model/group/group-chat-store'
 import { useGroupChatSocket } from '@/features/chat/model/group/use-group-chat-socket'
@@ -43,6 +44,18 @@ interface GroupChatRoomProps {
   bare?: boolean
 }
 
+function UnreadDivider() {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <div className="h-px flex-1 bg-slate-200" />
+      <span className="shrink-0 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+        새 메시지
+      </span>
+      <div className="h-px flex-1 bg-slate-200" />
+    </div>
+  )
+}
+
 const VOTE_COMMAND = '/vote'
 const WEFINI_COMMAND = '/wefini'
 const YOUNG_COMMAND = '/영'
@@ -61,6 +74,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const unreadDividerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
   const shouldRestoreScrollRef = useRef(false)
   const previousLastMessageKeyRef = useRef('')
@@ -78,6 +92,8 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   const setReplyTarget = useGroupChatStore((state) => state.setReplyTarget)
   const clearReplyTarget = useGroupChatStore((state) => state.clearReplyTarget)
   const loadOlderMessages = useGroupChatStore((state) => state.loadOlderMessages)
+  const visibleGroupUnreadLine = useChatUnreadStore((state) => state.visibleGroupUnreadLine)
+  const visibleGroupReadMessageId = useChatUnreadStore((state) => state.visibleGroupReadMessageId)
 
   useGroupChatSocket(userId)
 
@@ -100,9 +116,37 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
       ({ command }) => command.startsWith(trimmed) || trimmed.startsWith(command)
     )
   }, [message])
+  const firstUnreadIndex = useMemo(() => {
+    if (!visibleGroupUnreadLine) {
+      return -1
+    }
+
+    if (visibleGroupReadMessageId == null) {
+      const firstUnreadMessage = chatMessages.find(
+        (message) => message.userId !== userId || message.messageType === 'SYSTEM'
+      )
+
+      if (!firstUnreadMessage) {
+        return -1
+      }
+
+      return chatMessages.findIndex(
+        (message) => getMessageKey(message) === getMessageKey(firstUnreadMessage)
+      )
+    }
+
+    return chatMessages.findIndex((message) => {
+      if (message.messageId <= visibleGroupReadMessageId) {
+        return false
+      }
+
+      return message.userId !== userId || message.messageType === 'SYSTEM'
+    })
+  }, [chatMessages, userId, visibleGroupReadMessageId, visibleGroupUnreadLine])
 
   useEffect(() => {
     const shouldScrollToBottom =
+      firstUnreadIndex < 0 &&
       !shouldRestoreScrollRef.current &&
       !!lastMessageKey &&
       previousLastMessageKeyRef.current !== lastMessageKey
@@ -115,7 +159,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
     }
 
     previousLastMessageKeyRef.current = lastMessageKey
-  }, [lastMessageKey])
+  }, [firstUnreadIndex, lastMessageKey])
 
   useLayoutEffect(() => {
     if (isLoading || chatMessages.length === 0 || !scrollContainerRef.current) {
@@ -123,8 +167,25 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
     }
 
     const container = scrollContainerRef.current
+
+    if (shouldRestoreScrollRef.current) {
+      if (previousHeightRef.current != null) {
+        container.scrollTop += container.scrollHeight - previousHeightRef.current
+      }
+
+      shouldRestoreScrollRef.current = false
+      previousHeightRef.current = null
+      return
+    }
+
+    if (firstUnreadIndex >= 0 && unreadDividerRef.current) {
+      unreadDividerRef.current.scrollIntoView({
+        block: 'center'
+      })
+      return
+    }
     container.scrollTop = container.scrollHeight
-  }, [isLoading, chatMessages.length])
+  }, [firstUnreadIndex, isLoading, chatMessages.length])
 
   const handleCommandMessage = (trimmedMessage: string) => {
     if (trimmedMessage !== VOTE_COMMAND && !trimmedMessage.startsWith(`${VOTE_COMMAND} `)) {
@@ -248,154 +309,176 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
             </div>
           )}
 
-          {chatMessages.map((msg) => {
+          {chatMessages.map((msg, index) => {
             const isMine = msg.userId === userId
             const isSystem = msg.messageType === 'SYSTEM'
             const isNews = msg.messageType === 'NEWS' && !!msg.newsShare
             const isVote = !!msg.voteShare
-
-            if (isSystem) {
-              return (
-                <div key={getMessageKey(msg)} className="flex flex-col items-start">
-                  <div className="mb-1 flex items-center gap-2">
-                    <img
-                      src="/wefin.png"
-                      alt="위피니"
-                      className="h-7 w-7 rounded-full border border-wefin-line object-cover"
-                    />
-                    <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
-                  </div>
-                  <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-white px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm [overflow-wrap:anywhere]">
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
-                  </div>
-                </div>
-              )
-            }
-
-            const time = msg.createdAt
-              ? new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })
-              : ''
-
-            if (isNews && msg.newsShare) {
-              const newsShare = msg.newsShare
-
-              return (
-                <div
-                  key={getMessageKey(msg)}
-                  className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-                >
-                  {!isMine && (
-                    <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
-                  )}
-
-                  <div
-                    className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/news/${newsShare.newsClusterId}`)}
-                      className="w-full max-w-[280px] overflow-hidden rounded-2xl bg-[#1f1f1f] text-left text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                      {newsShare.thumbnailUrl ? (
-                        <img
-                          src={newsShare.thumbnailUrl}
-                          alt={newsShare.title}
-                          className="h-28 w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-28 items-center justify-center bg-gradient-to-br from-[#273b57] to-[#1f1f1f] text-xs font-semibold text-white/70">
-                          뉴스 미리보기
-                        </div>
-                      )}
-                      <div className="space-y-1.5 p-3">
-                        <div className="line-clamp-2 text-sm font-bold leading-snug">
-                          {newsShare.title}
-                        </div>
-                        {newsShare.summary && (
-                          <p className="line-clamp-2 text-xs leading-snug text-white/70">
-                            {newsShare.summary}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-                    {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
-                    <ReplyButton onClick={() => setReplyTarget(msg)} />
-                  </div>
-                </div>
-              )
-            }
-
-            if (isVote && msg.voteShare) {
-              return (
-                <InlineVoteCard
-                  key={getMessageKey(msg)}
-                  voteShare={msg.voteShare}
-                  isMine={isMine}
-                  sender={msg.sender}
-                  time={time}
-                  onReply={() => setReplyTarget(msg)}
-                />
-              )
-            }
+            const messageKey = getMessageKey(msg)
 
             return (
-              <div
-                key={getMessageKey(msg)}
-                className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-              >
-                {!isMine && (
-                  <span className="mb-1 text-xs font-bold text-wefin-text">{msg.sender}</span>
-                )}
-
-                {msg.replyTo && (
-                  <div
-                    className={`mb-1 inline-flex max-w-[70%] items-start gap-1 rounded-lg border border-wefin-line bg-wefin-bg px-2.5 py-1 text-[11px] leading-snug [overflow-wrap:anywhere] ${
-                      isMine ? 'flex-row-reverse text-right' : ''
-                    }`}
-                  >
-                    <CornerDownRight
-                      size={11}
-                      className="mt-0.5 shrink-0 text-wefin-subtle opacity-80"
-                    />
-                    <span>
-                      <span className="font-bold text-wefin-text">{msg.replyTo.sender}</span>
-                      <span className="text-wefin-subtle">
-                        {' 답장 '}
-                        {isEmojiCode(msg.replyTo.content) ? '이모티콘' : msg.replyTo.content}
-                      </span>
-                    </span>
+              <div key={messageKey}>
+                {index === firstUnreadIndex && (
+                  <div ref={unreadDividerRef}>
+                    <UnreadDivider />
                   </div>
                 )}
 
-                <div
-                  className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
-                >
-                  {isEmojiCode(msg.content) ? (
-                    <div className="rounded-3xl bg-transparent p-0.5">
+                {isSystem ? (
+                  <div className="flex flex-col items-start">
+                    <div className="mb-1 flex items-center gap-2">
                       <img
-                        src={emojiMap[msg.content].src}
-                        alt={msg.content}
-                        className="h-24 w-24 object-contain sm:h-28 sm:w-28"
-                        style={{ transform: `scale(${emojiMap[msg.content].messageScale})` }}
+                        src="/wefin.png"
+                        alt="위피니"
+                        className="h-7 w-7 rounded-full border border-wefin-line object-cover"
                       />
+                      <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
                     </div>
-                  ) : (
-                    <div
-                      className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm leading-snug [overflow-wrap:anywhere] ${
-                        isMine
-                          ? 'rounded-tr-none bg-wefin-mint text-white'
-                          : 'rounded-tl-none bg-gray-100 text-wefin-text'
-                      }`}
-                    >
-                      {msg.content}
+                    <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-white px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm [overflow-wrap:anywhere]">
+                      <div className="whitespace-pre-wrap">{msg.content}</div>
                     </div>
-                  )}
-                  {time && <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>}
-                  <ReplyButton onClick={() => setReplyTarget(msg)} />
-                </div>
+                  </div>
+                ) : (
+                  (() => {
+                    const time = msg.createdAt
+                      ? new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      : ''
+
+                    if (isNews && msg.newsShare) {
+                      const newsShare = msg.newsShare
+
+                      return (
+                        <div
+                          className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                        >
+                          {!isMine && (
+                            <span className="mb-1 text-xs font-bold text-wefin-text">
+                              {msg.sender}
+                            </span>
+                          )}
+
+                          <div
+                            className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/news/${newsShare.newsClusterId}`)}
+                              className="w-full max-w-[280px] overflow-hidden rounded-2xl bg-[#1f1f1f] text-left text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                              {newsShare.thumbnailUrl ? (
+                                <img
+                                  src={newsShare.thumbnailUrl}
+                                  alt={newsShare.title}
+                                  className="h-28 w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-28 items-center justify-center bg-gradient-to-br from-[#273b57] to-[#1f1f1f] text-xs font-semibold text-white/70">
+                                  뉴스 미리보기
+                                </div>
+                              )}
+                              <div className="space-y-1.5 p-3">
+                                <div className="line-clamp-2 text-sm font-bold leading-snug">
+                                  {newsShare.title}
+                                </div>
+                                {newsShare.summary && (
+                                  <p className="line-clamp-2 text-xs leading-snug text-white/70">
+                                    {newsShare.summary}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
+                            {time && (
+                              <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>
+                            )}
+                            <ReplyButton onClick={() => setReplyTarget(msg)} />
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    if (isVote && msg.voteShare) {
+                      return (
+                        <InlineVoteCard
+                          voteShare={msg.voteShare}
+                          isMine={isMine}
+                          sender={msg.sender}
+                          time={time}
+                          onReply={() => setReplyTarget(msg)}
+                        />
+                      )
+                    }
+
+                    return (
+                      <div
+                        className={`group/msg flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                      >
+                        {!isMine && (
+                          <span className="mb-1 text-xs font-bold text-wefin-text">
+                            {msg.sender}
+                          </span>
+                        )}
+
+                        {msg.replyTo && (
+                          <div
+                            className={`mb-1 inline-flex max-w-[70%] items-start gap-1 rounded-lg border border-wefin-line bg-wefin-bg px-2.5 py-1 text-[11px] leading-snug [overflow-wrap:anywhere] ${
+                              isMine ? 'flex-row-reverse text-right' : ''
+                            }`}
+                          >
+                            <CornerDownRight
+                              size={11}
+                              className="mt-0.5 shrink-0 text-wefin-subtle opacity-80"
+                            />
+                            <span>
+                              <span className="font-bold text-wefin-text">
+                                {msg.replyTo.sender}
+                              </span>
+                              <span className="text-wefin-subtle">
+                                {' 답장 '}
+                                {isEmojiCode(msg.replyTo.content)
+                                  ? '이모티콘'
+                                  : msg.replyTo.content}
+                              </span>
+                            </span>
+                          </div>
+                        )}
+
+                        <div
+                          className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}
+                        >
+                          {isEmojiCode(msg.content) ? (
+                            <div className="rounded-3xl bg-transparent p-0.5">
+                              <img
+                                src={emojiMap[msg.content].src}
+                                alt={msg.content}
+                                className="h-24 w-24 object-contain sm:h-28 sm:w-28"
+                                style={{
+                                  transform: `scale(${emojiMap[msg.content].messageScale})`
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm leading-snug [overflow-wrap:anywhere] ${
+                                isMine
+                                  ? 'rounded-tr-none bg-wefin-mint text-white'
+                                  : 'rounded-tl-none bg-gray-100 text-wefin-text'
+                              }`}
+                            >
+                              {msg.content}
+                            </div>
+                          )}
+                          {time && (
+                            <span className="pb-0.5 text-[10px] text-wefin-subtle">{time}</span>
+                          )}
+                          <ReplyButton onClick={() => setReplyTarget(msg)} />
+                        </div>
+                      </div>
+                    )
+                  })()
+                )}
               </div>
             )
           })}

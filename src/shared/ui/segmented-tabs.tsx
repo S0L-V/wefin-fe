@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 export type SegmentedTone = 'mint' | 'red' | 'blue' | 'gray'
 
 export interface SegmentedTabItem<T extends string> {
   key: T
-  label: string
+  label: ReactNode
   tone?: SegmentedTone
 }
 
