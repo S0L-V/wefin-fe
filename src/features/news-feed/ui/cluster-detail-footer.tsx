@@ -160,18 +160,20 @@ export default function ClusterDetailFooter({ cluster }: ClusterDetailFooterProp
 
       {/* AI Questions */}
       {cluster.suggestedQuestions.length > 0 && (
-        <div className="rounded-2xl bg-wefin-mint-soft p-5">
-          <div className="mb-3 flex items-center gap-1.5">
+        <div className="rounded-xl bg-wefin-mint-soft p-4 sm:rounded-2xl sm:p-5">
+          <div className="mb-2.5 flex items-center gap-1.5 sm:mb-3">
             <WefinLogoIcon size={16} className="text-wefin-mint-deep" />
-            <h3 className="text-sm font-bold text-wefin-text">더 궁금한 점이 있나요?</h3>
+            <h3 className="text-[13px] font-bold text-wefin-text sm:text-sm">
+              더 궁금한 점이 있나요?
+            </h3>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {cluster.suggestedQuestions.map((q, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleQuestionClick(q)}
-                className="cursor-pointer rounded-full bg-wefin-surface px-4 py-2 text-[13px] text-wefin-text shadow-sm transition-all hover:text-wefin-mint-deep hover:shadow-md"
+                className="cursor-pointer rounded-full bg-wefin-surface px-3 py-1.5 text-[12px] text-wefin-text shadow-sm transition-all hover:text-wefin-mint-deep hover:shadow-md sm:px-4 sm:py-2 sm:text-[13px]"
               >
                 {q}
               </button>

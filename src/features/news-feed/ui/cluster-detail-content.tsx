@@ -36,7 +36,7 @@ export default function ClusterDetailContent() {
   }
 
   return (
-    <div className="rounded-3xl bg-wefin-surface p-8">
+    <div className="rounded-2xl bg-wefin-surface p-4 sm:rounded-3xl sm:p-8">
       <ClusterDetailHeader cluster={cluster} />
       <ClusterDetailSections sections={cluster.sections} articleContent={cluster.articleContent} />
       <ClusterDetailFooter cluster={cluster} />
