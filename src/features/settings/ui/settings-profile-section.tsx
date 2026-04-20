@@ -1,3 +1,8 @@
+import { useState } from 'react'
+
+import ChangePasswordDialog from '@/features/auth-dialog/ui/change-password-dialog'
+import WithdrawDialog from '@/features/auth-dialog/ui/withdraw-dialog'
+
 type SettingsProfileSectionProps = {
   isLoggedIn: boolean
   emailPlaceholder: string
@@ -5,50 +10,76 @@ type SettingsProfileSectionProps = {
 
 function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfileSectionProps) {
   const nickname = isLoggedIn ? (localStorage.getItem('nickname') ?? '') : ''
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
   return (
-    <div className="space-y-10">
-      <section>
-        <h3 className="mb-4 text-lg font-bold text-wefin-text">프로필 설정</h3>
-        <div className="divide-y divide-wefin-line/70">
-          <SettingRow
-            title="닉네임"
-            description="서비스에서 표시될 이름입니다."
-            action={
-              <input
-                defaultValue={nickname}
-                placeholder="닉네임 입력"
-                disabled={!isLoggedIn}
-                maxLength={12}
-                className="h-9 w-[200px] rounded-lg border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
-              />
-            }
-          />
-          <SettingRow
-            title="이메일 주소"
-            description="로그인에 사용되는 이메일입니다."
-            action={
-              <span className="text-sm font-medium text-wefin-subtle">
-                {isLoggedIn ? emailPlaceholder : '로그인 후 표시'}
-              </span>
-            }
-          />
-          <SettingRow
-            title="비밀번호"
-            description="보안을 위해 주기적으로 변경하세요."
-            action={
-              <button
-                type="button"
-                disabled={!isLoggedIn}
-                className="h-8 rounded-lg border border-wefin-line px-3 text-xs font-semibold text-wefin-text transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                변경하기
-              </button>
-            }
-          />
-        </div>
-      </section>
-    </div>
+    <>
+      <div className="space-y-10">
+        <section>
+          <h3 className="mb-4 text-lg font-bold text-wefin-text">프로필 설정</h3>
+          <div className="divide-y divide-wefin-line/70">
+            <SettingRow
+              title="닉네임"
+              description="서비스에서 표시될 이름입니다."
+              action={
+                <input
+                  defaultValue={nickname}
+                  placeholder="닉네임 입력"
+                  disabled={!isLoggedIn}
+                  maxLength={12}
+                  className="h-9 w-[200px] rounded-lg border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
+                />
+              }
+            />
+            <SettingRow
+              title="이메일 주소"
+              description="로그인에 사용되는 이메일입니다."
+              action={
+                <span className="text-sm font-medium text-wefin-subtle">
+                  {isLoggedIn ? emailPlaceholder : '로그인 후 표시'}
+                </span>
+              }
+            />
+            <SettingRow
+              title="비밀번호"
+              description="보안을 위해 주기적으로 변경하세요."
+              action={
+                <button
+                  type="button"
+                  disabled={!isLoggedIn}
+                  onClick={() => setIsChangePasswordOpen(true)}
+                  className="h-8 rounded-lg border border-wefin-line px-3 text-xs font-semibold text-wefin-text transition-colors hover:bg-wefin-bg disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  변경하기
+                </button>
+              }
+            />
+            <SettingRow
+              title="회원 탈퇴"
+              description="계정을 삭제하고 서비스를 탈퇴합니다."
+              action={
+                <button
+                  type="button"
+                  disabled={!isLoggedIn}
+                  onClick={() => setIsWithdrawOpen(true)}
+                  className="h-8 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  탈퇴하기
+                </button>
+              }
+            />
+          </div>
+        </section>
+      </div>
+
+      <ChangePasswordDialog
+        open={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
+
+      <WithdrawDialog open={isWithdrawOpen} onClose={() => setIsWithdrawOpen(false)} />
+    </>
   )
 }
 
