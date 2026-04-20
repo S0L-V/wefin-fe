@@ -328,7 +328,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1.5 px-1.5">
+        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}
