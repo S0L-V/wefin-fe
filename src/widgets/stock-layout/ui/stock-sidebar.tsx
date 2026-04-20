@@ -57,7 +57,7 @@ export default function StockSidebar({ matchHeight }: StockSidebarProps) {
           <WatchlistPanel />
         ) : (
           <div className="h-full [&>*]:h-full [&>*]:min-h-0">
-            <ChatPanel expanded={expanded} onToggleExpand={() => setExpanded((v) => !v)} />
+            <ChatPanel />
           </div>
         )}
       </div>
