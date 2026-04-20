@@ -47,19 +47,6 @@ const PLAN_ID_BY_BILLING_CYCLE = {
 function SettingsSubscriptionSection() {
   const { data, isLoading, isError } = useMySubscriptionQuery()
 
-  if (isLoading) {
-    return <p className="text-sm text-wefin-subtle">불러오는 중...</p>
-  }
-
-  if (isError) {
-    return (
-      <div className="rounded-xl border border-wefin-line bg-wefin-bg px-6 py-10 text-center">
-        <p className="text-base font-semibold text-wefin-text">구독 정보를 불러오지 못했습니다.</p>
-        <p className="mt-2 text-sm text-wefin-subtle">잠시 후 다시 시도해 주세요.</p>
-      </div>
-    )
-  }
-
   const isActive = data?.active ?? false
   const currentBillingCycle = data?.billingCycle
 
@@ -68,7 +55,18 @@ function SettingsSubscriptionSection() {
       <section>
         <h3 className="mb-4 text-lg font-bold text-wefin-text">현재 플랜</h3>
 
-        {!data ? (
+        {isLoading ? (
+          <div className="rounded-xl border border-wefin-line bg-wefin-bg px-6 py-10 text-center">
+            <p className="text-sm text-wefin-subtle">불러오는 중...</p>
+          </div>
+        ) : isError ? (
+          <div className="rounded-xl border border-wefin-line bg-wefin-bg px-6 py-10 text-center">
+            <p className="text-base font-semibold text-wefin-text">
+              구독 정보를 불러오지 못했습니다.
+            </p>
+            <p className="mt-2 text-sm text-wefin-subtle">잠시 후 다시 시도해 주세요.</p>
+          </div>
+        ) : !data ? (
           <div className="rounded-xl border border-dashed border-wefin-line bg-wefin-bg px-6 py-10 text-center">
             <p className="text-base font-semibold text-wefin-text">구독 정보가 없습니다.</p>
             <p className="mt-2 text-sm text-wefin-subtle">
