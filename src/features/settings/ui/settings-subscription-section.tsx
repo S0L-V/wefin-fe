@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react'
 
 import { useMySubscriptionQuery } from '@/features/payment/model/use-my-subscription-query'
+import SubscribeButton from '@/features/payment/ui/subscribe-button'
 
 const PRO_FEATURES = [
   'AI 채팅 무제한 이용',
@@ -38,6 +39,11 @@ const PLAN_CARDS = [
   }
 ] as const
 
+const PLAN_ID_BY_BILLING_CYCLE = {
+  MONTHLY: 1,
+  YEARLY: 2
+} as const
+
 function SettingsSubscriptionSection() {
   const { data, isLoading } = useMySubscriptionQuery()
 
@@ -49,7 +55,7 @@ function SettingsSubscriptionSection() {
   const currentBillingCycle = data?.billingCycle
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <section>
         <h3 className="mb-4 text-lg font-bold text-wefin-text">현재 플랜</h3>
 
@@ -90,6 +96,7 @@ function SettingsSubscriptionSection() {
         <div className="grid gap-4 md:grid-cols-2">
           {PLAN_CARDS.map((plan) => {
             const isCurrentPlan = isActive && currentBillingCycle === plan.id
+            const planId = PLAN_ID_BY_BILLING_CYCLE[plan.id]
 
             return (
               <div
@@ -100,58 +107,52 @@ function SettingsSubscriptionSection() {
                     : 'border-wefin-line bg-white text-wefin-text'
                 }`}
               >
-                <div className="flex min-h-[96px] flex-col justify-start">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-2xl font-bold">{plan.title}</p>
-                    {isCurrentPlan && (
-                      <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-wefin-mint-deep">
-                        현재 이용 중
-                      </span>
-                    )}
-                  </div>
+                <div className="space-y-5">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-2xl font-bold">{plan.title}</p>
+                      {isCurrentPlan && (
+                        <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-wefin-mint-deep">
+                          현재 이용 중
+                        </span>
+                      )}
+                    </div>
 
-                  <p
-                    className={`mt-3 text-sm leading-6 ${
-                      isCurrentPlan ? 'text-white/85' : 'text-wefin-subtle'
-                    }`}
-                  >
-                    {plan.description}
-                  </p>
-                </div>
-
-                <div className="mt-6 flex items-end gap-1 tabular-nums">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className={isCurrentPlan ? 'text-white/80' : 'text-wefin-subtle'}>
-                    {plan.period}
-                  </span>
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  {PRO_FEATURES.map((feature) => (
-                    <div
-                      key={`${plan.id}-${feature}`}
-                      className={`flex items-center gap-2 ${
-                        isCurrentPlan ? 'text-white/95' : 'text-wefin-text'
+                    <p
+                      className={`mt-3 text-sm leading-6 ${
+                        isCurrentPlan ? 'text-white/85' : 'text-wefin-subtle'
                       }`}
                     >
-                      <Check className="h-4 w-4 shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
+                      {plan.description}
+                    </p>
+                  </div>
 
-                <div className="mt-8">
-                  <button
-                    type="button"
-                    disabled={isCurrentPlan}
-                    className={`h-12 w-full rounded-xl text-sm font-bold transition-all ${
-                      isCurrentPlan
-                        ? 'cursor-not-allowed bg-white/55 text-wefin-mint-deep'
-                        : 'bg-wefin-mint text-white shadow-md hover:bg-wefin-mint-deep hover:shadow-lg active:scale-[0.98]'
-                    }`}
-                  >
-                    {isCurrentPlan ? '현재 이용 중' : '구독하기'}
-                  </button>
+                  <div className="flex items-end gap-1 tabular-nums">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className={isCurrentPlan ? 'text-white/80' : 'text-wefin-subtle'}>
+                      {plan.period}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {PRO_FEATURES.map((feature) => (
+                      <div
+                        key={`${plan.id}-${feature}`}
+                        className={`flex items-center gap-2 ${
+                          isCurrentPlan ? 'text-white/95' : 'text-wefin-text'
+                        }`}
+                      >
+                        <Check className="h-4 w-4 shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!isActive && (
+                    <div className="pt-2">
+                      <SubscribeButton planId={planId} />
+                    </div>
+                  )}
                 </div>
               </div>
             )

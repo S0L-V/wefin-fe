@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import SubscribeButton from '@/features/payment/ui/subscribe-button'
-
 import SettingsGroupSection from './settings-group-section'
 import SettingsProfileSection from './settings-profile-section'
 import SettingsSubscriptionSection from './settings-subscription-section'
@@ -64,7 +62,7 @@ function SettingsView() {
         </nav>
       </aside>
 
-      <main className="max-w-md">
+      <main className="max-w-4xl">
         <header className="mb-10">
           <h1 className="text-[28px] font-bold leading-tight text-wefin-text">
             {SIDEBAR_ITEMS.find((i) => i.id === active)?.label}
@@ -82,12 +80,7 @@ function SettingsView() {
 
           {active === 'group' && <SettingsGroupSection isLoggedIn={isLoggedIn} />}
 
-          {active === 'subscription' && (
-            <div className="space-y-4">
-              <SettingsSubscriptionSection />
-              <SubscribeButton planId={1} />
-            </div>
-          )}
+          {active === 'subscription' && <SettingsSubscriptionSection />}
         </div>
       </main>
     </div>
