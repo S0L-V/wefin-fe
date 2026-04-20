@@ -70,7 +70,7 @@ function ResultPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(360px,30%)]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(520px,50%)]">
         {/* 좌측: 차트 + 매매내역 */}
         <div className="flex flex-col gap-5">
           {/* 헤더 카드 */}
@@ -285,37 +285,40 @@ function ResultPage() {
           </div>
 
           {/* AI 분석 리포트 */}
-          <div className="card-base p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <MessageCircle size={16} className="text-wefin-mint" />
-              <h3 className="text-sm font-bold text-wefin-text">AI 분석 리포트</h3>
+          <div className="card-base p-6">
+            <div className="mb-5 flex items-center gap-2.5">
+              <MessageCircle size={18} className="text-wefin-mint" />
+              <h3 className="text-[16px] font-extrabold text-wefin-text">AI 분석 리포트</h3>
             </div>
             {reportQuery.isLoading ? (
               <div className="flex flex-col items-center gap-2 py-10">
                 <Loader2 className="h-8 w-8 animate-spin text-wefin-mint" />
-                <p className="text-xs text-wefin-subtle">분석 중...</p>
+                <p className="text-sm text-wefin-subtle">분석 중...</p>
               </div>
             ) : reportQuery.isError ? (
               <div className="py-6 text-center">
-                <p className="text-xs text-wefin-red">리포트를 불러오지 못했습니다.</p>
+                <p className="text-sm text-wefin-red">리포트를 불러오지 못했습니다.</p>
                 <button
                   type="button"
                   onClick={() => reportQuery.refetch()}
-                  className="mt-2 rounded-lg bg-wefin-mint px-3 py-1.5 text-xs font-bold text-white"
+                  className="mt-2 rounded-lg bg-wefin-mint px-4 py-2 text-sm font-bold text-white"
                 >
                   다시 시도
                 </button>
               </div>
             ) : reportQuery.data?.data ? (
-              <div className="space-y-3">
+              <div className="space-y-5">
                 {[
                   { title: '성과 분석', body: reportQuery.data.data.performance },
                   { title: '투자 패턴', body: reportQuery.data.data.pattern },
                   { title: '제안', body: reportQuery.data.data.suggestion }
                 ].map((s) => (
-                  <div key={s.title} className="rounded-xl bg-wefin-surface-2 p-5">
-                    <h4 className="mb-2 text-sm font-extrabold text-wefin-mint-deep">{s.title}</h4>
-                    <p className="whitespace-pre-wrap text-sm font-medium leading-relaxed text-wefin-text-2">
+                  <div
+                    key={s.title}
+                    className="rounded-xl border-l-[3px] border-wefin-mint bg-wefin-surface-2 py-5 pr-6 pl-5"
+                  >
+                    <h4 className="text-[15px] font-extrabold text-wefin-text">{s.title}</h4>
+                    <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.85] text-wefin-text-2">
                       {s.body}
                     </p>
                   </div>
