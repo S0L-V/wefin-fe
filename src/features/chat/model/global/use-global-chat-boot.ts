@@ -94,9 +94,7 @@ export function useGlobalChatBoot(userId: string) {
     // 토큰이 있으면 인증 연결, 없으면 익명으로 글로벌 채팅만 구독한다.
     client.connectHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 
-    client.debug = (message) => {
-      console.log('[STOMP]', message)
-    }
+    client.debug = () => {}
 
     // onStompConnect 리스너로 등록 — client.onConnect를 덮어쓰지 않아
     // 다른 훅(투표, 턴 전환 등)의 구독이 파괴되지 않는다.
