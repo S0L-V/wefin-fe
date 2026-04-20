@@ -157,7 +157,7 @@ function SettingsSubscriptionSection() {
                     ))}
                   </div>
 
-                  {!isCurrentPlan && (
+                  {!isActive && (
                     <div className="pt-2">
                       <SubscribeButton planId={planId} />
                     </div>
