@@ -214,7 +214,7 @@ function UserMenu({
 
   useEffect(() => {
     if (!menuOpen) return
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: globalThis.MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false)
       }
