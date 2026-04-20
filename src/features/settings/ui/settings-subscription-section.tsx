@@ -45,7 +45,7 @@ const PLAN_ID_BY_BILLING_CYCLE = {
 } as const
 
 function SettingsSubscriptionSection() {
-  const { data, isLoading } = useMySubscriptionQuery()
+  const { data, isLoading, isError } = useMySubscriptionQuery()
 
   if (isLoading) {
     return <p className="text-sm text-wefin-subtle">불러오는 중...</p>
