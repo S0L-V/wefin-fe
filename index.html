@@ -20,11 +20,11 @@
         s.src = 'https://www.googletagmanager.com/gtag/js?id=G-0BX8Q3CQLJ'
         document.head.appendChild(s)
         window.dataLayer = window.dataLayer || []
-        function gtag() {
+        window.gtag = function () {
           dataLayer.push(arguments)
         }
-        gtag('js', new Date())
-        gtag('config', 'G-0BX8Q3CQLJ')
+        window.gtag('js', new Date())
+        window.gtag('config', 'G-0BX8Q3CQLJ', { send_page_view: false })
       }
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

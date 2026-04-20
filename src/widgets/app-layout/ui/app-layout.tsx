@@ -20,7 +20,10 @@ function AppLayout() {
 
   useEffect(() => {
     if (typeof window.gtag === 'function') {
-      window.gtag('event', 'page_view', { page_path: location.pathname + location.search })
+      window.gtag('event', 'page_view', {
+        page_location: window.location.href,
+        page_title: document.title
+      })
     }
   }, [location.pathname, location.search])
 
