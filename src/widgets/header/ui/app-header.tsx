@@ -7,6 +7,7 @@ import { useAccountQuery } from '@/features/account/model/use-account-queries'
 import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
 import { useLeaveGuardStore } from '@/features/game-room/model/use-leave-guard-store'
+import { MY_SUBSCRIPTION_KEY } from '@/features/payment/model/use-my-subscription-query'
 import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
 import { navigationItems, routes } from '@/shared/config/routes'
 import ConfirmDialog from '@/shared/ui/confirm-dialog'
@@ -105,9 +106,11 @@ function AppHeader() {
     localStorage.removeItem('nickname')
     localStorage.removeItem('email')
 
-    // 사용자 스코프 캐시(그룹/계정 등) 제거 — 다른 사용자가 로그인 시 stale data 방지
+    // 사용자 스코프 캐시 제거
     queryClient.removeQueries({ queryKey: ['settings', 'my-group'] })
     queryClient.removeQueries({ queryKey: ['portfolio', 'list'] })
+    queryClient.removeQueries({ queryKey: MY_SUBSCRIPTION_KEY })
+
     window.dispatchEvent(new Event('auth-changed'))
   }
 
