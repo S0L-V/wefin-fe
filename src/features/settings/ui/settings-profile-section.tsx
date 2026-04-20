@@ -1,3 +1,14 @@
+import { useState } from 'react'
+
+const PROFILE_COLORS = [
+  { id: 'mint', from: '#0f8385', to: '#34d399', label: '민트' },
+  { id: 'blue', from: '#2563eb', to: '#60a5fa', label: '블루' },
+  { id: 'purple', from: '#7c3aed', to: '#a78bfa', label: '퍼플' },
+  { id: 'rose', from: '#e11d48', to: '#fb7185', label: '로즈' },
+  { id: 'amber', from: '#d97706', to: '#fbbf24', label: '앰버' },
+  { id: 'slate', from: '#334155', to: '#64748b', label: '슬레이트' }
+]
+
 type SettingsProfileSectionProps = {
   isLoggedIn: boolean
   emailPlaceholder: string
@@ -5,6 +16,15 @@ type SettingsProfileSectionProps = {
 
 function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfileSectionProps) {
   const nickname = isLoggedIn ? (localStorage.getItem('nickname') ?? '') : ''
+  const [selectedColor, setSelectedColor] = useState(
+    () => localStorage.getItem('profileColor') ?? 'mint'
+  )
+
+  const handleColorChange = (id: string) => {
+    setSelectedColor(id)
+    localStorage.setItem('profileColor', id)
+    window.dispatchEvent(new Event('profile-color-changed'))
+  }
 
   return (
     <div className="space-y-10">
@@ -22,6 +42,31 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
                 maxLength={12}
                 className="h-9 w-[200px] rounded-lg border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
               />
+            }
+          />
+          <SettingRow
+            title="프로필 색상"
+            description="헤더와 채팅에서 표시될 프로필 색상입니다."
+            action={
+              <div className="flex gap-2">
+                {PROFILE_COLORS.map(({ id, from, to }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    disabled={!isLoggedIn}
+                    onClick={() => handleColorChange(id)}
+                    className={`h-8 w-8 rounded-full transition-all disabled:opacity-50 ${
+                      selectedColor === id
+                        ? 'ring-2 ring-wefin-text ring-offset-2'
+                        : 'hover:scale-110'
+                    }`}
+                    style={{
+                      background: `linear-gradient(135deg, ${from}, ${to})`
+                    }}
+                    aria-label={PROFILE_COLORS.find((c) => c.id === id)?.label}
+                  />
+                ))}
+              </div>
             }
           />
           <SettingRow

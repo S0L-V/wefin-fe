@@ -125,8 +125,16 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 
   if (isLoading) {
     return (
-      <div className={`${bare ? 'h-full' : 'h-[640px]'} p-6 text-sm text-wefin-subtle`}>
-        그룹 채팅을 불러오는 중...
+      <div className={`${bare ? 'h-full' : 'h-[640px]'} flex items-start justify-center pt-6`}>
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-wefin-subtle/40"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            />
+          ))}
+        </div>
       </div>
     )
   }

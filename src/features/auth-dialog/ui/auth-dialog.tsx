@@ -3,6 +3,8 @@ import '@/app/styles/dialog.css'
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 
+import ChartCanvas from '@/shared/ui/chart-canvas'
+
 import { useLoginDialogQuery } from '../model/use-login-dialog-query'
 import { useLoginDialogStore } from '../model/use-login-dialog-store'
 import { useLoginForm } from '../model/use-login-form'
@@ -55,7 +57,9 @@ function AuthDialog() {
   return (
     <Dialog.Root open={isOpen} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Overlay className="dialog-overlay">
+          <ChartCanvas />
+        </Dialog.Overlay>
         <Dialog.Content className="dialog-content">
           {isLogin && toastMsg && (
             <div className="mb-4 animate-[slideDown_0.2s_ease-out] rounded-xl bg-rose-50 px-4 py-3 text-center text-sm font-semibold text-rose-600 shadow-sm">

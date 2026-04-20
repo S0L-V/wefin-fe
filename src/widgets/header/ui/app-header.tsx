@@ -8,6 +8,7 @@ import AuthDialog from '@/features/auth-dialog/ui/auth-dialog'
 import LoginDialog from '@/features/auth-dialog/ui/login-dialog'
 import { useLeaveGuardStore } from '@/features/game-room/model/use-leave-guard-store'
 import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
+import { getProfileGradient } from '@/features/settings/lib/profile-gradient'
 import { navigationItems, routes } from '@/shared/config/routes'
 import ConfirmDialog from '@/shared/ui/confirm-dialog'
 import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
@@ -126,15 +127,15 @@ function AppHeader() {
           <NavLink
             to={routes.home}
             onClick={(e) => handleNavClick(e, routes.home)}
-            className={`group/logo font-extrabold tracking-tight text-wefin-mint-deep transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(36,168,171,0.35),0_0_40px_rgba(36,168,171,0.15)] ${
+            className={`group/logo font-extrabold tracking-tight text-wefin-mint-600 transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(20,184,166,0.3),0_0_40px_rgba(20,184,166,0.1)] ${
               scrolled ? 'text-[26px]' : 'text-[32px]'
             }`}
             aria-label="wefin 홈"
           >
             <span className="inline-flex items-baseline">
               <WefinLogoIcon
-                size={scrolled ? 24 : 30}
-                className="mr-[-3px] translate-y-[5px] transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(36,168,171,0.5)]"
+                size={scrolled ? 28 : 36}
+                className="mr-[-4px] translate-y-[5px] transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)]"
               />
               <span>efin</span>
             </span>
@@ -197,7 +198,14 @@ function UserMenu({
   onSettingsClick: () => void
 }) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [profileGrad, setProfileGrad] = useState(getProfileGradient)
   const initial = (user.nickname || '?').charAt(0).toUpperCase()
+
+  useEffect(() => {
+    const sync = () => setProfileGrad(getProfileGradient())
+    window.addEventListener('profile-color-changed', sync)
+    return () => window.removeEventListener('profile-color-changed', sync)
+  }, [])
   const { data: account } = useAccountQuery()
   const { data: portfolio } = usePortfolioQuery()
   const balance = Math.trunc(account?.balance ?? 0)
@@ -212,7 +220,10 @@ function UserMenu({
         type="button"
         className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent pl-0.5 pr-3 text-sm font-bold text-wefin-text transition-all hover:border-wefin-mint-deep/20 hover:shadow-[0_0_12px_rgba(36,168,171,0.15)]"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-wefin-mint-deep to-emerald-400 text-sm font-bold text-white ring-2 ring-wefin-mint-soft">
+        <span
+          className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white ring-2 ring-white/50"
+          style={{ background: `linear-gradient(135deg, ${profileGrad.from}, ${profileGrad.to})` }}
+        >
           {initial}
         </span>
         {user.nickname}
@@ -225,7 +236,12 @@ function UserMenu({
         <div className="w-64 overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-[0_12px_32px_-8px_rgba(36,168,171,0.2)]">
           <div className="bg-gradient-to-br from-wefin-mint-deep/5 to-transparent px-4 py-4">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-wefin-mint-deep to-emerald-400 text-base font-bold text-white ring-2 ring-wefin-mint-soft">
+              <span
+                className="flex h-11 w-11 items-center justify-center rounded-full text-base font-bold text-white ring-2 ring-white/50"
+                style={{
+                  background: `linear-gradient(135deg, ${profileGrad.from}, ${profileGrad.to})`
+                }}
+              >
                 {initial}
               </span>
               <div className="min-w-0">

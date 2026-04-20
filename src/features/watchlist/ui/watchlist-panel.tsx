@@ -20,15 +20,20 @@ export default function WatchlistPanel() {
   }
 
   if (isError) {
+    const loggedIn = !!localStorage.getItem('accessToken')
     return (
-      <div className="p-4 text-center">
-        <p className="text-xs text-wefin-subtle">관심 종목을 불러오지 못했습니다.</p>
-        <button
-          onClick={() => refetch()}
-          className="mt-2 text-xs font-medium text-wefin-mint hover:underline"
-        >
-          다시 시도
-        </button>
+      <div className="px-4 py-10 text-center">
+        <p className="text-xs text-wefin-subtle">
+          {loggedIn ? '관심 종목을 불러오지 못했습니다.' : '로그인 후 관심 종목을 관리할 수 있어요'}
+        </p>
+        {loggedIn && (
+          <button
+            onClick={() => refetch()}
+            className="mt-2 text-xs font-medium text-wefin-mint hover:underline"
+          >
+            다시 시도
+          </button>
+        )}
       </div>
     )
   }

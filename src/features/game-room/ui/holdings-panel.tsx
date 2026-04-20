@@ -1,5 +1,3 @@
-import { Wallet } from 'lucide-react'
-
 import type { HoldingItem } from '../model/portfolio.schema'
 import { useHoldingsQuery, usePortfolioQuery } from '../model/use-portfolio-query'
 
@@ -20,43 +18,36 @@ function HoldingsPanel({ roomId }: HoldingsPanelProps) {
   const holdingItems = holdings?.data ?? []
 
   return (
-    <section className="flex h-[380px] flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-      <div className="mb-4 flex shrink-0 items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-          <Wallet size={14} className="text-white" />
+    <section className="flex h-full flex-col">
+      <div className="shrink-0">
+        <div className="flex h-11 items-center justify-between px-3">
+          <span className="text-sm font-semibold text-wefin-text">보유 종목</span>
+          <span className={`text-xs font-bold tabular-nums ${profitColor}`}>
+            {sign}
+            {Math.round(profitAmount).toLocaleString()}원
+          </span>
         </div>
-        <h3 className="text-sm font-bold text-wefin-text">보유 종목</h3>
+        <div className="flex gap-2 px-3">
+          <div className="flex-1 rounded-lg bg-wefin-bg px-2.5 py-2">
+            <p className="text-[10px] text-wefin-subtle">현금</p>
+            <p className="text-xs font-bold tabular-nums text-wefin-text">
+              {cash.toLocaleString()}
+            </p>
+          </div>
+          <div className="flex-1 rounded-lg bg-wefin-bg px-2.5 py-2">
+            <p className="text-[10px] text-wefin-subtle">평가</p>
+            <p className="text-xs font-bold tabular-nums text-wefin-text">
+              {stockValue.toLocaleString()}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto pr-1">
-        <div className="space-y-3 rounded-2xl bg-wefin-bg p-4">
-          <div className="flex justify-between text-[10px] text-wefin-subtle">
-            <div className="flex flex-col">
-              <span>보유 현금</span>
-              <span className="mt-1 text-xs font-bold text-wefin-text">
-                {cash.toLocaleString()}원
-              </span>
-            </div>
-            <div className="flex flex-col text-right">
-              <span>평가 금액</span>
-              <span className="mt-1 text-xs font-bold text-wefin-text">
-                {stockValue.toLocaleString()}원
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between border-t border-wefin-line pt-2">
-            <span className="text-[10px] text-wefin-subtle">평가손익</span>
-            <span className={`text-xs font-bold ${profitColor}`}>
-              {sign}
-              {Math.round(profitAmount).toLocaleString()}원
-            </span>
-          </div>
-        </div>
-
+      <div className="mt-2 flex-1 overflow-y-auto px-1">
         {holdingItems.length === 0 ? (
-          <p className="py-12 text-center text-[10px] text-wefin-subtle">보유 종목이 없습니다</p>
+          <p className="pt-4 text-center text-[11px] text-wefin-subtle">보유 종목이 없습니다</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-0.5">
             {holdingItems.map((item) => (
               <HoldingRow key={item.symbol} item={item} />
             ))}
@@ -72,24 +63,21 @@ function HoldingRow({ item }: { item: HoldingItem }) {
   const sign = item.profitRate >= 0 ? '+' : ''
 
   return (
-    <div className="rounded-xl bg-wefin-bg px-4 py-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-wefin-text">{item.stockName}</span>
-        <span className="text-xs font-bold text-wefin-text">
-          {item.evalAmount.toLocaleString()}원
-        </span>
+    <div className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-wefin-bg">
+      <div>
+        <p className="text-xs font-semibold text-wefin-text">{item.stockName}</p>
+        <p className="text-[10px] tabular-nums text-wefin-subtle">
+          {item.quantity}주 · 평단 {Math.round(item.avgPrice).toLocaleString()}
+        </p>
       </div>
-      <div className="flex justify-end">
-        <span className="text-[10px] font-bold text-wefin-subtle">
-          평단 {Math.round(item.avgPrice).toLocaleString()}원
-        </span>
-      </div>
-      <div className="mt-1 flex items-center justify-between border-t border-wefin-line pt-1">
-        <span className="text-[10px] text-wefin-subtle">{item.quantity}주</span>
-        <span className={`text-[10px] font-medium ${profitColor}`}>
+      <div className="text-right">
+        <p className="text-xs font-bold tabular-nums text-wefin-text">
+          {item.evalAmount.toLocaleString()}
+        </p>
+        <p className={`text-[10px] font-semibold tabular-nums ${profitColor}`}>
           {sign}
           {item.profitRate.toFixed(2)}%
-        </span>
+        </p>
       </div>
     </div>
   )

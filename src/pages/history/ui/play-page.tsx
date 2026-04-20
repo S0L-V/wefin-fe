@@ -82,7 +82,36 @@ function PlayPage() {
   return (
     <>
       {/* 부모 main의 max-width/padding을 뚫고 화면 가득 차는 레이아웃 */}
-      <div className="relative left-1/2 -ml-[50vw] -mt-6 w-screen">
+      <div className="fixed inset-0 top-[56px] z-20 flex flex-col overflow-hidden bg-wefin-bg">
+        <div className="flex min-h-0 flex-1 gap-2 p-2">
+          <div className="flex min-w-0 flex-[0.8] flex-col gap-2">
+            <div className="min-h-0 flex-[1.5] overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <StockChart roomId={roomId} />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <MarketBriefing roomId={roomId} />
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-[0.9] flex-col gap-2">
+            <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <OrderPanel roomId={roomId} cash={cash} />
+            </div>
+            <div className="min-h-0 flex-[0.8] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <HoldingsPanel roomId={roomId} />
+            </div>
+          </div>
+
+          <div className="flex w-[340px] shrink-0 flex-col gap-2">
+            <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <GroupChatRoom bare />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <GroupRanking roomId={roomId} />
+            </div>
+          </div>
+        </div>
+
         <PlayHeader
           currentRound={currentRound}
           totalTurns={totalTurns}
@@ -105,23 +134,6 @@ function PlayPage() {
             })
           }}
         />
-
-        <div className="mx-auto flex max-w-[1400px] items-stretch gap-4 p-4">
-          <aside className="flex w-80 flex-col gap-4">
-            <MarketBriefing roomId={roomId} />
-            <HoldingsPanel roomId={roomId} />
-          </aside>
-
-          <main className="flex min-w-0 flex-1 flex-col gap-4">
-            <StockChart roomId={roomId} />
-            <OrderPanel roomId={roomId} cash={cash} />
-          </main>
-
-          <aside className="flex w-[360px] flex-col gap-4">
-            <GroupChatRoom />
-            <GroupRanking roomId={roomId} />
-          </aside>
-        </div>
       </div>
 
       <VoteModal roomId={roomId} />

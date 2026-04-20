@@ -21,7 +21,7 @@ import {
 } from '../model/use-personalized-market-trends-query'
 import ClusterSourceModal from './cluster-source-modal'
 import InsightCardList from './insight-card-list'
-import MarketSnapshotStrip from './market-snapshot-strip'
+import { MarketOverviewGrid } from './market-overview-card'
 
 /** 백엔드 캐시 TTL과 동일 — 30분 안에 재요청 시 알림 */
 const PERSONALIZED_REFRESH_INTERVAL_MS = 30 * 60 * 1000
@@ -75,18 +75,10 @@ function MarketTrendsSection() {
 
   return (
     <div>
-      <header className="mb-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-wefin-text">오늘 시장 한눈에 보기</h2>
-          <MarketSnapshotStrip
-            snapshots={data.marketSnapshots}
-            updatedAt={data.updatedAt ? formatUpdatedAt(data.updatedAt) : null}
-          />
-        </div>
-      </header>
+      <MarketOverviewGrid />
 
       {data.generated ? (
-        <div className="mt-6 flex flex-col gap-5">
+        <div className="flex flex-col gap-5 p-[var(--card-pad)]">
           <SummaryBlock
             summary={data.summary}
             articleCount={data.sourceArticleCount}
@@ -104,9 +96,23 @@ function MarketTrendsSection() {
           <InsightCardList cards={display.insightCards} sourceClusters={display.sourceClusters} />
         </div>
       ) : (
-        <p className="mt-6 text-sm text-wefin-subtle">
-          오늘의 동향이 아직 준비 중입니다. 잠시 후 다시 확인해주세요.
-        </p>
+        <div className="flex flex-col gap-4 p-[var(--card-pad)]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <WefinLogoIcon size={18} className="text-wefin-mint-deep" />
+              <h3 className="text-sm font-bold text-wefin-text">오늘의 브리핑</h3>
+            </div>
+            <PersonalizedTrendButton
+              analyzed={false}
+              loading={personalizedQuery.isFetching}
+              onClick={handleAnalyzeClick}
+            />
+          </div>
+          <p className="text-sm text-wefin-subtle">
+            AI 브리핑이 아직 생성되지 않았습니다. 맞춤 분석을 눌러 직접 생성하거나, 잠시 후 다시
+            확인해주세요.
+          </p>
+        </div>
       )}
     </div>
   )
@@ -334,18 +340,6 @@ function SummaryContent({
       )}
     </div>
   )
-}
-
-function formatUpdatedAt(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 function SectionSkeleton() {

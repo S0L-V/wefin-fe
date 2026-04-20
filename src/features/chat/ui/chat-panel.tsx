@@ -1,46 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import GlobalChatRoom from '@/features/chat/ui/global-chat-room'
-import GroupChatRoom from '@/features/chat/ui/group-chat-room'
-import { useMyGroupQuery } from '@/features/settings/model/use-my-group-query'
-import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs'
+import SegmentedTabs from '@/shared/ui/segmented-tabs'
 
-type InnerTab = 'group' | 'global'
-
-const GROUP_TABS: SegmentedTabItem<InnerTab>[] = [
-  { key: 'group', label: '그룹' },
-  { key: 'global', label: '전체' }
-]
-
-const MEMO_TABS: SegmentedTabItem<InnerTab>[] = [
-  { key: 'group', label: '메모' },
-  { key: 'global', label: '전체' }
-]
-
-function useIsLoggedIn(): boolean {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
-
-  useEffect(() => {
-    const sync = () => setIsLoggedIn(!!localStorage.getItem('accessToken'))
-    window.addEventListener('auth-changed', sync)
-    window.addEventListener('storage', sync)
-    return () => {
-      window.removeEventListener('auth-changed', sync)
-      window.removeEventListener('storage', sync)
-    }
-  }, [])
-
-  return isLoggedIn
-}
+import type { ChatInnerTab } from '../model/chat-tabs'
+import { GROUP_TABS, MEMO_TABS, useChatGroup } from '../model/chat-tabs'
+import GlobalChatRoom from './global-chat-room'
+import GroupChatRoom from './group-chat-room'
 
 export default function ChatPanel() {
-  const isLoggedIn = useIsLoggedIn()
-  const { data: group } = useMyGroupQuery({ enabled: isLoggedIn })
-  const hasGroup = isLoggedIn && group != null
-  const isHomeGroup = hasGroup && group.isHomeGroup
+  const { hasGroup, isHomeGroup } = useChatGroup()
   const tabs = isHomeGroup ? MEMO_TABS : GROUP_TABS
 
-  const [innerTab, setInnerTab] = useState<InnerTab>('global')
+  const [innerTab, setInnerTab] = useState<ChatInnerTab>('global')
   const [prevIsHomeGroup, setPrevIsHomeGroup] = useState(isHomeGroup)
   if (prevIsHomeGroup !== isHomeGroup) {
     setPrevIsHomeGroup(isHomeGroup)

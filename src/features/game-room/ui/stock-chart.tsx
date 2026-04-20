@@ -47,48 +47,31 @@ function StockChart({ roomId }: StockChartProps) {
   })
 
   return (
-    <div className="min-h-[350px] rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex flex-col">
-          {selectedStock ? (
-            <>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-wefin-text">{selectedStock.stockName}</h3>
-                <span className="text-[10px] text-wefin-subtle">{selectedStock.symbol}</span>
-              </div>
-              <div className="text-xs font-bold text-wefin-text">
-                {selectedStock.price.toLocaleString('ko-KR')}원
-              </div>
-            </>
-          ) : (
-            <h3 className="text-base font-bold text-wefin-subtle">종목 차트</h3>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <IntervalTabs value={chartInterval} onChange={setChartInterval} />
-          <a
-            href="https://www.tradingview.com/lightweight-charts/"
-            target="_blank"
-            rel="noreferrer noopener"
-            title="Powered by TradingView Lightweight Charts™"
-            className="text-xs text-wefin-subtle underline transition-colors hover:text-wefin-text"
-          >
-            TradingView™
-          </a>
-        </div>
+    <div className="flex h-full flex-col">
+      <div className="flex h-11 shrink-0 items-center justify-between px-3">
+        {selectedStock ? (
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-semibold text-wefin-text">{selectedStock.stockName}</span>
+            <span className="text-xs text-wefin-subtle">{selectedStock.symbol}</span>
+            <span className="text-sm font-bold tabular-nums text-wefin-text">
+              {selectedStock.price.toLocaleString('ko-KR')}원
+            </span>
+          </div>
+        ) : (
+          <div />
+        )}
+        <IntervalTabs value={chartInterval} onChange={setChartInterval} />
       </div>
 
       {/*
         차트 컨테이너는 항상 렌더링된다 (ref 보장).
         종목 선택/로딩/에러/빈데이터 상태는 전부 오버레이로 얹는다.
       */}
-      <div className="relative h-[280px] w-full">
+      <div className="relative min-h-0 flex-1 w-full">
         <div ref={containerRef} className="absolute inset-0" />
         {!selectedStock && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white">
-            <span className="text-sm font-bold text-wefin-subtle">
-              종목을 선택하면 차트가 표시됩니다
-            </span>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs text-wefin-subtle">종목을 선택하세요</span>
           </div>
         )}
         {selectedStock && isLoading && (

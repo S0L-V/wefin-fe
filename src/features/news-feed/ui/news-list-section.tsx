@@ -1,13 +1,17 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Layers } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 
+import SourceBadge from '@/shared/ui/source-badge'
+
+import type { ClusterItem } from '../api/fetch-news-clusters'
 import type { PopularTag } from '../api/fetch-popular-tags'
+import { getTimeAgo } from '../lib/get-time-ago'
 import { useFilteredFeedQuery } from '../model/use-filtered-feed-query'
 import { useNewsListStore } from '../model/use-news-list-store'
 import { usePopularTagsQuery } from '../model/use-popular-tags-query'
 import type { FilterMode } from './news-filter-bar'
 import NewsFilterBar from './news-filter-bar'
-import NewsListCard from './news-list-card'
 
 const PAGE_SIZE = 5
 
@@ -65,21 +69,20 @@ export default function NewsListSection() {
         setCursorHistory((prev) => [...prev, data.nextCursor])
       }
       setPageIndex(nextPage)
-    } else if (cursorHistory.length > 1) {
-      setPageIndex(0)
     }
   }
 
   function handlePrev() {
-    if (pageIndex > 0) {
-      setPageIndex(pageIndex - 1)
-    } else if (cursorHistory.length > 1) {
-      setPageIndex(cursorHistory.length - 1)
-    }
+    if (pageIndex > 0) setPageIndex(pageIndex - 1)
+  }
+
+  function goToPage(i: number) {
+    if (i < cursorHistory.length) setPageIndex(i)
+    else if (i === cursorHistory.length && hasNext) handleNext()
   }
 
   return (
-    <div>
+    <div id="news-list-section">
       <NewsFilterBar
         mode={mode}
         onModeChange={handleModeChange}
@@ -89,17 +92,17 @@ export default function NewsListSection() {
         stockTags={stockTags}
       />
 
-      <div className="mt-4">
+      <div className="mt-2">
         {isLoading ? (
-          <div className="space-y-3">
+          <div>
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <div key={i} className="flex gap-4 rounded-2xl p-3">
-                <div className="h-24 w-24 shrink-0 animate-pulse rounded-xl bg-gray-100" />
-                <div className="flex flex-1 flex-col gap-2">
-                  <div className="h-4 w-3/4 animate-pulse rounded bg-gray-100" />
-                  <div className="h-3 w-full animate-pulse rounded bg-gray-100" />
-                  <div className="h-3 w-1/2 animate-pulse rounded bg-gray-100" />
+              <div key={i} className="flex items-center gap-4 border-b border-wefin-line p-4">
+                <div className="h-6 w-11 animate-pulse rounded bg-wefin-surface-2" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-5 w-3/4 animate-pulse rounded bg-wefin-surface-2" />
+                  <div className="h-4 w-full animate-pulse rounded bg-wefin-surface-2" />
                 </div>
+                <div className="h-[104px] w-[180px] animate-pulse rounded-xl bg-wefin-surface-2" />
               </div>
             ))}
           </div>
@@ -110,49 +113,43 @@ export default function NewsListSection() {
         ) : (
           <>
             <div>
-              {items.map((cluster) => (
-                <NewsListCard key={cluster.clusterId} cluster={cluster} />
+              {items.map((cluster, i) => (
+                <NewsListItem
+                  key={cluster.clusterId}
+                  cluster={cluster}
+                  isHot={i < 2 && pageIndex === 0}
+                />
               ))}
             </div>
 
-            <div className="mt-4 flex items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-1.5 pb-1.5 pt-4">
               <button
                 type="button"
                 onClick={handlePrev}
                 disabled={pageIndex === 0}
-                aria-label="이전 페이지"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:cursor-not-allowed disabled:text-wefin-line"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-wefin-subtle transition-colors hover:bg-wefin-surface-2 hover:text-wefin-text disabled:text-wefin-line"
               >
                 <ChevronLeft size={14} />
               </button>
-              {[pageIndex - 1, pageIndex, pageIndex + 1].map((i) => (
-                <span key={i} className="flex h-7 w-7 items-center justify-center">
-                  {i >= 0 && i < totalPages ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (i < cursorHistory.length) setPageIndex(i)
-                        else if (i === cursorHistory.length) handleNext()
-                      }}
-                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold tabular-nums transition-all ${
-                        i === pageIndex
-                          ? 'bg-wefin-mint-deep text-white'
-                          : i < cursorHistory.length
-                            ? 'text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text'
-                            : 'text-wefin-line hover:text-wefin-subtle'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ) : null}
-                </span>
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => goToPage(i)}
+                  className={`flex h-8 w-8 items-center justify-center rounded-full font-num text-[13px] font-bold transition-colors ${
+                    i === pageIndex
+                      ? 'bg-wefin-text text-white'
+                      : 'text-wefin-subtle hover:bg-wefin-surface-2 hover:text-wefin-text'
+                  }`}
+                >
+                  {i + 1}
+                </button>
               ))}
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={!hasNext && pageIndex >= totalPages - 1}
-                aria-label="다음 페이지"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-text disabled:cursor-not-allowed disabled:text-wefin-line"
+                disabled={!hasNext}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-wefin-subtle transition-colors hover:bg-wefin-surface-2 hover:text-wefin-text disabled:text-wefin-line"
               >
                 <ChevronRight size={14} />
               </button>
@@ -161,5 +158,42 @@ export default function NewsListSection() {
         )}
       </div>
     </div>
+  )
+}
+
+function NewsListItem({ cluster, isHot }: { cluster: ClusterItem; isHot: boolean }) {
+  return (
+    <Link
+      to={`/news/${cluster.clusterId}`}
+      className="group grid grid-cols-[1fr_180px] items-center gap-4 border-b border-wefin-line px-1 py-4 transition-all hover:translate-x-0.5 hover:rounded-xl hover:bg-wefin-surface-2"
+    >
+      <div>
+        {isHot && (
+          <div className="mb-1">
+            <span className="inline-flex items-center rounded-md bg-wefin-red-soft px-2 py-0.5 text-[11px] font-bold tracking-wide text-wefin-red">
+              HOT
+            </span>
+          </div>
+        )}
+        <h4 className="text-base font-bold leading-snug">{cluster.title}</h4>
+        <p className="mt-1 line-clamp-1 text-[13px] leading-relaxed text-wefin-subtle">
+          {cluster.summary}
+        </p>
+        <div className="mt-2 flex items-center gap-2.5 text-xs text-wefin-muted">
+          <span>{getTimeAgo(cluster.publishedAt)}</span>
+          <SourceBadge sources={cluster.sources} sourceCount={cluster.sourceCount} />
+        </div>
+      </div>
+
+      <div className="h-[104px] w-[180px] overflow-hidden rounded-xl bg-wefin-surface-2">
+        {cluster.thumbnailUrl ? (
+          <img src={cluster.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <Layers size={20} className="text-wefin-muted" />
+          </div>
+        )}
+      </div>
+    </Link>
   )
 }

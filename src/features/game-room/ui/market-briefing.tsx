@@ -8,18 +8,15 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
   const { data, isFetching, isError } = useBriefingQuery(roomId)
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wefin-mint">
-          <span className="text-[10px] font-bold text-white">위핀</span>
-        </div>
-        <h3 className="text-sm font-bold text-wefin-text">위핀 시장 동향 브리핑</h3>
+    <section className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex h-11 shrink-0 items-center justify-between px-3">
+        <span className="text-sm font-semibold text-wefin-text">시장 브리핑</span>
         {!isFetching && data?.targetDate && (
-          <span className="ml-auto text-[11px] text-wefin-subtle">{data.targetDate}</span>
+          <span className="text-xs text-wefin-subtle">{data.targetDate}</span>
         )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-3">
         {isFetching && (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-xs text-wefin-subtle">브리핑 생성 중…</p>

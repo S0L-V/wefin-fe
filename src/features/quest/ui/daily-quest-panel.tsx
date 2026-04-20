@@ -54,22 +54,15 @@ export default function DailyQuestPanel() {
   if (!userId) {
     return (
       <section className="overflow-hidden rounded-2xl bg-white">
-        <div className="flex h-11 items-center px-3">
+        <div className="flex items-center justify-between px-3 py-3">
           <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
-        </div>
-        <div className="p-3">
-          <div className="rounded-xl border border-dashed border-wefin-line bg-wefin-bg p-4 text-center">
-            <p className="text-sm font-semibold text-wefin-text">
-              로그인 후 오늘의 퀘스트를 확인할 수 있어요
-            </p>
-            <button
-              type="button"
-              onClick={openLogin}
-              className="mt-3 rounded-lg bg-wefin-mint px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-wefin-mint-deep"
-            >
-              로그인하고 보기
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={openLogin}
+            className="text-xs font-medium text-wefin-mint transition hover:text-wefin-mint-deep"
+          >
+            로그인하고 확인 →
+          </button>
         </div>
       </section>
     )

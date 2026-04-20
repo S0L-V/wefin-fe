@@ -1,19 +1,44 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --color-wefin-mint: #24a8ab;
-  --color-wefin-mint-soft: #e8f7f7;
-  --color-wefin-mint-deep: #0f8385;
-  --color-wefin-bg: #f2f4f8;
-  --color-wefin-line: #dbe5ee;
-  --color-wefin-text: #202b36;
-  --color-wefin-subtle: #637282;
+  --color-wefin-mint: #14b8a6;
+  --color-wefin-mint-soft: #e6f7f4;
+  --color-wefin-mint-deep: #0b8577;
+  --color-wefin-mint-100: #b9ebe2;
+  --color-wefin-mint-300: #5fd3be;
+  --color-wefin-mint-600: #0ea394;
+  --color-wefin-mint-900: #053e38;
+  --color-wefin-mint-950: #022824;
+
+  --color-wefin-bg: #f7f7f3;
+  --color-wefin-surface: #ffffff;
+  --color-wefin-surface-2: #f2f2ec;
+  --color-wefin-line: #e7e6df;
+  --color-wefin-line-2: #d9d8d0;
+  --color-wefin-text: #0e1512;
+  --color-wefin-text-2: #2a3230;
+  --color-wefin-subtle: #5e6a66;
+  --color-wefin-muted: #97a19d;
+
+  --color-wefin-red: #e5484d;
+  --color-wefin-red-soft: #fbe9ea;
+  --color-wefin-green: #12a150;
+  --color-wefin-green-soft: #e3f5ea;
+  --color-wefin-amber: #e8a93a;
 }
 
 @layer base {
   :root {
     --app-header-height: 56px;
+    --radius-card: 20px;
+    --radius-pill: 999px;
+    --shadow-card: 0 1px 0 rgba(14, 21, 18, 0.03), 0 8px 24px -12px rgba(14, 21, 18, 0.08);
+    --shadow-hero: 0 30px 60px -30px rgba(5, 62, 56, 0.45);
+    --gutter: 28px;
+    --card-pad: 28px;
+    --font-num: 'Inter Tight', 'Pretendard Variable', sans-serif;
     font-family:
       'Pretendard Variable',
       Pretendard,
@@ -26,11 +51,15 @@
       'Apple SD Gothic Neo',
       'Noto Sans KR',
       sans-serif;
-    font-feature-settings: 'tnum' on;
+    font-feature-settings:
+      'tnum' on,
+      'ss01' on,
+      'cv11' on;
     line-height: 1.5;
     font-weight: 400;
     color: var(--color-wefin-text);
-    background: linear-gradient(180deg, #f9fbff 0%, #eef4fb 100%);
+    letter-spacing: -0.01em;
+    background: none;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -103,16 +132,54 @@
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #d1d5db transparent;
+    scrollbar-color: var(--color-wefin-line-2) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
+    height: 6px;
   }
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #d1d5db;
-    border-radius: 2px;
+    background-color: var(--color-wefin-line-2);
+    border-radius: 10px;
+  }
+
+  .font-num {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .display {
+    font-family: var(--font-num);
+    letter-spacing: -0.04em;
+    font-weight: 800;
+  }
+
+  .card-base {
+    background: var(--color-wefin-surface);
+    border: 1px solid var(--color-wefin-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes pulse-dot {
+    0% {
+      box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 0 12px rgba(20, 184, 166, 0);
+    }
   }
 }

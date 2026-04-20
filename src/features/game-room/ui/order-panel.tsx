@@ -13,10 +13,11 @@ import {
   Search,
   Signal,
   Smartphone,
-  TrendingUp,
   X
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+
+import StockLogo from '@/shared/ui/stock-logo'
 
 import type { StockSearchItem } from '../model/stock.schema'
 import { type OrderSide, type OrderType, useOrderForm } from '../model/use-order-form'
@@ -33,6 +34,7 @@ type SectorOption = {
   label: string
   icon: React.ComponentType<{ size?: number; className?: string }>
   accentClass: string
+  image: string
   keywords: string[]
 }
 
@@ -45,7 +47,8 @@ const SECTORS: SectorOption[] = [
     id: 'energy',
     label: '에너지',
     icon: Bolt,
-    accentClass: 'bg-amber-50 text-amber-600',
+    accentClass: 'from-amber-400 to-orange-500',
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=200&fit=crop',
     keywords: [
       '석유/가스',
       '정유',
@@ -61,21 +64,24 @@ const SECTORS: SectorOption[] = [
     id: 'utilities',
     label: '유틸리티',
     icon: Signal,
-    accentClass: 'bg-sky-50 text-sky-600',
+    accentClass: 'from-sky-400 to-blue-500',
+    image: 'https://images.unsplash.com/photo-1548337138-e87d889cc369?w=400&h=200&fit=crop',
     keywords: ['전력', '가스', '수도', '신재생 발전', '에너지 인프라']
   },
   {
     id: 'materials',
-    label: '기본 소재',
+    label: '소재',
     icon: Beaker,
-    accentClass: 'bg-violet-50 text-violet-600',
+    accentClass: 'from-violet-400 to-purple-600',
+    image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=200&fit=crop',
     keywords: ['철강', '비철금속', '화학', '정밀화학', '건자재', '제지/펄프', '비료', '신소재']
   },
   {
     id: 'industrials',
     label: '산업재',
     icon: Factory,
-    accentClass: 'bg-orange-50 text-orange-600',
+    accentClass: 'from-slate-400 to-slate-600',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop',
     keywords: [
       '건설',
       '플랜트',
@@ -90,9 +96,10 @@ const SECTORS: SectorOption[] = [
   },
   {
     id: 'consumer-discretionary',
-    label: '경기소비재',
+    label: '소비재',
     icon: Smartphone,
-    accentClass: 'bg-rose-50 text-rose-600',
+    accentClass: 'from-rose-400 to-pink-600',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=200&fit=crop',
     keywords: [
       '자동차',
       '자동차 부품',
@@ -110,30 +117,34 @@ const SECTORS: SectorOption[] = [
   },
   {
     id: 'consumer-staples',
-    label: '필수소비재',
+    label: '필수소비',
     icon: Banknote,
-    accentClass: 'bg-emerald-50 text-emerald-600',
+    accentClass: 'from-emerald-400 to-green-600',
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=200&fit=crop',
     keywords: ['식품', '음료/주류', '생활용품', '담배', '유통(마트/편의점)', '농축산']
   },
   {
     id: 'healthcare',
     label: '헬스케어',
     icon: HeartPulse,
-    accentClass: 'bg-pink-50 text-pink-600',
+    accentClass: 'from-red-400 to-rose-600',
+    image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=400&h=200&fit=crop',
     keywords: ['제약', '바이오', '의료기기', '진단', '헬스케어 서비스']
   },
   {
     id: 'financials',
     label: '금융',
     icon: Landmark,
-    accentClass: 'bg-indigo-50 text-indigo-600',
+    accentClass: 'from-blue-400 to-indigo-600',
+    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=200&fit=crop',
     keywords: ['은행', '보험', '증권', '자산운용', '카드', '핀테크', '리스/캐피탈']
   },
   {
     id: 'it',
     label: 'IT',
     icon: BatteryCharging,
-    accentClass: 'bg-cyan-50 text-cyan-600',
+    accentClass: 'from-cyan-400 to-teal-600',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop',
     keywords: [
       '반도체',
       '반도체 장비',
@@ -147,16 +158,18 @@ const SECTORS: SectorOption[] = [
   },
   {
     id: 'communication',
-    label: '통신서비스',
+    label: '통신',
     icon: Signal,
-    accentClass: 'bg-blue-50 text-blue-600',
+    accentClass: 'from-indigo-400 to-blue-600',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop',
     keywords: ['통신사', '인터넷 플랫폼', '광고/마케팅', '미디어', '엔터테인먼트', '게임 퍼블리싱']
   },
   {
     id: 'real-estate',
     label: '부동산',
     icon: Building2,
-    accentClass: 'bg-stone-50 text-stone-600',
+    accentClass: 'from-stone-400 to-stone-600',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=200&fit=crop',
     keywords: ['리츠', '상업용 부동산', '주거용 부동산', '물류센터', '데이터센터', '부동산 개발']
   }
 ]
@@ -292,128 +305,120 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
         : '종목을 누르면 주문 패널이 펼쳐지고 다시 누르면 접힙니다.'
 
   return (
-    <section
-      className={`rounded-3xl border border-wefin-line bg-white p-5 shadow-sm ${PANEL_BODY_HEIGHT_CLASS}`}
-    >
-      <div className="flex h-full min-h-0 flex-col">
-        <header className="mb-4 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wefin-mint">
-            <TrendingUp size={14} className="text-white" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-wefin-text">주문 패널</h3>
-            <p className="text-[11px] text-wefin-subtle">
-              검색이나 단계별 탐색으로 원하는 종목을 빠르게 찾을 수 있어요.
-            </p>
-          </div>
-        </header>
+    <section className="flex h-full flex-col">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex h-11 shrink-0 items-center px-3">
+          <span className="text-sm font-semibold text-wefin-text">주문</span>
+        </div>
 
         {resultMessage && (
-          <div className="mb-3 flex items-center justify-between rounded-xl bg-green-50 px-3 py-2">
-            <span className="text-xs font-medium text-green-600">{resultMessage}</span>
+          <div className="mx-3 mb-2 flex items-center justify-between rounded-lg bg-green-50 px-3 py-1.5">
+            <span className="text-[11px] font-medium text-green-600">{resultMessage}</span>
             <button
               type="button"
               onClick={() => setResultMessage(null)}
-              className="text-xs text-green-400 hover:text-green-600"
+              className="text-[11px] text-green-400 hover:text-green-600"
             >
               닫기
             </button>
           </div>
         )}
 
-        <div className="mb-3">
-          <label className="mb-1.5 block text-[10px] font-bold text-wefin-subtle">종목 검색</label>
-          <div className="relative">
-            <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-wefin-subtle"
-              size={15}
-            />
+        <div className="mb-2 flex items-center gap-2 px-3">
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className={`relative py-2 pl-3 pr-5 text-xs font-semibold transition-all duration-300 ${
+                step === 'sector'
+                  ? 'bg-wefin-mint-deep text-white shadow-md shadow-wefin-mint/20'
+                  : 'bg-wefin-mint-soft/60 text-wefin-mint-deep hover:bg-wefin-mint-soft'
+              }`}
+              style={{
+                clipPath:
+                  'polygon(0 4px, 4px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 4px 100%, 0 calc(100% - 4px))'
+              }}
+            >
+              {step !== 'sector' && <span className="mr-1 inline-block text-[10px]">✓</span>}
+              {selectedSector?.label ?? '섹터'}
+            </button>
+            <button
+              type="button"
+              onClick={
+                selectedSector
+                  ? () => {
+                      resetExpandedSelection()
+                      setStockSearchKeyword('')
+                      setSelectedKeyword(null)
+                    }
+                  : undefined
+              }
+              className={`relative py-2 pl-5 pr-5 text-xs font-semibold transition-all duration-300 ${
+                step === 'keyword'
+                  ? 'bg-wefin-mint-deep text-white shadow-md shadow-wefin-mint/20'
+                  : selectedSector
+                    ? step === 'stock'
+                      ? 'bg-wefin-mint-soft/60 text-wefin-mint-deep hover:bg-wefin-mint-soft'
+                      : 'bg-wefin-bg text-wefin-subtle/40'
+                    : 'bg-wefin-bg text-wefin-subtle/40'
+              }`}
+              style={{
+                clipPath:
+                  'polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%)'
+              }}
+            >
+              {step === 'stock' && <span className="mr-1 inline-block text-[10px]">✓</span>}
+              {selectedKeyword ?? '키워드'}
+            </button>
+            <span
+              className={`relative rounded-r-lg py-2 pl-5 pr-3 text-xs font-semibold transition-all duration-300 ${
+                step === 'stock'
+                  ? 'bg-wefin-mint-deep text-white shadow-md shadow-wefin-mint/20'
+                  : 'bg-wefin-bg text-wefin-subtle/40'
+              }`}
+              style={{
+                clipPath:
+                  'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 10px 50%)'
+              }}
+            >
+              종목
+            </span>
+          </div>
+
+          {step !== 'sector' && (
+            <button
+              type="button"
+              onClick={handleGoBack}
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-wefin-bg text-wefin-subtle transition-colors hover:bg-wefin-line hover:text-wefin-text"
+            >
+              <ChevronLeft size={13} />
+            </button>
+          )}
+
+          <div className="ml-auto flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+            <Search size={14} className="shrink-0 text-wefin-subtle" />
             <input
               type="text"
               value={stockSearchKeyword}
               onChange={(event) => handleSearchChange(event.target.value)}
-              placeholder="종목명 또는 코드 입력"
-              className="w-full rounded-2xl border border-wefin-line bg-wefin-bg py-2.5 pl-10 pr-10 text-sm text-wefin-text placeholder:text-wefin-subtle focus:outline-none focus:ring-2 focus:ring-wefin-mint/40"
+              placeholder="종목명 또는 코드"
+              className="min-w-0 flex-1 bg-transparent text-xs text-wefin-text outline-none placeholder:text-wefin-subtle"
             />
             {stockSearchKeyword && (
               <button
                 type="button"
                 onClick={() => handleSearchChange('')}
-                aria-label="검색어 지우기"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-wefin-subtle hover:text-wefin-text"
+                className="shrink-0 text-wefin-subtle hover:text-wefin-text"
               >
-                <X size={16} />
+                <X size={11} />
               </button>
             )}
           </div>
         </div>
 
-        <div className="mb-3 flex items-center justify-between gap-2 rounded-2xl border border-wefin-line bg-wefin-bg/60 px-3 py-2">
-          <div className="min-w-0">
-            <div className="text-xs font-bold text-wefin-text">{panelTitle}</div>
-            <div className="mt-0.5 truncate text-[11px] text-wefin-subtle">{panelDescription}</div>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {step !== 'sector' && (
-              <button
-                type="button"
-                onClick={handleGoBack}
-                className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2.5 py-1 text-[11px] font-medium text-wefin-text hover:bg-wefin-bg"
-              >
-                <ChevronLeft size={12} />
-                뒤로
-              </button>
-            )}
-            {(selectedSectorId || selectedKeyword || stockSearchKeyword) && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="rounded-full border border-wefin-line bg-white px-2.5 py-1 text-[11px] font-medium text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text"
-              >
-                처음으로
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="mb-3 flex min-h-[24px] flex-wrap items-center gap-2">
-          <StageBadge active onClick={handleResetFilters}>
-            종목 검색
-          </StageBadge>
-          <span className="text-xs text-wefin-subtle">/</span>
-          <StageBadge
-            active={Boolean(selectedSector)}
-            onClick={
-              selectedSector
-                ? () => {
-                    resetExpandedSelection()
-                    setStockSearchKeyword('')
-                    setSelectedKeyword(null)
-                  }
-                : undefined
-            }
-          >
-            {selectedSector?.label ?? '섹터'}
-          </StageBadge>
-          <span className="text-xs text-wefin-subtle">/</span>
-          <StageBadge
-            active={Boolean(selectedKeyword)}
-            onClick={
-              selectedKeyword
-                ? () => {
-                    resetExpandedSelection()
-                    setStockSearchKeyword('')
-                  }
-                : undefined
-            }
-          >
-            {selectedKeyword ?? '키워드'}
-          </StageBadge>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto px-3">
           {step === 'sector' && (
-            <div className="grid h-full min-h-0 grid-cols-2 gap-2 overflow-y-auto pr-1 xl:grid-cols-3">
+            <div className="grid grid-cols-3 gap-1.5">
               {SECTORS.map((sector) => (
                 <SectorCard
                   key={sector.id}
@@ -517,27 +522,37 @@ function SectorCard({
   active: boolean
   onClick: () => void
 }) {
-  const Icon = sector.icon
-
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl border px-3 py-3 text-left transition-all ${
+      className={`group relative h-[72px] overflow-hidden rounded-xl text-left transition-all duration-300 ${
         active
-          ? 'border-wefin-mint bg-wefin-mint/5 shadow-sm'
-          : 'border-wefin-line bg-white hover:border-wefin-mint/35 hover:bg-wefin-bg'
+          ? 'ring-2 ring-wefin-mint shadow-lg shadow-wefin-mint/20 scale-[1.02]'
+          : 'shadow-sm hover:shadow-lg hover:-translate-y-0.5'
       }`}
     >
-      <div className="flex items-center gap-3">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${sector.accentClass}`}
-        >
-          <Icon size={18} />
+      <img
+        src={sector.image}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover brightness-[0.3] saturate-[0.6] transition-all duration-500 group-hover:brightness-[0.5] group-hover:saturate-100 group-hover:scale-110"
+      />
+      <div
+        className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-r ${sector.accentClass}`}
+        style={{ mixBlendMode: 'soft-light' }}
+      />
+      <div className="relative flex h-full items-end justify-between p-2.5">
+        <div>
+          <p className="text-sm font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+            {sector.label}
+          </p>
+          <p className="text-[11px] font-medium text-white/70">{sector.keywords.length}개 키워드</p>
         </div>
-        <div className="min-w-0">
-          <div className="truncate text-sm font-bold text-wefin-text">{sector.label}</div>
-          <div className="mt-0.5 text-xs text-wefin-subtle">{sector.keywords.length}개 키워드</div>
+        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/0 transition-all duration-300 group-hover:bg-white/20">
+          <ChevronDown
+            size={12}
+            className="-rotate-90 text-white/0 transition-all duration-300 group-hover:text-white/80"
+          />
         </div>
       </div>
     </button>
@@ -562,88 +577,96 @@ function StockAccordionItem({
   const panelId = `stock-order-panel-${stock.symbol}`
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-wefin-line bg-white">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
         aria-controls={panelId}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-wefin-bg/60"
+        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-wefin-bg/40"
       >
-        <div className="min-w-0">
-          <div className="truncate text-base font-bold text-wefin-text">{stock.stockName}</div>
-          <div className="mt-1 text-sm text-wefin-subtle">
-            {stock.symbol} · {stock.market}
-          </div>
+        <StockLogo code={stock.symbol} name={stock.stockName} size={32} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-wefin-text">{stock.stockName}</p>
+          <p className="text-[11px] text-wefin-subtle">{stock.symbol}</p>
         </div>
-
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <div className="text-lg font-bold text-wefin-text">
-              {stock.price.toLocaleString()}원
-            </div>
-          </div>
-          {expanded ? (
-            <ChevronUp size={18} className="text-wefin-subtle" />
-          ) : (
-            <ChevronDown size={18} className="text-wefin-subtle" />
-          )}
-        </div>
+        <span className="text-sm font-bold tabular-nums text-wefin-text">
+          {stock.price.toLocaleString()}원
+        </span>
+        {expanded ? (
+          <ChevronUp size={14} className="text-wefin-subtle" />
+        ) : (
+          <ChevronDown size={14} className="text-wefin-subtle" />
+        )}
       </button>
 
       {expanded && (
-        <div id={panelId} className="border-t border-wefin-line bg-slate-50/70 px-4 py-4">
-          <div className="space-y-4">
-            <SideTabs side={form.side} onChange={form.setSide} />
-            <TypeTabs type={form.type} onChange={form.setType} />
+        <div id={panelId} className="space-y-2.5 border-t border-wefin-line px-3 py-3">
+          <SideTabs side={form.side} onChange={form.setSide} />
 
-            <QuantityControl
-              quantity={form.quantity}
-              maxQuantity={form.maxQuantity}
-              onIncrement={form.increment}
-              onDecrement={form.decrement}
-              onChange={form.setQuantityRaw}
-              onPercent={form.setPercent}
-            />
-
-            <SummaryRows
-              type={form.type}
-              currentPrice={form.currentPrice}
-              quantity={form.quantity}
-              totalAmount={form.totalAmount}
-              cash={cash}
-            />
-
-            {form.errorMessage && (
-              <div className="flex items-center justify-between rounded-xl bg-red-50 px-3 py-2">
-                <span className="text-xs font-medium text-red-500">{form.errorMessage}</span>
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-wefin-subtle">수량</span>
+              <span className="text-[11px] text-wefin-subtle">최대 {form.maxQuantity}주</span>
+            </div>
+            <div className="mt-1 flex items-center gap-1">
+              <StepButton onClick={form.decrement} label="수량 감소">
+                -
+              </StepButton>
+              <input
+                type="text"
+                inputMode="numeric"
+                className="min-w-0 flex-1 rounded-lg border border-wefin-line py-1.5 text-center text-sm font-bold text-wefin-text outline-none"
+                value={form.quantity === 0 ? '' : form.quantity}
+                placeholder="0"
+                onChange={(event) => {
+                  const raw = event.target.value.replace(/[^0-9]/g, '')
+                  form.setQuantityRaw(raw === '' ? 0 : parseInt(raw, 10))
+                }}
+              />
+              <StepButton onClick={form.increment} label="수량 증가">
+                +
+              </StepButton>
+            </div>
+            <div className="mt-1.5 flex gap-1">
+              {[10, 25, 50, 100].map((percent) => (
                 <button
+                  key={percent}
                   type="button"
-                  onClick={form.clearError}
-                  className="text-xs text-red-400 hover:text-red-600"
+                  onClick={() => form.setPercent(percent)}
+                  className="flex-1 rounded-md bg-wefin-bg py-1 text-[10px] font-semibold text-wefin-subtle transition-colors hover:bg-wefin-line hover:text-wefin-text"
                 >
-                  닫기
+                  {percent}%
                 </button>
-              </div>
-            )}
-
-            <button
-              type="button"
-              disabled={form.quantity === 0 || form.isSubmitting}
-              onClick={onSubmitClick}
-              className={`w-full rounded-2xl py-3 text-base font-bold text-white shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 ${
-                form.side === 'buy'
-                  ? 'bg-red-500 shadow-red-500/20'
-                  : 'bg-blue-500 shadow-blue-500/20'
-              }`}
-            >
-              {form.isSubmitting
-                ? '주문 중...'
-                : form.side === 'buy'
-                  ? '매수 주문하기'
-                  : '매도 주문하기'}
-            </button>
+              ))}
+            </div>
           </div>
+
+          <div className="space-y-1 border-t border-wefin-line/50 pt-2">
+            <div className="flex justify-between text-[11px]">
+              <span className="text-wefin-subtle">주문 금액</span>
+              <span className="font-bold tabular-nums text-wefin-text">
+                {form.totalAmount.toLocaleString()}원
+              </span>
+            </div>
+            <div className="flex justify-between text-[11px]">
+              <span className="text-wefin-subtle">잔고</span>
+              <span className="tabular-nums text-wefin-subtle">{cash.toLocaleString()}원</span>
+            </div>
+          </div>
+
+          {form.errorMessage && <p className="text-[11px] text-red-500">{form.errorMessage}</p>}
+
+          <button
+            type="button"
+            disabled={form.quantity === 0 || form.isSubmitting}
+            onClick={onSubmitClick}
+            className={`w-full rounded-lg py-2 text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 ${
+              form.side === 'buy' ? 'bg-red-500' : 'bg-blue-500'
+            }`}
+          >
+            {form.isSubmitting ? '주문 중...' : form.side === 'buy' ? '매수' : '매도'}
+          </button>
         </div>
       )}
     </div>
@@ -652,21 +675,25 @@ function StockAccordionItem({
 
 function SideTabs({ side, onChange }: { side: OrderSide; onChange: (next: OrderSide) => void }) {
   return (
-    <div className="flex rounded-2xl bg-white p-1 shadow-sm ring-1 ring-wefin-line">
-      <TabButton
-        active={side === 'buy'}
+    <div className="flex gap-1">
+      <button
+        type="button"
         onClick={() => onChange('buy')}
-        activeClass="bg-red-500 shadow-lg shadow-red-500/20"
+        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${
+          side === 'buy' ? 'bg-red-500 text-white' : 'bg-wefin-bg text-wefin-subtle'
+        }`}
       >
         매수
-      </TabButton>
-      <TabButton
-        active={side === 'sell'}
+      </button>
+      <button
+        type="button"
         onClick={() => onChange('sell')}
-        activeClass="bg-blue-500 shadow-lg shadow-blue-500/20"
+        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${
+          side === 'sell' ? 'bg-blue-500 text-white' : 'bg-wefin-bg text-wefin-subtle'
+        }`}
       >
         매도
-      </TabButton>
+      </button>
     </div>
   )
 }
@@ -802,7 +829,7 @@ function StepButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="flex h-10 w-10 items-center justify-center rounded-xl border border-wefin-line bg-white text-lg font-bold text-wefin-text shadow-sm"
+      className="flex h-7 w-7 items-center justify-center rounded-md border border-wefin-line text-sm font-bold text-wefin-text"
     >
       {children}
     </button>
