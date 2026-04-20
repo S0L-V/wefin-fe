@@ -69,28 +69,28 @@ function ResultPage() {
   }))
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(520px,50%)]">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+      <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1fr_minmax(520px,50%)]">
         {/* 좌측: 차트 + 매매내역 */}
         <div className="flex flex-col gap-5">
           {/* 헤더 카드 */}
           <div className="card-base overflow-hidden">
-            <div className="bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-6 py-6 text-white">
-              <h1 className="text-xl font-extrabold">투자 시뮬레이션 종료</h1>
-              <p className="mt-1 text-sm text-white/80">당신의 투자 성적표입니다</p>
+            <div className="bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-5 py-5 text-white sm:px-6 sm:py-6">
+              <h1 className="text-lg font-extrabold sm:text-xl">투자 시뮬레이션 종료</h1>
+              <p className="mt-1 text-xs text-white/80 sm:text-sm">당신의 투자 성적표입니다</p>
             </div>
-            <div className="flex items-center justify-between px-6 py-5">
-              <div className="flex items-center gap-8">
+            <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
+              <div className="flex items-center gap-5 sm:gap-8">
                 <div>
                   <p className="text-xs font-bold text-wefin-subtle">최종 수익률</p>
-                  <p className={`font-num mt-1 text-3xl font-extrabold ${profitColor}`}>
+                  <p className={`font-num mt-1 text-2xl font-extrabold sm:text-3xl ${profitColor}`}>
                     {formatProfit(finalProfitRate)}
                   </p>
                 </div>
                 <div className="h-10 w-px bg-wefin-line" />
                 <div>
                   <p className="text-xs font-bold text-wefin-subtle">최종 자산</p>
-                  <p className="font-num mt-1 text-2xl font-bold text-wefin-text">
+                  <p className="font-num mt-1 text-xl font-bold text-wefin-text sm:text-2xl">
                     {Math.trunc(finalAsset).toLocaleString()}원
                   </p>
                 </div>
@@ -99,14 +99,14 @@ function ResultPage() {
                 <button
                   type="button"
                   onClick={() => navigate('/history')}
-                  className="rounded-lg bg-wefin-mint px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-wefin-mint-deep"
+                  className="flex-1 rounded-lg bg-wefin-mint px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-wefin-mint-deep sm:flex-none"
                 >
                   게임 이력
                 </button>
                 <button
                   type="button"
                   onClick={() => navigate('/')}
-                  className="rounded-lg border border-wefin-line bg-wefin-surface px-4 py-2.5 text-sm font-bold text-wefin-text transition-colors hover:bg-wefin-surface-2"
+                  className="flex-1 rounded-lg border border-wefin-line bg-wefin-surface px-4 py-2.5 text-sm font-bold text-wefin-text transition-colors hover:bg-wefin-surface-2 sm:flex-none"
                 >
                   홈으로
                 </button>

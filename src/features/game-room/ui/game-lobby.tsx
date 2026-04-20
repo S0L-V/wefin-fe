@@ -38,19 +38,19 @@ function GameLobby() {
   }
 
   return (
-    <div className="mx-auto max-w-[1100px] py-8">
-      <h1 className="text-2xl font-extrabold text-wefin-text">타임머신 투자</h1>
-      <p className="mt-1.5 text-[15px] text-wefin-subtle">
+    <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-0 sm:py-8">
+      <h1 className="text-xl font-extrabold text-wefin-text sm:text-2xl">타임머신 투자</h1>
+      <p className="mt-1 text-[13px] text-wefin-subtle sm:mt-1.5 sm:text-[15px]">
         과거 시장 데이터로 투자를 학습하고, 함께 전략을 나눠보세요
       </p>
 
-      <div className="mt-6 grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
-        <div className="flex flex-col gap-5">
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 sm:mt-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-4 sm:gap-5">
           {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <CreateRoomInline />}
           <GameHistorySection items={recentHistory} />
         </div>
 
-        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20 lg:flex">
           <ChatPanel />
         </div>
       </div>

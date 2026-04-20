@@ -20,7 +20,7 @@ export default function StockLayout({ children, sidebarWidth = 'default' }: Stoc
   return (
     <div className="flex gap-0">
       <main className="min-w-0 flex-1">{children}</main>
-      <div className="hidden lg:block">
+      <div className="hidden lg:flex">
         <ResizeHandle onResize={handleResize} />
       </div>
       <aside className="hidden shrink-0 lg:block" style={{ width: sideW }}>
