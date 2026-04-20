@@ -3,24 +3,21 @@ import { useEffect, useState } from 'react'
 import SubscribeButton from '@/features/payment/ui/subscribe-button'
 
 import SettingsGroupSection from './settings-group-section'
-import SettingsPaymentSection from './settings-payment-section'
 import SettingsProfileSection from './settings-profile-section'
 import SettingsSubscriptionSection from './settings-subscription-section'
 
-type Section = 'profile' | 'group' | 'subscription' | 'billing'
+type Section = 'profile' | 'group' | 'subscription'
 
 const SIDEBAR_ITEMS: { id: Section; label: string }[] = [
   { id: 'profile', label: '프로필' },
   { id: 'group', label: '그룹 관리' },
-  { id: 'subscription', label: '구독 플랜' },
-  { id: 'billing', label: '결제 및 내역' }
+  { id: 'subscription', label: '구독 플랜' }
 ]
 
 const SECTION_DESCRIPTION: Record<Section, string> = {
   profile: '계정 정보와 보안 설정을 관리하세요.',
   group: '소속 그룹을 관리하고 새로운 그룹에 참여하세요.',
-  subscription: '현재 구독 상태를 확인하고 플랜을 변경하세요.',
-  billing: '결제 수단과 내역을 확인할 수 있어요.'
+  subscription: '현재 구독 상태를 확인하고 플랜을 변경하세요.'
 }
 
 function SettingsView() {
@@ -82,14 +79,15 @@ function SettingsView() {
               emailPlaceholder={localStorage.getItem('email') ?? '로그인된 이메일'}
             />
           )}
+
           {active === 'group' && <SettingsGroupSection isLoggedIn={isLoggedIn} />}
+
           {active === 'subscription' && (
             <div className="space-y-4">
               <SettingsSubscriptionSection />
               <SubscribeButton planId={1} />
             </div>
           )}
-          {active === 'billing' && <SettingsPaymentSection isLoggedIn={isLoggedIn} />}
         </div>
       </main>
     </div>
