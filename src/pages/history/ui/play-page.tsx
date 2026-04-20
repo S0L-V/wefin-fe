@@ -104,10 +104,10 @@ function PlayPage() {
           </div>
 
           <div className="flex min-w-0 flex-[0.7] flex-col gap-2">
-            <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
+            <div className="min-h-0 flex-[1.3] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderPanel roomId={roomId} cash={cash} />
             </div>
-            <div className="min-h-0 flex-[0.8] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
+            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <HoldingsPanel roomId={roomId} />
             </div>
           </div>
