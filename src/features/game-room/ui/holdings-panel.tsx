@@ -96,7 +96,7 @@ function HoldingRow({ item }: { item: HoldingItem }) {
         selectStock({
           symbol: item.symbol,
           stockName: item.stockName,
-          market: item.market ?? 'KOSPI',
+          market: 'KOSPI',
           price: Math.floor(item.evalAmount / item.quantity)
         })
       }
