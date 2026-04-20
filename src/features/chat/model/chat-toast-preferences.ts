@@ -18,23 +18,33 @@ function getChatToastPreferencesKey(userId: string) {
   return `wefin.chat-toast-preferences.${userId}`
 }
 
+function toBooleanPreference(value: unknown, fallback: boolean) {
+  return typeof value === 'boolean' ? value : fallback
+}
+
 export function getChatToastPreferences(userId: string): ChatToastPreferences {
   if (typeof window === 'undefined' || !userId) {
     return DEFAULT_CHAT_TOAST_PREFERENCES
   }
 
-  const stored = window.localStorage.getItem(getChatToastPreferencesKey(userId))
-
-  if (!stored) {
-    return DEFAULT_CHAT_TOAST_PREFERENCES
-  }
-
   try {
+    const stored = window.localStorage.getItem(getChatToastPreferencesKey(userId))
+
+    if (!stored) {
+      return DEFAULT_CHAT_TOAST_PREFERENCES
+    }
+
     const parsed = JSON.parse(stored) as Partial<ChatToastPreferences>
 
     return {
-      globalEnabled: parsed.globalEnabled ?? DEFAULT_CHAT_TOAST_PREFERENCES.globalEnabled,
-      groupEnabled: parsed.groupEnabled ?? DEFAULT_CHAT_TOAST_PREFERENCES.groupEnabled
+      globalEnabled: toBooleanPreference(
+        parsed.globalEnabled,
+        DEFAULT_CHAT_TOAST_PREFERENCES.globalEnabled
+      ),
+      groupEnabled: toBooleanPreference(
+        parsed.groupEnabled,
+        DEFAULT_CHAT_TOAST_PREFERENCES.groupEnabled
+      )
     }
   } catch {
     return DEFAULT_CHAT_TOAST_PREFERENCES
@@ -57,7 +67,12 @@ export function updateChatToastPreference(userId: string, chatType: ChatType, en
     ...(chatType === 'GLOBAL' ? { globalEnabled: enabled } : { groupEnabled: enabled })
   }
 
-  window.localStorage.setItem(getChatToastPreferencesKey(userId), JSON.stringify(nextPreferences))
+  try {
+    window.localStorage.setItem(getChatToastPreferencesKey(userId), JSON.stringify(nextPreferences))
+  } catch {
+    return nextPreferences
+  }
+
   window.dispatchEvent(
     new CustomEvent<ChatToastPreferences>(CHAT_TOAST_PREFERENCES_EVENT, {
       detail: nextPreferences

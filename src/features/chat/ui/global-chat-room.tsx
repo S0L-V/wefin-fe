@@ -97,25 +97,8 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       )
     }
 
-    const latestMyMessageId = chatMessages.reduce<number | null>((latest, message) => {
-      if (message.userId !== userId || message.messageId == null) {
-        return latest
-      }
-
-      if (message.messageId <= visibleGlobalReadMessageId) {
-        return latest
-      }
-
-      return latest == null || message.messageId > latest ? message.messageId : latest
-    }, null)
-
-    const effectiveReadMessageId =
-      latestMyMessageId != null && latestMyMessageId > visibleGlobalReadMessageId
-        ? latestMyMessageId
-        : visibleGlobalReadMessageId
-
     return chatMessages.findIndex((message) => {
-      if (message.messageId == null || message.messageId <= effectiveReadMessageId) {
+      if (message.messageId == null || message.messageId <= visibleGlobalReadMessageId) {
         return false
       }
 
@@ -145,14 +128,24 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       return
     }
 
+    const container = scrollContainerRef.current
+
+    if (shouldRestoreScrollRef.current && previousHeightRef.current != null) {
+      const previousHeight = previousHeightRef.current
+      const nextHeight = container.scrollHeight
+
+      container.scrollTop += nextHeight - previousHeight
+      shouldRestoreScrollRef.current = false
+      previousHeightRef.current = null
+      return
+    }
+
     if (firstUnreadIndex >= 0 && unreadDividerRef.current) {
       unreadDividerRef.current.scrollIntoView({
         block: 'center'
       })
       return
     }
-
-    const container = scrollContainerRef.current
     container.scrollTop = container.scrollHeight
   }, [firstUnreadIndex, isLoading, chatMessages.length])
 

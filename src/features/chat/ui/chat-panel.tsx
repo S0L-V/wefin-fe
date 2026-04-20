@@ -167,17 +167,29 @@ export default function ChatPanel() {
       return
     }
 
+    let cancelled = false
+
     snapshotUnreadLine(activeChatType)
     markChatReadLocally(activeChatType)
 
     void markChatRead(activeChatType)
       .then(() => fetchChatUnread())
       .then((payload) => {
+        if (cancelled) {
+          return
+        }
         setUnread(payload)
       })
       .catch((error) => {
+        if (cancelled) {
+          return
+        }
         console.error('Failed to mark chat as read:', error)
       })
+
+    return () => {
+      cancelled = true
+    }
   }, [activeChatType, isLoggedIn, markChatReadLocally, setUnread, snapshotUnreadLine])
 
   const handleToggleToast = () => {

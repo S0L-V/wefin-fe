@@ -135,25 +135,8 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
       )
     }
 
-    const latestMyMessageId = chatMessages.reduce<number | null>((latest, message) => {
-      if (message.userId !== userId) {
-        return latest
-      }
-
-      if (message.messageId <= visibleGroupReadMessageId) {
-        return latest
-      }
-
-      return latest == null || message.messageId > latest ? message.messageId : latest
-    }, null)
-
-    const effectiveReadMessageId =
-      latestMyMessageId != null && latestMyMessageId > visibleGroupReadMessageId
-        ? latestMyMessageId
-        : visibleGroupReadMessageId
-
     return chatMessages.findIndex((message) => {
-      if (message.messageId <= effectiveReadMessageId) {
+      if (message.messageId <= visibleGroupReadMessageId) {
         return false
       }
 
@@ -183,14 +166,24 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
       return
     }
 
+    const container = scrollContainerRef.current
+
+    if (shouldRestoreScrollRef.current) {
+      if (previousHeightRef.current != null) {
+        container.scrollTop += container.scrollHeight - previousHeightRef.current
+      }
+
+      shouldRestoreScrollRef.current = false
+      previousHeightRef.current = null
+      return
+    }
+
     if (firstUnreadIndex >= 0 && unreadDividerRef.current) {
       unreadDividerRef.current.scrollIntoView({
         block: 'center'
       })
       return
     }
-
-    const container = scrollContainerRef.current
     container.scrollTop = container.scrollHeight
   }, [firstUnreadIndex, isLoading, chatMessages.length])
 

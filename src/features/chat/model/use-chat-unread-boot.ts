@@ -157,6 +157,10 @@ export function useChatUnreadBoot(userId: string) {
   const baseTitleRef = useRef(getBaseTitle())
   const baseFaviconRef = useRef<string | null>(null)
   const faviconJobRef = useRef(0)
+  const readSyncRef = useRef<Record<ChatType, { inFlight: boolean; pending: boolean }>>({
+    GLOBAL: { inFlight: false, pending: false },
+    GROUP: { inFlight: false, pending: false }
+  })
 
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -251,6 +255,34 @@ export function useChatUnreadBoot(userId: string) {
       return
     }
 
+    const syncViewedChatRead = (chatType: ChatType) => {
+      const syncState = readSyncRef.current[chatType]
+
+      if (syncState.inFlight) {
+        syncState.pending = true
+        return
+      }
+
+      syncState.inFlight = true
+
+      void markChatRead(chatType)
+        .then(() => syncUnreadState())
+        .then((unreadPayload) => {
+          useChatUnreadStore.getState().setUnread(unreadPayload)
+        })
+        .catch((error) => {
+          console.error('Failed to mark chat as read from realtime event:', error)
+        })
+        .finally(() => {
+          syncState.inFlight = false
+
+          if (syncState.pending) {
+            syncState.pending = false
+            syncViewedChatRead(chatType)
+          }
+        })
+    }
+
     let subscription: { unsubscribe: () => void } | null = null
 
     const unsubscribeConnect = onStompConnect(() => {
@@ -273,14 +305,7 @@ export function useChatUnreadBoot(userId: string) {
 
           if (isViewingSameChat) {
             state.markChatReadLocally(payload.chatType)
-            void markChatRead(payload.chatType)
-              .then(() => syncUnreadState())
-              .then((unreadPayload) => {
-                state.setUnread(unreadPayload)
-              })
-              .catch((error) => {
-                console.error('Failed to mark chat as read from realtime event:', error)
-              })
+            syncViewedChatRead(payload.chatType)
             return
           }
 
