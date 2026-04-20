@@ -31,7 +31,25 @@ export default function ClusterDetailContent() {
 
   if (isError || !cluster) {
     return (
-      <div className="py-20 text-center text-sm text-wefin-subtle">뉴스를 불러오지 못했습니다</div>
+      <div className="flex flex-col items-center py-20 text-center">
+        <svg
+          width="100"
+          height="60"
+          viewBox="0 0 100 60"
+          fill="none"
+          className="mb-4 text-wefin-muted"
+        >
+          <polyline
+            points="5,50 25,40 45,45 65,20 85,30 95,25"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
+        <p className="text-sm font-bold text-wefin-text">기사를 찾을 수 없어요</p>
+        <p className="mt-1 text-xs text-wefin-subtle">삭제되었거나 존재하지 않는 기사입니다.</p>
+      </div>
     )
   }
 
