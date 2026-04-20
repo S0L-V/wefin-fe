@@ -75,7 +75,7 @@ function CreateRoomInline() {
     disabledPeriods
   } = useCreateRoomForm()
 
-  const totalTurns = Math.floor((periodMonths * 30) / moveDays) + 1
+  const totalTurns = Math.ceil((periodMonths * 30) / moveDays) + 1
 
   return (
     <div className="card-base">

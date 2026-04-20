@@ -248,7 +248,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
           onScroll={() => {
             void handleScroll()
           }}
-          className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white p-3 scrollbar-thin"
+          className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white px-4 py-3 scrollbar-thin"
         >
           {isLoadingOlder && (
             <div className="text-center text-xs text-wefin-subtle">
