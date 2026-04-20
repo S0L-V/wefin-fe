@@ -176,24 +176,24 @@ function ResultPage() {
           </div>
 
           {/* 전체 매매 내역 */}
-          <div className="card-base p-6">
-            <h3 className="mb-4 text-sm font-bold text-wefin-text">전체 매매 내역</h3>
+          <div className="card-base p-5 sm:p-6">
+            <h3 className="mb-5 text-[15px] font-bold text-wefin-text">전체 매매 내역</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-wefin-line text-xs font-bold text-wefin-subtle">
-                    <th className="pb-3">날짜</th>
-                    <th className="pb-3">종목</th>
-                    <th className="pb-3">구분</th>
-                    <th className="pb-3 text-right">수량</th>
-                    <th className="pb-3 text-right">단가</th>
-                    <th className="pb-3 text-right">금액</th>
+                  <tr className="border-b border-wefin-line text-[13px] font-bold text-wefin-subtle">
+                    <th className="pb-3.5">날짜</th>
+                    <th className="pb-3.5">종목</th>
+                    <th className="pb-3.5">구분</th>
+                    <th className="pb-3.5 text-right">수량</th>
+                    <th className="hidden pb-3.5 text-right sm:table-cell">단가</th>
+                    <th className="pb-3.5 text-right">금액</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-wefin-line/50">
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-xs text-wefin-subtle">
+                      <td colSpan={6} className="py-10 text-center text-sm text-wefin-subtle">
                         매매 내역이 없습니다.
                       </td>
                     </tr>
@@ -201,28 +201,28 @@ function ResultPage() {
                     orders.map((o) => {
                       const isBuy = o.orderType === 'BUY'
                       return (
-                        <tr key={o.orderId} className="text-[13px]">
-                          <td className="py-3 font-num text-wefin-subtle">
+                        <tr key={o.orderId} className="text-[14px]">
+                          <td className="py-4 font-num text-wefin-subtle">
                             {o.turnDate?.replaceAll('-', '.')}
                           </td>
-                          <td className="py-3">
+                          <td className="py-4">
                             <p className="font-semibold text-wefin-text">{o.stockName}</p>
-                            <p className="text-[10px] text-wefin-muted">{o.symbol}</p>
+                            <p className="text-[11px] text-wefin-muted">{o.symbol}</p>
                           </td>
-                          <td className="py-3">
+                          <td className="py-4">
                             <span
-                              className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${isBuy ? 'bg-wefin-red-soft text-wefin-red' : 'bg-wefin-surface-2 text-blue-400'}`}
+                              className={`rounded-md px-2.5 py-1 text-[11px] font-bold ${isBuy ? 'bg-wefin-red-soft text-wefin-red' : 'bg-wefin-surface-2 text-blue-400'}`}
                             >
                               {isBuy ? '매수' : '매도'}
                             </span>
                           </td>
-                          <td className="font-num py-3 text-right font-semibold text-wefin-text">
+                          <td className="font-num py-4 text-right font-semibold text-wefin-text">
                             {o.quantity.toLocaleString()}주
                           </td>
-                          <td className="font-num py-3 text-right text-wefin-text">
+                          <td className="font-num hidden py-4 text-right text-wefin-text sm:table-cell">
                             {Math.trunc(o.price).toLocaleString()}원
                           </td>
-                          <td className="font-num py-3 text-right font-bold text-wefin-text">
+                          <td className="font-num py-4 text-right font-bold text-wefin-text">
                             {Math.trunc(o.price * o.quantity).toLocaleString()}원
                           </td>
                         </tr>
