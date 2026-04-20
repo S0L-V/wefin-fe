@@ -2,7 +2,7 @@ import '@/app/styles/dialog.css'
 
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
-import { type ChangeEvent, type FormEvent, useState } from 'react'
+import { type ChangeEvent, type FormEvent, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useWithdrawMutation } from '@/features/auth-dialog/model/use-withdraw-mutation'
@@ -26,6 +26,8 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
   const [touchedFields, setTouchedFields] = useState<Partial<Record<WithdrawFieldName, boolean>>>(
     {}
   )
+
+  const submitInFlightRef = useRef(false)
 
   const { mutateAsync: withdrawMutateAsync, isPending } = useWithdrawMutation()
 
@@ -108,6 +110,9 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
     if (Object.keys(nextErrors).length > 0) return
 
     try {
+      if (submitInFlightRef.current) return
+      submitInFlightRef.current = true
+
       await withdrawMutateAsync({
         password: formData.password
       })
@@ -157,6 +162,8 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
       }
 
       toast.error('서버와 통신 중 오류가 발생했습니다.')
+    } finally {
+      submitInFlightRef.current = false
     }
   }
 
