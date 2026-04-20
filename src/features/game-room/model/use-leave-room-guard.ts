@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -10,7 +10,6 @@ import { useLeaveGuardStore } from './use-leave-guard-store'
 export function useLeaveRoomGuard(roomId: string) {
   const navigate = useNavigate()
   const leaveMutation = useLeaveGameRoomMutation()
-  const pendingPathRef = useRef<string | null>(null)
 
   const showDialog = useLeaveGuardStore((s) => s.showDialog)
   const activate = useLeaveGuardStore((s) => s.activate)
@@ -49,21 +48,15 @@ export function useLeaveRoomGuard(roomId: string) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
 
-  // leave 성공 시 리다이렉트
-  // deactivate는 컴포넌트 언마운트 cleanup이 처리하므로 여기서는 navigate만
-  useEffect(() => {
-    if (leaveMutation.isSuccess) {
-      navigate(pendingPathRef.current ?? '/history')
-    }
-  }, [leaveMutation.isSuccess, navigate])
-
   const confirmLeave = useCallback(() => {
-    pendingPathRef.current = getPendingPath()
+    const pending = getPendingPath()
+    const targetPath = typeof pending === 'string' ? pending : '/history'
     leaveMutation.mutate(roomId, {
+      onSuccess: () => {
+        deactivate()
+        navigate(targetPath)
+      },
       onError: (err) => {
-        // 실패 시: 다이얼로그 닫고 사용자에게 에러 표시
-        // 재시도는 다시 로고/메뉴 클릭으로 유도. 다이얼로그를 열어두면
-        // 사용자가 뭐가 실패했는지 모른 채 같은 버튼을 반복 누르게 됨.
         const message =
           err instanceof ApiError
             ? err.message
@@ -72,7 +65,7 @@ export function useLeaveRoomGuard(roomId: string) {
         toast.error(message)
       }
     })
-  }, [roomId, leaveMutation, getPendingPath, cancelLeave])
+  }, [roomId, leaveMutation, getPendingPath, deactivate, navigate, cancelLeave])
 
   return {
     showDialog,

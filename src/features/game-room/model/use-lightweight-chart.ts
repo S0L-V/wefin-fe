@@ -76,7 +76,7 @@ export function useLightweightChart({ data, interval, symbol }: UseLightweightCh
         }
       },
       width: containerRef.current.clientWidth,
-      height: 280
+      height: containerRef.current.clientHeight
     })
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
@@ -107,8 +107,8 @@ export function useLightweightChart({ data, interval, symbol }: UseLightweightCh
     volumeSeriesRef.current = volumeSeries
 
     const observer = new ResizeObserver((entries) => {
-      const { width } = entries[0].contentRect
-      chart.applyOptions({ width })
+      const { width, height } = entries[0].contentRect
+      chart.applyOptions({ width, height })
     })
     observer.observe(containerRef.current)
 

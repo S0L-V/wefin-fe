@@ -257,7 +257,6 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    toast.error('')
 
     setTouchedFields({
       nickname: true,
@@ -286,8 +285,7 @@ export function useSignupForm({ onSuccess }: UseSignupFormParams) {
       setIsEmailVerified(false)
       setIsCodeSent(false)
       setVerificationCode('')
-      toast.error('')
-
+      toast.success('회원가입이 완료되었습니다!')
       onSuccess()
     } catch (error) {
       if (error instanceof ApiError) {

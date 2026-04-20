@@ -1,5 +1,3 @@
-import { TrendingUp } from 'lucide-react'
-
 import type { RankingItem } from '../model/ranking.schema'
 import { useRankingQuery } from '../model/use-ranking-query'
 
@@ -9,29 +7,31 @@ interface GroupRankingProps {
 
 function GroupRanking({ roomId }: GroupRankingProps) {
   const { data: rankings, isLoading } = useRankingQuery(roomId)
-
   const items = rankings?.data ?? []
 
   return (
-    <section className="flex h-[300px] flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-      <header className="mb-4 flex shrink-0 items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500">
-          <TrendingUp size={14} className="text-white" />
-        </div>
-        <h3 className="text-sm font-bold text-wefin-text">그룹 수익률 현황</h3>
-      </header>
+    <section className="flex h-full flex-col">
+      <div className="flex h-12 shrink-0 items-center px-4">
+        <span className="text-sm font-bold text-wefin-text">랭킹</span>
+      </div>
 
-      <div className="flex-1 space-y-2 overflow-y-auto pr-1">
+      <div className="flex-1 overflow-y-auto scrollbar-thin px-3 pb-2">
         {isLoading ? (
-          <div className="flex flex-1 items-center justify-center py-16">
-            <p className="text-xs text-wefin-subtle">로딩 중...</p>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-12 animate-pulse rounded-xl bg-wefin-surface-2" />
+            ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center py-16">
-            <p className="text-xs text-wefin-subtle">랭킹 정보가 없습니다</p>
+          <div className="flex h-full items-center justify-center">
+            <p className="text-xs text-wefin-muted">랭킹 정보가 없습니다</p>
           </div>
         ) : (
-          items.map((item, index) => <RankingRow key={item.userId} item={item} index={index} />)
+          <div className="space-y-1.5">
+            {items.map((item, index) => (
+              <RankingRow key={item.userId} item={item} index={index} />
+            ))}
+          </div>
         )}
       </div>
     </section>
@@ -39,33 +39,59 @@ function GroupRanking({ roomId }: GroupRankingProps) {
 }
 
 function RankingRow({ item, index }: { item: RankingItem; index: number }) {
-  const profitColor = item.profitRate >= 0 ? 'text-red-500' : 'text-blue-500'
+  const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-blue-500'
   const sign = item.profitRate >= 0 ? '+' : ''
-
-  const medalColors = ['bg-yellow-400', 'bg-gray-300', 'bg-amber-600']
-  const medalBg = index < 3 ? medalColors[index] : 'bg-wefin-bg'
-  const medalText = index < 3 ? 'text-white' : 'text-wefin-subtle'
+  const isTop3 = index < 3
+  const allColors = [
+    ['#0f8385', '#34d399'],
+    ['#2563eb', '#60a5fa'],
+    ['#7c3aed', '#a78bfa'],
+    ['#e11d48', '#fb7185'],
+    ['#d97706', '#fbbf24'],
+    ['#334155', '#64748b']
+  ]
+  const [from, to] = allColors[index % allColors.length]
+  const initial = item.userName?.charAt(0)?.toUpperCase() ?? '?'
 
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-wefin-bg px-4 py-3">
-      <div
-        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${medalBg} ${medalText}`}
+    <div
+      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
+        isTop3 ? 'bg-wefin-surface-2' : 'hover:bg-wefin-surface-2'
+      }`}
+    >
+      <span
+        className={`font-num flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold ${
+          index === 0
+            ? 'bg-amber-400 text-white'
+            : index === 1
+              ? 'bg-gray-400 text-white'
+              : index === 2
+                ? 'bg-amber-600 text-white'
+                : 'bg-wefin-surface-2 text-wefin-muted'
+        }`}
       >
         {item.rank}
-      </div>
+      </span>
 
-      <div className="min-w-0 flex-1">
-        <span className="text-xs font-bold text-wefin-text">{item.userName}</span>
-      </div>
+      <span
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+        style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+      >
+        {initial}
+      </span>
 
-      <div className="flex shrink-0 flex-col text-right">
-        <span className="text-xs font-bold text-wefin-text">
-          {item.totalAsset.toLocaleString()}원
-        </span>
-        <span className={`text-[10px] font-medium ${profitColor}`}>
+      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-wefin-text">
+        {item.userName}
+      </span>
+
+      <div className="shrink-0 text-right">
+        <p className={`font-num text-[13px] font-bold tabular-nums ${profitColor}`}>
           {sign}
           {item.profitRate.toFixed(2)}%
-        </span>
+        </p>
+        <p className="font-num text-[10px] font-semibold tabular-nums text-wefin-subtle">
+          {Math.floor(item.totalAsset).toLocaleString()}원
+        </p>
       </div>
     </div>
   )

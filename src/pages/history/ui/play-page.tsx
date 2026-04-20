@@ -74,6 +74,15 @@ function PlayPage() {
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
+  const totalTurns =
+    roomDetail?.data.totalTurns ??
+    (roomDetail?.data
+      ? Math.floor(
+          (new Date(roomDetail.data.endDate).getTime() -
+            new Date(roomDetail.data.startDate).getTime()) /
+            (roomDetail.data.moveDays * 86400000)
+        ) + 1
+      : 0)
   const totalAssets = portfolio?.data.totalAsset ?? seed
   const profitRate = portfolio?.data.profitRate ?? 0
   const cash = portfolio?.data.cash ?? seed
@@ -81,9 +90,39 @@ function PlayPage() {
   return (
     <>
       {/* 부모 main의 max-width/padding을 뚫고 화면 가득 차는 레이아웃 */}
-      <div className="relative left-1/2 -ml-[50vw] -mt-6 w-screen">
+      <div className="fixed inset-0 top-[56px] z-20 flex flex-col overflow-hidden bg-wefin-bg">
+        <div className="flex min-h-0 flex-1 gap-2 p-2">
+          <div className="flex min-w-0 flex-[1] flex-col gap-2">
+            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <StockChart roomId={roomId} />
+            </div>
+            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <MarketBriefing roomId={roomId} />
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-[0.7] flex-col gap-2">
+            <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <OrderPanel roomId={roomId} cash={cash} />
+            </div>
+            <div className="min-h-0 flex-[0.8] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <HoldingsPanel roomId={roomId} />
+            </div>
+          </div>
+
+          <div className="flex min-w-[280px] max-w-[380px] flex-[0.45] flex-col gap-2">
+            <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <GroupChatRoom bare />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-white">
+              <GroupRanking roomId={roomId} />
+            </div>
+          </div>
+        </div>
+
         <PlayHeader
           currentRound={currentRound}
+          totalTurns={totalTurns}
           currentDate={currentDate}
           seed={seed}
           totalAssets={totalAssets}
@@ -103,23 +142,6 @@ function PlayPage() {
             })
           }}
         />
-
-        <div className="mx-auto flex max-w-[1400px] items-stretch gap-4 p-4">
-          <aside className="flex w-80 flex-col gap-4">
-            <MarketBriefing roomId={roomId} />
-            <HoldingsPanel roomId={roomId} />
-          </aside>
-
-          <main className="flex min-w-0 flex-1 flex-col gap-4">
-            <StockChart roomId={roomId} />
-            <OrderPanel roomId={roomId} cash={cash} />
-          </main>
-
-          <aside className="flex w-[360px] flex-col gap-4">
-            <GroupChatRoom />
-            <GroupRanking roomId={roomId} />
-          </aside>
-        </div>
       </div>
 
       <VoteModal roomId={roomId} />

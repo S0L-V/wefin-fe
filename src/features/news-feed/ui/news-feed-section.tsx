@@ -1,12 +1,24 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { ChevronRight, Layers } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
+import SourceBadge from '@/shared/ui/source-badge'
+
+import type { ClusterItem, ClusterTab } from '../api/fetch-news-clusters'
+import { getTimeAgo } from '../lib/get-time-ago'
 import { useNewsFeedQuery } from '../model/use-news-feed-query'
 import { useNewsFeedStore } from '../model/use-news-feed-store'
-import NewsCard from './news-card'
-import NewsCategoryTabs from './news-category-tabs'
 
 const PAGE_SIZE = 6
+
+const TABS: { value: ClusterTab; label: string }[] = [
+  { value: 'ALL', label: '전체' },
+  { value: 'FINANCE', label: '경제' },
+  { value: 'TECH', label: 'IT/과학' },
+  { value: 'INDUSTRY', label: '산업' },
+  { value: 'ENERGY', label: '에너지' },
+  { value: 'BIO', label: '바이오' },
+  { value: 'CRYPTO', label: '암호화폐' }
+]
 
 export default function NewsFeedSection() {
   const tab = useNewsFeedStore((s) => s.tab)
@@ -24,118 +36,113 @@ export default function NewsFeedSection() {
 
   const freshItems = isPlaceholderData ? [] : (data?.items ?? [])
   const currentItems = cursors.length === 1 ? freshItems : [...loadedItems, ...freshItems]
+  const displayItems = currentItems.slice(0, 3)
 
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
-  const hasMultipleCards = currentItems.length > 2
-
-  function updateScrollState() {
-    const el = scrollRef.current
-    if (!el) return
-    const hasOverflow = el.scrollWidth > el.clientWidth + 4
-    setCanScrollLeft(hasOverflow && el.scrollLeft > 4)
-    setCanScrollRight(hasOverflow && el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
-  }
-
-  function handleTabChange(newTab: typeof tab) {
+  function handleTabChange(newTab: ClusterTab) {
     setTab(newTab)
     resetPagination()
   }
 
-  function scroll(dir: 'left' | 'right') {
-    const el = scrollRef.current
-    if (!el) return
-    const cardWidth = el.clientWidth * 0.52
-    el.scrollBy({ left: dir === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' })
-  }
-
-  if (isError && currentItems.length === 0) {
-    return (
-      <div>
-        <SectionHeader activeTab={tab} onTabChange={handleTabChange} />
-        <p className="py-12 text-center text-sm text-wefin-subtle">뉴스를 불러오지 못했습니다</p>
-      </div>
-    )
+  function scrollToNewsList() {
+    const el = document.getElementById('news-list-section')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <div>
-      <SectionHeader activeTab={tab} onTabChange={handleTabChange} />
+    <section>
+      <div className="mb-4 flex items-end justify-between">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-bold text-wefin-text">이 시각 주요 뉴스</h2>
+          <button
+            type="button"
+            onClick={scrollToNewsList}
+            className="flex items-center gap-0.5 text-xs font-medium text-wefin-subtle transition-colors hover:text-wefin-mint-deep"
+          >
+            더보기
+            <ChevronRight size={13} />
+          </button>
+        </div>
+        <div className="inline-flex rounded-full border border-wefin-line bg-wefin-surface p-1">
+          {TABS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => handleTabChange(t.value)}
+              className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors ${
+                tab === t.value
+                  ? 'bg-wefin-text text-white'
+                  : 'text-wefin-subtle hover:text-wefin-text'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {isLoading || isPlaceholderData ? (
-        <div className="flex gap-4">
+        <div className="grid grid-cols-3 gap-3.5">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-[160px] w-[48%] shrink-0 animate-pulse rounded-2xl bg-gray-100"
-            />
+              className="animate-pulse overflow-hidden rounded-[18px] border border-wefin-line bg-wefin-surface"
+            >
+              <div className="aspect-[16/10] bg-wefin-surface-2" />
+              <div className="space-y-2.5 p-4">
+                <div className="h-5 w-3/4 rounded bg-wefin-surface-2" />
+                <div className="h-4 w-full rounded bg-wefin-surface-2" />
+                <div className="h-3 w-1/3 rounded bg-wefin-surface-2" />
+              </div>
+            </div>
           ))}
         </div>
-      ) : !currentItems.length ? (
+      ) : isError && !displayItems.length ? (
+        <p className="py-12 text-center text-sm text-wefin-subtle">뉴스를 불러오지 못했습니다</p>
+      ) : !displayItems.length ? (
         <p className="py-12 text-center text-sm text-wefin-subtle">아직 뉴스가 없습니다</p>
       ) : (
-        <div className="group/carousel relative">
-          <div
-            ref={(el) => {
-              ;(scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = el
-              if (el) {
-                const hasOverflow = el.scrollWidth > el.clientWidth + 4
-                setCanScrollRight(hasOverflow)
-              }
-            }}
-            onScroll={updateScrollState}
-            className="flex gap-4 overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
-            {currentItems.map((cluster) => (
-              <div key={cluster.clusterId} className="w-[48%] shrink-0">
-                <NewsCard cluster={cluster} />
-              </div>
-            ))}
-          </div>
-          {hasMultipleCards && canScrollLeft && (
-            <>
-              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
-              <button
-                type="button"
-                onClick={() => scroll('left')}
-                aria-label="이전 뉴스"
-                className="absolute -left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-text shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all hover:scale-110 active:scale-95"
-              >
-                <ChevronLeft size={18} />
-              </button>
-            </>
-          )}
-          {hasMultipleCards && canScrollRight && (
-            <>
-              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
-              <button
-                type="button"
-                onClick={() => scroll('right')}
-                aria-label="다음 뉴스"
-                className="absolute -right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-text shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all hover:scale-110 active:scale-95"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </>
-          )}
+        <div className="grid grid-cols-3 gap-3.5">
+          {displayItems.map((cluster) => (
+            <MainNewsCard key={cluster.clusterId} cluster={cluster} />
+          ))}
         </div>
       )}
-    </div>
+    </section>
   )
 }
 
-function SectionHeader({
-  activeTab,
-  onTabChange
-}: {
-  activeTab: Parameters<typeof NewsCategoryTabs>[0]['activeTab']
-  onTabChange: Parameters<typeof NewsCategoryTabs>[0]['onTabChange']
-}) {
+function MainNewsCard({ cluster }: { cluster: ClusterItem }) {
   return (
-    <div className="mb-5 flex flex-col gap-3">
-      <h2 className="text-lg font-bold text-wefin-text">이 시각 주요 뉴스</h2>
-      <NewsCategoryTabs activeTab={activeTab} onTabChange={onTabChange} />
-    </div>
+    <Link
+      to={`/news/${cluster.clusterId}`}
+      className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-wefin-line bg-wefin-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-wefin-muted hover:shadow-[0_20px_40px_-24px_rgba(14,21,18,0.18)]"
+    >
+      <div className="aspect-[16/10] overflow-hidden bg-wefin-surface-2">
+        {cluster.thumbnailUrl ? (
+          <img
+            src={cluster.thumbnailUrl}
+            alt=""
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-wefin-surface-2 to-wefin-line">
+            <Layers className="h-8 w-8 text-wefin-muted" />
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col gap-2.5 p-4 pb-5">
+        <h3 className="line-clamp-2 text-[16.5px] font-bold leading-snug transition-colors group-hover:text-wefin-mint-deep">
+          {cluster.title}
+        </h3>
+        <p className="line-clamp-2 text-[13px] leading-relaxed text-wefin-subtle">
+          {cluster.summary}
+        </p>
+        <div className="mt-auto flex items-center gap-3 text-xs text-wefin-muted">
+          <span>{getTimeAgo(cluster.publishedAt)}</span>
+          <SourceBadge sources={cluster.sources} sourceCount={cluster.sourceCount} />
+        </div>
+      </div>
+    </Link>
   )
 }

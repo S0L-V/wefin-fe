@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import HeroSection from '@/features/market-trends/ui/hero-section'
 import MarketTrendsSection from '@/features/market-trends/ui/market-trends-section'
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
@@ -46,17 +47,16 @@ function HomePage() {
   }, [])
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-2 lg:flex-row lg:gap-0">
+    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] lg:flex-row">
       <section className="min-w-0 flex-1">
-        <div className="flex flex-col gap-2">
-          <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
-            <NewsFeedSection />
-          </div>
-          <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-[var(--gutter)]">
+          <HeroSection />
+          <NewsFeedSection />
+          <div className="card-base overflow-hidden">
             <MarketTrendsSection />
           </div>
           <RecommendedNewsSection />
-          <div className="rounded-xl border border-wefin-line bg-white p-4 shadow-sm">
+          <div className="card-base p-[var(--card-pad)]">
             <NewsListSection />
           </div>
         </div>
@@ -65,7 +65,7 @@ function HomePage() {
         <ResizeHandle onResize={handleResize} />
       </div>
       <aside
-        className="lg:sticky lg:top-[76px] lg:h-[calc(100vh-92px)] lg:shrink-0"
+        className="lg:sticky lg:top-[105px] lg:h-[calc(100dvh-140px)] lg:shrink-0 lg:overflow-hidden"
         style={{ width: `${sidebarWidth}px` }}
       >
         <HomeSidebar />

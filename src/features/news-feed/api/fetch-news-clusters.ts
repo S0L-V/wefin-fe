@@ -70,3 +70,11 @@ export async function fetchNewsClustersWithFilter(
   const parsed = apiResponseSchema(clusterFeedSchema).parse(response.data)
   return parsed.data
 }
+
+export async function fetchPopularNewsClusters(limit = 5): Promise<ClusterItem[]> {
+  const response = await baseApi.get('/news/clusters', {
+    params: { sort: 'view', size: limit }
+  })
+  const parsed = apiResponseSchema(clusterFeedSchema).parse(response.data)
+  return parsed.data.items
+}

@@ -43,50 +43,52 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
   return (
     <div
       onClick={handleRowClick}
-      className="flex cursor-pointer items-center px-5 py-3.5 transition-colors hover:bg-wefin-bg"
+      className="flex cursor-pointer items-center px-6 py-4.5 transition-colors hover:bg-wefin-bg"
     >
       <button
         type="button"
         onClick={handleHeartClick}
         disabled={isPending}
-        className={`mr-2 rounded-md p-1 transition-colors ${
+        className={`mr-3 rounded-md p-1 transition-colors ${
           isWatchlisted
             ? 'text-rose-500 hover:text-rose-600'
             : 'text-wefin-subtle hover:text-rose-400'
         } ${isPending ? 'opacity-50' : ''}`}
         aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
       >
-        <Heart className={`h-4 w-4 ${isWatchlisted ? 'fill-current' : ''}`} />
+        <Heart className={`h-5 w-5 ${isWatchlisted ? 'fill-current' : ''}`} />
       </button>
-      <div className="w-8 text-sm font-semibold text-wefin-text">{stock.rank}</div>
-      <div className="mr-3">
-        <StockLogo code={stock.stockCode} name={stock.stockName} />
+      <div className="w-9 text-[15px] font-bold text-wefin-text">{stock.rank}</div>
+      <div className="mr-3.5">
+        <StockLogo code={stock.stockCode} name={stock.stockName} size={36} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-semibold text-wefin-text">{stock.stockName}</span>
-        <span className="text-xs text-wefin-subtle">{stock.stockCode}</span>
+        <span className="truncate text-[15px] font-semibold text-wefin-text">
+          {stock.stockName}
+        </span>
+        <span className="text-[12px] text-wefin-subtle">{stock.stockCode}</span>
       </div>
-      <div className="flex w-32 flex-col items-end">
-        <span className="text-base font-semibold text-wefin-text tabular-nums">
+      <div className="flex w-36 flex-col items-end">
+        <span className="font-num text-[16px] font-bold text-wefin-text tabular-nums">
           {stock.currentPrice.toLocaleString()}원
         </span>
-        <span className={`text-xs font-medium ${rateTextColor} tabular-nums`}>
+        <span className={`font-num text-[13px] font-medium ${rateTextColor} tabular-nums`}>
           {signedChangeAmount}원
         </span>
       </div>
-      <div className="flex w-28 justify-end">
+      <div className="flex w-32 justify-end">
         <span
-          className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium tabular-nums ${rateTextColor} ${rateBgColor}`}
+          className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[14px] font-semibold tabular-nums ${rateTextColor} ${rateBgColor}`}
         >
-          {TrendIcon && <TrendIcon className="h-3.5 w-3.5" />}
+          {TrendIcon && <TrendIcon className="h-4 w-4" />}
           {isUp ? '+' : ''}
           {stock.changeRate.toFixed(2)}%
         </span>
       </div>
-      <div className="w-32 text-right text-sm font-medium text-wefin-text tabular-nums">
+      <div className="font-num w-36 text-right text-[14px] font-semibold text-wefin-text tabular-nums">
         {formatTradingValue(tradingValue)}
       </div>
-      <div className="w-32 text-right text-sm text-wefin-subtle tabular-nums">
+      <div className="font-num w-36 text-right text-[14px] text-wefin-subtle tabular-nums">
         {stock.volume.toLocaleString()}
       </div>
     </div>

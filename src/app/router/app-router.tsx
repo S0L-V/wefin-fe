@@ -14,6 +14,9 @@ import ResultPage from '@/pages/history/ui/result-page'
 import RoomPage from '@/pages/history/ui/room-page'
 import HomePage from '@/pages/home/ui/home-page'
 import InterestsPage from '@/pages/interests/ui/interests-page'
+import AboutPage from '@/pages/legal/ui/about-page'
+import PrivacyPage from '@/pages/legal/ui/privacy-page'
+import TermsPage from '@/pages/legal/ui/terms-page'
 import ClusterDetailPage from '@/pages/news/ui/cluster-detail-page'
 import NotFoundPage from '@/pages/not-found/ui/not-found-page'
 import SettingsPage from '@/pages/settings/ui/settings-page'
@@ -127,6 +130,10 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="terms" element={<TermsPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
+        <Route path="about" element={<AboutPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>

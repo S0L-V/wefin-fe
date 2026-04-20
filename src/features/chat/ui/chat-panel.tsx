@@ -18,7 +18,7 @@ import GroupChatRoom from '@/features/chat/ui/group-chat-room'
 import { useMyGroupQuery } from '@/features/settings/model/use-my-group-query'
 import SegmentedTabs, { type SegmentedTabItem } from '@/shared/ui/segmented-tabs'
 
-type InnerTab = 'group' | 'global'
+import type { ChatInnerTab } from '../model/chat-tabs'
 
 function useIsLoggedIn(): boolean {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('accessToken'))
@@ -112,7 +112,7 @@ export default function ChatPanel() {
   const hasGroup = isLoggedIn && group != null
   const isHomeGroup = hasGroup && group.isHomeGroup
 
-  const [innerTab, setInnerTab] = useState<InnerTab>(isHomeGroup ? 'global' : 'group')
+  const [innerTab, setInnerTab] = useState<ChatInnerTab>(isHomeGroup ? 'global' : 'group')
   const [prevIsHomeGroup, setPrevIsHomeGroup] = useState(isHomeGroup)
 
   if (prevIsHomeGroup !== isHomeGroup) {
@@ -127,7 +127,7 @@ export default function ChatPanel() {
       : chatToastPreferences.groupEnabled
   const currentToastLabel = activeChatType === 'GLOBAL' ? '전체 채팅 토스트' : '그룹 채팅 토스트'
 
-  const tabs = useMemo<SegmentedTabItem<InnerTab>[]>(() => {
+  const tabs = useMemo<SegmentedTabItem<ChatInnerTab>[]>(() => {
     const groupLabel = isHomeGroup ? '메모' : '그룹'
 
     return [

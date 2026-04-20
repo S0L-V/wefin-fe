@@ -1,5 +1,6 @@
 ﻿import { Client } from '@stomp/stompjs'
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import {
   fetchGlobalChatMessages,
@@ -93,9 +94,7 @@ export function useGlobalChatBoot(userId: string) {
     // 토큰이 있으면 인증 연결, 없으면 익명으로 글로벌 채팅만 구독한다.
     client.connectHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 
-    client.debug = (message) => {
-      console.log('[STOMP]', message)
-    }
+    client.debug = () => {}
 
     // onStompConnect 리스너로 등록 — client.onConnect를 덮어쓰지 않아
     // 다른 훅(투표, 턴 전환 등)의 구독이 파괴되지 않는다.
@@ -128,20 +127,9 @@ export function useGlobalChatBoot(userId: string) {
               const error = JSON.parse(frame.body) as ChatErrorMessage
               const timeoutMs = (error.remainingSeconds ?? 3) * 1000
 
-              // 도배 감지나 전송 실패는 채팅 화면을 없애지 않고 배너로만 보여준 뒤 자동으로 숨긴다.
-              setErrorMessage(error.message)
-
-              if (errorTimeoutRef.current != null) {
-                window.clearTimeout(errorTimeoutRef.current)
-              }
-
-              errorTimeoutRef.current = window.setTimeout(
-                () => {
-                  setErrorMessage(null)
-                  errorTimeoutRef.current = null
-                },
-                Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
-              )
+              toast.warning(error.message, {
+                duration: Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
+              })
             } catch {
               console.error('전체 채팅 에러 메시지 파싱 실패')
             }

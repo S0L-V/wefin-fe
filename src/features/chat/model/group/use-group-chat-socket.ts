@@ -1,4 +1,5 @@
 ﻿import { useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
 import {
   fetchGroupChatMessages,
@@ -100,26 +101,15 @@ export function useGroupChatSocket(userId: string) {
       }
     )
 
-    // 사용자 전용 에러 큐를 함께 구독해서 도배 감지나 전송 실패를 배너로 안내하고 자동으로 숨긴다.
     errorSubscriptionRef.current?.unsubscribe()
     errorSubscriptionRef.current = client.subscribe('/user/queue/errors', (frame) => {
       try {
         const error = JSON.parse(frame.body) as ChatErrorMessage
         const timeoutMs = (error.remainingSeconds ?? 3) * 1000
 
-        setErrorMessage(error.message)
-
-        if (errorTimeoutRef.current != null) {
-          window.clearTimeout(errorTimeoutRef.current)
-        }
-
-        errorTimeoutRef.current = window.setTimeout(
-          () => {
-            setErrorMessage(null)
-            errorTimeoutRef.current = null
-          },
-          Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
-        )
+        toast.warning(error.message, {
+          duration: Math.max(timeoutMs, FALLBACK_ERROR_TIMEOUT_MS)
+        })
       } catch {
         console.error('그룹 채팅 에러 메시지 파싱 실패')
       }

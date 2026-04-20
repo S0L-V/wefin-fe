@@ -203,10 +203,11 @@ function StockDetailPage() {
 function BlurOverlay() {
   return (
     <div
-      className="absolute inset-0 z-10 rounded-xl backdrop-blur-sm"
+      className="absolute inset-0 z-10 rounded-xl"
       style={{
-        background:
-          'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 20%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 80%, transparent 100%)'
+        background: 'rgba(255, 255, 255, 0.55)',
+        backdropFilter: 'blur(12px) saturate(1.2)',
+        WebkitBackdropFilter: 'blur(12px) saturate(1.2)'
       }}
     />
   )

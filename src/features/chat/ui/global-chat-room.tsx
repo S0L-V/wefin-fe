@@ -186,8 +186,18 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
 
   if (isLoading) {
     return (
-      <div className={`${bare ? 'h-full' : 'h-[640px]'} p-6 text-sm text-wefin-subtle`}>
-        Loading global chat...
+      <div
+        className={`${bare ? 'h-full' : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px]'} flex items-start justify-center pt-6`}
+      >
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-wefin-subtle/40"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            />
+          ))}
+        </div>
       </div>
     )
   }
@@ -195,7 +205,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   return (
     <div
       className={`flex min-h-0 flex-col overflow-hidden ${
-        bare ? 'h-full' : 'h-[640px] rounded-2xl border border-wefin-line bg-white shadow-sm'
+        bare
+          ? 'h-full'
+          : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] rounded-2xl border border-wefin-line bg-white shadow-sm'
       }`}
     >
       {errorMessage && (
@@ -209,7 +221,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         onScroll={() => {
           void handleScroll()
         }}
-        className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white p-3 scrollbar-thin"
+        className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto bg-white px-4 py-3 scrollbar-thin"
       >
         {isLoadingOlder && (
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
@@ -316,7 +328,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           </div>
         )}
 
-        <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
+        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
           <input
             type="text"
             value={message}
@@ -347,9 +359,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
             onClick={() => setIsEmojiPickerOpen((prev) => !prev)}
             disabled={!canSendMessage}
             aria-label="이모티콘 열기"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-wefin-muted transition-colors hover:bg-wefin-line hover:text-wefin-text disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Smile size={17} />
+            <Smile size={20} />
           </button>
           <button
             onClick={handleSendMessage}

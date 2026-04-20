@@ -80,12 +80,11 @@ function VoteModal({ roomId }: VoteModalProps) {
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" style={{ zIndex: 50 }} />
         <Dialog.Content className="dialog-content" style={{ zIndex: 51 }}>
-          <div className="flex flex-col items-center gap-4 py-2">
-            {/* 제목 */}
-            <Dialog.Title className="text-lg font-semibold text-wefin-text">
+          <div className="flex flex-col items-center gap-5 py-3">
+            <Dialog.Title className="text-xl font-extrabold text-wefin-text">
               {result ? '투표 결과' : '턴 전환 투표'}
             </Dialog.Title>
-            <Dialog.Description className="text-sm text-wefin-subtle">
+            <Dialog.Description className="text-sm font-medium text-wefin-subtle">
               {result
                 ? result === 'passed'
                   ? '다음 턴으로 이동합니다'
@@ -93,7 +92,6 @@ function VoteModal({ roomId }: VoteModalProps) {
                 : `${initiator}님이 다음 턴 전환을 요청했습니다`}
             </Dialog.Description>
 
-            {/* 결과 표시 */}
             {result ? (
               <div
                 className={`flex h-16 w-16 items-center justify-center rounded-full ${
@@ -108,26 +106,38 @@ function VoteModal({ roomId }: VoteModalProps) {
               </div>
             ) : (
               <>
-                {/* 카운트다운 */}
-                <div className="text-3xl font-bold text-wefin-mint">{remaining}초</div>
-
-                {/* 현황 바 */}
-                <div className="flex w-full items-center justify-between rounded-xl bg-wefin-bg px-4 py-3 text-sm">
-                  <span className="text-green-600">찬성 {agreeCount}</span>
-                  <span className="text-wefin-subtle">/</span>
-                  <span className="text-red-500">반대 {disagreeCount}</span>
-                  <span className="text-wefin-subtle">/</span>
-                  <span className="text-wefin-text">전체 {totalCount}</span>
+                <div className="font-num text-4xl font-extrabold text-wefin-mint">
+                  {remaining}초
                 </div>
 
-                {/* 투표 버튼 */}
+                <div className="grid w-full grid-cols-3 overflow-hidden rounded-xl border border-wefin-line">
+                  <div className="flex flex-col items-center gap-1 py-4">
+                    <span className="text-xs font-bold text-wefin-mint">찬성</span>
+                    <span className="font-num text-2xl font-extrabold text-wefin-mint">
+                      {agreeCount}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 border-x border-wefin-line py-4">
+                    <span className="text-xs font-bold text-wefin-red">반대</span>
+                    <span className="font-num text-2xl font-extrabold text-wefin-red">
+                      {disagreeCount}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 py-4">
+                    <span className="text-xs font-bold text-wefin-subtle">전체</span>
+                    <span className="font-num text-2xl font-extrabold text-wefin-text">
+                      {totalCount}
+                    </span>
+                  </div>
+                </div>
+
                 {!hasVoted ? (
-                  <div className="flex w-full gap-3 pt-2">
+                  <div className="flex w-full gap-3 pt-1">
                     <button
                       type="button"
                       onClick={() => handleVote(false)}
                       disabled={voteMutation.isPending}
-                      className="flex-1 rounded-xl border border-red-200 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50"
+                      className="flex-1 rounded-xl border-2 border-wefin-red/30 py-3.5 text-base font-bold text-wefin-red transition-colors hover:bg-wefin-red-soft disabled:opacity-50"
                     >
                       반대
                     </button>
@@ -135,13 +145,15 @@ function VoteModal({ roomId }: VoteModalProps) {
                       type="button"
                       onClick={() => handleVote(true)}
                       disabled={voteMutation.isPending}
-                      className="flex-1 rounded-xl bg-wefin-mint py-3 text-sm font-medium text-white transition-colors hover:bg-wefin-mint/90 disabled:opacity-50"
+                      className="flex-1 rounded-xl bg-wefin-mint py-3.5 text-base font-bold text-white transition-colors hover:bg-wefin-mint-deep disabled:opacity-50"
                     >
                       찬성
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-wefin-subtle">투표 완료 — 결과를 기다리는 중...</p>
+                  <p className="text-sm font-semibold text-wefin-subtle">
+                    투표 완료 — 결과를 기다리는 중...
+                  </p>
                 )}
               </>
             )}

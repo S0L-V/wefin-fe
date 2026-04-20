@@ -24,7 +24,7 @@ function ReadingProgressBar() {
   return (
     <div className="fixed top-[48px] right-0 left-0 z-30 h-[3px] bg-transparent">
       <div
-        className="h-full bg-gradient-to-r from-wefin-mint-deep to-wefin-mint transition-[width] duration-100"
+        className="h-full bg-gradient-to-r from-wefin-mint-deep to-wefin-mint"
         style={{ width: `${progress}%` }}
       />
     </div>
@@ -33,12 +33,12 @@ function ReadingProgressBar() {
 
 function ClusterDetailPage() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_minmax(320px,30%)]">
       <ReadingProgressBar />
       <ClusterDetailContent />
 
       <aside className="lg:sticky lg:top-[76px] lg:self-start">
-        <div className="flex h-[640px] flex-col overflow-hidden rounded-2xl bg-white">
+        <div className="card-base flex h-[calc(100dvh-120px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden">
           <ChatPanel />
         </div>
       </aside>

@@ -16,7 +16,19 @@ function RoomPage() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-20 text-wefin-subtle">로딩 중...</div>
+    return (
+      <div className="mx-auto max-w-[1100px] py-8">
+        <div className="h-6 w-36 animate-pulse rounded-lg bg-gray-200" />
+        <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-gray-100" />
+        <div className="mt-5 grid gap-5 lg:grid-cols-2">
+          <div className="space-y-5">
+            <div className="h-48 animate-pulse rounded-2xl bg-white shadow-sm" />
+            <div className="h-40 animate-pulse rounded-2xl bg-white shadow-sm" />
+          </div>
+          <div className="h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse rounded-2xl bg-white shadow-sm" />
+        </div>
+      </div>
+    )
   }
 
   if (isError || !data?.data) {

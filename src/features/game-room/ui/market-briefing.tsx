@@ -1,3 +1,5 @@
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
+
 import { useBriefingQuery } from '../model/use-briefing-query'
 
 interface MarketBriefingProps {
@@ -8,21 +10,29 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
   const { data, isFetching, isError } = useBriefingQuery(roomId)
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wefin-mint">
-          <span className="text-[10px] font-bold text-white">위핀</span>
+    <section className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex h-11 shrink-0 items-center justify-between px-4">
+        <div className="flex items-center gap-1.5">
+          <WefinLogoIcon size={14} className="text-wefin-mint" />
+          <span className="text-sm font-bold text-wefin-text">시장 브리핑</span>
         </div>
-        <h3 className="text-sm font-bold text-wefin-text">위핀 시장 동향 브리핑</h3>
         {!isFetching && data?.targetDate && (
-          <span className="ml-auto text-[11px] text-wefin-subtle">{data.targetDate}</span>
+          <span className="text-sm font-semibold tabular-nums text-wefin-text-2">
+            {data.targetDate.replaceAll('-', '.')}
+          </span>
         )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto scrollbar-thin px-4 pb-4">
         {isFetching && (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-xs text-wefin-subtle">브리핑 생성 중…</p>
+            <div className="flex items-center gap-2">
+              <WefinLogoIcon
+                size={14}
+                className="animate-[spinPause_2s_ease-in-out_infinite] text-wefin-mint"
+              />
+              <p className="text-xs text-wefin-subtle">브리핑 생성 중...</p>
+            </div>
           </div>
         )}
 
@@ -33,18 +43,24 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
         )}
 
         {!isFetching && data && (
-          <div className="space-y-4 text-xs leading-relaxed text-wefin-text">
+          <div className="space-y-5 text-sm leading-relaxed text-wefin-text">
             <div>
-              <h4 className="mb-1 font-bold text-wefin-mint">시장 개요</h4>
-              <p className="whitespace-pre-wrap break-words">{data.marketOverview}</p>
+              <h4 className="mb-2 text-[13px] font-extrabold text-wefin-mint-deep">시장 개요</h4>
+              <p className="whitespace-pre-wrap break-words font-medium text-wefin-text-2">
+                {data.marketOverview}
+              </p>
             </div>
             <div>
-              <h4 className="mb-1 font-bold text-wefin-mint">주요 이슈</h4>
-              <p className="whitespace-pre-wrap break-words">{data.keyIssues}</p>
+              <h4 className="mb-2 text-[13px] font-extrabold text-wefin-mint-deep">주요 이슈</h4>
+              <div className="whitespace-pre-wrap break-words font-medium text-wefin-text-2">
+                {data.keyIssues}
+              </div>
             </div>
             <div>
-              <h4 className="mb-1 font-bold text-wefin-mint">투자 힌트</h4>
-              <p className="whitespace-pre-wrap break-words">{data.investmentHint}</p>
+              <h4 className="mb-2 text-[13px] font-extrabold text-wefin-mint-deep">투자 힌트</h4>
+              <p className="whitespace-pre-wrap break-words font-medium text-wefin-text-2">
+                {data.investmentHint}
+              </p>
             </div>
           </div>
         )}

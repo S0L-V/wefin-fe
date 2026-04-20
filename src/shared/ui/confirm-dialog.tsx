@@ -1,6 +1,8 @@
 import { type ReactNode, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
+import ChartCanvas from './chart-canvas'
+
 interface ConfirmDialogProps {
   open: boolean
   onConfirm: () => void
@@ -44,7 +46,13 @@ export default function ConfirmDialog({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onCancel} />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(10, 16, 28, 0.85)' }}
+        onClick={onCancel}
+      >
+        <ChartCanvas />
+      </div>
       <div
         ref={dialogRef}
         className="relative w-[340px] animate-[slideDown_0.2s_ease-out] rounded-2xl bg-white px-6 py-7 shadow-[0_16px_48px_rgba(0,0,0,0.12)]"

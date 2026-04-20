@@ -228,7 +228,7 @@ export default function NewsFilterBar({
         </div>
       )}
 
-      {userId && (
+      {userId && mode !== 'ALL' && (
         <>
           <button
             type="button"

@@ -1,37 +1,159 @@
-import { Play, TrendingUp } from 'lucide-react'
+import { ChevronRight, Clock, Play, Trophy, Users } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+
+import ChatPanel from '@/features/chat/ui/chat-panel'
 
 import type { GameHistoryItem, RoomListItem } from '../model/game-room.schema'
+import { useCreateRoomForm } from '../model/use-create-room-form'
 import { useGameLobby } from '../model/use-game-lobby'
 import { useJoinGameRoomMutation } from '../model/use-game-room-query'
+
+function formatSeedLabel(value: number) {
+  return `${(value / 10_000).toLocaleString()}만원`
+}
+
+function formatPeriodLabel(months: number) {
+  if (months === 12) return '1년'
+  return `${months}개월`
+}
 
 function GameLobby() {
   const { activeRoom, recentHistory, isLoading } = useGameLobby()
 
   if (isLoading) {
-    return <div className="text-center py-20 text-wefin-subtle">로딩 중...</div>
+    return (
+      <div className="mx-auto max-w-[1100px] py-8">
+        <div className="h-6 w-36 animate-pulse rounded-lg bg-wefin-surface-2" />
+        <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-wefin-surface-2" />
+        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          <div className="space-y-5">
+            <div className="card-base h-[280px] animate-pulse" />
+            <div className="card-base h-[200px] animate-pulse" />
+          </div>
+          <div className="card-base h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse" />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-wefin-text">게임 로비</h1>
-          <p className="text-wefin-subtle mt-1">그룹 멤버들과 함께 과거의 시장으로 떠나보세요</p>
+    <div className="mx-auto max-w-[1100px] py-8">
+      <h1 className="text-2xl font-extrabold text-wefin-text">타임머신 투자</h1>
+      <p className="mt-1.5 text-[15px] text-wefin-subtle">
+        과거 시장 데이터로 투자를 학습하고, 함께 전략을 나눠보세요
+      </p>
+
+      <div className="mt-6 grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
+        <div className="flex flex-col gap-5">
+          {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <CreateRoomInline />}
+          <GameHistorySection items={recentHistory} />
         </div>
-        {!activeRoom && (
-          <Link
-            to="/history/create"
-            className="flex items-center gap-2 bg-wefin-mint text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
-          >
-            <Play className="w-4 h-4" />방 만들기
-          </Link>
-        )}
+
+        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden lg:sticky lg:top-20">
+          <ChatPanel />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CreateRoomInline() {
+  const {
+    seedMoney,
+    setSeedMoney,
+    periodMonths,
+    setPeriodMonths,
+    moveDays,
+    setMoveDays,
+    handleSubmit,
+    errorMessage,
+    isSubmitting,
+    seedOptions,
+    periodOptions,
+    moveDaysOptions,
+    disabledPeriods
+  } = useCreateRoomForm()
+
+  const totalTurns = Math.ceil((periodMonths * 30) / moveDays) + 1
+
+  return (
+    <div className="card-base">
+      <div className="p-6">
+        <h2 className="text-lg font-extrabold text-wefin-text">새 게임</h2>
+
+        <div className="mt-6 space-y-6">
+          <div>
+            <p className="text-sm font-bold text-wefin-text">얼마로 시작할까요?</p>
+            <p className="mt-1 text-[12px] text-wefin-subtle">가상 자본금으로 매매합니다</p>
+            <div className="mt-3 flex gap-2">
+              {seedOptions.map((value) => (
+                <OptionButton
+                  key={value}
+                  selected={seedMoney === value}
+                  onClick={() => setSeedMoney(value)}
+                >
+                  {formatSeedLabel(value)}
+                </OptionButton>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-bold text-wefin-text">어느 기간의 시장을 경험할까요?</p>
+            <p className="mt-1 text-[12px] text-wefin-subtle">과거 시장이 랜덤으로 선택됩니다</p>
+            <div className="mt-3 flex gap-2">
+              {periodOptions.map((value) => (
+                <OptionButton
+                  key={value}
+                  selected={periodMonths === value}
+                  disabled={disabledPeriods.includes(value)}
+                  onClick={() => setPeriodMonths(value)}
+                >
+                  {formatPeriodLabel(value)}
+                </OptionButton>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-bold text-wefin-text">한 턴에 며칠씩 이동할까요?</p>
+            <p className="mt-1 text-[12px] text-wefin-subtle">턴마다 매매 기회가 주어집니다</p>
+            <div className="mt-3 flex gap-2">
+              {moveDaysOptions.map((value) => (
+                <OptionButton
+                  key={value}
+                  selected={moveDays === value}
+                  onClick={() => setMoveDays(value)}
+                >
+                  {value}일
+                </OptionButton>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {errorMessage && <p className="mt-4 text-center text-sm text-wefin-red">{errorMessage}</p>}
       </div>
 
-      {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <EmptyRoomCard />}
-
-      {recentHistory.length > 0 && <GameHistorySection items={recentHistory} />}
+      <div className="flex items-center justify-between border-t border-wefin-line px-6 py-4">
+        <p className="text-sm text-wefin-subtle">
+          {formatSeedLabel(seedMoney)} · {formatPeriodLabel(periodMonths)} · {moveDays}일마다 ·{' '}
+          <span className="font-bold text-wefin-mint-deep">{totalTurns}턴</span>
+        </p>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="group relative shrink-0 overflow-hidden rounded-lg bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-6 py-2.5 text-sm font-bold text-white transition-all hover:shadow-[0_4px_16px_rgba(20,184,166,0.35)] active:scale-[0.97] disabled:opacity-50"
+        >
+          <span className="relative z-10 flex items-center gap-2">
+            <Play size={14} />
+            {isSubmitting ? '생성 중...' : '시작'}
+          </span>
+          <div className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
+        </button>
+      </div>
     </div>
   )
 }
@@ -39,7 +161,7 @@ function GameLobby() {
 function ActiveRoomCard({ room }: { room: RoomListItem }) {
   const navigate = useNavigate()
   const joinMutation = useJoinGameRoomMutation()
-  const statusLabel = room.status === 'WAITING' ? '대기중' : '진행중'
+  const isWaiting = room.status === 'WAITING'
 
   function handleEnter() {
     joinMutation.mutate(room.roomId, {
@@ -53,63 +175,80 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
           'code' in error &&
           error.code === 'PARTICIPANT_ALREADY_FINISHED'
         ) {
-          alert('이미 종료한 게임입니다. 다른 플레이어의 게임이 끝나면 결과를 확인할 수 있습니다.')
+          toast.error('이미 종료한 게임입니다.')
         }
       }
     })
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-wefin-line p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-wefin-mint-soft rounded-xl flex items-center justify-center">
-            <TrendingUp className="w-6 h-6 text-wefin-mint" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs bg-wefin-mint text-white px-2 py-0.5 rounded">
-                {statusLabel}
-              </span>
-              <span className="font-semibold text-wefin-text">현재 활성화된 게임</span>
-            </div>
-            <p className="text-sm text-wefin-subtle mt-1">
-              방장: 나 · {room.currentPlayers}명 참여 중
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={handleEnter}
-          disabled={joinMutation.isPending}
-          className="bg-wefin-mint text-white px-8 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          {joinMutation.isPending ? '입장 중...' : '입장하기'}
-        </button>
+    <button
+      type="button"
+      onClick={handleEnter}
+      disabled={joinMutation.isPending}
+      className="card-base group flex w-full items-center gap-4 p-6 text-left transition-all hover:shadow-[0_8px_24px_-12px_rgba(14,21,18,0.15)] disabled:opacity-60"
+    >
+      <div
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+          isWaiting ? 'bg-amber-50' : 'bg-gradient-to-br from-wefin-mint to-wefin-mint-deep'
+        }`}
+      >
+        <Play size={18} className={isWaiting ? 'text-amber-500' : 'text-white'} />
       </div>
-    </div>
-  )
-}
-
-function EmptyRoomCard() {
-  return (
-    <div className="bg-white rounded-2xl border border-wefin-line border-dashed p-16 text-center">
-      <Play className="w-10 h-10 mx-auto mb-4 opacity-30 text-wefin-subtle" />
-      <h3 className="text-lg font-semibold text-wefin-text">활성화된 게임이 없습니다</h3>
-      <p className="text-wefin-subtle mt-1">새로운 방을 만들어 투자를 시작해보세요</p>
-    </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-bold text-wefin-text">
+          {isWaiting ? '멤버를 기다리는 중' : '게임 진행 중'}
+        </p>
+        <div className="mt-1 flex items-center gap-2.5 text-sm text-wefin-subtle">
+          <span className="flex items-center gap-1">
+            <Users size={13} />
+            {room.currentPlayers}명
+          </span>
+          <span
+            className={`rounded px-2 py-0.5 text-[11px] font-bold ${
+              isWaiting ? 'bg-amber-50 text-amber-600' : 'bg-wefin-mint-soft text-wefin-mint-deep'
+            }`}
+          >
+            {isWaiting ? '대기 중' : '게임 중'}
+          </span>
+        </div>
+      </div>
+      <span className="shrink-0 rounded-lg bg-wefin-mint px-5 py-2.5 text-sm font-bold text-white transition-all group-hover:bg-wefin-mint-deep">
+        {joinMutation.isPending ? '입장 중...' : '입장하기'}
+      </span>
+    </button>
   )
 }
 
 function GameHistorySection({ items }: { items: GameHistoryItem[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="card-base flex flex-col items-center justify-center py-12 text-center">
+        <Trophy size={32} className="text-wefin-line-2" />
+        <p className="mt-4 text-sm font-semibold text-wefin-text">아직 게임 기록이 없어요</p>
+        <p className="mt-1 text-xs text-wefin-subtle">
+          게임을 시작해서 나만의 투자 기록을 만들어보세요
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <div className="bg-white rounded-2xl border border-wefin-line p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-wefin-text">과거 게임 이력</h2>
-        <Link to="/history/archive" className="text-sm text-wefin-mint hover:underline">
-          전체보기 &gt;
+    <div className="card-base">
+      <div className="flex items-center justify-between px-6 pt-6 pb-4">
+        <div className="flex items-center gap-2.5">
+          <Clock size={16} className="text-wefin-subtle" />
+          <h2 className="text-[15px] font-bold text-wefin-text">지난 게임</h2>
+        </div>
+        <Link
+          to="/history/archive"
+          className="flex items-center gap-0.5 text-sm font-medium text-wefin-subtle transition-colors hover:text-wefin-mint-deep"
+        >
+          전체보기
+          <ChevronRight size={14} />
         </Link>
       </div>
-      <div className="space-y-4">
+      <div className="px-4 pb-4">
         {items.map((item) => (
           <GameHistoryCard key={item.roomId} item={item} />
         ))}
@@ -119,39 +258,79 @@ function GameHistorySection({ items }: { items: GameHistoryItem[] }) {
 }
 
 function GameHistoryCard({ item }: { item: GameHistoryItem }) {
-  const seedLabel = `시드 ${(item.seedMoney / 10000).toLocaleString()}만원`
-  const periodLabel = `${item.periodMonths}M`
+  const seedLabel = `${(item.seedMoney / 10000).toLocaleString()}만원`
+  const periodLabel = `${item.periodMonths}개월`
   const isPositive = item.profitRate >= 0
-  const profitColor = isPositive ? 'text-red-500' : 'text-blue-500'
+  const profitColor = isPositive ? 'text-wefin-red' : 'text-blue-500'
   const profitSign = isPositive ? '+' : ''
   const rankLabel = item.finalRank != null ? `${item.finalRank}등` : '-'
 
   return (
     <Link
       to={`/history/room/${item.roomId}/result`}
-      className="flex items-center justify-between py-3 border-b border-wefin-line last:border-b-0 hover:bg-gray-50 -mx-2 px-2 rounded transition-colors"
+      className="flex items-center justify-between rounded-xl px-4 py-3.5 transition-colors hover:bg-wefin-surface-2"
     >
-      <div className="flex items-center gap-3">
-        <div className="w-1 h-10 bg-green-400 rounded-full" />
+      <div className="flex items-center gap-3.5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-wefin-surface-2">
+          <Trophy size={16} className="text-wefin-subtle" />
+        </div>
         <div>
-          <p className="font-medium text-wefin-text">
+          <p className="text-[15px] font-semibold text-wefin-text">
             {seedLabel} · {periodLabel} · {item.participantCount}명
           </p>
-          <p className="text-sm text-wefin-subtle">
+          <p className="mt-0.5 text-[12.5px] text-wefin-subtle">
             {item.startDate} ~ {item.endDate}
           </p>
         </div>
       </div>
       <div className="text-right">
-        <p className={`font-medium ${profitColor}`}>
+        <p className={`font-num text-[15px] font-bold ${profitColor}`}>
           {profitSign}
           {item.profitRate.toFixed(2)}%
         </p>
-        <p className="text-xs text-wefin-subtle">
+        <p className="mt-0.5 text-[12.5px] text-wefin-subtle">
           {rankLabel} / {item.participantCount}명
         </p>
       </div>
     </Link>
+  )
+}
+
+function OptionButton({
+  selected,
+  disabled,
+  onClick,
+  children
+}: {
+  selected: boolean
+  disabled?: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  if (disabled) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="flex-1 rounded-xl bg-wefin-surface-2 py-3 text-sm text-wefin-muted"
+      >
+        {children}
+      </button>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-all ${
+        selected
+          ? 'bg-wefin-mint text-white shadow-sm'
+          : 'bg-wefin-surface-2 text-wefin-text hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'
+      }`}
+    >
+      {children}
+    </button>
   )
 }
 
