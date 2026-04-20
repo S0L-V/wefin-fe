@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import ChangePasswordDialog from '@/features/auth-dialog/ui/change-password-dialog'
+import WithdrawDialog from '@/features/auth-dialog/ui/withdraw-dialog'
 
 type SettingsProfileSectionProps = {
   isLoggedIn: boolean
@@ -10,6 +11,7 @@ type SettingsProfileSectionProps = {
 function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfileSectionProps) {
   const nickname = isLoggedIn ? (localStorage.getItem('nickname') ?? '') : ''
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
   return (
     <>
@@ -53,6 +55,20 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
                 </button>
               }
             />
+            <SettingRow
+              title="회원 탈퇴"
+              description="계정을 삭제하고 서비스를 탈퇴합니다."
+              action={
+                <button
+                  type="button"
+                  disabled={!isLoggedIn}
+                  onClick={() => setIsWithdrawOpen(true)}
+                  className="h-8 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  탈퇴하기
+                </button>
+              }
+            />
           </div>
         </section>
       </div>
@@ -61,6 +77,8 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
         open={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
       />
+
+      <WithdrawDialog open={isWithdrawOpen} onClose={() => setIsWithdrawOpen(false)} />
     </>
   )
 }
