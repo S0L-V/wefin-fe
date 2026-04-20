@@ -17,11 +17,13 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
           <span className="text-sm font-bold text-wefin-text">시장 브리핑</span>
         </div>
         {!isFetching && data?.targetDate && (
-          <span className="text-xs tabular-nums text-wefin-muted">{data.targetDate}</span>
+          <span className="text-sm font-semibold tabular-nums text-wefin-text-2">
+            {data.targetDate.replaceAll('-', '.')}
+          </span>
         )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-4">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto scrollbar-thin px-4 pb-4">
         {isFetching && (
           <div className="flex flex-1 items-center justify-center">
             <div className="flex items-center gap-2">
@@ -41,22 +43,22 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
         )}
 
         {!isFetching && data && (
-          <div className="space-y-4 text-[13px] leading-relaxed text-wefin-text">
+          <div className="space-y-5 text-sm leading-relaxed text-wefin-text">
             <div>
-              <h4 className="mb-1.5 text-xs font-bold text-wefin-mint-deep">시장 개요</h4>
-              <p className="whitespace-pre-wrap break-words text-wefin-text-2">
+              <h4 className="mb-2 text-[13px] font-extrabold text-wefin-mint-deep">시장 개요</h4>
+              <p className="whitespace-pre-wrap break-words font-medium text-wefin-text-2">
                 {data.marketOverview}
               </p>
             </div>
             <div>
-              <h4 className="mb-1.5 text-xs font-bold text-wefin-mint-deep">주요 이슈</h4>
-              <div className="whitespace-pre-wrap break-words text-wefin-text-2">
+              <h4 className="mb-2 text-[13px] font-extrabold text-wefin-mint-deep">주요 이슈</h4>
+              <div className="whitespace-pre-wrap break-words font-medium text-wefin-text-2">
                 {data.keyIssues}
               </div>
             </div>
             <div>
-              <h4 className="mb-1.5 text-xs font-bold text-wefin-mint-deep">투자 힌트</h4>
-              <p className="whitespace-pre-wrap break-words text-wefin-text-2">
+              <h4 className="mb-2 text-[13px] font-extrabold text-wefin-mint-deep">투자 힌트</h4>
+              <p className="whitespace-pre-wrap break-words font-medium text-wefin-text-2">
                 {data.investmentHint}
               </p>
             </div>

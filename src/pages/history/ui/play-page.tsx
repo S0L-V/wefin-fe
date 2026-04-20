@@ -74,6 +74,9 @@ function PlayPage() {
   const seed = portfolio?.data.seedMoney ?? roomDetail?.data.seed ?? 0
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
+  const totalTurns = roomDetail?.data
+    ? Math.floor((roomDetail.data.periodMonths * 30) / roomDetail.data.moveDays)
+    : 0
   const totalAssets = portfolio?.data.totalAsset ?? seed
   const profitRate = portfolio?.data.profitRate ?? 0
   const cash = portfolio?.data.cash ?? seed
@@ -83,16 +86,16 @@ function PlayPage() {
       {/* 부모 main의 max-width/padding을 뚫고 화면 가득 차는 레이아웃 */}
       <div className="fixed inset-0 top-[56px] z-20 flex flex-col overflow-hidden bg-wefin-bg">
         <div className="flex min-h-0 flex-1 gap-2 p-2">
-          <div className="flex min-w-0 flex-[0.8] flex-col gap-2">
-            <div className="min-h-0 flex-[1.5] overflow-hidden rounded-xl border border-wefin-line bg-white">
+          <div className="flex min-w-0 flex-[1] flex-col gap-2">
+            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-white">
               <StockChart roomId={roomId} />
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-white">
               <MarketBriefing roomId={roomId} />
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-[0.9] flex-col gap-2">
+          <div className="flex min-w-0 flex-[0.7] flex-col gap-2">
             <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-white">
               <OrderPanel roomId={roomId} cash={cash} />
             </div>
@@ -113,6 +116,7 @@ function PlayPage() {
 
         <PlayHeader
           currentRound={currentRound}
+          totalTurns={totalTurns}
           currentDate={currentDate}
           seed={seed}
           totalAssets={totalAssets}

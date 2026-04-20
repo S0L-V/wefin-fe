@@ -135,8 +135,8 @@
     scrollbar-color: var(--color-wefin-line-2) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 3px;
+    height: 3px;
   }
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
@@ -163,6 +163,15 @@
     border: 1px solid var(--color-wefin-line);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 
   @keyframes marquee {

@@ -11,21 +11,27 @@ function GroupRanking({ roomId }: GroupRankingProps) {
 
   return (
     <section className="flex h-full flex-col">
-      <div className="flex h-11 shrink-0 items-center px-3">
-        <span className="text-sm font-semibold text-wefin-text">랭킹</span>
+      <div className="flex h-12 shrink-0 items-center px-4">
+        <span className="text-sm font-bold text-wefin-text">랭킹</span>
       </div>
 
-      <div className="flex-1 space-y-0.5 overflow-y-auto px-1">
+      <div className="flex-1 overflow-y-auto scrollbar-thin px-3 pb-2">
         {isLoading ? (
-          <div className="space-y-1.5 pt-2">
+          <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-100" />
+              <div key={i} className="h-12 animate-pulse rounded-xl bg-wefin-surface-2" />
             ))}
           </div>
         ) : items.length === 0 ? (
-          <p className="pt-6 text-center text-xs text-wefin-subtle">랭킹 정보가 없습니다</p>
+          <div className="flex h-full items-center justify-center">
+            <p className="text-xs text-wefin-muted">랭킹 정보가 없습니다</p>
+          </div>
         ) : (
-          items.map((item, index) => <RankingRow key={item.userId} item={item} index={index} />)
+          <div className="space-y-1.5">
+            {items.map((item, index) => (
+              <RankingRow key={item.userId} item={item} index={index} />
+            ))}
+          </div>
         )}
       </div>
     </section>
@@ -33,36 +39,58 @@ function GroupRanking({ roomId }: GroupRankingProps) {
 }
 
 function RankingRow({ item, index }: { item: RankingItem; index: number }) {
-  const profitColor = item.profitRate >= 0 ? 'text-red-500' : 'text-blue-500'
+  const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-blue-500'
   const sign = item.profitRate >= 0 ? '+' : ''
-
   const isTop3 = index < 3
-  const rankColors = [
-    'bg-amber-400 text-white',
-    'bg-gray-300 text-white',
-    'bg-amber-600/80 text-white'
+  const allColors = [
+    ['#0f8385', '#34d399'],
+    ['#2563eb', '#60a5fa'],
+    ['#7c3aed', '#a78bfa'],
+    ['#e11d48', '#fb7185'],
+    ['#d97706', '#fbbf24'],
+    ['#334155', '#64748b']
   ]
+  const [from, to] = allColors[index % allColors.length]
+  const initial = item.userName?.charAt(0)?.toUpperCase() ?? '?'
 
   return (
     <div
-      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 ${isTop3 ? 'bg-wefin-mint-soft/30' : ''}`}
+      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
+        isTop3 ? 'bg-wefin-surface-2' : 'hover:bg-wefin-surface-2'
+      }`}
     >
       <span
-        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${
-          isTop3 ? rankColors[index] : 'bg-wefin-bg text-wefin-subtle'
+        className={`font-num flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold ${
+          index === 0
+            ? 'bg-amber-400 text-white'
+            : index === 1
+              ? 'bg-gray-400 text-white'
+              : index === 2
+                ? 'bg-amber-600 text-white'
+                : 'bg-wefin-surface-2 text-wefin-muted'
         }`}
       >
         {item.rank}
       </span>
 
-      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-wefin-text">
+      <span
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+        style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+      >
+        {initial}
+      </span>
+
+      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-wefin-text">
         {item.userName}
       </span>
 
       <div className="shrink-0 text-right">
-        <p className={`text-xs font-bold tabular-nums ${profitColor}`}>
+        <p className={`font-num text-[13px] font-bold tabular-nums ${profitColor}`}>
           {sign}
           {item.profitRate.toFixed(2)}%
+        </p>
+        <p className="font-num text-[10px] font-semibold tabular-nums text-wefin-subtle">
+          {Math.floor(item.totalAsset).toLocaleString()}원
         </p>
       </div>
     </div>

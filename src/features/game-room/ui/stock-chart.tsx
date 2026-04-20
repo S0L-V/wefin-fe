@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import StockLogo from '@/shared/ui/stock-logo'
+
 import { aggregateCandles, type ChartInterval } from '../model/aggregate-candles'
 import { useLightweightChart } from '../model/use-lightweight-chart'
 import { useSelectedStockStore } from '../model/use-selected-stock-store'
@@ -30,6 +32,8 @@ function StockChart({ roomId }: StockChartProps) {
     }
   }, [chartData, selectedStock, selectStock])
 
+  const showGuide = !selectedStock && !aggregated
+
   const aggregated = useMemo(
     () => (chartData ? aggregateCandles(chartData, chartInterval) : null),
     [chartData, chartInterval]
@@ -48,13 +52,19 @@ function StockChart({ roomId }: StockChartProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-11 shrink-0 items-center justify-between px-3">
+      <div className="flex shrink-0 items-center justify-between px-4 pt-3 pb-2">
         {selectedStock ? (
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-wefin-text">{selectedStock.stockName}</span>
-            <span className="text-xs text-wefin-subtle">{selectedStock.symbol}</span>
-            <span className="text-sm font-bold tabular-nums text-wefin-text">
-              {selectedStock.price.toLocaleString('ko-KR')}원
+          <div className="flex items-center gap-3">
+            <StockLogo code={selectedStock.symbol} name={selectedStock.stockName} size={28} />
+            <div>
+              <p className="text-[15px] font-bold text-wefin-text">{selectedStock.stockName}</p>
+              <p className="font-num text-[11px] font-semibold text-wefin-subtle">
+                {selectedStock.symbol}
+              </p>
+            </div>
+            <span className="font-num text-xl font-semibold tabular-nums text-wefin-text">
+              {selectedStock.price.toLocaleString('ko-KR')}
+              <span className="ml-0.5 text-sm font-medium text-wefin-muted">원</span>
             </span>
           </div>
         ) : (
@@ -69,9 +79,18 @@ function StockChart({ roomId }: StockChartProps) {
       */}
       <div className="relative min-h-0 flex-1 w-full">
         <div ref={containerRef} className="absolute inset-0" />
-        {!selectedStock && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xs text-wefin-subtle">종목을 선택하세요</span>
+        {showGuide && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <p className="text-sm font-semibold text-wefin-text">
+                차트를 보려면 종목을 선택하세요
+              </p>
+              <p className="text-xs leading-relaxed text-wefin-subtle">
+                우측 주문 패널에서 섹터와 키워드를 탐색하거나,
+                <br />
+                검색으로 원하는 종목을 찾아보세요
+              </p>
+            </div>
           </div>
         )}
         {selectedStock && isLoading && (
