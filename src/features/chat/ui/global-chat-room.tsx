@@ -241,7 +241,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           </div>
         )}
 
-        <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
+        <div className="flex items-center gap-1.5 rounded-full bg-gray-100 py-1.5 px-1.5">
           <input
             type="text"
             value={message}
@@ -267,9 +267,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
             type="button"
             onClick={() => setIsEmojiPickerOpen((prev) => !prev)}
             aria-label="이모티콘 열기"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-wefin-line bg-white text-wefin-subtle transition-colors hover:bg-wefin-bg hover:text-wefin-mint-deep"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-wefin-muted transition-colors hover:bg-wefin-line hover:text-wefin-text"
           >
-            <Smile size={17} />
+            <Smile size={20} />
           </button>
           <button
             onClick={handleSendMessage}

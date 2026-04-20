@@ -5,6 +5,13 @@ import { useMarketIndicesQuery } from '@/features/market-indices/model/use-marke
 import type { StockRankingItem } from '@/features/stock-ranking/api/fetch-stock-ranking'
 import { useStockRankingQuery } from '@/features/stock-ranking/model/use-stock-ranking-query'
 
+const INDEX_LABEL: Record<string, string> = {
+  KOSPI: 'KOSPI',
+  KOSDAQ: 'KOSDAQ',
+  NASDAQ: 'NASDAQ',
+  SP500: 'S&P 500'
+}
+
 function getChangeColor(direction: 'UP' | 'DOWN' | 'FLAT') {
   if (direction === 'UP') return 'text-wefin-green'
   if (direction === 'DOWN') return 'text-wefin-red'
@@ -28,7 +35,9 @@ function IndexItem({ index }: { index: MarketIndex }) {
 
   return (
     <span className="inline-flex items-center gap-1.5 shrink-0">
-      <span className="text-wefin-subtle font-medium text-[13px]">{index.name}</span>
+      <span className="font-num text-wefin-subtle font-medium text-[13px]">
+        {INDEX_LABEL[index.code] ?? index.name}
+      </span>
       <span className="font-num font-bold text-wefin-text">
         {index.currentValue.toLocaleString('ko-KR', {
           minimumFractionDigits: 2,

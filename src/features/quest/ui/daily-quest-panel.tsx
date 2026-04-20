@@ -81,7 +81,7 @@ export default function DailyQuestPanel() {
   if (!userId) {
     return (
       <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-        <div className="flex h-10 items-center border-b border-wefin-line px-3">
+        <div className="flex h-10 items-center  px-3">
           <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
         </div>
         <div className="p-2.5">
@@ -104,7 +104,7 @@ export default function DailyQuestPanel() {
 
   return (
     <section className="overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm">
-      <div className="flex h-10 items-center justify-between border-b border-wefin-line px-3">
+      <div className="flex h-10 items-center justify-between  px-3">
         <span className="text-sm font-semibold text-wefin-text">일일 퀘스트</span>
         {quests.length > 1 && (
           <div className="flex items-center gap-1">

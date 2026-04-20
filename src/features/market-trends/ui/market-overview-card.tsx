@@ -1,4 +1,3 @@
-import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import type {
@@ -8,6 +7,13 @@ import type {
 } from '@/features/market-indices/api/fetch-market-indices'
 import { useMarketIndicesQuery } from '@/features/market-indices/model/use-market-indices-query'
 import { useMarketTrendsOverviewQuery } from '@/features/market-trends/model/use-market-trends-overview-query'
+
+const INDEX_LABEL: Record<string, string> = {
+  KOSPI: 'KOSPI',
+  KOSDAQ: 'KOSDAQ',
+  NASDAQ: 'NASDAQ',
+  SP500: 'S&P 500'
+}
 
 /* ─── color helpers ─── */
 
@@ -97,18 +103,6 @@ function useCountUp(target: number, duration = 600): number {
   return value
 }
 
-/* ─── Direction Icon ─── */
-
-function DirectionIcon({ direction }: { direction: ChangeDirection }) {
-  if (direction === 'UP') {
-    return <TrendingUp className="inline h-3 w-3 text-red-500" strokeWidth={2.5} />
-  }
-  if (direction === 'DOWN') {
-    return <TrendingDown className="inline h-3 w-3 text-blue-500" strokeWidth={2.5} />
-  }
-  return null
-}
-
 /* ─── Index Cell ─── */
 
 function IndexCell({ index, isLast }: { index: MarketIndex; isLast: boolean }) {
@@ -127,9 +121,10 @@ function IndexCell({ index, isLast }: { index: MarketIndex; isLast: boolean }) {
       }}
     >
       <div>
-        <div className="mb-1 flex items-center gap-1.5">
-          <span className="text-[12.5px] text-wefin-subtle">{index.name}</span>
-          <DirectionIcon direction={index.changeDirection} />
+        <div className="mb-1">
+          <span className="font-num text-[13px] font-bold text-wefin-text-2">
+            {INDEX_LABEL[index.code] ?? index.name}
+          </span>
         </div>
         <div
           className="font-num mb-0.5 text-[26px] font-[800] text-wefin-text"

@@ -51,12 +51,12 @@ function StockRankingList() {
         return (
           <div
             key={item.stockCode}
-            className={`group grid grid-cols-[22px_1fr_auto] items-center gap-2 py-2.5 ${
+            className={`group grid grid-cols-[24px_1fr_auto] items-center gap-2.5 py-3 ${
               idx < items.length - 1 ? 'border-b border-dashed border-wefin-line' : ''
             }`}
           >
             <span
-              className={`font-num text-sm font-[800] ${
+              className={`font-num text-[15px] font-[800] ${
                 isTop3 ? 'text-wefin-mint' : 'text-wefin-muted'
               }`}
             >
@@ -64,18 +64,18 @@ function StockRankingList() {
             </span>
 
             <div className="min-w-0">
-              <p className="truncate text-[13.5px] font-semibold text-wefin-text transition-colors group-hover:text-wefin-mint-deep">
+              <p className="truncate text-[14.5px] font-semibold text-wefin-text transition-colors group-hover:text-wefin-mint-deep">
                 {item.stockName}
               </p>
-              <p className="text-xs text-wefin-muted">{item.stockCode}</p>
+              <p className="text-[11px] text-wefin-muted">{item.stockCode}</p>
             </div>
 
             <div className="text-right">
-              <p className="font-num text-[12.5px] font-bold text-wefin-text">
+              <p className="font-num text-[14px] font-bold text-wefin-text">
                 {item.currentPrice.toLocaleString('ko-KR')}
               </p>
               <p
-                className={`font-num text-[11px] font-medium ${
+                className={`font-num text-[12px] font-semibold ${
                   isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-500' : 'text-wefin-muted'
                 }`}
               >
@@ -104,7 +104,7 @@ export default function HomeSidebar() {
         className={`card-base flex min-h-0 flex-col overflow-hidden transition-all duration-300 ${
           expanded
             ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
-            : 'min-h-0 flex-1'
+            : 'flex-1 min-h-0'
         }`}
       >
         <div className="flex items-center gap-2 p-2.5">

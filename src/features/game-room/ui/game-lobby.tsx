@@ -50,7 +50,7 @@ function GameLobby() {
           <GameHistorySection items={recentHistory} />
         </div>
 
-        <div className="card-base flex h-[520px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base flex h-[564px] flex-col overflow-hidden lg:sticky lg:top-20">
           <ChatPanel />
         </div>
       </div>

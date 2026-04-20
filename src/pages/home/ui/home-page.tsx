@@ -47,7 +47,7 @@ function HomePage() {
   }, [])
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] lg:flex-row lg:gap-0">
+    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] lg:flex-row">
       <section className="min-w-0 flex-1">
         <div className="flex flex-col gap-[var(--gutter)]">
           <HeroSection />
@@ -65,7 +65,7 @@ function HomePage() {
         <ResizeHandle onResize={handleResize} />
       </div>
       <aside
-        className="lg:sticky lg:top-[80px] lg:h-[calc(100vh-92px)] lg:shrink-0"
+        className="lg:sticky lg:top-[105px] lg:h-[calc(100dvh-140px)] lg:shrink-0 lg:overflow-hidden"
         style={{ width: `${sidebarWidth}px` }}
       >
         <HomeSidebar />
