@@ -1,5 +1,8 @@
 import { Check } from 'lucide-react'
 
+import { useMySubscriptionQuery } from '@/features/payment/model/use-my-subscription-query'
+import SubscribeButton from '@/features/payment/ui/subscribe-button'
+
 const PRO_FEATURES = [
   'AI 채팅 무제한 이용',
   '과거 데이터 시뮬레이션',
@@ -7,65 +10,162 @@ const PRO_FEATURES = [
   '팀 협업 기능 활성화'
 ]
 
+function formatDate(value: string) {
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) return value
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date)
+}
+
+const PLAN_CARDS = [
+  {
+    id: 'MONTHLY',
+    title: '프로 월간',
+    price: '₩ 9,900',
+    period: '/월',
+    description: '부담 없이 시작할 수 있는 월간 구독 플랜입니다.'
+  },
+  {
+    id: 'YEARLY',
+    title: '프로 연간',
+    price: '₩ 99,000',
+    period: '/년',
+    description: '장기 이용자에게 적합한 연간 구독 플랜입니다.'
+  }
+] as const
+
+const PLAN_ID_BY_BILLING_CYCLE = {
+  MONTHLY: 1,
+  YEARLY: 2
+} as const
+
 function SettingsSubscriptionSection() {
+  const { data, isLoading, isError } = useMySubscriptionQuery()
+
+  if (isLoading) {
+    return <p className="text-sm text-wefin-subtle">불러오는 중...</p>
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-wefin-line bg-wefin-bg px-6 py-10 text-center">
+        <p className="text-base font-semibold text-wefin-text">구독 정보를 불러오지 못했습니다.</p>
+        <p className="mt-2 text-sm text-wefin-subtle">잠시 후 다시 시도해 주세요.</p>
+      </div>
+    )
+  }
+
+  const isActive = data?.active ?? false
+  const currentBillingCycle = data?.billingCycle
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <section>
         <h3 className="mb-4 text-lg font-bold text-wefin-text">현재 플랜</h3>
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-wefin-line bg-wefin-bg p-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-lg font-bold text-wefin-text">베이직 · 무료</p>
-              <span className="rounded-full border border-wefin-line px-2 py-0.5 text-xs text-wefin-subtle">
-                현재 사용 중
-              </span>
-            </div>
-            <p className="mt-1.5 text-sm text-wefin-subtle">
-              기본적인 AI 채팅 및 데이터 분석 기능을 제공합니다.
+
+        {!data ? (
+          <div className="rounded-xl border border-dashed border-wefin-line bg-wefin-bg px-6 py-10 text-center">
+            <p className="text-base font-semibold text-wefin-text">구독 정보가 없습니다.</p>
+            <p className="mt-2 text-sm text-wefin-subtle">
+              플랜을 구독하면 이곳에서 확인할 수 있어요.
             </p>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-xl border border-wefin-line bg-wefin-bg p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-lg font-bold text-wefin-text">
+                {data.planName} · ₩ {data.price.toLocaleString()}
+              </p>
+              {isActive && (
+                <span className="rounded-full border border-wefin-line px-2 py-0.5 text-xs text-wefin-subtle">
+                  현재 사용 중
+                </span>
+              )}
+            </div>
+
+            <p className="mt-2 text-sm text-wefin-subtle">
+              {data.billingCycle === 'MONTHLY' ? '월간 구독' : '연간 구독'}
+            </p>
+
+            <p className="mt-1 text-xs text-wefin-subtle">
+              {formatDate(data.startedAt)} ~ {formatDate(data.expiredAt)}
+            </p>
+          </div>
+        )}
       </section>
 
       <section>
-        <h3 className="mb-4 text-lg font-bold text-wefin-text">추천 플랜</h3>
-        <div className="overflow-hidden rounded-xl border border-wefin-mint bg-wefin-mint text-white shadow-lg">
-          <div className="flex items-center justify-between p-6 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="text-xl font-bold">프로 플랜</p>
-                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-wefin-mint-deep">
-                  BEST
-                </span>
-              </div>
-              <p className="mt-1.5 text-sm text-white/80">
-                무제한 AI 기능과 고급 분석 도구를 경험하세요.
-              </p>
-            </div>
-            <div className="flex items-baseline gap-1 tabular-nums">
-              <span className="text-2xl font-bold">₩ 9,900</span>
-              <span className="text-sm text-white/70">/월</span>
-            </div>
-          </div>
+        <h3 className="mb-4 text-lg font-bold text-wefin-text">플랜 안내</h3>
 
-          <div className="grid gap-2 px-6 py-4 md:grid-cols-2">
-            {PRO_FEATURES.map((feature) => (
-              <div key={feature} className="flex items-center gap-2 text-white/90">
-                <Check className="h-4 w-4 shrink-0" />
-                <span className="text-sm">{feature}</span>
-              </div>
-            ))}
-          </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {PLAN_CARDS.map((plan) => {
+            const isCurrentPlan = isActive && currentBillingCycle === plan.id
+            const planId = PLAN_ID_BY_BILLING_CYCLE[plan.id]
 
-          <div className="p-6 pt-2">
-            <button
-              type="button"
-              disabled
-              className="h-11 w-full rounded-lg bg-white text-sm font-bold text-wefin-mint-deep transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              업그레이드 하기
-            </button>
-          </div>
+            return (
+              <div
+                key={plan.id}
+                className={`rounded-2xl border p-6 shadow-sm ${
+                  isCurrentPlan
+                    ? 'border-wefin-mint bg-wefin-mint text-white'
+                    : 'border-wefin-line bg-white text-wefin-text'
+                }`}
+              >
+                <div className="space-y-5">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-2xl font-bold">{plan.title}</p>
+                      {isCurrentPlan && (
+                        <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-wefin-mint-deep">
+                          현재 이용 중
+                        </span>
+                      )}
+                    </div>
+
+                    <p
+                      className={`mt-3 text-sm leading-6 ${
+                        isCurrentPlan ? 'text-white/85' : 'text-wefin-subtle'
+                      }`}
+                    >
+                      {plan.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-end gap-1 tabular-nums">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className={isCurrentPlan ? 'text-white/80' : 'text-wefin-subtle'}>
+                      {plan.period}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {PRO_FEATURES.map((feature) => (
+                      <div
+                        key={`${plan.id}-${feature}`}
+                        className={`flex items-center gap-2 ${
+                          isCurrentPlan ? 'text-white/95' : 'text-wefin-text'
+                        }`}
+                      >
+                        <Check className="h-4 w-4 shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!isActive && (
+                    <div className="pt-2">
+                      <SubscribeButton planId={planId} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </section>
     </div>
