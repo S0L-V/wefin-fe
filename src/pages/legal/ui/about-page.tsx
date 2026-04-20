@@ -38,14 +38,17 @@ export default function AboutPage() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   return (
-    <div className="mx-auto max-w-3xl py-10">
+    <div className="mx-auto max-w-3xl py-4">
       <div className="rounded-2xl bg-white p-8">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-wefin-mint to-wefin-mint-deep text-white">
             <WefinLogoIcon size={22} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-wefin-text">WeFin</h1>
+            <h1 className="flex items-baseline text-2xl font-bold text-wefin-mint-600">
+              <WefinLogoIcon size={24} className="mr-[-2px] translate-y-[4px]" />
+              <span>efin</span>
+            </h1>
             <p className="text-sm text-wefin-subtle">과거에서 배우고, 현재에 투자하다</p>
           </div>
         </div>

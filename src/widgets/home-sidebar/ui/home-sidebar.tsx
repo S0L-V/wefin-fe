@@ -51,7 +51,7 @@ function StockRankingList() {
         return (
           <div
             key={item.stockCode}
-            className={`group grid grid-cols-[24px_1fr_auto] items-center gap-2.5 py-3 ${
+            className={`group grid grid-cols-[24px_1fr_auto] items-center gap-2.5 py-2.5 ${
               idx < items.length - 1 ? 'border-b border-dashed border-wefin-line' : ''
             }`}
           >

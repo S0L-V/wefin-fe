@@ -30,15 +30,13 @@ export default function AppFooter() {
       >
         {/* Brand */}
         <div>
-          <div className="mb-2.5 flex items-center gap-1">
-            <WefinLogoIcon size={18} className="text-wefin-text" />
+          <div className="mb-2.5 flex items-baseline">
+            <WefinLogoIcon size={18} className="mr-[-3px] translate-y-[3px] text-wefin-text" />
             <span className="text-[13px] font-extrabold text-wefin-text">efin</span>
           </div>
           <p className="text-[13px] leading-relaxed text-wefin-subtle">
-            과거에서 배우고, AI 뉴스수급 분석까지. 흩어진 뉴스와 데이터를 한데 모아 실전에 필요한
-            인사이트만 드립니다.
+            과거에서 배우고, 현재에 투자하는 모의투자 플랫폼
           </p>
-          <p className="mt-3 text-[11px] text-wefin-subtle/60">투자 참고용으로 활용해 주세요.</p>
         </div>
 
         {/* 서비스 */}
