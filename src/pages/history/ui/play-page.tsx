@@ -75,7 +75,11 @@ function PlayPage() {
   const currentDate = currentTurn?.turnDate ?? roomDetail?.data.startDate ?? '2023-10-19'
   const currentRound = currentTurn?.turnNumber ?? 1
   const totalTurns = roomDetail?.data
-    ? Math.floor((roomDetail.data.periodMonths * 30) / roomDetail.data.moveDays)
+    ? Math.floor(
+        (new Date(roomDetail.data.endDate).getTime() -
+          new Date(roomDetail.data.startDate).getTime()) /
+          (roomDetail.data.moveDays * 86400000)
+      ) + 1
     : 0
   const totalAssets = portfolio?.data.totalAsset ?? seed
   const profitRate = portfolio?.data.profitRate ?? 0

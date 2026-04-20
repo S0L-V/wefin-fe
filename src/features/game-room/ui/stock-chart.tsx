@@ -32,12 +32,12 @@ function StockChart({ roomId }: StockChartProps) {
     }
   }, [chartData, selectedStock, selectStock])
 
-  const showGuide = !selectedStock && !aggregated
-
   const aggregated = useMemo(
     () => (chartData ? aggregateCandles(chartData, chartInterval) : null),
     [chartData, chartInterval]
   )
+
+  const showGuide = !selectedStock && !aggregated
 
   // 차트 라이브러리 관련 imperative 로직은 전부 이 훅 안으로 은닉됨
   // ⚠️ 중요: 이 훅의 mount effect는 `[]` deps로 딱 한 번만 실행된다.

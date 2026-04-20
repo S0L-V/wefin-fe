@@ -2,6 +2,7 @@ import StockLogo from '@/shared/ui/stock-logo'
 
 import type { HoldingItem } from '../model/portfolio.schema'
 import { useHoldingsQuery, usePortfolioQuery } from '../model/use-portfolio-query'
+import { useSelectedStockStore } from '../model/use-selected-stock-store'
 
 interface HoldingsPanelProps {
   roomId: string
@@ -84,11 +85,22 @@ function SummaryCell({ label, value, border }: { label: string; value: number; b
 }
 
 function HoldingRow({ item }: { item: HoldingItem }) {
+  const { selectStock } = useSelectedStockStore()
   const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-blue-500'
   const sign = item.profitRate >= 0 ? '+' : ''
 
   return (
-    <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-wefin-surface-2">
+    <button
+      type="button"
+      onClick={() =>
+        selectStock({
+          symbol: item.symbol,
+          stockName: item.stockName,
+          price: Math.floor(item.evalAmount / item.quantity)
+        })
+      }
+      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-wefin-surface-2"
+    >
       <StockLogo code={item.symbol} name={item.stockName} size={26} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-wefin-text">{item.stockName}</p>
@@ -105,7 +117,7 @@ function HoldingRow({ item }: { item: HoldingItem }) {
           {item.profitRate.toFixed(2)}%
         </p>
       </div>
-    </div>
+    </button>
   )
 }
 
