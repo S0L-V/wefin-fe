@@ -11,11 +11,11 @@ export default function ChatPanel() {
   const { hasGroup, isHomeGroup } = useChatGroup()
   const tabs = isHomeGroup ? MEMO_TABS : GROUP_TABS
 
-  const [innerTab, setInnerTab] = useState<ChatInnerTab>('global')
+  const [innerTab, setInnerTab] = useState<ChatInnerTab>(isHomeGroup ? 'global' : 'group')
   const [prevIsHomeGroup, setPrevIsHomeGroup] = useState(isHomeGroup)
   if (prevIsHomeGroup !== isHomeGroup) {
     setPrevIsHomeGroup(isHomeGroup)
-    if (isHomeGroup) setInnerTab('global')
+    setInnerTab(isHomeGroup ? 'global' : 'group')
   }
 
   if (!hasGroup) {

@@ -1,203 +1,65 @@
-import {
-  Banknote,
-  BatteryCharging,
-  Beaker,
-  Bolt,
-  Building2,
-  ChevronDown,
-  ChevronLeft,
-  ChevronUp,
-  Factory,
-  HeartPulse,
-  Landmark,
-  Search,
-  Signal,
-  Smartphone,
-  X
-} from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ChevronDown, ChevronLeft, ChevronUp, Search, X } from 'lucide-react'
+import { useState } from 'react'
 
 import StockLogo from '@/shared/ui/stock-logo'
 
-import type { StockSearchItem } from '../model/stock.schema'
+import type { SectorItem, StockSearchItem } from '../model/stock.schema'
 import { type OrderSide, type OrderType, useOrderForm } from '../model/use-order-form'
 import { useSelectedStockStore } from '../model/use-selected-stock-store'
-import { useStockSearch } from '../model/use-stock-search'
+import {
+  useSectorKeywords,
+  useSectors,
+  useSectorStocks,
+  useStockSearch
+} from '../model/use-stock-search'
 
 interface OrderPanelProps {
   roomId: string
   cash: number
 }
 
-type SectorOption = {
-  id: string
-  label: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  accentClass: string
-  image: string
-  keywords: string[]
-}
-
 type PanelStep = 'sector' | 'keyword' | 'stock'
 
 const PANEL_BODY_HEIGHT_CLASS = 'h-[620px]'
-
-const SECTORS: SectorOption[] = [
-  {
-    id: 'energy',
-    label: '에너지',
-    icon: Bolt,
-    accentClass: 'from-amber-400 to-orange-500',
-    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=200&fit=crop',
-    keywords: [
-      '석유/가스',
-      '정유',
-      '석유화학',
-      'LNG',
-      '신재생에너지',
-      '2차전지',
-      '2차전지 소재',
-      '수소'
-    ]
-  },
-  {
-    id: 'utilities',
-    label: '유틸리티',
-    icon: Signal,
-    accentClass: 'from-sky-400 to-blue-500',
-    image: 'https://images.unsplash.com/photo-1548337138-e87d889cc369?w=400&h=200&fit=crop',
-    keywords: ['전력', '가스', '수도', '신재생 발전', '에너지 인프라']
-  },
-  {
-    id: 'materials',
-    label: '소재',
-    icon: Beaker,
-    accentClass: 'from-violet-400 to-purple-600',
-    image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=200&fit=crop',
-    keywords: ['철강', '비철금속', '화학', '정밀화학', '건자재', '제지/펄프', '비료', '신소재']
-  },
-  {
-    id: 'industrials',
-    label: '산업재',
-    icon: Factory,
-    accentClass: 'from-slate-400 to-slate-600',
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop',
-    keywords: [
-      '건설',
-      '플랜트',
-      '기계',
-      '로봇/자동화',
-      '조선',
-      '항공/방산',
-      '물류/운송',
-      '철도',
-      '산업부품'
-    ]
-  },
-  {
-    id: 'consumer-discretionary',
-    label: '소비재',
-    icon: Smartphone,
-    accentClass: 'from-rose-400 to-pink-600',
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=200&fit=crop',
-    keywords: [
-      '자동차',
-      '자동차 부품',
-      '전기차',
-      '의류/패션',
-      '화장품',
-      '유통',
-      '호텔/레저',
-      '여행/항공',
-      '가전',
-      '콘텐츠',
-      '게임',
-      '외식'
-    ]
-  },
-  {
-    id: 'consumer-staples',
-    label: '필수소비',
-    icon: Banknote,
-    accentClass: 'from-emerald-400 to-green-600',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=200&fit=crop',
-    keywords: ['식품', '음료/주류', '생활용품', '담배', '유통(마트/편의점)', '농축산']
-  },
-  {
-    id: 'healthcare',
-    label: '헬스케어',
-    icon: HeartPulse,
-    accentClass: 'from-red-400 to-rose-600',
-    image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=400&h=200&fit=crop',
-    keywords: ['제약', '바이오', '의료기기', '진단', '헬스케어 서비스']
-  },
-  {
-    id: 'financials',
-    label: '금융',
-    icon: Landmark,
-    accentClass: 'from-blue-400 to-indigo-600',
-    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=200&fit=crop',
-    keywords: ['은행', '보험', '증권', '자산운용', '카드', '핀테크', '리스/캐피탈']
-  },
-  {
-    id: 'it',
-    label: 'IT',
-    icon: BatteryCharging,
-    accentClass: 'from-cyan-400 to-teal-600',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop',
-    keywords: [
-      '반도체',
-      '반도체 장비',
-      '반도체 소재',
-      '디스플레이',
-      '하드웨어',
-      '소프트웨어',
-      '클라우드/AI',
-      '보안'
-    ]
-  },
-  {
-    id: 'communication',
-    label: '통신',
-    icon: Signal,
-    accentClass: 'from-indigo-400 to-blue-600',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop',
-    keywords: ['통신사', '인터넷 플랫폼', '광고/마케팅', '미디어', '엔터테인먼트', '게임 퍼블리싱']
-  },
-  {
-    id: 'real-estate',
-    label: '부동산',
-    icon: Building2,
-    accentClass: 'from-stone-400 to-stone-600',
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=200&fit=crop',
-    keywords: ['리츠', '상업용 부동산', '주거용 부동산', '물류센터', '데이터센터', '부동산 개발']
-  }
-]
 
 function OrderPanel({ roomId, cash }: OrderPanelProps) {
   const form = useOrderForm({ roomId, cash })
   const { clearStock, selectStock } = useSelectedStockStore()
 
   const [stockSearchKeyword, setStockSearchKeyword] = useState('')
-  const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null)
+  const [selectedSectorName, setSelectedSectorName] = useState<string | null>(null)
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null)
   const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
   const [resultMessage, setResultMessage] = useState<string | null>(null)
 
-  const selectedSector = useMemo(
-    () => SECTORS.find((sector) => sector.id === selectedSectorId) ?? null,
-    [selectedSectorId]
-  )
+  // 백엔드 API 연결
+  const { data: sectors = [] } = useSectors(roomId)
+  const { data: keywords = [] } = useSectorKeywords(roomId, selectedSectorName)
+  const {
+    data: sectorStocks = [],
+    isLoading: isSectorStocksLoading,
+    isError: isSectorStocksError
+  } = useSectorStocks(roomId, selectedSectorName, selectedKeyword)
 
-  const activeQuery = stockSearchKeyword.trim() || selectedKeyword || ''
-  const { data: stocks = [], isError, isLoading } = useStockSearch(roomId, activeQuery)
+  // 텍스트 검색 (기존)
+  const searchQuery = stockSearchKeyword.trim()
+  const {
+    data: searchStocks = [],
+    isLoading: isSearchLoading,
+    isError: isSearchError
+  } = useStockSearch(roomId, searchQuery)
+
+  // 현재 표시할 종목 + 로딩/에러 상태
+  const stocks = searchQuery ? searchStocks : sectorStocks
+  const isLoading = searchQuery ? isSearchLoading : isSectorStocksLoading
+  const isError = searchQuery ? isSearchError : isSectorStocksError
 
   const step: PanelStep = stockSearchKeyword.trim()
     ? 'stock'
     : selectedKeyword
       ? 'stock'
-      : selectedSector
+      : selectedSectorName
         ? 'keyword'
         : 'sector'
 
@@ -215,16 +77,16 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
     setStockSearchKeyword(value)
 
     if (value.trim()) {
-      setSelectedSectorId(null)
+      setSelectedSectorName(null)
       setSelectedKeyword(null)
     }
   }
 
-  function handleSelectSector(sectorId: string) {
+  function handleSelectSector(sectorName: string) {
     resetExpandedSelection()
     setStockSearchKeyword('')
     setSelectedKeyword(null)
-    setSelectedSectorId(sectorId)
+    setSelectedSectorName(sectorName)
   }
 
   function handleSelectKeyword(keyword: string) {
@@ -257,15 +119,15 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
       return
     }
 
-    if (selectedSectorId) {
-      setSelectedSectorId(null)
+    if (selectedSectorName) {
+      setSelectedSectorName(null)
     }
   }
 
   function handleResetFilters() {
     resetExpandedSelection()
     setStockSearchKeyword('')
-    setSelectedSectorId(null)
+    setSelectedSectorName(null)
     setSelectedKeyword(null)
   }
 
@@ -292,7 +154,7 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
     step === 'sector'
       ? '섹터를 선택해보세요'
       : step === 'keyword'
-        ? `${selectedSector?.label ?? ''} 키워드`
+        ? `${selectedSectorName ?? ''} 키워드`
         : stockSearchKeyword.trim()
           ? `"${stockSearchKeyword.trim()}" 검색 결과`
           : `${selectedKeyword ?? ''} 관련 종목`
@@ -324,78 +186,8 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
           </div>
         )}
 
-        <div className="mb-2 flex items-center gap-2 px-3">
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className={`relative py-2 pl-3 pr-5 text-xs font-semibold transition-all duration-300 ${
-                step === 'sector'
-                  ? 'bg-wefin-mint-deep text-white shadow-md shadow-wefin-mint/20'
-                  : 'bg-wefin-mint-soft/60 text-wefin-mint-deep hover:bg-wefin-mint-soft'
-              }`}
-              style={{
-                clipPath:
-                  'polygon(0 4px, 4px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 4px 100%, 0 calc(100% - 4px))'
-              }}
-            >
-              {step !== 'sector' && <span className="mr-1 inline-block text-[10px]">✓</span>}
-              {selectedSector?.label ?? '섹터'}
-            </button>
-            <button
-              type="button"
-              onClick={
-                selectedSector
-                  ? () => {
-                      resetExpandedSelection()
-                      setStockSearchKeyword('')
-                      setSelectedKeyword(null)
-                    }
-                  : undefined
-              }
-              className={`relative py-2 pl-5 pr-5 text-xs font-semibold transition-all duration-300 ${
-                step === 'keyword'
-                  ? 'bg-wefin-mint-deep text-white shadow-md shadow-wefin-mint/20'
-                  : selectedSector
-                    ? step === 'stock'
-                      ? 'bg-wefin-mint-soft/60 text-wefin-mint-deep hover:bg-wefin-mint-soft'
-                      : 'bg-wefin-bg text-wefin-subtle/40'
-                    : 'bg-wefin-bg text-wefin-subtle/40'
-              }`}
-              style={{
-                clipPath:
-                  'polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%)'
-              }}
-            >
-              {step === 'stock' && <span className="mr-1 inline-block text-[10px]">✓</span>}
-              {selectedKeyword ?? '키워드'}
-            </button>
-            <span
-              className={`relative rounded-r-lg py-2 pl-5 pr-3 text-xs font-semibold transition-all duration-300 ${
-                step === 'stock'
-                  ? 'bg-wefin-mint-deep text-white shadow-md shadow-wefin-mint/20'
-                  : 'bg-wefin-bg text-wefin-subtle/40'
-              }`}
-              style={{
-                clipPath:
-                  'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 10px 50%)'
-              }}
-            >
-              종목
-            </span>
-          </div>
-
-          {step !== 'sector' && (
-            <button
-              type="button"
-              onClick={handleGoBack}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-wefin-bg text-wefin-subtle transition-colors hover:bg-wefin-line hover:text-wefin-text"
-            >
-              <ChevronLeft size={13} />
-            </button>
-          )}
-
-          <div className="ml-auto flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+        <div className="mb-2 px-3">
+          <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
             <Search size={14} className="shrink-0 text-wefin-subtle" />
             <input
               type="text"
@@ -416,24 +208,87 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-3">
+        <div className="mb-3 flex items-center justify-between gap-2 rounded-2xl border border-wefin-line bg-wefin-bg/60 px-3 py-2">
+          <div className="min-w-0">
+            <div className="text-xs font-bold text-wefin-text">{panelTitle}</div>
+            <div className="mt-0.5 truncate text-[11px] text-wefin-subtle">{panelDescription}</div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            {step !== 'sector' && (
+              <button
+                type="button"
+                onClick={handleGoBack}
+                className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-white px-2.5 py-1 text-[11px] font-medium text-wefin-text hover:bg-wefin-bg"
+              >
+                <ChevronLeft size={12} />
+                뒤로
+              </button>
+            )}
+            {(selectedSectorName || selectedKeyword || stockSearchKeyword) && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="rounded-full border border-wefin-line bg-white px-2.5 py-1 text-[11px] font-medium text-wefin-subtle hover:bg-wefin-bg hover:text-wefin-text"
+              >
+                처음으로
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-3 flex min-h-[24px] flex-wrap items-center gap-2">
+          <StageBadge active onClick={handleResetFilters}>
+            종목 검색
+          </StageBadge>
+          <span className="text-xs text-wefin-subtle">/</span>
+          <StageBadge
+            active={Boolean(selectedSectorName)}
+            onClick={
+              selectedSectorName
+                ? () => {
+                    resetExpandedSelection()
+                    setStockSearchKeyword('')
+                    setSelectedKeyword(null)
+                  }
+                : undefined
+            }
+          >
+            {selectedSectorName ?? '섹터'}
+          </StageBadge>
+          <span className="text-xs text-wefin-subtle">/</span>
+          <StageBadge
+            active={Boolean(selectedKeyword)}
+            onClick={
+              selectedKeyword
+                ? () => {
+                    resetExpandedSelection()
+                    setStockSearchKeyword('')
+                  }
+                : undefined
+            }
+          >
+            {selectedKeyword ?? '키워드'}
+          </StageBadge>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-hidden">
           {step === 'sector' && (
-            <div className="grid grid-cols-3 gap-1.5">
-              {SECTORS.map((sector) => (
+            <div className="grid h-full min-h-0 grid-cols-2 gap-2 overflow-y-auto pr-1 xl:grid-cols-3">
+              {sectors.map((sector) => (
                 <SectorCard
-                  key={sector.id}
+                  key={sector.sector}
                   sector={sector}
-                  active={sector.id === selectedSectorId}
-                  onClick={() => handleSelectSector(sector.id)}
+                  active={sector.sector === selectedSectorName}
+                  onClick={() => handleSelectSector(sector.sector)}
                 />
               ))}
             </div>
           )}
 
-          {step === 'keyword' && selectedSector && (
+          {step === 'keyword' && selectedSectorName && (
             <div className="h-full overflow-y-auto pr-1">
               <div className="grid grid-cols-2 gap-2">
-                {selectedSector.keywords.map((keyword) => (
+                {keywords.map((keyword) => (
                   <button
                     key={keyword}
                     type="button"
@@ -518,7 +373,7 @@ function SectorCard({
   active,
   onClick
 }: {
-  sector: SectorOption
+  sector: SectorItem
   active: boolean
   onClick: () => void
 }) {
@@ -532,28 +387,9 @@ function SectorCard({
           : 'shadow-sm hover:shadow-lg hover:-translate-y-0.5'
       }`}
     >
-      <img
-        src={sector.image}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover brightness-[0.3] saturate-[0.6] transition-all duration-500 group-hover:brightness-[0.5] group-hover:saturate-100 group-hover:scale-110"
-      />
-      <div
-        className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-r ${sector.accentClass}`}
-        style={{ mixBlendMode: 'soft-light' }}
-      />
-      <div className="relative flex h-full items-end justify-between p-2.5">
-        <div>
-          <p className="text-sm font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-            {sector.label}
-          </p>
-          <p className="text-[11px] font-medium text-white/70">{sector.keywords.length}개 키워드</p>
-        </div>
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/0 transition-all duration-300 group-hover:bg-white/20">
-          <ChevronDown
-            size={12}
-            className="-rotate-90 text-white/0 transition-all duration-300 group-hover:text-white/80"
-          />
-        </div>
+      <div className="min-w-0">
+        <div className="truncate text-sm font-bold text-wefin-text">{sector.sector}</div>
+        <div className="mt-0.5 text-xs text-wefin-subtle">{sector.keywordCount}개 키워드</div>
       </div>
     </button>
   )

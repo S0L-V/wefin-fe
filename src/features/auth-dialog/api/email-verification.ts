@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { apiResponseSchema } from '@/shared/api/api-response'
 import { baseApi } from '@/shared/api/base-api'
 
-const verificationPurposeSchema = z.enum(['SIGNUP'])
+const verificationPurposeSchema = z.enum(['SIGNUP', 'PASSWORD_RESET'])
 
 const sendEmailVerificationRequestSchema = z.object({
   email: z.string().trim().email(),

@@ -23,7 +23,7 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
           </div>
         )}
 
-        {!isFetching && isError && (
+        {!isFetching && isError && !data && (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-xs text-wefin-subtle">브리핑을 불러오지 못했습니다</p>
           </div>

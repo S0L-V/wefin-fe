@@ -2,7 +2,6 @@ import { ChevronRight, LogOut, Square } from 'lucide-react'
 
 interface PlayHeaderProps {
   currentRound: number
-  totalTurns: number
   currentDate: string
   seed: number
   totalAssets: number
@@ -18,7 +17,6 @@ interface PlayHeaderProps {
 
 function PlayHeader({
   currentRound,
-  totalTurns,
   currentDate,
   totalAssets,
   profitRate,
