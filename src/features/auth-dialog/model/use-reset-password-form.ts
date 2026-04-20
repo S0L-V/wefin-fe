@@ -61,6 +61,11 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
     }
   }, [isCooldownActive])
 
+  const getNormalizedFormData = (data: ResetPasswordFormData): ResetPasswordFormData => ({
+    ...data,
+    email: data.email.trim()
+  })
+
   const resetForm = () => {
     setFormData(initialResetPasswordFormData)
     setFieldErrors({})
@@ -90,16 +95,24 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
         const nextErrors = { ...prevErrors }
 
         if (touchedFields[field]) {
-          const message = validateResetPasswordField(field, value, nextFormData)
+          const normalizedNextFormData =
+            field === 'email'
+              ? { ...nextFormData, email: value.trim() }
+              : getNormalizedFormData(nextFormData)
+
+          const fieldValue = field === 'email' ? value.trim() : value
+          const message = validateResetPasswordField(field, fieldValue, normalizedNextFormData)
+
           if (message) nextErrors[field] = message
           else delete nextErrors[field]
         }
 
         if (field === 'newPassword' && touchedFields.confirmPassword) {
+          const normalizedNextFormData = getNormalizedFormData(nextFormData)
           const confirmMessage = validateResetPasswordField(
             'confirmPassword',
             nextFormData.confirmPassword,
-            nextFormData
+            normalizedNextFormData
           )
 
           if (confirmMessage) nextErrors.confirmPassword = confirmMessage
@@ -119,7 +132,9 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
       [field]: true
     }))
 
-    const message = validateResetPasswordField(field, formData[field], formData)
+    const normalizedFormData = getNormalizedFormData(formData)
+    const fieldValue = field === 'email' ? formData.email.trim() : formData[field]
+    const message = validateResetPasswordField(field, fieldValue, normalizedFormData)
 
     setFieldErrors((prev) => {
       const next = { ...prev }
@@ -134,8 +149,9 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
   }
 
   const handleSendVerificationCode = async () => {
-    const trimmedEmail = formData.email.trim()
-    const emailError = validateResetPasswordField('email', trimmedEmail, formData)
+    const normalizedFormData = getNormalizedFormData(formData)
+    const trimmedEmail = normalizedFormData.email
+    const emailError = validateResetPasswordField('email', trimmedEmail, normalizedFormData)
 
     setTouchedFields((prev) => ({
       ...prev,
@@ -194,9 +210,10 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
   }
 
   const handleConfirmVerificationCode = async () => {
-    const trimmedEmail = formData.email.trim()
+    const normalizedFormData = getNormalizedFormData(formData)
+    const trimmedEmail = normalizedFormData.email
     const trimmedCode = verificationCode.trim()
-    const emailError = validateResetPasswordField('email', trimmedEmail, formData)
+    const emailError = validateResetPasswordField('email', trimmedEmail, normalizedFormData)
 
     setTouchedFields((prev) => ({
       ...prev,
@@ -263,7 +280,8 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
       confirmPassword: true
     })
 
-    const nextErrors = validateResetPasswordForm(formData, isEmailVerified)
+    const normalizedFormData = getNormalizedFormData(formData)
+    const nextErrors = validateResetPasswordForm(normalizedFormData, isEmailVerified)
     setFieldErrors(nextErrors)
 
     if (Object.keys(nextErrors).length > 0) return
@@ -272,8 +290,8 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
 
     try {
       await resetPasswordMutateAsync({
-        email: formData.email.trim(),
-        newPassword: formData.newPassword
+        email: normalizedFormData.email,
+        newPassword: normalizedFormData.newPassword
       })
 
       toast.success('비밀번호가 재설정되었어요.')
