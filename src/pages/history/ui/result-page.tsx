@@ -69,8 +69,8 @@ function ResultPage() {
   }))
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
         {/* 좌측: 차트 + 매매내역 */}
         <div className="flex flex-col gap-5">
           {/* 헤더 카드 */}
