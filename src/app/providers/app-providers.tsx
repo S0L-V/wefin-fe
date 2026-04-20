@@ -18,19 +18,22 @@ function AppProviders({ children }: PropsWithChildren) {
       {children}
       <Toaster
         position="top-center"
+        style={{ zIndex: 9999 }}
         toastOptions={{
           style: {
             borderRadius: '16px',
             padding: '12px 20px',
             fontSize: '14px',
             fontWeight: 600,
-            boxShadow: '0 8px 32px -8px rgba(36,168,171,0.25)',
-            border: '1px solid rgba(36,168,171,0.15)'
+            background: 'var(--surface)',
+            color: 'var(--text)',
+            boxShadow: '0 8px 32px -8px rgba(0,0,0,0.2)',
+            border: '1px solid var(--line)'
           },
           classNames: {
-            success: '!bg-[#f0fafa] !text-[#1a7a7c] !border-[#24a8ab]/20',
-            error: '!bg-rose-50 !text-rose-600 !border-rose-200',
-            default: '!bg-white !text-[#1a2b3c]'
+            success: '!bg-wefin-mint !text-white !border-wefin-mint-deep/30',
+            error: '!bg-wefin-red !text-white !border-wefin-red/30',
+            warning: '!bg-wefin-amber !text-white !border-wefin-amber/30'
           }
         }}
         offset={20}

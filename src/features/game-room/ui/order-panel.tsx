@@ -684,7 +684,7 @@ function StockAccordionItem({
             disabled={form.quantity === 0 || form.isSubmitting}
             onClick={onSubmitClick}
             className={`w-full rounded-lg py-2 text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 ${
-              form.side === 'buy' ? 'bg-red-500' : 'bg-blue-500'
+              form.side === 'buy' ? 'bg-wefin-red' : 'bg-wefin-blue'
             }`}
           >
             {form.isSubmitting ? '주문 중...' : form.side === 'buy' ? '매수' : '매도'}
@@ -701,14 +701,14 @@ function SideTabs({ side, onChange }: { side: OrderSide; onChange: (s: OrderSide
       <button
         type="button"
         onClick={() => onChange('buy')}
-        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'buy' ? 'bg-red-500 text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
+        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'buy' ? 'bg-wefin-red text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
       >
         매수
       </button>
       <button
         type="button"
         onClick={() => onChange('sell')}
-        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'sell' ? 'bg-blue-500 text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
+        className={`flex-1 rounded-md py-1.5 text-xs font-bold transition-colors ${side === 'sell' ? 'bg-wefin-blue text-white' : 'bg-wefin-surface-2 text-wefin-subtle'}`}
       >
         매도
       </button>
@@ -773,7 +773,7 @@ function OrderConfirmDialog({
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-wefin-subtle">구분</span>
-            <span className={`font-bold ${side === '매수' ? 'text-red-500' : 'text-blue-500'}`}>
+            <span className={`font-bold ${side === '매수' ? 'text-wefin-red' : 'text-wefin-blue'}`}>
               {side}
             </span>
           </div>
@@ -803,7 +803,7 @@ function OrderConfirmDialog({
           <button
             type="button"
             onClick={onConfirm}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-bold text-white ${side === '매수' ? 'bg-red-500' : 'bg-blue-500'}`}
+            className={`flex-1 rounded-xl py-2.5 text-sm font-bold text-white ${side === '매수' ? 'bg-wefin-red' : 'bg-wefin-blue'}`}
           >
             {side} 확인
           </button>

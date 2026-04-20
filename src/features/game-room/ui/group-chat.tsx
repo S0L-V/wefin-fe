@@ -2,7 +2,7 @@ import { MessageCircle } from 'lucide-react'
 
 function GroupChat() {
   return (
-    <section className="flex min-h-[400px] flex-1 flex-col rounded-3xl border border-wefin-line bg-white p-5 shadow-sm">
+    <section className="flex min-h-[280px] flex-1 flex-col rounded-3xl border border-wefin-line bg-wefin-surface p-5 shadow-sm">
       <header className="mb-4 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">

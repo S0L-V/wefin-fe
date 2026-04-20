@@ -4,7 +4,7 @@ function MarketSnapshotTable() {
   const { data, isLoading, isError } = useMarketSnapshotsQuery()
 
   if (isLoading) return <p className="text-sm text-wefin-subtle">로딩 중...</p>
-  if (isError) return <p className="text-sm text-red-600">조회 실패</p>
+  if (isError) return <p className="text-sm text-wefin-red">조회 실패</p>
   if (!data || data.length === 0) return <p className="text-sm text-wefin-subtle">데이터 없음</p>
 
   return (
@@ -33,9 +33,9 @@ function MarketSnapshotTable() {
               <span
                 className={
                   snapshot.changeDirection === 'UP'
-                    ? 'text-red-600'
+                    ? 'text-wefin-red'
                     : snapshot.changeDirection === 'DOWN'
-                      ? 'text-blue-600'
+                      ? 'text-wefin-blue'
                       : 'text-wefin-subtle'
                 }
               >

@@ -39,7 +39,7 @@ function GroupRanking({ roomId }: GroupRankingProps) {
 }
 
 function RankingRow({ item, index }: { item: RankingItem; index: number }) {
-  const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = item.profitRate >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
   const sign = item.profitRate >= 0 ? '+' : ''
   const isTop3 = index < 3
   const allColors = [
@@ -64,7 +64,7 @@ function RankingRow({ item, index }: { item: RankingItem; index: number }) {
           index === 0
             ? 'bg-amber-400 text-white'
             : index === 1
-              ? 'bg-gray-400 text-white'
+              ? 'bg-wefin-muted text-white'
               : index === 2
                 ? 'bg-amber-600 text-white'
                 : 'bg-wefin-surface-2 text-wefin-muted'

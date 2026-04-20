@@ -25,7 +25,7 @@ export default function InterestsModal({ open, onClose }: InterestsModalProps) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg animate-[slideDown_0.2s_ease-out] rounded-2xl bg-white px-6 py-5 shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+      <div className="relative w-full max-w-lg animate-[slideDown_0.2s_ease-out] rounded-2xl bg-wefin-surface px-6 py-5 shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-wefin-text">관심 목록 관리</h2>
@@ -54,7 +54,7 @@ export default function InterestsModal({ open, onClose }: InterestsModalProps) {
                 aria-selected={active}
                 onClick={() => setTab(t.id)}
                 className={`flex-1 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                  active ? 'bg-white text-wefin-mint-deep shadow-sm' : 'text-wefin-subtle'
+                  active ? 'bg-wefin-surface text-wefin-mint-deep shadow-sm' : 'text-wefin-subtle'
                 }`}
               >
                 {t.label}

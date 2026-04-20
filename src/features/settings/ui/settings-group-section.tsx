@@ -21,9 +21,9 @@ function getInviteStatusDisplay(status: string): { label: string; className: str
     case 'PENDING':
       return { label: '사용 가능', className: 'text-wefin-mint bg-wefin-mint-soft' }
     case 'EXPIRED':
-      return { label: '만료됨', className: 'text-wefin-subtle bg-gray-100' }
+      return { label: '만료됨', className: 'text-wefin-subtle bg-wefin-surface-2' }
     default:
-      return { label: status, className: 'text-wefin-subtle bg-gray-100' }
+      return { label: status, className: 'text-wefin-subtle bg-wefin-surface-2' }
   }
 }
 
@@ -251,7 +251,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       ) : isLoading ? (
         <div className="px-4 py-6 text-center text-sm text-wefin-subtle">불러오는 중...</div>
       ) : isError ? (
-        <div className="px-4 py-6 text-center text-sm text-red-500">{queryErrorMessage}</div>
+        <div className="px-4 py-6 text-center text-sm text-wefin-red">{queryErrorMessage}</div>
       ) : null}
 
       {/* 공유 그룹 멤버일 때만: 그룹 정보 + 탈퇴 */}
@@ -270,8 +270,8 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
               className={[
                 'inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors',
                 canLeaveGroup && !isLeaving
-                  ? 'border-red-200 text-red-500 hover:bg-red-50'
-                  : 'border-wefin-line text-red-500 opacity-50'
+                  ? 'border-wefin-red/30 text-wefin-red hover:bg-wefin-red-soft'
+                  : 'border-wefin-line text-wefin-red opacity-50'
               ].join(' ')}
             >
               <LogOut size={16} />
@@ -330,7 +330,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                   copyState === 'copied'
                     ? 'border-wefin-mint bg-wefin-mint text-white'
                     : copyState === 'failed'
-                      ? 'border-red-300 bg-red-50 text-red-600'
+                      ? 'border-red-300 bg-wefin-red-soft text-wefin-red'
                       : 'border-wefin-line text-wefin-text hover:bg-wefin-mint-soft/60'
                 ].join(' ')}
               >
@@ -376,7 +376,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
             </p>
           )}
           {createInviteMutation.isError && (
-            <p className="mt-2 text-xs text-red-500">{inviteErrorMessage}</p>
+            <p className="mt-2 text-xs text-wefin-red">{inviteErrorMessage}</p>
           )}
         </div>
       )}
@@ -384,7 +384,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
       {isHomeGroup && isLoggedIn && !isLoading && !isError && (
         <div className="px-4 py-5">
           {homeGroupMode === 'idle' && (
-            <div className="rounded-2xl border border-wefin-line bg-wefin-bg/60 p-6 text-center">
+            <div className="rounded-2xl border border-wefin-line bg-wefin-surface-2 p-6 text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-wefin-mint-soft text-wefin-mint-deep">
                 <Users size={22} />
               </div>
@@ -396,14 +396,14 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                 <button
                   type="button"
                   onClick={() => setHomeGroupMode('create')}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-wefin-mint px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2a8282]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-wefin-mint px-5 text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep"
                 >
                   <Plus size={16} />새 그룹 만들기
                 </button>
                 <button
                   type="button"
                   onClick={() => setHomeGroupMode('join')}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-wefin-line bg-white px-5 text-sm font-semibold text-wefin-text transition-colors hover:bg-wefin-bg"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-wefin-line bg-wefin-surface px-5 text-sm font-semibold text-wefin-text transition-colors hover:bg-wefin-bg"
                 >
                   <LogIn size={16} />
                   초대 코드로 참여
@@ -441,7 +441,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                   disabled={isCreatingGroup}
                   autoFocus
                   placeholder="그룹 이름"
-                  className="h-12 flex-1 rounded-xl border-[1.5px] border-wefin-line bg-white px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
+                  className="h-12 flex-1 rounded-xl border-[1.5px] border-wefin-line bg-wefin-surface px-4 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
                 />
                 <button
                   type="button"
@@ -489,7 +489,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
                   disabled={isJoiningGroup}
                   autoFocus
                   placeholder="초대 코드"
-                  className="h-12 flex-1 rounded-xl border-[1.5px] border-wefin-line bg-white px-4 text-sm tracking-wider tabular-nums text-wefin-text outline-none transition-colors placeholder:tracking-normal placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
+                  className="h-12 flex-1 rounded-xl border-[1.5px] border-wefin-line bg-wefin-surface px-4 text-sm tracking-wider tabular-nums text-wefin-text outline-none transition-colors placeholder:tracking-normal placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg"
                 />
                 <button
                   type="button"

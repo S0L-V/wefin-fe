@@ -73,10 +73,10 @@ function AuthDialog() {
             )}
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
-                <Dialog.Title className="text-xl font-semibold text-slate-900">
+                <Dialog.Title className="text-xl font-semibold text-wefin-text">
                   {isLogin ? (data?.title ?? '로그인') : '회원가입'}
                 </Dialog.Title>
-                <Dialog.Description className="text-sm text-slate-500">
+                <Dialog.Description className="text-sm text-wefin-subtle">
                   {isLogin
                     ? (data?.description ?? '이메일과 비밀번호를 입력하세요')
                     : '새로운 계정을 만들고 시작하세요'}
@@ -86,7 +86,7 @@ function AuthDialog() {
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100"
+                  className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-wefin-surface-2"
                   aria-label="닫기"
                 >
                   <X className="size-4" />
@@ -108,7 +108,7 @@ function AuthDialog() {
                       required
                       value={loginFormData.email}
                       onChange={handleLoginChange('email')}
-                      className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-wefin-mint"
                     />
                   </div>
 
@@ -123,20 +123,20 @@ function AuthDialog() {
                       required
                       value={loginFormData.password}
                       onChange={handleLoginChange('password')}
-                      className="h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-wefin-mint"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={loginLoading}
-                    className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-12 w-full rounded-xl bg-wefin-mint text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loginLoading ? '로그인 중...' : '로그인'}
                   </button>
                 </form>
 
-                <p className="mt-3 text-right text-xs text-slate-500">
+                <p className="mt-3 text-right text-xs text-wefin-subtle">
                   <button
                     type="button"
                     onClick={() => {
@@ -149,12 +149,12 @@ function AuthDialog() {
                   </button>
                 </p>
 
-                <p className="mt-6 text-center text-sm text-slate-500">
+                <p className="mt-6 text-center text-sm text-wefin-subtle">
                   계정이 없으신가요?
                   <button
                     type="button"
                     onClick={() => switchMode('signup')}
-                    className="ml-2 font-semibold text-[#56c1c9] hover:underline"
+                    className="ml-2 font-semibold text-wefin-mint hover:underline"
                   >
                     회원가입
                   </button>
@@ -178,7 +178,7 @@ function AuthDialog() {
                       className={inputClassName('nickname')}
                     />
                     {fieldErrors.nickname ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.nickname}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.nickname}</p>
                     ) : null}
                   </div>
 
@@ -203,7 +203,7 @@ function AuthDialog() {
                         type="button"
                         onClick={handleSendVerificationCode}
                         disabled={isVerifying || isEmailVerified || codeCooldown > 0}
-                        className="min-w-[88px] rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="min-w-[88px] rounded-xl border border-wefin-line px-4 text-sm font-semibold text-wefin-text-2 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isVerifying
                           ? '전송 중...'
@@ -218,7 +218,7 @@ function AuthDialog() {
                     </div>
 
                     {fieldErrors.email ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.email}</p>
                     ) : null}
                   </div>
 
@@ -243,7 +243,7 @@ function AuthDialog() {
                           type="button"
                           onClick={handleConfirmVerificationCode}
                           disabled={isVerifying || isEmailVerified}
-                          className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl border border-wefin-line px-4 text-sm font-semibold text-wefin-text-2 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {isVerifying ? '확인 중...' : '코드확인'}
                         </button>
@@ -266,7 +266,7 @@ function AuthDialog() {
                       className={inputClassName('password')}
                     />
                     {fieldErrors.password ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.password}</p>
                     ) : null}
                   </div>
 
@@ -285,25 +285,25 @@ function AuthDialog() {
                       className={inputClassName('confirmPassword')}
                     />
                     {fieldErrors.confirmPassword ? (
-                      <p className="mt-1 text-sm text-red-500">{fieldErrors.confirmPassword}</p>
+                      <p className="mt-1 text-sm text-wefin-red">{fieldErrors.confirmPassword}</p>
                     ) : null}
                   </div>
 
                   <button
                     type="submit"
                     disabled={signupLoading || !isEmailVerified}
-                    className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-12 w-full rounded-xl bg-wefin-mint text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {signupLoading ? '처리 중...' : '회원가입'}
                   </button>
                 </form>
 
-                <p className="mt-6 text-center text-sm text-slate-500">
+                <p className="mt-6 text-center text-sm text-wefin-subtle">
                   이미 계정이 있으신가요?
                   <button
                     type="button"
                     onClick={() => switchMode('login')}
-                    className="ml-2 font-semibold text-[#56c1c9] hover:underline"
+                    className="ml-2 font-semibold text-wefin-mint hover:underline"
                   >
                     로그인
                   </button>

@@ -44,7 +44,7 @@ function InsightCardItem({
   const hasAdvice = Boolean(card.advice && card.adviceLabel)
 
   return (
-    <article className="flex h-full flex-col rounded-2xl bg-wefin-bg/60 px-4 py-3.5 transition-colors hover:bg-wefin-bg">
+    <article className="flex h-full flex-col rounded-2xl bg-wefin-surface-2 px-4 py-3.5 transition-colors hover:bg-wefin-line/40">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-bold text-wefin-text">{card.headline}</h3>
@@ -67,7 +67,7 @@ function InsightCardItem({
           <WefinLogoIcon size={12} className="mt-0.5 shrink-0 text-wefin-mint-deep" />
           <div className="text-xs leading-relaxed text-wefin-mint-deep">
             <p className="font-bold">{card.adviceLabel}</p>
-            <p className="mt-0.5 text-wefin-text/75">{card.advice}</p>
+            <p className="mt-0.5 text-wefin-subtle">{card.advice}</p>
           </div>
         </div>
       )}

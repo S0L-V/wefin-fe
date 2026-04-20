@@ -219,7 +219,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
               </div>
             ) : detail ? (
               <div className="space-y-4">
-                <div className="rounded-2xl border border-[#cde9e2] bg-[#f6fbfa] p-4">
+                <div className="rounded-2xl border border-wefin-mint/30 bg-wefin-mint-soft p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-lg font-semibold text-wefin-text">{detail.title}</div>
@@ -230,7 +230,9 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                     </div>
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        detail.closed ? 'bg-gray-100 text-gray-600' : 'bg-[#daf4ef] text-[#157969]'
+                        detail.closed
+                          ? 'bg-wefin-surface-2 text-wefin-subtle'
+                          : 'bg-wefin-mint-soft text-wefin-mint-deep'
                       }`}
                     >
                       {detail.closed ? '마감' : '진행중'}
@@ -289,7 +291,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                           className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm transition ${
                             isSelected
                               ? 'border-wefin-mint bg-wefin-mint-soft/40 text-wefin-text'
-                              : 'border-wefin-line bg-white text-wefin-text hover:bg-wefin-bg'
+                              : 'border-wefin-line bg-wefin-surface text-wefin-text hover:bg-wefin-bg'
                           } ${isLocked ? 'cursor-default opacity-70' : ''}`}
                         >
                           <span>{option.optionText}</span>
@@ -309,7 +311,7 @@ export default function VoteDetailModal({ open, onOpenChange, voteId }: VoteDeta
                 )}
 
                 {errorMessage && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  <div className="rounded-xl border border-wefin-line bg-wefin-amber-soft px-3 py-2 text-sm text-wefin-amber-text">
                     {errorMessage}
                   </div>
                 )}

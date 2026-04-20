@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import GroupChatRoom from '@/features/chat/ui/group-chat-room'
@@ -54,6 +54,8 @@ function PlayPage() {
     }
   }, [isGameFinished, roomId, navigate, resetGameFinished])
 
+  const [mobileTab, setMobileTab] = useState<'chart' | 'order' | 'chat'>('chart')
+
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
   }
@@ -89,35 +91,118 @@ function PlayPage() {
 
   return (
     <>
-      {/* 부모 main의 max-width/padding을 뚫고 화면 가득 차는 레이아웃 */}
-      <div className="fixed inset-0 top-[56px] z-20 flex flex-col overflow-hidden bg-wefin-bg">
+      {/* 데스크탑 레이아웃 */}
+      <div className="fixed inset-0 top-[56px] z-10 hidden flex-col overflow-hidden bg-wefin-bg lg:flex">
         <div className="flex min-h-0 flex-1 gap-2 p-2">
           <div className="flex min-w-0 flex-[1] flex-col gap-2">
-            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <StockChart roomId={roomId} />
             </div>
-            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <MarketBriefing roomId={roomId} />
             </div>
           </div>
 
           <div className="flex min-w-0 flex-[0.7] flex-col gap-2">
-            <div className="min-h-0 flex-[2] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1.3] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderPanel roomId={roomId} cash={cash} />
             </div>
-            <div className="min-h-0 flex-[0.8] overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <HoldingsPanel roomId={roomId} />
             </div>
           </div>
 
-          <div className="flex min-w-[280px] max-w-[380px] flex-[0.45] flex-col gap-2">
-            <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
+          <div className="flex min-w-[200px] max-w-[380px] flex-[0.45] flex-col gap-2">
+            <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupChatRoom bare />
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-white">
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupRanking roomId={roomId} />
             </div>
           </div>
+        </div>
+
+        <PlayHeader
+          currentRound={currentRound}
+          totalTurns={totalTurns}
+          currentDate={currentDate}
+          seed={seed}
+          totalAssets={totalAssets}
+          profitRate={profitRate}
+          activePlayers={activePlayers}
+          isHost={isHost}
+          isAdvancing={voteMutation.isPending || isVoting}
+          onNextTurn={() => {
+            markVoted()
+            voteMutation.mutate(true)
+          }}
+          onLeave={() => guard.requestLeave('/history')}
+          isEnding={endGameMutation.isPending}
+          onEndGame={() => {
+            endGameMutation.mutate(undefined, {
+              onSuccess: () => navigate(`/history/room/${roomId}/result`)
+            })
+          }}
+        />
+      </div>
+
+      {/* 모바일 레이아웃 */}
+      <div className="fixed inset-0 top-[56px] z-10 flex flex-col overflow-hidden bg-wefin-bg lg:hidden">
+        <div className="flex shrink-0 gap-1 border-b border-wefin-line bg-wefin-surface px-2 py-1.5">
+          {[
+            { key: 'chart' as const, label: '차트·브리핑' },
+            { key: 'order' as const, label: '주문·보유' },
+            { key: 'chat' as const, label: '채팅·랭킹' }
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setMobileTab(key)}
+              className={`flex-1 rounded-lg py-2 text-[12px] font-bold transition-colors ${
+                mobileTab === key ? 'bg-wefin-mint text-white' : 'text-wefin-subtle'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {mobileTab === 'chart' && (
+            <div className="flex flex-col gap-2 p-2">
+              <div className="h-[260px] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
+                <StockChart roomId={roomId} />
+              </div>
+              <div className="rounded-xl border border-wefin-line bg-wefin-surface">
+                <MarketBriefing roomId={roomId} />
+              </div>
+            </div>
+          )}
+
+          {mobileTab === 'order' && (
+            <div className="flex flex-col gap-2 p-2">
+              <div className="rounded-xl border border-wefin-line bg-wefin-surface">
+                <OrderPanel roomId={roomId} cash={cash} />
+              </div>
+              <div className="rounded-xl border border-wefin-line bg-wefin-surface">
+                <HoldingsPanel roomId={roomId} />
+              </div>
+            </div>
+          )}
+
+          {mobileTab === 'chat' && (
+            <div
+              className="flex flex-col gap-2 p-2"
+              style={{ height: 'calc(100dvh - 56px - 44px - 80px)' }}
+            >
+              <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
+                <GroupChatRoom bare />
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
+                <GroupRanking roomId={roomId} />
+              </div>
+            </div>
+          )}
         </div>
 
         <PlayHeader
@@ -173,7 +258,7 @@ function RankChangePopup({ changes, onClose }: RankChangePopupProps) {
 
   return (
     <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2">
-      <div className="w-80 rounded-2xl border border-wefin-line bg-white p-5 shadow-xl">
+      <div className="w-80 rounded-2xl border border-wefin-line bg-wefin-surface p-5 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h4 className="text-sm font-bold text-wefin-text">순위 변동 알림</h4>
           <button
@@ -188,7 +273,7 @@ function RankChangePopup({ changes, onClose }: RankChangePopupProps) {
         <div className="space-y-2">
           {changes.map((c) => {
             const isUp = c.delta > 0
-            const color = isUp ? 'text-red-500' : 'text-blue-500'
+            const color = isUp ? 'text-wefin-red' : 'text-wefin-blue'
             const arrow = isUp ? 'UP' : 'DOWN'
             return (
               <div key={c.userName} className="flex items-center gap-2 text-xs">

@@ -17,7 +17,7 @@ export default function HoldingRow({ holding, isCurrent = false }: HoldingRowPro
   const evaluationAmount = Math.trunc(holding.evaluationAmount ?? 0)
   const profitLoss = Math.trunc(holding.profitLoss ?? 0)
   const profitRate = holding.profitRate ?? 0
-  const profitColor = profitLoss >= 0 ? 'text-red-500' : 'text-blue-500'
+  const profitColor = profitLoss >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
 
   return (
     <Link

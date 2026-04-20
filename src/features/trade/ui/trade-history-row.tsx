@@ -8,9 +8,9 @@ export default function TradeHistoryRow({ trade }: TradeHistoryRowProps) {
   const sideLabel = trade.side === 'BUY' ? '매수' : '매도'
   const totalAmount = Math.trunc(trade.totalAmount ?? 0)
   const amountSign = trade.side === 'BUY' ? '-' : '+'
-  const amountColor = trade.side === 'BUY' ? 'text-blue-600' : 'text-red-500'
+  const amountColor = trade.side === 'BUY' ? 'text-wefin-blue' : 'text-wefin-red'
   const realizedProfit = Math.trunc(trade.realizedProfit ?? 0)
-  const profitColor = realizedProfit >= 0 ? 'text-red-500' : 'text-blue-600'
+  const profitColor = realizedProfit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
 
   return (
     <div className="flex items-start justify-between py-3.5">

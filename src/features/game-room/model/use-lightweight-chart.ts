@@ -48,16 +48,20 @@ export function useLightweightChart({ data, interval, symbol }: UseLightweightCh
   useEffect(() => {
     if (!containerRef.current) return
 
+    const styles = getComputedStyle(document.documentElement)
+    const lineColor = styles.getPropertyValue('--line').trim()
+    const textColor = styles.getPropertyValue('--subtle').trim()
+
     const chart = createChart(containerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#637282',
+        textColor,
         fontSize: 13,
         attributionLogo: false
       },
       grid: {
-        vertLines: { color: '#dbe5ee', style: LineStyle.Dotted },
-        horzLines: { color: '#dbe5ee', style: LineStyle.Dotted }
+        vertLines: { color: lineColor, style: LineStyle.Dotted },
+        horzLines: { color: lineColor, style: LineStyle.Dotted }
       },
       crosshair: { mode: CrosshairMode.Normal },
       rightPriceScale: { borderVisible: false },

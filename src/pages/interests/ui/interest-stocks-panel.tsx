@@ -64,7 +64,7 @@ export default function InterestStocksPanel() {
                   type="button"
                   onClick={() => deleteMutation.mutate(item.stockCode)}
                   aria-label={`${item.stockName || item.stockCode} 해제`}
-                  className="rounded-full p-1 text-wefin-subtle transition-colors hover:bg-red-50 hover:text-red-500"
+                  className="rounded-full p-1 text-wefin-subtle transition-colors hover:bg-wefin-red-soft hover:text-wefin-red"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -81,7 +81,7 @@ export default function InterestStocksPanel() {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="종목명 또는 종목코드"
-          className="mb-3 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:border-wefin-mint focus:outline-none"
+          className="mb-3 w-full rounded-xl border border-wefin-line px-4 py-2 text-sm focus:border-wefin-mint focus:outline-none"
         />
         {keyword.trim().length === 0 ? (
           <p className="text-xs text-wefin-subtle">종목명을 입력하면 결과가 표시됩니다.</p>
@@ -114,7 +114,7 @@ export default function InterestStocksPanel() {
                     onClick={() => handleAddStock(s.stockCode)}
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                       registered
-                        ? 'bg-gray-100 text-gray-400'
+                        ? 'bg-wefin-surface-2 text-wefin-muted'
                         : 'bg-wefin-mint text-white hover:bg-wefin-mint/90 disabled:opacity-60'
                     }`}
                   >
@@ -134,7 +134,7 @@ function SkeletonRows({ count }: { count: number }) {
   return (
     <ul className="flex flex-col gap-2">
       {Array.from({ length: count }).map((_, i) => (
-        <li key={i} className="h-14 animate-pulse rounded-xl bg-gray-50" />
+        <li key={i} className="h-14 animate-pulse rounded-xl bg-wefin-surface-2" />
       ))}
     </ul>
   )
@@ -142,7 +142,7 @@ function SkeletonRows({ count }: { count: number }) {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-wefin-subtle">
+    <div className="rounded-xl border border-dashed border-wefin-line px-4 py-6 text-center text-sm text-wefin-subtle">
       {message}
     </div>
   )

@@ -13,13 +13,11 @@
   width: min(28rem, calc(100vw - 2rem));
   transform: translate(-50%, -50%);
   border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--line);
+  background: var(--surface);
   padding: 1.5rem;
   box-shadow:
-    0 24px 64px rgba(15, 23, 42, 0.18),
+    0 24px 64px rgba(0, 0, 0, 0.18),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 }
 

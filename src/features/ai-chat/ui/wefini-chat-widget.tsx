@@ -375,7 +375,7 @@ export default function WefinyChatWidget() {
 
       {isOpen && (
         <div
-          className={`fixed right-6 bottom-[88px] z-30 flex flex-col overflow-hidden rounded-2xl border border-wefin-line bg-white shadow-sm transition-all duration-300 max-md:right-3 max-md:bottom-[80px] max-md:h-[72vh] max-md:w-[calc(100vw-24px)] ${expanded ? 'h-[80vh] w-[480px]' : 'h-[620px] w-[380px]'}`}
+          className={`fixed right-6 bottom-[88px] z-30 flex flex-col overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm transition-all duration-300 max-md:right-3 max-md:bottom-[80px] max-md:h-[72vh] max-md:w-[calc(100vw-24px)] ${expanded ? 'h-[80vh] w-[480px]' : 'h-[620px] w-[380px]'}`}
         >
           <div className="flex items-center justify-between border-b border-wefin-line bg-gradient-to-r from-wefin-mint-soft/40 to-transparent px-4 py-3">
             <div className="flex items-center gap-2.5">
@@ -389,7 +389,7 @@ export default function WefinyChatWidget() {
               <button
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-white/60 hover:text-wefin-text"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-surface-2 hover:text-wefin-text"
                 aria-label={expanded ? '채팅창 축소' : '채팅창 확대'}
               >
                 {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -397,7 +397,7 @@ export default function WefinyChatWidget() {
               <button
                 type="button"
                 onClick={close}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-white/60 hover:text-wefin-text"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-wefin-subtle transition-colors hover:bg-wefin-surface-2 hover:text-wefin-text"
                 aria-label="위피니 채팅 닫기"
               >
                 <X size={16} />
@@ -407,7 +407,7 @@ export default function WefinyChatWidget() {
 
           <div
             ref={scrollContainerRef}
-            className="flex-1 space-y-3 overflow-y-auto bg-white p-3 scrollbar-thin"
+            className="flex-1 space-y-3 overflow-y-auto bg-wefin-surface p-3 scrollbar-thin"
           >
             {!hasAccessToken ? (
               <div className="mt-10 rounded-xl bg-wefin-bg px-4 py-5 text-center text-sm text-wefin-subtle">
@@ -457,7 +457,7 @@ export default function WefinyChatWidget() {
                         className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm leading-relaxed [overflow-wrap:anywhere] ${
                           isMine
                             ? 'rounded-tr-none bg-wefin-mint text-white'
-                            : 'rounded-tl-none border border-wefin-line bg-white text-wefin-text shadow-sm'
+                            : 'rounded-tl-none border border-wefin-line bg-wefin-surface text-wefin-text shadow-sm'
                         }`}
                       >
                         <div className="whitespace-pre-wrap">{chatMessage.content}</div>
@@ -472,7 +472,7 @@ export default function WefinyChatWidget() {
                       <WefinLogoIcon size={12} className="text-wefin-mint" />
                       <span className="text-xs font-bold text-wefin-mint-deep">위피니</span>
                     </div>
-                    <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-white px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm">
+                    <div className="max-w-[80%] rounded-2xl rounded-tl-none border border-wefin-line bg-wefin-surface px-3 py-2 text-sm leading-relaxed text-wefin-text shadow-sm">
                       <div className="flex items-center gap-2">
                         <span>{pendingLabel}</span>
                         <span className="flex items-center gap-1 text-wefin-mint">
@@ -490,17 +490,17 @@ export default function WefinyChatWidget() {
             )}
           </div>
 
-          <div className="border-t border-wefin-line bg-white p-3">
+          <div className="border-t border-wefin-line bg-wefin-surface p-3">
             {errorMessage && (
               <div
-                className="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
+                className="mb-2 rounded-lg border border-wefin-line bg-wefin-amber-soft px-3 py-2 text-xs text-wefin-amber-text"
                 role="alert"
               >
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pr-1.5 pl-4">
+            <div className="flex items-center gap-2 rounded-full bg-wefin-surface-2 py-1.5 pr-1.5 pl-4">
               <input
                 ref={inputRef}
                 type="text"

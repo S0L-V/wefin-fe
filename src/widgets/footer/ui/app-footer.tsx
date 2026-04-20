@@ -21,72 +21,119 @@ export default function AppFooter() {
 
   return (
     <footer className="border-t border-wefin-line">
-      <div
-        className="mx-auto grid gap-7 px-9 pt-[34px] pb-11"
-        style={{
-          maxWidth: 1440,
-          gridTemplateColumns: '1.2fr 1fr 1fr 1fr'
-        }}
-      >
-        {/* Brand */}
-        <div>
-          <div className="mb-2.5 flex items-baseline">
+      <div className="mx-auto max-w-[1440px] px-5 pt-8 pb-10 sm:px-9 sm:pt-[34px] sm:pb-11">
+        {/* 모바일: 세로 스택 */}
+        <div className="flex flex-col gap-6 sm:hidden">
+          <div className="flex items-baseline">
             <WefinLogoIcon size={18} className="mr-[-3px] translate-y-[3px] text-wefin-text" />
             <span className="text-[13px] font-extrabold text-wefin-text">efin</span>
           </div>
-          <p className="text-[13px] leading-relaxed text-wefin-subtle">
-            과거에서 배우고, 현재에 투자하는 모의투자 플랫폼
-          </p>
+
+          <div className="flex gap-8">
+            <div>
+              <h5 className="mb-2 text-[12px] font-extrabold text-wefin-text">서비스</h5>
+              <ul className="flex list-none flex-col gap-1.5">
+                {SERVICE_LINKS.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link
+                      to={to}
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="text-[12px] text-wefin-subtle transition-colors hover:text-wefin-text"
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h5 className="mb-2 text-[12px] font-extrabold text-wefin-text">문의</h5>
+              <ul className="flex list-none flex-col gap-1.5">
+                {INQUIRY_LINKS.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link
+                      to={to}
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="text-[12px] text-wefin-subtle transition-colors hover:text-wefin-text"
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setFeedbackOpen(true)}
+                    className="text-[12px] text-wefin-subtle transition-colors hover:text-wefin-text"
+                  >
+                    의견 보내기
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-wefin-muted">&copy; 2026 SOLV. All rights reserved.</p>
         </div>
 
-        {/* 서비스 */}
-        <div>
-          <h5 className="mb-2.5 text-[13px] font-extrabold text-wefin-text">서비스</h5>
-          <ul className="flex list-none flex-col gap-1.5">
-            {SERVICE_LINKS.map(({ label, to }) => (
-              <li key={label}>
-                <Link
-                  to={to}
-                  onClick={() => window.scrollTo(0, 0)}
+        {/* 데스크탑: 4컬럼 */}
+        <div className="hidden gap-7 sm:grid" style={{ gridTemplateColumns: '1.2fr 1fr 1fr 1fr' }}>
+          <div>
+            <div className="mb-2.5 flex items-baseline">
+              <WefinLogoIcon size={18} className="mr-[-3px] translate-y-[3px] text-wefin-text" />
+              <span className="text-[13px] font-extrabold text-wefin-text">efin</span>
+            </div>
+            <p className="text-[13px] leading-relaxed text-wefin-subtle">
+              과거에서 배우고, 현재에 투자하는 모의투자 플랫폼
+            </p>
+          </div>
+
+          <div>
+            <h5 className="mb-2.5 text-[13px] font-extrabold text-wefin-text">서비스</h5>
+            <ul className="flex list-none flex-col gap-1.5">
+              {SERVICE_LINKS.map(({ label, to }) => (
+                <li key={label}>
+                  <Link
+                    to={to}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="text-[13px] text-wefin-subtle transition-colors hover:text-wefin-text"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h5 className="mb-2.5 text-[13px] font-extrabold text-wefin-text">문의</h5>
+            <ul className="flex list-none flex-col gap-1.5">
+              {INQUIRY_LINKS.map(({ label, to }) => (
+                <li key={label}>
+                  <Link
+                    to={to}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="text-[13px] text-wefin-subtle transition-colors hover:text-wefin-text"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setFeedbackOpen(true)}
                   className="text-[13px] text-wefin-subtle transition-colors hover:text-wefin-text"
                 >
-                  {label}
-                </Link>
+                  의견 보내기
+                </button>
               </li>
-            ))}
-          </ul>
-        </div>
+            </ul>
+          </div>
 
-        {/* 문의 */}
-        <div>
-          <h5 className="mb-2.5 text-[13px] font-extrabold text-wefin-text">문의</h5>
-          <ul className="flex list-none flex-col gap-1.5">
-            {INQUIRY_LINKS.map(({ label, to }) => (
-              <li key={label}>
-                <Link
-                  to={to}
-                  onClick={() => window.scrollTo(0, 0)}
-                  className="text-[13px] text-wefin-subtle transition-colors hover:text-wefin-text"
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <button
-                type="button"
-                onClick={() => setFeedbackOpen(true)}
-                className="text-[13px] text-wefin-subtle transition-colors hover:text-wefin-text"
-              >
-                의견 보내기
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        {/* Copyright */}
-        <div className="flex items-end justify-end">
-          <p className="text-[13px] text-wefin-subtle">&copy; 2026 SOLV. All rights reserved.</p>
+          <div className="flex items-end justify-end">
+            <p className="text-[13px] text-wefin-subtle">&copy; 2026 SOLV. All rights reserved.</p>
+          </div>
         </div>
       </div>
 

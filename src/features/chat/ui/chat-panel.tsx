@@ -79,8 +79,8 @@ function ToastToggleButton({
       onClick={onClick}
       className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
         checked
-          ? 'border-amber-200 bg-amber-50 text-amber-500 hover:bg-amber-100'
-          : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50'
+          ? 'border-wefin-line bg-wefin-mint-soft text-wefin-mint-deep hover:bg-wefin-mint-100'
+          : 'border-wefin-line bg-wefin-surface text-wefin-muted hover:bg-wefin-surface-2'
       } disabled:cursor-not-allowed disabled:opacity-50`}
     >
       {checked ? <Bell size={18} /> : <BellOff size={18} />}

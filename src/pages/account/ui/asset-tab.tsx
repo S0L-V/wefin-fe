@@ -27,14 +27,16 @@ export default function AssetTab() {
   )
   const totalAsset = balance + frozenAmount + investedAmount
   const questReward = totalAsset - initialBalance - realizedProfit - totalPnL
-  const profitColor = realizedProfit >= 0 ? 'text-red-500' : 'text-blue-600'
-  const pnlColor = totalPnL >= 0 ? 'text-red-500' : 'text-blue-600'
+  const profitColor = realizedProfit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
+  const pnlColor = totalPnL >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
 
   return (
     <div className="max-w-md divide-y divide-wefin-line">
       <div className="pb-5">
         <p className="text-sm text-wefin-subtle">총 자산</p>
-        <p className="mt-1 text-3xl font-bold text-wefin-text">{totalAsset.toLocaleString()}원</p>
+        <p className="mt-1 text-xl font-bold sm:text-3xl text-wefin-text">
+          {totalAsset.toLocaleString()}원
+        </p>
       </div>
 
       <Row title="주문 가능 금액" value={`${balance.toLocaleString()}원`} />

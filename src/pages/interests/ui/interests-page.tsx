@@ -14,7 +14,7 @@ export default function InterestsPage() {
   const [tab, setTab] = useState<Tab>('stocks')
 
   return (
-    <div className="mx-auto max-w-3xl rounded-3xl bg-white p-6">
+    <div className="mx-auto max-w-3xl rounded-3xl bg-wefin-surface p-6">
       <header className="mb-6">
         <h1 className="text-xl font-bold text-wefin-text">관심 목록 관리</h1>
         <p className="mt-1 text-sm text-wefin-subtle">
@@ -24,7 +24,7 @@ export default function InterestsPage() {
       </header>
 
       <div
-        className="mb-5 flex gap-1 rounded-full bg-gray-100 p-1"
+        className="mb-5 flex gap-1 rounded-full bg-wefin-surface-2 p-1"
         role="tablist"
         aria-label="관심사 타입"
       >
@@ -38,7 +38,7 @@ export default function InterestsPage() {
               aria-selected={active}
               onClick={() => setTab(t.id)}
               className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                active ? 'bg-white text-wefin-text shadow-sm' : 'text-wefin-subtle'
+                active ? 'bg-wefin-surface text-wefin-text shadow-sm' : 'text-wefin-subtle'
               }`}
             >
               {t.label}

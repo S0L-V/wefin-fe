@@ -32,7 +32,7 @@ export default function SourceListModal({ heading, sources, onClose }: SourceLis
         role="dialog"
         aria-modal="true"
         aria-labelledby="source-modal-title"
-        className="relative w-full max-w-md animate-[slideDown_0.2s_ease-out] rounded-2xl bg-white px-6 py-5 shadow-[0_16px_48px_rgba(0,0,0,0.12)]"
+        className="relative w-full max-w-md animate-[slideDown_0.2s_ease-out] rounded-2xl bg-wefin-surface px-6 py-5 shadow-[0_16px_48px_rgba(0,0,0,0.12)]"
       >
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -61,7 +61,7 @@ export default function SourceListModal({ heading, sources, onClose }: SourceLis
               rel="noopener noreferrer"
               className="group relative flex gap-4 py-3"
             >
-              <span className="absolute left-[-13px] top-[18px] h-2 w-2 rounded-full border-2 border-wefin-mint-deep bg-white transition-colors group-hover:bg-wefin-mint-deep" />
+              <span className="absolute left-[-13px] top-[18px] h-2 w-2 rounded-full border-2 border-wefin-mint-deep bg-wefin-surface transition-colors group-hover:bg-wefin-mint-deep" />
               <div className="min-w-0 flex-1 rounded-xl px-3 py-2 transition-colors group-hover:bg-wefin-bg">
                 <p className="text-sm font-semibold text-wefin-text underline decoration-transparent decoration-1 underline-offset-4 transition-all group-hover:text-wefin-mint-deep group-hover:decoration-wefin-mint-deep/40">
                   {src.title}

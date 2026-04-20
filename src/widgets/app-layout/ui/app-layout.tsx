@@ -5,6 +5,7 @@ import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { useGlobalChatBoot } from '@/features/chat/model/global/use-global-chat-boot'
 import { useChatUnreadBoot } from '@/features/chat/model/use-chat-unread-boot'
 import { routes } from '@/shared/config/routes'
+import FloatingChatButton from '@/widgets/floating-chat/ui/floating-chat-button'
 import AppFooter from '@/widgets/footer/ui/app-footer'
 import AppHeader from '@/widgets/header/ui/app-header'
 import TickerMarquee from '@/widgets/ticker/ui/ticker-marquee'
@@ -44,6 +45,7 @@ function AppLayout() {
       </main>
       {!isFullWidth && <AppFooter />}
       {shouldShowAiChatWidget && <WefinyChatWidget />}
+      <FloatingChatButton />
     </div>
   )
 }

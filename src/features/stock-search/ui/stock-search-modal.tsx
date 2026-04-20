@@ -62,7 +62,7 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
         role="dialog"
         aria-modal="true"
         aria-label="종목 검색"
-        className="relative w-full max-w-xl rounded-2xl bg-white shadow-2xl"
+        className="relative w-full max-w-xl rounded-2xl bg-wefin-surface shadow-2xl"
       >
         {/* 검색 입력 */}
         <div className="flex items-center gap-3 border-b border-wefin-line px-5 py-4">
@@ -93,7 +93,7 @@ export default function StockSearchModal({ isOpen, onClose }: StockSearchModalPr
           ) : isLoading ? (
             <p className="px-3 py-8 text-center text-sm text-wefin-subtle">검색 중...</p>
           ) : isError ? (
-            <p className="px-3 py-8 text-center text-sm text-red-500">
+            <p className="px-3 py-8 text-center text-sm text-wefin-red">
               검색 중 오류가 발생했습니다
             </p>
           ) : results.length === 0 ? (

@@ -31,26 +31,26 @@ function GameLobby() {
             <div className="card-base h-[280px] animate-pulse" />
             <div className="card-base h-[200px] animate-pulse" />
           </div>
-          <div className="card-base h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse" />
+          <div className="card-base h-[calc(100dvh-220px)] min-h-[280px] animate-pulse" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-[1100px] py-8">
-      <h1 className="text-2xl font-extrabold text-wefin-text">타임머신 투자</h1>
-      <p className="mt-1.5 text-[15px] text-wefin-subtle">
+    <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-0 sm:py-8">
+      <h1 className="text-xl font-extrabold text-wefin-text sm:text-2xl">타임머신 투자</h1>
+      <p className="mt-1 text-[13px] text-wefin-subtle sm:mt-1.5 sm:text-[15px]">
         과거 시장 데이터로 투자를 학습하고, 함께 전략을 나눠보세요
       </p>
 
-      <div className="mt-6 grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
-        <div className="flex flex-col gap-5">
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 sm:mt-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-4 sm:gap-5">
           {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <CreateRoomInline />}
           <GameHistorySection items={recentHistory} />
         </div>
 
-        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20 lg:flex">
           <ChatPanel />
         </div>
       </div>
@@ -190,7 +190,7 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
     >
       <div
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-          isWaiting ? 'bg-amber-50' : 'bg-gradient-to-br from-wefin-mint to-wefin-mint-deep'
+          isWaiting ? 'bg-wefin-amber-soft' : 'bg-gradient-to-br from-wefin-mint to-wefin-mint-deep'
         }`}
       >
         <Play size={18} className={isWaiting ? 'text-amber-500' : 'text-white'} />
@@ -206,7 +206,9 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
           </span>
           <span
             className={`rounded px-2 py-0.5 text-[11px] font-bold ${
-              isWaiting ? 'bg-amber-50 text-amber-600' : 'bg-wefin-mint-soft text-wefin-mint-deep'
+              isWaiting
+                ? 'bg-wefin-amber-soft text-amber-600'
+                : 'bg-wefin-mint-soft text-wefin-mint-deep'
             }`}
           >
             {isWaiting ? '대기 중' : '게임 중'}
@@ -261,7 +263,7 @@ function GameHistoryCard({ item }: { item: GameHistoryItem }) {
   const seedLabel = `${(item.seedMoney / 10000).toLocaleString()}만원`
   const periodLabel = `${item.periodMonths}개월`
   const isPositive = item.profitRate >= 0
-  const profitColor = isPositive ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = isPositive ? 'text-wefin-red' : 'text-wefin-blue'
   const profitSign = isPositive ? '+' : ''
   const rankLabel = item.finalRank != null ? `${item.finalRank}등` : '-'
 

@@ -13,7 +13,7 @@ export default function WatchlistPanel() {
     return (
       <div className="space-y-2 p-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-14 animate-pulse rounded-lg bg-gray-100" />
+          <div key={i} className="h-14 animate-pulse rounded-lg bg-wefin-surface-2" />
         ))}
       </div>
     )
@@ -63,29 +63,29 @@ function WatchlistRow({ item }: { item: WatchlistItem }) {
   const isUp = item.changeRate > 0
   const isDown = item.changeRate < 0
   const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : null
-  const rateColor = isUp ? 'text-red-500' : isDown ? 'text-blue-500' : 'text-wefin-subtle'
+  const rateColor = isUp ? 'text-wefin-red' : isDown ? 'text-wefin-blue' : 'text-wefin-subtle'
   const sign = isUp ? '+' : ''
 
   return (
     <button
       onClick={() => navigate(routes.stockDetail(item.stockCode))}
-      className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-wefin-bg"
+      className="flex w-full items-center gap-4 px-5 py-4.5 text-left transition-colors hover:bg-wefin-bg"
     >
-      <StockLogo code={item.stockCode} name={item.stockName || item.stockCode} size={36} />
+      <StockLogo code={item.stockCode} name={item.stockName || item.stockCode} size={40} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[15px] font-semibold text-wefin-text">
+        <p className="truncate text-[16px] font-bold text-wefin-text">
           {item.stockName || item.stockCode}
         </p>
-        <p className="text-[11.5px] text-wefin-subtle">{item.stockCode}</p>
+        <p className="text-[12.5px] text-wefin-subtle">{item.stockCode}</p>
       </div>
       <div className="text-right">
-        <p className="font-num text-[15px] font-bold text-wefin-text tabular-nums">
+        <p className="font-num text-[16px] font-bold text-wefin-text tabular-nums">
           {item.currentPrice.toLocaleString()}원
         </p>
         <p
-          className={`flex items-center justify-end gap-0.5 text-[12.5px] font-semibold ${rateColor} tabular-nums`}
+          className={`flex items-center justify-end gap-0.5 text-[13px] font-semibold ${rateColor} tabular-nums`}
         >
-          {TrendIcon && <TrendIcon className="h-3 w-3" />}
+          {TrendIcon && <TrendIcon className="h-3.5 w-3.5" />}
           {sign}
           {item.changeRate.toFixed(2)}%
         </p>

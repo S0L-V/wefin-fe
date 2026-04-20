@@ -39,7 +39,7 @@ export default function AboutPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-4">
-      <div className="rounded-2xl bg-white p-8">
+      <div className="rounded-2xl bg-wefin-surface p-8">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-wefin-mint to-wefin-mint-deep text-white">
             <WefinLogoIcon size={22} />
@@ -53,7 +53,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <p className="mt-6 text-sm leading-relaxed text-wefin-text/80">
+        <p className="mt-6 text-sm leading-relaxed text-wefin-text-2">
           WeFin은 과거 시장 데이터로 투자를 학습하고, 그 경험을 실시간 모의투자에 적용하는 트레이딩
           시뮬레이션 서비스입니다. 타임머신 투자로 과거 시장을 복기하며 친구들과 전략을 나누고, AI가
           분석한 뉴스와 시장 브리핑으로 흐름을 파악한 뒤, 실시간 시세 위에서 직접 매매를 경험할 수
@@ -80,7 +80,7 @@ export default function AboutPage() {
 
         <div className="mt-8 rounded-xl bg-wefin-bg p-5">
           <h2 className="text-base font-bold text-wefin-text">팀 SOLV</h2>
-          <p className="mt-2 text-sm leading-relaxed text-wefin-text/80">
+          <p className="mt-2 text-sm leading-relaxed text-wefin-text-2">
             실전과 동일한 환경에서 투자를 학습할 수 있는 서비스를 만들고 있습니다.
           </p>
           <div className="mt-3 flex flex-wrap gap-4 text-xs text-wefin-subtle">

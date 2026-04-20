@@ -142,7 +142,7 @@ export default function NewsFilterBar({
       >
         <div
           ref={indicatorRef}
-          className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all duration-300"
+          className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-lg bg-wefin-surface shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all duration-300"
         />
         {MODE_TABS.map((tab) => (
           <button
@@ -164,7 +164,7 @@ export default function NewsFilterBar({
         <div className="relative">
           <button
             onClick={dropdownOpen ? () => setDropdownOpen(false) : openDropdown}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-wefin-mint bg-white px-4 py-1.5 text-[13px] font-medium text-wefin-text transition-colors hover:bg-wefin-mint-soft"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-wefin-mint bg-wefin-surface px-4 py-1.5 text-[13px] font-medium text-wefin-text transition-colors hover:bg-wefin-mint-soft"
           >
             {dropdownLabel}
             <ChevronDown
@@ -175,7 +175,7 @@ export default function NewsFilterBar({
           {dropdownOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-              <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-xl border border-wefin-line bg-white py-1 shadow-lg">
+              <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-xl border border-wefin-line bg-wefin-surface py-1 shadow-lg">
                 <div className="px-3 pb-2 pt-1">
                   <div className="flex items-center gap-2 rounded-lg border border-wefin-line px-2.5 py-1.5">
                     <Search className="h-3.5 w-3.5 text-wefin-subtle" />
@@ -246,7 +246,7 @@ export default function NewsFilterBar({
             className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors ${
               interestModeActive
                 ? 'border-wefin-mint-deep/30 bg-wefin-mint-soft text-wefin-mint-deep'
-                : 'border-gray-200 bg-white text-wefin-subtle hover:border-wefin-mint-deep/20 hover:text-wefin-mint-deep'
+                : 'border-wefin-line bg-wefin-surface text-wefin-subtle hover:border-wefin-mint-deep/20 hover:text-wefin-mint-deep'
             }`}
           >
             <Heart className={`h-3.5 w-3.5 ${interestModeActive ? 'fill-current' : ''}`} />

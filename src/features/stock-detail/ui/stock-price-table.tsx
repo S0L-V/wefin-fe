@@ -14,6 +14,7 @@ interface StockPriceTableProps {
 }
 
 type PriceSubTab = 'realtime' | 'daily'
+type MobileSubTab = 'investor' | 'price'
 
 const PRICE_SUB_TABS: SegmentedTabItem<PriceSubTab>[] = [
   { key: 'realtime', label: '실시간' },
@@ -25,6 +26,7 @@ const MIN_RIGHT_WIDTH = 320
 
 export default function StockPriceTable({ code }: StockPriceTableProps) {
   const [priceSubTab, setPriceSubTab] = useState<PriceSubTab>('realtime')
+  const [mobileSubTab, setMobileSubTab] = useState<MobileSubTab>('price')
   const [leftWidth, setLeftWidth] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const { data: candles = [], isLoading: candlesLoading } = useCandlesQuery(code, 'D')
@@ -48,37 +50,88 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
   }, [])
 
   return (
-    <div ref={containerRef} className="flex h-full">
-      {/* 좌측 모듈: 개인·외국인·기관 */}
-      <div
-        className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white"
-        style={{ width: leftWidth ?? '50%' }}
-      >
-        <div className="flex h-11 shrink-0 items-center px-3">
-          <span className="text-sm font-semibold text-wefin-text">개인·외국인·기관</span>
+    <>
+      {/* 데스크탑 */}
+      <div ref={containerRef} className="hidden h-full lg:flex">
+        <div
+          className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
+          style={{ width: leftWidth ?? '50%' }}
+        >
+          <div className="flex h-11 shrink-0 items-center px-3">
+            <span className="text-sm font-semibold text-wefin-text">개인·외국인·기관</span>
+          </div>
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin">
+            <InvestorTrendTable items={investorTrend?.items ?? []} isLoading={investorLoading} />
+          </div>
         </div>
-        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin">
-          <InvestorTrendTable items={investorTrend?.items ?? []} isLoading={investorLoading} />
+
+        <ResizeHandle onResize={handleResize} />
+
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
+          <div className="flex h-11 shrink-0 items-center justify-between px-3">
+            <span className="text-sm font-semibold text-wefin-text">시세</span>
+            <SegmentedTabs
+              items={PRICE_SUB_TABS}
+              activeKey={priceSubTab}
+              onChange={setPriceSubTab}
+            />
+          </div>
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin">
+            {priceSubTab === 'realtime' ? (
+              <RealtimeTab trades={trades} isLoading={tradesLoading} />
+            ) : (
+              <DailyTab candles={candles} isLoading={candlesLoading} />
+            )}
+          </div>
         </div>
       </div>
 
-      <ResizeHandle onResize={handleResize} />
+      {/* 모바일: 탭 전환 */}
+      <div className="flex flex-col lg:hidden">
+        <div className="flex border-b border-wefin-line bg-wefin-surface">
+          {[
+            { key: 'price' as MobileSubTab, label: '시세' },
+            { key: 'investor' as MobileSubTab, label: '투자자별' }
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setMobileSubTab(key)}
+              className={`flex-1 py-2.5 text-[13px] font-bold transition-colors ${
+                mobileSubTab === key
+                  ? 'border-b-2 border-wefin-mint text-wefin-mint'
+                  : 'text-wefin-subtle'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-      {/* 우측 모듈: 시세 */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-wefin-line bg-white">
-        <div className="flex h-11 shrink-0 items-center justify-between px-3">
-          <span className="text-sm font-semibold text-wefin-text">시세</span>
-          <SegmentedTabs items={PRICE_SUB_TABS} activeKey={priceSubTab} onChange={setPriceSubTab} />
-        </div>
-        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin">
-          {priceSubTab === 'realtime' ? (
-            <RealtimeTab trades={trades} isLoading={tradesLoading} />
-          ) : (
-            <DailyTab candles={candles} isLoading={candlesLoading} />
-          )}
-        </div>
+        {mobileSubTab === 'price' && (
+          <div className="bg-wefin-surface">
+            <div className="flex items-center px-3 py-2">
+              <SegmentedTabs
+                items={PRICE_SUB_TABS}
+                activeKey={priceSubTab}
+                onChange={setPriceSubTab}
+              />
+            </div>
+            {priceSubTab === 'realtime' ? (
+              <RealtimeTab trades={trades} isLoading={tradesLoading} />
+            ) : (
+              <DailyTab candles={candles} isLoading={candlesLoading} />
+            )}
+          </div>
+        )}
+
+        {mobileSubTab === 'investor' && (
+          <div className="bg-wefin-surface">
+            <InvestorTrendTable items={investorTrend?.items ?? []} isLoading={investorLoading} />
+          </div>
+        )}
       </div>
-    </div>
+    </>
   )
 }
 
@@ -119,7 +172,7 @@ function RealtimeTab({
         {trades.map((t, i) => {
           const isPositive = t.changeRate > 0
           const isNegative = t.changeRate < 0
-          const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : ''
+          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-wefin-blue' : ''
           const timeDisplay = formatTradeTime(t.tradeTime)
 
           return (
@@ -189,7 +242,7 @@ function DailyTab({
           const changeRate = prevClose !== 0 ? ((c.closePrice - prevClose) / prevClose) * 100 : 0
           const isPositive = changeRate > 0
           const isNegative = changeRate < 0
-          const colorClass = isPositive ? 'text-red-500' : isNegative ? 'text-blue-500' : ''
+          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-wefin-blue' : ''
 
           return (
             <tr key={c.date} className="border-t border-wefin-line hover:bg-wefin-bg">
@@ -275,7 +328,8 @@ function InvestorTrendTable({
 }
 
 function NetBuyCell({ value }: { value: number }) {
-  const colorClass = value > 0 ? 'text-red-500' : value < 0 ? 'text-blue-500' : 'text-wefin-text'
+  const colorClass =
+    value > 0 ? 'text-wefin-red' : value < 0 ? 'text-wefin-blue' : 'text-wefin-text'
   return (
     <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
       {formatNetBuyQty(value)}

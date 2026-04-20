@@ -45,24 +45,41 @@ export default function RecommendedNewsSection() {
 
   return (
     <section className="card-base overflow-hidden">
-      <div className="grid grid-cols-[1fr_auto] items-start gap-6 border-b border-dashed border-wefin-line bg-gradient-to-b from-wefin-mint-soft/30 to-transparent p-[var(--card-pad)]">
-        <div>
+      <div className="flex flex-col gap-4 border-b border-dashed border-wefin-line bg-gradient-to-b from-wefin-mint-soft/30 to-transparent p-[var(--card-pad)]">
+        <div className="flex items-start justify-between gap-3">
           <span className="inline-flex items-center gap-2 rounded-full bg-wefin-mint-soft px-2.5 py-1 text-[11.5px] font-extrabold uppercase tracking-[0.1em] text-wefin-mint-deep">
             <Sparkles size={12} />
             나를 위한 뉴스
           </span>
-          <h3 className="mt-2.5 text-2xl font-extrabold leading-tight tracking-tight">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={refreshMutation.isPending}
+            className="shrink-0 flex items-center gap-1.5 rounded-full border border-wefin-line bg-wefin-surface px-3 py-1.5 text-xs font-semibold text-wefin-text-2 transition-all hover:border-wefin-mint-100 hover:bg-wefin-mint-soft hover:text-wefin-mint-deep disabled:opacity-50"
+          >
+            <WefinLogoIcon
+              size={13}
+              className={
+                refreshMutation.isPending ? 'animate-[spinPause_2s_ease-in-out_infinite]' : ''
+              }
+            />
+            <span className="hidden sm:inline">다른 뉴스 보기</span>
+          </button>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">
             {heroCard.title}
           </h3>
-          <p className="mt-2.5 max-w-[70ch] text-sm leading-relaxed text-wefin-text-2">
+          <p className="mt-2 text-[13px] leading-relaxed text-wefin-text-2 sm:mt-2.5 sm:text-sm">
             <HighlightedText text={heroCard.summary} />
           </p>
           {reasons.length > 0 && (
-            <div className="mt-3.5 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-3.5 sm:gap-2">
               {reasons.map((reason, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-wefin-line bg-wefin-surface-2 px-3 py-1 text-[12.5px] font-semibold text-wefin-text-2 transition-colors hover:border-wefin-mint-100 hover:bg-wefin-mint-soft hover:text-wefin-mint-deep"
+                  className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-wefin-surface-2 px-2.5 py-0.5 text-[11px] font-semibold text-wefin-text-2 transition-colors hover:border-wefin-mint-100 hover:bg-wefin-mint-soft hover:text-wefin-mint-deep sm:gap-1.5 sm:px-3 sm:py-1 sm:text-[12.5px]"
                 >
                   <span className="font-extrabold text-wefin-mint-600">#</span>
                   {reason}
@@ -71,27 +88,10 @@ export default function RecommendedNewsSection() {
             </div>
           )}
         </div>
-
-        <div className="flex flex-col items-end gap-3">
-          <button
-            type="button"
-            onClick={handleRefresh}
-            disabled={refreshMutation.isPending}
-            className="flex items-center gap-1.5 rounded-full border border-wefin-line bg-wefin-surface px-3 py-1.5 text-xs font-semibold text-wefin-text-2 transition-all hover:border-wefin-mint-100 hover:bg-wefin-mint-soft hover:text-wefin-mint-deep disabled:opacity-50"
-          >
-            <WefinLogoIcon
-              size={13}
-              className={
-                refreshMutation.isPending ? 'animate-[spinPause_2s_ease-in-out_infinite]' : ''
-              }
-            />
-            다른 뉴스 보기
-          </button>
-        </div>
       </div>
 
       {subCards.length > 0 && (
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3">
           {subCards.map((card, i) => (
             <SubCardItem
               key={`${card.cardType}-${card.interestCode}-${i}`}
@@ -117,7 +117,7 @@ function SubCardItem({
 }) {
   const content = (
     <div
-      className={`flex flex-col gap-2 p-5 transition-colors hover:bg-wefin-surface-2 ${isLast ? '' : 'border-r border-wefin-line'}`}
+      className={`flex flex-col gap-2 p-4 transition-colors hover:bg-wefin-surface-2 sm:p-5 ${isLast ? '' : 'border-b border-wefin-line sm:border-b-0 sm:border-r'}`}
     >
       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-wefin-mint-soft font-num text-xs font-extrabold text-wefin-mint-deep">
         {String(index + 1).padStart(2, '0')}
@@ -148,7 +148,7 @@ function SectionSkeleton() {
         <div className="h-4 w-full animate-pulse rounded bg-wefin-surface-2" />
         <div className="h-4 w-3/4 animate-pulse rounded bg-wefin-surface-2" />
       </div>
-      <div className="grid grid-cols-3 border-t border-wefin-line">
+      <div className="grid grid-cols-1 border-t border-wefin-line sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="space-y-2 p-5">
             <div className="h-7 w-7 animate-pulse rounded-lg bg-wefin-surface-2" />

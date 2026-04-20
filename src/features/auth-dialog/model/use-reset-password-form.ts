@@ -393,11 +393,11 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
     `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
       fieldErrors[field]
         ? 'border-red-400 focus:border-red-500'
-        : 'border-slate-200 focus:border-[#56c1c9]'
+        : 'border-wefin-line focus:border-wefin-mint'
     }`
 
   const verificationCodeInputClassName =
-    'h-12 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]'
+    'h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-wefin-mint'
 
   return {
     formData,

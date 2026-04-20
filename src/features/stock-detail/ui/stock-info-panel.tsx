@@ -223,7 +223,7 @@ function KeyMetricCard({
   secondary?: React.ReactNode
 }) {
   return (
-    <div className="min-w-0 overflow-hidden rounded-xl border border-wefin-line bg-white p-3 sm:p-4">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface p-3 sm:p-4">
       <p className="text-xs text-wefin-subtle">{label}</p>
       <p className="mt-1 truncate text-xl font-bold whitespace-nowrap text-wefin-fg sm:text-2xl">
         {primary}
@@ -303,7 +303,7 @@ function KeyMetricsGrid({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-wefin-line bg-white">
+    <section className="rounded-xl border border-wefin-line bg-wefin-surface">
       <h3 className="border-b border-wefin-line px-4 py-2.5 text-sm font-semibold text-wefin-fg">
         {title}
       </h3>
@@ -383,9 +383,9 @@ function ChangeBadge({ rate }: { rate: number | null }) {
   const sign = rate > 0 ? '+' : ''
   const colorClass =
     rate > 0
-      ? 'bg-green-100 text-green-700'
+      ? 'bg-wefin-green-soft text-wefin-green'
       : rate < 0
-        ? 'bg-red-100 text-red-700'
+        ? 'bg-wefin-red-soft text-wefin-red'
         : 'bg-wefin-bg text-wefin-subtle'
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${colorClass}`}>
@@ -520,7 +520,7 @@ function FinancialSection({ financial }: { financial: DartFinancialSummary | nul
   const previousLabel = periods[1].label
 
   return (
-    <section className="rounded-xl border border-wefin-line bg-white">
+    <section className="rounded-xl border border-wefin-line bg-wefin-surface">
       <h3 className="border-b border-wefin-line px-4 py-2.5 text-sm font-semibold text-wefin-fg">
         재무제표 요약{financial.businessYear ? ` (${financial.businessYear} 사업연도)` : ''}
       </h3>
@@ -530,7 +530,7 @@ function FinancialSection({ financial }: { financial: DartFinancialSummary | nul
           <TrendBars
             title="매출액 추이"
             periods={revenueTrend}
-            colors={['bg-blue-300', 'bg-blue-400', 'bg-blue-600']}
+            colors={['bg-wefin-blue/60', 'bg-wefin-blue', 'bg-wefin-blue/80']}
             unit={unit}
           />
           <TrendBars

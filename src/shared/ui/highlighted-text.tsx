@@ -23,7 +23,7 @@ export default function HighlightedText({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         part.highlight ? (
-          <span key={i} className="font-bold text-[#0a5c5e]">
+          <span key={i} className="font-bold text-wefin-mint-deep">
             {part.text}
           </span>
         ) : (

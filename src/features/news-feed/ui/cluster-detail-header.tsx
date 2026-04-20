@@ -42,21 +42,25 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
       </div>
 
       {/* Title */}
-      <h1 className="text-2xl font-bold leading-tight text-wefin-text">{cluster.title}</h1>
+      <h1 className="text-xl font-bold leading-tight text-wefin-text sm:text-2xl">
+        {cluster.title}
+      </h1>
 
       {/* Time */}
-      <p className="mt-2 text-xs text-wefin-subtle">{getTimeAgo(cluster.publishedAt)}</p>
+      <p className="mt-1.5 text-xs text-wefin-subtle sm:mt-2">{getTimeAgo(cluster.publishedAt)}</p>
 
       {/* Lead summary */}
-      <p className="mt-5 text-[15px] leading-relaxed text-wefin-text">{cluster.summary}</p>
+      <p className="mt-4 text-[14px] leading-relaxed text-wefin-text [overflow-wrap:anywhere] sm:mt-5 sm:text-[15px]">
+        {cluster.summary}
+      </p>
 
       {/* AI Sources */}
       {cluster.sources.length > 0 && (
-        <div className="mt-6">
-          <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-wefin-text">
+        <div className="mt-5 sm:mt-6">
+          <h3 className="mb-2.5 flex items-center gap-1.5 text-sm font-semibold text-wefin-text sm:mb-3">
             <WefinLogoIcon size={16} className="text-wefin-mint" /> AI 요약 출처
           </h3>
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin sm:gap-3">
             {cluster.sources.map((src) => {
               const safe = isAllowedUrl(src.url)
               return (
@@ -65,7 +69,7 @@ export default function ClusterDetailHeader({ cluster }: ClusterDetailHeaderProp
                   {...(safe
                     ? { href: src.url, target: '_blank', rel: 'noopener noreferrer' }
                     : { 'aria-disabled': true, tabIndex: -1 })}
-                  className={`flex w-[200px] shrink-0 flex-col gap-2.5 rounded-2xl border border-wefin-line p-4 transition-colors ${safe ? 'hover:bg-wefin-bg' : 'cursor-not-allowed opacity-50'}`}
+                  className={`flex w-[170px] shrink-0 flex-col gap-2 rounded-xl border border-wefin-line p-3 transition-colors sm:w-[200px] sm:gap-2.5 sm:rounded-2xl sm:p-4 ${safe ? 'hover:bg-wefin-bg' : 'cursor-not-allowed opacity-50'}`}
                 >
                   <span className="inline-flex items-center gap-1.5 text-xs text-wefin-subtle">
                     <span

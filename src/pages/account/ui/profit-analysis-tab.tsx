@@ -39,8 +39,8 @@ export default function ProfitAnalysisTab() {
   const history = assetHistory?.history ?? []
   const diff = currentTotal - initialTotal
   const diffRate = initialTotal > 0 ? (diff / initialTotal) * 100 : 0
-  const profitColor = realizedProfit >= 0 ? 'text-red-500' : 'text-blue-600'
-  const diffColor = diff >= 0 ? 'text-red-500' : 'text-blue-600'
+  const profitColor = realizedProfit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
+  const diffColor = diff >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
 
   const today = todayKstDate()
   const lastDate = history[history.length - 1]?.date?.substring(0, 10) ?? null
@@ -100,7 +100,7 @@ export default function ProfitAnalysisTab() {
     <div className="space-y-6">
       <section className="max-w-md">
         <p className="text-sm text-wefin-subtle">총 실현수익</p>
-        <p className={`mt-1 text-3xl font-bold ${profitColor}`}>
+        <p className={`mt-1 text-xl font-bold sm:text-3xl ${profitColor}`}>
           {realizedProfit >= 0 ? '+' : ''}
           {realizedProfit.toLocaleString()}원
         </p>

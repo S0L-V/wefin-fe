@@ -79,7 +79,7 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="flex min-w-0 w-full flex-col rounded-xl border border-wefin-line bg-white">
+    <section className="flex min-w-0 w-full flex-col rounded-xl border border-wefin-line bg-wefin-surface">
       <header className="flex items-center justify-between border-b border-wefin-line px-4 py-2.5">
         <div className="flex items-center gap-2">
           {icon}

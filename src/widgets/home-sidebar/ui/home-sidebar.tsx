@@ -76,7 +76,11 @@ function StockRankingList() {
               </p>
               <p
                 className={`font-num text-[12.5px] font-semibold ${
-                  isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-500' : 'text-wefin-muted'
+                  isPositive
+                    ? 'text-wefin-red'
+                    : isNegative
+                      ? 'text-wefin-blue'
+                      : 'text-wefin-muted'
                 }`}
               >
                 {sign}
@@ -103,7 +107,7 @@ export default function HomeSidebar() {
       <div
         className={`card-base flex min-h-0 flex-col overflow-hidden transition-all duration-300 ${
           expanded
-            ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
+            ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[min(420px,calc(100vw-48px))] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
             : 'flex-1 min-h-0'
         }`}
       >

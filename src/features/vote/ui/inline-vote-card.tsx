@@ -231,15 +231,15 @@ export default function InlineVoteCard({
       {!isMine && <span className="mb-1 text-xs font-bold text-wefin-text">{sender}</span>}
 
       <div className={`flex w-full items-end gap-1.5 ${isMine ? 'flex-row-reverse' : ''}`}>
-        <div className="w-full max-w-[360px] overflow-hidden rounded-2xl border border-[#cde9e2] bg-white shadow-sm">
-          <div className="border-b border-[#e2f2ee] bg-[#f6fbfa] px-4 py-3">
+        <div className="w-full max-w-[360px] overflow-hidden rounded-2xl border border-wefin-mint/30 bg-wefin-surface shadow-sm">
+          <div className="border-b border-wefin-mint/20 bg-wefin-mint-soft px-4 py-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="mb-1 text-xs font-semibold text-[#1d9f8d]">투표</div>
+                <div className="mb-1 text-xs font-semibold text-wefin-mint-deep">투표</div>
                 <div className="line-clamp-2 text-sm font-bold text-wefin-text">{currentTitle}</div>
               </div>
               <span
-                className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${currentClosed ? 'bg-gray-100 text-gray-600' : 'bg-[#daf4ef] text-[#157969]'}`}
+                className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${currentClosed ? 'bg-wefin-surface-2 text-wefin-subtle' : 'bg-wefin-mint-soft text-wefin-mint-deep'}`}
               >
                 {currentClosed ? '마감' : '진행중'}
               </span>
@@ -280,7 +280,7 @@ export default function InlineVoteCard({
                     type="button"
                     onClick={() => toggleOption(option.optionId)}
                     disabled={!detail || currentClosed}
-                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${isSelected ? 'border-wefin-mint bg-wefin-mint-soft/40' : 'border-wefin-line bg-white hover:bg-wefin-bg'} ${currentClosed ? 'cursor-default' : ''}`}
+                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${isSelected ? 'border-wefin-mint bg-wefin-mint-soft/40' : 'border-wefin-line bg-wefin-surface hover:bg-wefin-bg'} ${currentClosed ? 'cursor-default' : ''}`}
                   >
                     <div className="flex items-center justify-between gap-3 text-sm text-wefin-text">
                       <div className="flex min-w-0 items-center gap-2">
@@ -318,7 +318,7 @@ export default function InlineVoteCard({
           )}
 
           {errorMessage && (
-            <div className="border-t border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <div className="border-t border-wefin-line bg-wefin-amber-soft px-4 py-3 text-sm text-wefin-amber-text">
               {errorMessage}
             </div>
           )}

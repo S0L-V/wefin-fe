@@ -20,8 +20,8 @@ export function formatAmount(value: number | null): string {
 
 export function getSubmitColor(tab: OrderTab): string {
   if (tab === 'buy') return 'bg-red-500 hover:bg-red-600'
-  if (tab === 'sell') return 'bg-blue-500 hover:bg-blue-600'
-  return 'bg-gray-400 hover:bg-gray-500'
+  if (tab === 'sell') return 'bg-wefin-blue hover:bg-wefin-blue/80'
+  return 'bg-wefin-muted hover:bg-wefin-surface-20'
 }
 
 export function getSubmitLabel(tab: OrderTab, isPending: boolean): string {

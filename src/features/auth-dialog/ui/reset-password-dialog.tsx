@@ -48,10 +48,10 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
         <Dialog.Content className="dialog-content">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2">
-              <Dialog.Title className="text-xl font-semibold text-slate-900">
+              <Dialog.Title className="text-xl font-semibold text-wefin-text">
                 비밀번호 재설정
               </Dialog.Title>
-              <Dialog.Description className="text-sm text-slate-500">
+              <Dialog.Description className="text-sm text-wefin-subtle">
                 이메일 인증 후 새 비밀번호를 설정하세요.
               </Dialog.Description>
             </div>
@@ -59,7 +59,7 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-wefin-surface-2"
                 aria-label="닫기"
               >
                 <X className="size-4" />
@@ -90,7 +90,7 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
                   type="button"
                   onClick={handleSendVerificationCode}
                   disabled={isVerifying || isEmailVerified || codeCooldown > 0}
-                  className="min-w-[88px] rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="min-w-[88px] rounded-xl border border-wefin-line px-4 text-sm font-semibold text-wefin-text-2 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isVerifying
                     ? '전송 중...'
@@ -105,7 +105,7 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
               </div>
 
               {fieldErrors.email ? (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
+                <p className="mt-1 text-sm text-wefin-red">{fieldErrors.email}</p>
               ) : null}
             </div>
 
@@ -130,7 +130,7 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
                     type="button"
                     onClick={handleConfirmVerificationCode}
                     disabled={isVerifying || isEmailVerified}
-                    className="rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-xl border border-wefin-line px-4 text-sm font-semibold text-wefin-text-2 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isVerifying ? '확인 중...' : '코드확인'}
                   </button>
@@ -153,7 +153,7 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
                 className={inputClassName('newPassword')}
               />
               {fieldErrors.newPassword ? (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.newPassword}</p>
+                <p className="mt-1 text-sm text-wefin-red">{fieldErrors.newPassword}</p>
               ) : null}
             </div>
 
@@ -172,14 +172,14 @@ function ResetPasswordDialog({ open, onClose }: ResetPasswordDialogProps) {
                 className={inputClassName('confirmPassword')}
               />
               {fieldErrors.confirmPassword ? (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.confirmPassword}</p>
+                <p className="mt-1 text-sm text-wefin-red">{fieldErrors.confirmPassword}</p>
               ) : null}
             </div>
 
             <button
               type="submit"
               disabled={loading || !isEmailVerified}
-              className="h-12 w-full rounded-xl bg-[#56c1c9] text-sm font-semibold text-white transition-colors hover:bg-[#48b4bc] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-xl bg-wefin-mint text-sm font-semibold text-white transition-colors hover:bg-wefin-mint-deep disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? '처리 중...' : '비밀번호 재설정'}
             </button>

@@ -6,7 +6,7 @@ interface RankingRowProps {
 
 export default function RankingRow({ item }: RankingRowProps) {
   const profit = Math.trunc(item.realizedProfit ?? 0)
-  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-600'
+  const profitColor = profit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
   const isFirst = item.rank === 1
 
   if (isFirst) {
@@ -36,7 +36,7 @@ export default function RankingRow({ item }: RankingRowProps) {
   return (
     <div className={`flex items-center py-2 ${isTop3 ? '' : ''}`}>
       <span
-        className={`w-7 text-center tabular-nums ${isTop3 ? 'text-sm font-bold text-wefin-mint-deep' : 'text-xs font-bold text-wefin-text/25'}`}
+        className={`w-7 text-center tabular-nums ${isTop3 ? 'text-sm font-bold text-wefin-mint-deep' : 'text-xs font-bold text-wefin-muted'}`}
       >
         {String(item.rank).padStart(2, '0')}
       </span>

@@ -8,7 +8,7 @@ export default function PaymentFailPage() {
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="w-full max-w-md rounded-2xl border border-wefin-line bg-white px-6 py-8 shadow-sm">
+      <div className="w-full max-w-md rounded-2xl border border-wefin-line bg-wefin-surface px-6 py-8 shadow-sm">
         <h1 className="text-xl font-semibold text-wefin-text">결제에 실패했어요</h1>
 
         <div className="mt-4 space-y-2 text-sm text-wefin-subtle">

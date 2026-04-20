@@ -3,8 +3,8 @@ import { useMarketIndicesQuery } from '../model/use-market-indices-query'
 import IndexSparkline from './index-sparkline'
 
 function directionColor(direction: ChangeDirection): string {
-  if (direction === 'UP') return 'text-red-500'
-  if (direction === 'DOWN') return 'text-blue-500'
+  if (direction === 'UP') return 'text-wefin-red'
+  if (direction === 'DOWN') return 'text-wefin-blue'
   return 'text-wefin-subtle'
 }
 

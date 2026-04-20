@@ -50,9 +50,9 @@ export default function NewsFeedSection() {
 
   return (
     <section>
-      <div className="mb-4 flex items-end justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-bold text-wefin-text">이 시각 주요 뉴스</h2>
+          <h2 className="text-base font-bold text-wefin-text sm:text-lg">이 시각 주요 뉴스</h2>
           <button
             type="button"
             onClick={scrollToNewsList}
@@ -62,7 +62,7 @@ export default function NewsFeedSection() {
             <ChevronRight size={13} />
           </button>
         </div>
-        <div className="inline-flex rounded-full border border-wefin-line bg-wefin-surface p-1">
+        <div className="inline-flex overflow-x-auto rounded-full border border-wefin-line bg-wefin-surface p-1 scrollbar-thin">
           {TABS.map((t) => (
             <button
               key={t.value}
@@ -70,7 +70,7 @@ export default function NewsFeedSection() {
               onClick={() => handleTabChange(t.value)}
               className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors ${
                 tab === t.value
-                  ? 'bg-wefin-text text-white'
+                  ? 'bg-wefin-mint text-white shadow-sm'
                   : 'text-wefin-subtle hover:text-wefin-text'
               }`}
             >
@@ -81,7 +81,7 @@ export default function NewsFeedSection() {
       </div>
 
       {isLoading || isPlaceholderData ? (
-        <div className="grid grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
@@ -101,7 +101,7 @@ export default function NewsFeedSection() {
       ) : !displayItems.length ? (
         <p className="py-12 text-center text-sm text-wefin-subtle">아직 뉴스가 없습니다</p>
       ) : (
-        <div className="grid grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {displayItems.map((cluster) => (
             <MainNewsCard key={cluster.clusterId} cluster={cluster} />
           ))}

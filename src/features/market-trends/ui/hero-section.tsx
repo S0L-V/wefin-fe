@@ -25,7 +25,7 @@ function HeroSection() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-[28px]"
+      className="relative overflow-hidden rounded-2xl sm:rounded-[28px] [--hero-cols:1fr] md:[--hero-cols:1.4fr_1fr]"
       style={{ boxShadow: 'var(--shadow-hero)' }}
     >
       {/* Grain overlay */}
@@ -39,9 +39,9 @@ function HeroSection() {
       />
 
       <div
-        className="relative z-0 grid min-h-[420px] gap-9 p-9"
+        className="relative z-0 grid min-h-[280px] gap-6 p-5 sm:min-h-[420px] sm:gap-9 sm:p-9"
         style={{
-          gridTemplateColumns: '1.4fr 1fr',
+          gridTemplateColumns: 'var(--hero-cols, 1fr)',
           background:
             'linear-gradient(135deg, var(--color-wefin-mint-deep) 0%, var(--color-wefin-mint) 55%, var(--color-wefin-mint-300) 110%)'
         }}
@@ -52,12 +52,12 @@ function HeroSection() {
             <LiveBadge updatedAt={updatedAt} />
             <h1
               className="font-extrabold leading-tight text-white"
-              style={{ fontSize: 'clamp(32px, 3.2vw, 46px)' }}
+              style={{ fontSize: 'clamp(22px, 3.2vw, 46px)' }}
             >
               {heroCard.headline}
             </h1>
             <p
-              className="text-[15.5px] leading-relaxed"
+              className="text-[13px] leading-relaxed sm:text-[15.5px]"
               style={{ color: 'rgba(255,255,255,0.88)' }}
             >
               {heroCard.body}
@@ -74,8 +74,10 @@ function HeroSection() {
           </div>
         </div>
 
-        {/* Right side — 거래대금 순위 */}
-        <HeroRanking />
+        {/* Right side — 거래대금 순위 (모바일에서 숨김) */}
+        <div className="hidden md:flex">
+          <HeroRanking />
+        </div>
       </div>
     </div>
   )
@@ -130,15 +132,14 @@ function HeroActions({ clusterId }: { clusterId: number | null }) {
   const openChat = useWefiniChatStore((s) => s.open)
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
       <button
         type="button"
         onClick={() => {
           if (clusterId != null) navigate(`/news/${clusterId}`)
         }}
         disabled={clusterId == null}
-        className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-[14px] font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50"
-        style={{ color: 'var(--color-wefin-mint-900)' }}
+        className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[13px] font-semibold text-[#053e38] transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 sm:px-5 sm:py-2.5 sm:text-[14px]"
       >
         기사 전문 보기
         <ArrowRight size={16} />
@@ -146,7 +147,7 @@ function HeroActions({ clusterId }: { clusterId: number | null }) {
       <button
         type="button"
         onClick={openChat}
-        className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[14px] font-semibold text-white transition-all hover:bg-white/10 active:scale-[0.97]"
+        className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-white/10 active:scale-[0.97] sm:px-5 sm:py-2.5 sm:text-[14px]"
         style={{ borderColor: 'rgba(255,255,255,0.4)', background: 'transparent' }}
       >
         AI에게 더 물어보기

@@ -24,8 +24,8 @@ const DIRECTION_COLOR: Record<ChangeDirection, string> = {
 }
 
 function directionTextClass(direction: ChangeDirection): string {
-  if (direction === 'UP') return 'text-red-500'
-  if (direction === 'DOWN') return 'text-blue-500'
+  if (direction === 'UP') return 'text-wefin-red'
+  if (direction === 'DOWN') return 'text-wefin-blue'
   return 'text-wefin-subtle'
 }
 
@@ -213,9 +213,8 @@ export function MarketOverviewGrid() {
 
   return (
     <div
+      className="grid grid-cols-2 sm:grid-cols-4"
       style={{
-        display: 'grid',
-        gridTemplateColumns: `${'1fr '.repeat(displayIndices.length).trim()}`,
         borderBottom: '1px dashed var(--color-wefin-line)'
       }}
     >

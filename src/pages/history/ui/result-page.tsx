@@ -61,7 +61,7 @@ function ResultPage() {
   const finalAsset = lastSnapshot?.totalAsset ?? 0
   const finalProfitRate = lastSnapshot?.profitRate ?? 0
   const isWin = finalProfitRate >= 0
-  const profitColor = isWin ? 'text-wefin-red' : 'text-blue-500'
+  const profitColor = isWin ? 'text-wefin-red' : 'text-wefin-blue'
 
   const chartData = snapshots.map((s, idx) => ({
     label: idx === 0 ? '시작' : s.turnDate?.replaceAll('-', '.'),
@@ -69,28 +69,28 @@ function ResultPage() {
   }))
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(520px,50%)]">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+      <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1fr_minmax(520px,50%)]">
         {/* 좌측: 차트 + 매매내역 */}
         <div className="flex flex-col gap-5">
           {/* 헤더 카드 */}
           <div className="card-base overflow-hidden">
-            <div className="bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-6 py-6 text-white">
-              <h1 className="text-xl font-extrabold">투자 시뮬레이션 종료</h1>
-              <p className="mt-1 text-sm text-white/80">당신의 투자 성적표입니다</p>
+            <div className="bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-5 py-5 text-white sm:px-6 sm:py-6">
+              <h1 className="text-lg font-extrabold sm:text-xl">투자 시뮬레이션 종료</h1>
+              <p className="mt-1 text-xs text-white/80 sm:text-sm">당신의 투자 성적표입니다</p>
             </div>
-            <div className="flex items-center justify-between px-6 py-5">
-              <div className="flex items-center gap-8">
+            <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
+              <div className="flex items-center gap-5 sm:gap-8">
                 <div>
                   <p className="text-xs font-bold text-wefin-subtle">최종 수익률</p>
-                  <p className={`font-num mt-1 text-3xl font-extrabold ${profitColor}`}>
+                  <p className={`font-num mt-1 text-2xl font-extrabold sm:text-3xl ${profitColor}`}>
                     {formatProfit(finalProfitRate)}
                   </p>
                 </div>
                 <div className="h-10 w-px bg-wefin-line" />
                 <div>
                   <p className="text-xs font-bold text-wefin-subtle">최종 자산</p>
-                  <p className="font-num mt-1 text-2xl font-bold text-wefin-text">
+                  <p className="font-num mt-1 text-xl font-bold text-wefin-text sm:text-2xl">
                     {Math.trunc(finalAsset).toLocaleString()}원
                   </p>
                 </div>
@@ -99,14 +99,14 @@ function ResultPage() {
                 <button
                   type="button"
                   onClick={() => navigate('/history')}
-                  className="rounded-lg bg-wefin-mint px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-wefin-mint-deep"
+                  className="flex-1 rounded-lg bg-wefin-mint px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-wefin-mint-deep sm:flex-none"
                 >
                   게임 이력
                 </button>
                 <button
                   type="button"
                   onClick={() => navigate('/')}
-                  className="rounded-lg border border-wefin-line bg-wefin-surface px-4 py-2.5 text-sm font-bold text-wefin-text transition-colors hover:bg-wefin-surface-2"
+                  className="flex-1 rounded-lg border border-wefin-line bg-wefin-surface px-4 py-2.5 text-sm font-bold text-wefin-text transition-colors hover:bg-wefin-surface-2 sm:flex-none"
                 >
                   홈으로
                 </button>
@@ -176,24 +176,24 @@ function ResultPage() {
           </div>
 
           {/* 전체 매매 내역 */}
-          <div className="card-base p-6">
-            <h3 className="mb-4 text-sm font-bold text-wefin-text">전체 매매 내역</h3>
+          <div className="card-base p-5 sm:p-6">
+            <h3 className="mb-5 text-[15px] font-bold text-wefin-text">전체 매매 내역</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-wefin-line text-xs font-bold text-wefin-subtle">
-                    <th className="pb-3">날짜</th>
-                    <th className="pb-3">종목</th>
-                    <th className="pb-3">구분</th>
-                    <th className="pb-3 text-right">수량</th>
-                    <th className="pb-3 text-right">단가</th>
-                    <th className="pb-3 text-right">금액</th>
+                  <tr className="border-b border-wefin-line text-[13px] font-bold text-wefin-subtle">
+                    <th className="pb-3.5">날짜</th>
+                    <th className="pb-3.5">종목</th>
+                    <th className="pb-3.5">구분</th>
+                    <th className="pb-3.5 text-right">수량</th>
+                    <th className="hidden pb-3.5 text-right sm:table-cell">단가</th>
+                    <th className="pb-3.5 text-right">금액</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-wefin-line/50">
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-xs text-wefin-subtle">
+                      <td colSpan={6} className="py-10 text-center text-sm text-wefin-subtle">
                         매매 내역이 없습니다.
                       </td>
                     </tr>
@@ -201,28 +201,28 @@ function ResultPage() {
                     orders.map((o) => {
                       const isBuy = o.orderType === 'BUY'
                       return (
-                        <tr key={o.orderId} className="text-[13px]">
-                          <td className="py-3 font-num text-wefin-subtle">
+                        <tr key={o.orderId} className="text-[14px]">
+                          <td className="py-4 font-num text-wefin-subtle">
                             {o.turnDate?.replaceAll('-', '.')}
                           </td>
-                          <td className="py-3">
+                          <td className="py-4">
                             <p className="font-semibold text-wefin-text">{o.stockName}</p>
-                            <p className="text-[10px] text-wefin-muted">{o.symbol}</p>
+                            <p className="text-[11px] text-wefin-muted">{o.symbol}</p>
                           </td>
-                          <td className="py-3">
+                          <td className="py-4">
                             <span
-                              className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${isBuy ? 'bg-wefin-red-soft text-wefin-red' : 'bg-blue-50 text-blue-500'}`}
+                              className={`rounded-md px-2.5 py-1 text-[11px] font-bold ${isBuy ? 'bg-wefin-red-soft text-wefin-red' : 'bg-wefin-surface-2 text-wefin-blue'}`}
                             >
                               {isBuy ? '매수' : '매도'}
                             </span>
                           </td>
-                          <td className="font-num py-3 text-right font-semibold text-wefin-text">
+                          <td className="font-num py-4 text-right font-semibold text-wefin-text">
                             {o.quantity.toLocaleString()}주
                           </td>
-                          <td className="font-num py-3 text-right text-wefin-text">
+                          <td className="font-num hidden py-4 text-right text-wefin-text sm:table-cell">
                             {Math.trunc(o.price).toLocaleString()}원
                           </td>
-                          <td className="font-num py-3 text-right font-bold text-wefin-text">
+                          <td className="font-num py-4 text-right font-bold text-wefin-text">
                             {Math.trunc(o.price * o.quantity).toLocaleString()}원
                           </td>
                         </tr>
@@ -261,7 +261,7 @@ function ResultPage() {
                         r.rank === 1
                           ? 'bg-amber-400 text-white'
                           : r.rank === 2
-                            ? 'bg-gray-400 text-white'
+                            ? 'bg-wefin-muted text-white'
                             : r.rank === 3
                               ? 'bg-amber-600 text-white'
                               : 'bg-wefin-surface-2 text-wefin-muted'
@@ -318,7 +318,7 @@ function ResultPage() {
                     className="rounded-xl border-l-[3px] border-wefin-mint bg-wefin-surface-2 py-5 pr-6 pl-5"
                   >
                     <h4 className="text-[15px] font-extrabold text-wefin-text">{s.title}</h4>
-                    <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.85] text-wefin-text-2">
+                    <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[1.85] text-wefin-text">
                       {s.body}
                     </p>
                   </div>

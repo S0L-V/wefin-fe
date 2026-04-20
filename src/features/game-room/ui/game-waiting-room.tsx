@@ -28,13 +28,13 @@ function GameWaitingRoom({
   if (isLoading) {
     return (
       <div className="mx-auto max-w-[1100px] py-8">
-        <div className="h-6 w-36 animate-pulse rounded-lg bg-gray-200" />
-        <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-gray-100" />
+        <div className="h-6 w-36 animate-pulse rounded-lg bg-wefin-line" />
+        <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-wefin-surface-2" />
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
           <div className="space-y-5">
-            <div className="h-48 animate-pulse rounded-2xl bg-white shadow-sm" />
+            <div className="h-48 animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
           </div>
-          <div className="h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse rounded-2xl bg-white shadow-sm" />
+          <div className="h-[calc(100dvh-220px)] min-h-[280px] animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
         </div>
       </div>
     )
@@ -49,14 +49,16 @@ function GameWaitingRoom({
   const periodLabel = `${room.periodMonths}개월`
 
   return (
-    <div className="mx-auto max-w-[1100px] py-8">
-      <div className="flex items-center gap-3">
+    <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-0 sm:py-8">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-wefin-text">대기실</h1>
-          <p className="mt-0.5 text-sm text-wefin-subtle">멤버들이 모이면 게임을 시작하세요</p>
+          <h1 className="text-lg font-bold text-wefin-text sm:text-xl">대기실</h1>
+          <p className="mt-0.5 text-xs text-wefin-subtle sm:text-sm">
+            멤버들이 모이면 게임을 시작하세요
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2.5 rounded-lg border border-wefin-line px-4 py-2 text-sm">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 rounded-lg border border-wefin-line px-3 py-1.5 text-xs sm:gap-2.5 sm:px-4 sm:py-2 sm:text-sm">
             <span className="text-wefin-subtle">시드</span>
             <span className="font-bold text-wefin-mint-deep">{seedLabel}</span>
             <span className="text-wefin-line">|</span>
@@ -76,9 +78,9 @@ function GameWaitingRoom({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-2">
         <div className="space-y-5">
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
+          <div className="rounded-2xl bg-wefin-surface p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h2 className="text-xs font-bold text-wefin-text">
@@ -155,7 +157,7 @@ function GameWaitingRoom({
           <div className="flex items-center gap-2">
             <button
               onClick={onLeaveRequest}
-              className="flex items-center gap-1.5 rounded-xl border border-wefin-line/60 bg-white px-4 py-2.5 text-sm font-medium text-wefin-subtle shadow-sm transition-all hover:border-rose-200 hover:text-rose-400 hover:shadow-none"
+              className="flex items-center gap-1.5 rounded-xl border border-wefin-line/60 bg-wefin-surface px-4 py-2.5 text-sm font-medium text-wefin-subtle shadow-sm transition-all hover:border-rose-200 hover:text-rose-400 hover:shadow-none"
             >
               <LogOut size={14} />
               나가기
@@ -173,7 +175,7 @@ function GameWaitingRoom({
           </div>
         </div>
 
-        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20 lg:flex">
           <ChatPanel />
         </div>
       </div>
@@ -190,7 +192,7 @@ function GameTips() {
   ]
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
+    <div className="rounded-2xl bg-wefin-surface p-5 shadow-sm">
       <h3 className="text-sm font-bold text-wefin-text">게임 진행 안내</h3>
       <div className="mt-3 space-y-2">
         {tips.map((text, i) => (

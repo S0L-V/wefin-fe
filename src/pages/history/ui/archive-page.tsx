@@ -59,7 +59,7 @@ function ArchiveCard({ item }: { item: GameHistoryItem }) {
   const seedLabel = `시드 ${(item.seedMoney / 10000).toLocaleString()}만원`
   const periodLabel = `${item.periodMonths}개월`
   const isPositive = item.profitRate >= 0
-  const profitColor = isPositive ? 'text-red-500' : 'text-blue-500'
+  const profitColor = isPositive ? 'text-wefin-red' : 'text-wefin-blue'
   const profitSign = isPositive ? '+' : ''
   const rankLabel = item.finalRank != null ? `${item.finalRank}등` : '-'
   const finishedDate = item.finishedAt.split('T')[0]
@@ -67,12 +67,14 @@ function ArchiveCard({ item }: { item: GameHistoryItem }) {
   return (
     <Link
       to={`/history/room/${item.roomId}/result`}
-      className="block bg-white rounded-xl border border-wefin-line p-5 hover:border-wefin-mint transition-colors"
+      className="block bg-wefin-surface rounded-xl border border-wefin-line p-5 hover:border-wefin-mint transition-colors"
     >
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs bg-gray-100 text-wefin-subtle px-2 py-0.5 rounded">완료</span>
+            <span className="text-xs bg-wefin-surface-2 text-wefin-subtle px-2 py-0.5 rounded">
+              완료
+            </span>
             <span className="font-semibold text-wefin-text">
               {seedLabel} · {periodLabel}
             </span>

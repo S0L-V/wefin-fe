@@ -23,9 +23,9 @@ const SIZE_CLASSES: Record<NonNullable<SegmentedTabsProps<string>['size']>, stri
 
 const TONE_BG: Record<SegmentedTone, string> = {
   mint: 'bg-wefin-mint',
-  red: 'bg-red-500',
-  blue: 'bg-blue-500',
-  gray: 'bg-gray-500'
+  red: 'bg-wefin-red',
+  blue: 'bg-wefin-blue',
+  gray: 'bg-wefin-subtle'
 }
 
 export default function SegmentedTabs<T extends string>({
@@ -62,7 +62,7 @@ export default function SegmentedTabs<T extends string>({
   return (
     <div
       ref={containerRef}
-      className={`relative inline-flex items-center bg-gray-100 p-1 ${containerRadius}`}
+      className={`relative inline-flex items-center bg-wefin-line/50 p-1 ${containerRadius}`}
       role="tablist"
     >
       <span

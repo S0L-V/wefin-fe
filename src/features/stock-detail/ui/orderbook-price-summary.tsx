@@ -23,9 +23,9 @@ function formatTradingValue(won: number): string {
 export default function OrderbookPriceSummary({ price }: PriceSummaryProps) {
   const changeColor =
     price.changePrice > 0
-      ? 'text-red-500'
+      ? 'text-wefin-red'
       : price.changePrice < 0
-        ? 'text-blue-500'
+        ? 'text-wefin-blue'
         : 'text-wefin-subtle'
   const sign = price.changePrice > 0 ? '+' : ''
 
@@ -33,8 +33,8 @@ export default function OrderbookPriceSummary({ price }: PriceSummaryProps) {
     <div className="border-t border-wefin-line px-3 py-1.5">
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
         <Row label="시가" value={price.openPrice.toLocaleString()} />
-        <Row label="고가" value={price.highPrice.toLocaleString()} valueClass="text-red-500" />
-        <Row label="저가" value={price.lowPrice.toLocaleString()} valueClass="text-blue-500" />
+        <Row label="고가" value={price.highPrice.toLocaleString()} valueClass="text-wefin-red" />
+        <Row label="저가" value={price.lowPrice.toLocaleString()} valueClass="text-wefin-blue" />
         <Row
           label="전일비"
           value={`${sign}${price.changeRate.toFixed(2)}%`}

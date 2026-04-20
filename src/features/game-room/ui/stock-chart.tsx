@@ -94,20 +94,20 @@ function StockChart({ roomId }: StockChartProps) {
           </div>
         )}
         {selectedStock && isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60">
+          <div className="absolute inset-0 flex items-center justify-center bg-wefin-surface/60">
             <span className="text-sm text-wefin-subtle">차트 로딩 중...</span>
           </div>
         )}
         {selectedStock && !isLoading && isError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white">
-            <span className="text-sm text-red-500">
+          <div className="absolute inset-0 flex items-center justify-center bg-wefin-surface">
+            <span className="text-sm text-wefin-red">
               차트를 불러오지 못했습니다:{' '}
               {error instanceof Error ? error.message : '알 수 없는 오류'}
             </span>
           </div>
         )}
         {selectedStock && !isLoading && !isError && aggregated && aggregated.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white">
+          <div className="absolute inset-0 flex items-center justify-center bg-wefin-surface">
             <span className="text-sm text-wefin-subtle">차트 데이터가 없습니다</span>
           </div>
         )}

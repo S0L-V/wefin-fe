@@ -95,13 +95,13 @@ function VoteModal({ roomId }: VoteModalProps) {
             {result ? (
               <div
                 className={`flex h-16 w-16 items-center justify-center rounded-full ${
-                  result === 'passed' ? 'bg-green-50' : 'bg-red-50'
+                  result === 'passed' ? 'bg-green-50' : 'bg-wefin-red-soft'
                 }`}
               >
                 {result === 'passed' ? (
                   <Check className="h-8 w-8 text-green-500" />
                 ) : (
-                  <X className="h-8 w-8 text-red-500" />
+                  <X className="h-8 w-8 text-wefin-red" />
                 )}
               </div>
             ) : (

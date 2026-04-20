@@ -33,19 +33,19 @@ export function showChatInAppToast(payload: ChatUnreadNotification) {
 
   toast.custom(
     () => (
-      <div className="flex min-w-[280px] max-w-[360px] items-start gap-3 rounded-2xl border border-slate-200/80 bg-white px-4 py-3 shadow-[0_18px_48px_-18px_rgba(15,23,42,0.28)]">
+      <div className="flex min-w-[280px] max-w-[360px] items-start gap-3 rounded-2xl border border-wefin-line/80 bg-wefin-surface px-4 py-3 shadow-[0_18px_48px_-18px_rgba(15,23,42,0.28)]">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-wefin-mint text-lg font-bold text-white">
           {getAvatarFallback(payload.sender)}
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">
-            <span className="truncate text-sm font-bold text-slate-800">{payload.sender}</span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+            <span className="truncate text-sm font-bold text-wefin-text">{payload.sender}</span>
+            <span className="rounded-full bg-wefin-surface-2 px-2 py-0.5 text-[11px] font-semibold text-wefin-subtle">
               {chatTypeLabel}
             </span>
           </div>
-          <p className="line-clamp-2 text-sm leading-5 text-slate-600">{preview}</p>
+          <p className="line-clamp-2 text-sm leading-5 text-wefin-text-2">{preview}</p>
         </div>
       </div>
     ),

@@ -184,29 +184,34 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
   useEffect(() => {
     if (!chartContainerRef.current) return
 
+    const styles = getComputedStyle(document.documentElement)
+    const bgColor = styles.getPropertyValue('--surface').trim()
+    const lineColor = styles.getPropertyValue('--line').trim()
+    const textColor = styles.getPropertyValue('--subtle').trim()
+
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: '#ffffff' },
-        textColor: '#637282',
+        background: { type: ColorType.Solid, color: bgColor },
+        textColor,
         fontSize: 9,
         attributionLogo: false
       },
       grid: {
-        vertLines: { color: '#f0f0f0' },
-        horzLines: { color: '#f0f0f0' }
+        vertLines: { color: lineColor },
+        horzLines: { color: lineColor }
       },
       width: chartContainerRef.current.clientWidth,
       height: Math.max(100, height - TOOLBAR_HEIGHT),
       crosshair: { mode: 0 },
       timeScale: {
-        borderColor: '#e0e0e0',
+        borderColor: lineColor,
         timeVisible: true,
         secondsVisible: false,
         rightOffset: 5,
         fixLeftEdge: true,
         fixRightEdge: true
       },
-      rightPriceScale: { borderColor: '#e0e0e0' }
+      rightPriceScale: { borderColor: lineColor }
     })
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
@@ -514,7 +519,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
             onClick={() => setPeriodCode(p.code)}
           />
         ))}
-        <div className="mx-1 h-3 w-px bg-gray-200" />
+        <div className="mx-1 h-3 w-px bg-wefin-line" />
         {datePeriods.map((p) => (
           <PeriodButton
             key={p.code}
@@ -529,20 +534,20 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
       <div className="relative min-h-0 flex-1">
         {/* OHLC 정보 — 차트 위에 겹쳐서 표시 */}
         {ohlc && (
-          <div className="absolute left-1 top-1 z-10 flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 text-xs">
+          <div className="absolute left-1 top-1 z-10 flex items-center gap-2 rounded bg-wefin-surface/80 px-2 py-0.5 text-xs">
             <span className="text-wefin-subtle">
               시 <span className="font-medium text-wefin-text">{ohlc.open.toLocaleString()}</span>
             </span>
             <span className="text-wefin-subtle">
-              고 <span className="font-medium text-red-500">{ohlc.high.toLocaleString()}</span>
+              고 <span className="font-medium text-wefin-red">{ohlc.high.toLocaleString()}</span>
             </span>
             <span className="text-wefin-subtle">
-              저 <span className="font-medium text-blue-500">{ohlc.low.toLocaleString()}</span>
+              저 <span className="font-medium text-wefin-blue">{ohlc.low.toLocaleString()}</span>
             </span>
             <span className="text-wefin-subtle">
               종{' '}
               <span
-                className={`font-medium ${ohlc.close >= ohlc.open ? 'text-red-500' : 'text-blue-500'}`}
+                className={`font-medium ${ohlc.close >= ohlc.open ? 'text-wefin-red' : 'text-wefin-blue'}`}
               >
                 {ohlc.close.toLocaleString()}
               </span>
@@ -557,7 +562,7 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
           ))}
         </div>
         {isLoading && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-wefin-surface">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-wefin-mint border-t-transparent" />
             <span className="text-xs text-wefin-subtle">차트 불러오는 중...</span>
           </div>
@@ -581,7 +586,7 @@ function PeriodButton({
     <button
       onClick={onClick}
       className={`rounded px-1.5 py-1 text-xs font-medium transition-colors ${
-        active ? 'bg-wefin-mint text-white' : 'text-wefin-subtle hover:bg-gray-100'
+        active ? 'bg-wefin-mint text-white' : 'text-wefin-subtle hover:bg-wefin-surface-2'
       }`}
     >
       {label}

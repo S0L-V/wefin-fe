@@ -19,13 +19,16 @@ import StockPriceTable from '@/features/stock-detail/ui/stock-price-table'
 import { routes } from '@/shared/config/routes'
 import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
+type MobileTab = 'chart' | 'orderbook' | 'order'
+
 function StockDetailPage() {
   const { code } = useParams<{ code: string }>()
   const [activeTab, setActiveTab] = useState<DetailTab>('chart')
+  const [mobileTab, setMobileTab] = useState<MobileTab>('chart')
 
-  const [orderbookW, setOrderbookW] = useState(320)
-  const [orderW, setOrderW] = useState(300)
-  const [chartRatio, setChartRatio] = useState(0.55) // 차트가 좌측 컬럼 세로공간의 55%
+  const [orderbookW, setOrderbookW] = useState(340)
+  const [orderW, setOrderW] = useState(340)
+  const [chartRatio, setChartRatio] = useState(0.55)
   const [chartH, setChartH] = useState(360)
   const chartColumnRef = useRef<HTMLDivElement>(null)
   const [priceFromOrderbook, setPriceFromOrderbook] = useState<number | null>(null)
@@ -61,14 +64,13 @@ function StockDetailPage() {
   const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolioQuery()
 
   const handleResize1 = useCallback(
-    (delta: number) => setOrderbookW((w) => Math.max(300, Math.min(420, w - delta))),
+    (delta: number) => setOrderbookW((w) => Math.max(320, Math.min(440, w - delta))),
     []
   )
   const handleResize2 = useCallback(
-    (delta: number) => setOrderW((w) => Math.max(280, Math.min(400, w - delta))),
+    (delta: number) => setOrderW((w) => Math.max(320, Math.min(440, w - delta))),
     []
   )
-  // 컬럼 높이를 관측해서 ratio 기반으로 chartH를 계산 — 어떤 해상도에서도 비율 유지
   useEffect(() => {
     const el = chartColumnRef.current
     if (!el) return
@@ -76,7 +78,6 @@ function StockDetailPage() {
       const totalH = el.clientHeight
       if (totalH <= 0) return
       const next = Math.round(totalH * chartRatio)
-      // 동일 값이면 setState 스킵해서 ResizeObserver 재발화 루프 방지
       setChartH((prev) => (prev === next ? prev : next))
     }
     update()
@@ -97,8 +98,9 @@ function StockDetailPage() {
 
   return (
     <StockLayout sidebarWidth="narrow">
-      <div className="flex h-[calc(100vh-80px)] flex-col gap-2">
-        <div className="shrink-0 rounded-2xl bg-white px-3 pt-2 pb-2">
+      {/* 데스크탑 레이아웃 */}
+      <div className="hidden h-[calc(100vh-80px)] flex-col gap-2 lg:flex">
+        <div className="shrink-0 rounded-2xl bg-wefin-surface px-3 pt-2 pb-2">
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
@@ -108,7 +110,7 @@ function StockDetailPage() {
               <>
                 <div ref={chartColumnRef} className="flex min-w-0 flex-1 flex-col overflow-hidden">
                   <div
-                    className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
+                    className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
                     style={{ height: chartH }}
                   >
                     <StockChart code={code} height={chartH} />
@@ -122,7 +124,7 @@ function StockDetailPage() {
                 <ResizeHandle onResize={handleResize1} />
 
                 <div
-                  className="relative shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-white"
+                  className="relative shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
                   style={{ width: orderbookW }}
                 >
                   <OrderbookPanel
@@ -135,13 +137,13 @@ function StockDetailPage() {
             )}
 
             {activeTab === 'info' && (
-              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
                 <StockInfoPanel code={code} enabled={activeTab === 'info'} />
               </div>
             )}
 
             {activeTab === 'news' && (
-              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-white">
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
                 <StockNewsDisclosurePanel code={code} enabled={activeTab === 'news'} />
               </div>
             )}
@@ -153,7 +155,7 @@ function StockDetailPage() {
             className="relative flex shrink-0 flex-col gap-2 overflow-y-auto"
             style={{ width: orderW }}
           >
-            <div className="rounded-xl border border-wefin-line bg-white">
+            <div className="rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderForm
                 key={`${code}-${modifyTarget?.ts ?? 0}`}
                 stockCode={code}
@@ -170,7 +172,7 @@ function StockDetailPage() {
               />
             </div>
             <div className="flex min-h-0 flex-1 flex-col gap-2">
-              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-white">
+              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-wefin-surface">
                 <div className="flex w-full flex-col overflow-y-auto">
                   <HoldingsPanel
                     currentStockCode={code}
@@ -180,7 +182,7 @@ function StockDetailPage() {
                   />
                 </div>
               </div>
-              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-white">
+              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-wefin-surface">
                 <div className="flex w-full flex-col overflow-y-auto">
                   <PendingOrdersPanel currentStockCode={code} onModify={handleModify} />
                 </div>
@@ -188,13 +190,112 @@ function StockDetailPage() {
             </div>
             <Link
               to={routes.accountTab('order-history')}
-              className="block shrink-0 rounded-xl border border-wefin-line bg-white px-3 py-2.5 text-center text-xs text-wefin-subtle transition-colors hover:bg-wefin-bg"
+              className="block shrink-0 rounded-xl border border-wefin-line bg-wefin-surface px-3 py-2.5 text-center text-xs text-wefin-subtle transition-colors hover:bg-wefin-bg"
             >
               주문내역 보기 →
             </Link>
             {!isLoggedIn && <BlurOverlay />}
           </div>
         </div>
+      </div>
+
+      {/* 모바일 레이아웃 */}
+      <div className="flex flex-col lg:hidden" style={{ height: 'calc(100dvh - 56px)' }}>
+        <div className="shrink-0 bg-wefin-surface px-3 pt-2 pb-2">
+          <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
+
+        <div className="flex shrink-0 gap-1 border-b border-wefin-line bg-wefin-surface px-3 pb-2">
+          {[
+            { key: 'chart' as MobileTab, label: '차트' },
+            { key: 'orderbook' as MobileTab, label: '호가' },
+            { key: 'order' as MobileTab, label: '주문' }
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setMobileTab(key)}
+              className={`flex-1 rounded-lg py-2 text-[13px] font-bold transition-colors ${
+                mobileTab === key
+                  ? 'bg-wefin-mint text-white'
+                  : 'text-wefin-subtle hover:text-wefin-text'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {mobileTab === 'chart' && (
+            <div className="flex flex-col">
+              <div className="h-[300px] bg-wefin-surface">
+                <StockChart code={code} height={300} />
+              </div>
+              <div className="border-t border-wefin-line">
+                <StockPriceTable code={code} />
+              </div>
+            </div>
+          )}
+
+          {mobileTab === 'orderbook' && (
+            <div className="relative h-full">
+              <OrderbookPanel
+                code={code}
+                onPriceClick={isLoggedIn ? setPriceFromOrderbook : undefined}
+              />
+              {!isLoggedIn && <BlurOverlay />}
+            </div>
+          )}
+
+          {mobileTab === 'order' && (
+            <div className="flex flex-col gap-2 p-3">
+              <div className="rounded-xl border border-wefin-line bg-wefin-surface">
+                <OrderForm
+                  key={`${code}-mobile-${modifyTarget?.ts ?? 0}`}
+                  stockCode={code}
+                  currentPrice={price?.currentPrice ?? 0}
+                  accountState={{
+                    balance: account?.balance ?? null,
+                    maxQuantity: buyingPower?.maxQuantity ?? null
+                  }}
+                  holdingQuantity={
+                    portfolio?.find((item) => item.stockCode === code)?.quantity ?? null
+                  }
+                  priceFromOrderbook={priceFromOrderbook}
+                  modifyTarget={modifyTarget?.order ?? null}
+                />
+              </div>
+              <div className="rounded-xl border border-wefin-line bg-wefin-surface">
+                <HoldingsPanel
+                  currentStockCode={code}
+                  portfolio={portfolio}
+                  isLoading={isPortfolioLoading}
+                  balance={account?.balance}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {mobileTab !== 'order' && (
+          <div className="flex shrink-0 gap-2 border-t border-wefin-line bg-wefin-surface p-3">
+            <button
+              type="button"
+              onClick={() => setMobileTab('order')}
+              className="flex-1 rounded-xl bg-wefin-red py-3 text-[15px] font-bold text-white transition-colors hover:opacity-90"
+            >
+              매수
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileTab('order')}
+              className="flex-1 rounded-xl bg-wefin-blue py-3 text-[15px] font-bold text-white transition-colors hover:opacity-90"
+            >
+              매도
+            </button>
+          </div>
+        )}
       </div>
     </StockLayout>
   )
@@ -205,7 +306,7 @@ function BlurOverlay() {
     <div
       className="absolute inset-0 z-10 rounded-xl"
       style={{
-        background: 'rgba(255, 255, 255, 0.55)',
+        background: 'color-mix(in srgb, var(--surface) 75%, transparent)',
         backdropFilter: 'blur(12px) saturate(1.2)',
         WebkitBackdropFilter: 'blur(12px) saturate(1.2)'
       }}

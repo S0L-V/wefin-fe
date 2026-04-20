@@ -46,7 +46,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
                   placeholder="닉네임 입력"
                   disabled={!isLoggedIn}
                   maxLength={12}
-                  className="h-9 w-[200px] rounded-lg border border-wefin-line bg-white px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
+                  className="h-9 w-[200px] rounded-lg border border-wefin-line bg-wefin-surface px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
                 />
               }
             />
@@ -106,7 +106,7 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
                   type="button"
                   disabled={!isLoggedIn}
                   onClick={() => setIsWithdrawOpen(true)}
-                  className="h-8 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-8 rounded-lg border border-wefin-red/30 px-3 text-xs font-semibold text-wefin-red transition-colors hover:bg-wefin-red-soft disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   탈퇴하기
                 </button>
