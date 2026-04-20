@@ -1,3 +1,5 @@
+import WefinLogoIcon from '@/shared/ui/wefin-logo-icon'
+
 import { useBriefingQuery } from '../model/use-briefing-query'
 
 interface MarketBriefingProps {
@@ -9,17 +11,26 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
 
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="flex h-11 shrink-0 items-center justify-between px-3">
-        <span className="text-sm font-semibold text-wefin-text">시장 브리핑</span>
+      <div className="flex h-11 shrink-0 items-center justify-between px-4">
+        <div className="flex items-center gap-1.5">
+          <WefinLogoIcon size={14} className="text-wefin-mint" />
+          <span className="text-sm font-bold text-wefin-text">시장 브리핑</span>
+        </div>
         {!isFetching && data?.targetDate && (
-          <span className="text-xs text-wefin-subtle">{data.targetDate}</span>
+          <span className="text-xs tabular-nums text-wefin-muted">{data.targetDate}</span>
         )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-3">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-4">
         {isFetching && (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-xs text-wefin-subtle">브리핑 생성 중…</p>
+            <div className="flex items-center gap-2">
+              <WefinLogoIcon
+                size={14}
+                className="animate-[spinPause_2s_ease-in-out_infinite] text-wefin-mint"
+              />
+              <p className="text-xs text-wefin-subtle">브리핑 생성 중...</p>
+            </div>
           </div>
         )}
 
@@ -30,18 +41,24 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
         )}
 
         {!isFetching && data && (
-          <div className="space-y-4 text-xs leading-relaxed text-wefin-text">
+          <div className="space-y-4 text-[13px] leading-relaxed text-wefin-text">
             <div>
-              <h4 className="mb-1 font-bold text-wefin-mint">시장 개요</h4>
-              <p className="whitespace-pre-wrap break-words">{data.marketOverview}</p>
+              <h4 className="mb-1.5 text-xs font-bold text-wefin-mint-deep">시장 개요</h4>
+              <p className="whitespace-pre-wrap break-words text-wefin-text-2">
+                {data.marketOverview}
+              </p>
             </div>
             <div>
-              <h4 className="mb-1 font-bold text-wefin-mint">주요 이슈</h4>
-              <p className="whitespace-pre-wrap break-words">{data.keyIssues}</p>
+              <h4 className="mb-1.5 text-xs font-bold text-wefin-mint-deep">주요 이슈</h4>
+              <div className="whitespace-pre-wrap break-words text-wefin-text-2">
+                {data.keyIssues}
+              </div>
             </div>
             <div>
-              <h4 className="mb-1 font-bold text-wefin-mint">투자 힌트</h4>
-              <p className="whitespace-pre-wrap break-words">{data.investmentHint}</p>
+              <h4 className="mb-1.5 text-xs font-bold text-wefin-mint-deep">투자 힌트</h4>
+              <p className="whitespace-pre-wrap break-words text-wefin-text-2">
+                {data.investmentHint}
+              </p>
             </div>
           </div>
         )}
