@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
 import { getTimeAgo } from '@/features/news-feed/lib/get-time-ago'
+import { usePopularNewsQuery } from '@/features/news-feed/model/use-popular-news-query'
 
 import type { SourceCluster } from '../api/fetch-market-trends-overview'
 import { useMarketTrendsOverviewQuery } from '../model/use-market-trends-overview-query'
@@ -155,36 +156,99 @@ function HeroActions({ clusterId }: { clusterId: number | null }) {
 }
 
 function HeroRanking() {
+  const navigate = useNavigate()
+  const { data: items, isLoading } = usePopularNewsQuery(5)
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span
-          className="font-num text-[12px] font-extrabold tracking-[0.12em] uppercase"
-          style={{ color: 'rgba(255,255,255,0.9)' }}
+    <div className="flex flex-col self-stretch">
+      <div className="mb-4">
+        <h2
+          className="text-[15px] font-extrabold uppercase tracking-widest text-white"
+          style={{ textShadow: '0 0 20px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.15)' }}
         >
           인기 뉴스 TOP
-        </span>
-        <span
-          className="rounded-full px-2.5 py-0.5 text-[10px] font-bold"
-          style={{ background: 'rgba(0,0,0,0.12)', color: 'rgba(255,255,255,0.85)' }}
-        >
-          실시간
-        </span>
+        </h2>
       </div>
-      <div
-        className="flex flex-1 flex-col items-center justify-center overflow-hidden rounded-[18px] backdrop-blur-sm py-12"
-        style={{
-          background: 'rgba(0,0,0,0.12)',
-          border: '1px solid rgba(255,255,255,0.1)'
-        }}
-      >
-        <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>
-          준비 중
-        </p>
-        <p className="mt-1 text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          조회수 기반 뉴스 순위가 곧 제공됩니다
-        </p>
-      </div>
+
+      {isLoading ? (
+        <div className="flex flex-1 items-center justify-center">
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/50"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              />
+            ))}
+          </div>
+        </div>
+      ) : !items || items.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <p className="text-[13px] font-semibold text-white/60">준비 중</p>
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col gap-1.5">
+          {items.map((item, idx) => (
+            <button
+              key={item.clusterId}
+              type="button"
+              onClick={() => navigate(`/news/${item.clusterId}`)}
+              className="group relative overflow-hidden rounded-2xl px-5 py-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
+              style={{
+                background: idx === 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.22)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background =
+                  idx === 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+              }}
+            >
+              <div className="flex items-center gap-4">
+                <span
+                  className={`font-num shrink-0 text-[22px] font-black leading-none ${
+                    idx < 3 ? 'text-white' : 'text-white/30'
+                  }`}
+                  style={
+                    idx < 3
+                      ? { textShadow: '0 0 16px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.2)' }
+                      : undefined
+                  }
+                >
+                  {idx + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`truncate text-[15px] leading-snug ${
+                      idx === 0 ? 'font-bold text-white' : 'font-semibold text-white/90'
+                    }`}
+                    style={{ textShadow: '0 1px 6px rgba(0,0,0,0.2)' }}
+                  >
+                    {item.title}
+                  </p>
+                </div>
+                <svg
+                  className="h-4 w-4 shrink-0 text-white/0 transition-colors duration-300 group-hover:text-white/50"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
