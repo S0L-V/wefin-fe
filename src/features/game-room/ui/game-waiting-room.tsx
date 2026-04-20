@@ -56,7 +56,7 @@ function GameWaitingRoom({
           <p className="mt-0.5 text-sm text-wefin-subtle">멤버들이 모이면 게임을 시작하세요</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-lg border border-wefin-line px-3 py-1.5 text-xs">
+          <div className="flex items-center gap-2.5 rounded-lg border border-wefin-line px-4 py-2 text-sm">
             <span className="text-wefin-subtle">시드</span>
             <span className="font-bold text-wefin-mint-deep">{seedLabel}</span>
             <span className="text-wefin-line">|</span>
