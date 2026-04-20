@@ -24,7 +24,7 @@ const SIZE_CLASSES: Record<NonNullable<SegmentedTabsProps<string>['size']>, stri
 const TONE_BG: Record<SegmentedTone, string> = {
   mint: 'bg-wefin-mint',
   red: 'bg-wefin-red',
-  blue: 'bg-blue-400',
+  blue: 'bg-wefin-blue',
   gray: 'bg-wefin-subtle'
 }
 

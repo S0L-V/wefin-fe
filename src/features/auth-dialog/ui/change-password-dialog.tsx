@@ -106,7 +106,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
     `h-12 w-full rounded-xl border px-3 text-sm outline-none transition-colors ${
       fieldErrors[field]
         ? 'border-red-400 focus:border-red-500'
-        : 'border-wefin-line focus:border-[#56c1c9]'
+        : 'border-wefin-line focus:border-wefin-mint'
     }`
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -185,7 +185,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
         <Dialog.Content className="dialog-content">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2">
-              <Dialog.Title className="text-xl font-semibold text-slate-900">
+              <Dialog.Title className="text-xl font-semibold text-wefin-text">
                 비밀번호 변경
               </Dialog.Title>
               <Dialog.Description className="text-sm text-wefin-subtle">
@@ -196,7 +196,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-slate-100"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-wefin-surface-2"
                 aria-label="닫기"
               >
                 <X className="size-4" />

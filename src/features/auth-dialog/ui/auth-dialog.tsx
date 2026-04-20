@@ -73,7 +73,7 @@ function AuthDialog() {
             )}
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
-                <Dialog.Title className="text-xl font-semibold text-slate-900">
+                <Dialog.Title className="text-xl font-semibold text-wefin-text">
                   {isLogin ? (data?.title ?? '로그인') : '회원가입'}
                 </Dialog.Title>
                 <Dialog.Description className="text-sm text-wefin-subtle">
@@ -86,7 +86,7 @@ function AuthDialog() {
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-slate-100"
+                  className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-wefin-surface-2"
                   aria-label="닫기"
                 >
                   <X className="size-4" />
@@ -108,7 +108,7 @@ function AuthDialog() {
                       required
                       value={loginFormData.email}
                       onChange={handleLoginChange('email')}
-                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-wefin-mint"
                     />
                   </div>
 
@@ -123,7 +123,7 @@ function AuthDialog() {
                       required
                       value={loginFormData.password}
                       onChange={handleLoginChange('password')}
-                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-[#56c1c9]"
+                      className="h-12 w-full rounded-xl border border-wefin-line px-3 text-sm outline-none transition-colors focus:border-wefin-mint"
                     />
                   </div>
 
@@ -203,7 +203,7 @@ function AuthDialog() {
                         type="button"
                         onClick={handleSendVerificationCode}
                         disabled={isVerifying || isEmailVerified || codeCooldown > 0}
-                        className="min-w-[88px] rounded-xl border border-wefin-line px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="min-w-[88px] rounded-xl border border-wefin-line px-4 text-sm font-semibold text-wefin-text-2 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isVerifying
                           ? '전송 중...'
@@ -243,7 +243,7 @@ function AuthDialog() {
                           type="button"
                           onClick={handleConfirmVerificationCode}
                           disabled={isVerifying || isEmailVerified}
-                          className="rounded-xl border border-wefin-line px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl border border-wefin-line px-4 text-sm font-semibold text-wefin-text-2 transition-colors hover:bg-wefin-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {isVerifying ? '확인 중...' : '코드확인'}
                         </button>

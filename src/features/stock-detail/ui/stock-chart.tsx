@@ -542,12 +542,12 @@ export default function StockChart({ code, height = 340 }: StockChartProps) {
               고 <span className="font-medium text-wefin-red">{ohlc.high.toLocaleString()}</span>
             </span>
             <span className="text-wefin-subtle">
-              저 <span className="font-medium text-blue-400">{ohlc.low.toLocaleString()}</span>
+              저 <span className="font-medium text-wefin-blue">{ohlc.low.toLocaleString()}</span>
             </span>
             <span className="text-wefin-subtle">
               종{' '}
               <span
-                className={`font-medium ${ohlc.close >= ohlc.open ? 'text-wefin-red' : 'text-blue-400'}`}
+                className={`font-medium ${ohlc.close >= ohlc.open ? 'text-wefin-red' : 'text-wefin-blue'}`}
               >
                 {ohlc.close.toLocaleString()}
               </span>

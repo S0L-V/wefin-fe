@@ -530,7 +530,7 @@ function FinancialSection({ financial }: { financial: DartFinancialSummary | nul
           <TrendBars
             title="매출액 추이"
             periods={revenueTrend}
-            colors={['bg-blue-300', 'bg-blue-400', 'bg-blue-600']}
+            colors={['bg-wefin-blue/60', 'bg-wefin-blue', 'bg-wefin-blue/80']}
             unit={unit}
           />
           <TrendBars

@@ -72,7 +72,7 @@ function formatChange(s: MarketSnapshot) {
 
 function directionTextColor(direction: ChangeDirection) {
   if (direction === 'UP') return 'text-wefin-red'
-  if (direction === 'DOWN') return 'text-blue-400'
+  if (direction === 'DOWN') return 'text-wefin-blue'
   return 'text-wefin-subtle'
 }
 

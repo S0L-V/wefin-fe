@@ -29,7 +29,7 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
   const isUp = stock.changeRate > 0
   const isDown = stock.changeRate < 0
   const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : null
-  const rateTextColor = isUp ? 'text-wefin-red' : isDown ? 'text-blue-400' : 'text-wefin-subtle'
+  const rateTextColor = isUp ? 'text-wefin-red' : isDown ? 'text-wefin-blue' : 'text-wefin-subtle'
   const rateBgColor = isUp ? 'bg-wefin-red-soft' : isDown ? 'bg-wefin-surface-2' : 'bg-transparent'
   const signedChangeAmount = `${stock.changeAmount >= 0 ? '+' : ''}${Math.trunc(stock.changeAmount).toLocaleString()}`
   const tradingValue = stock.currentPrice * stock.volume

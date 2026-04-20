@@ -59,7 +59,7 @@ function ArchiveCard({ item }: { item: GameHistoryItem }) {
   const seedLabel = `시드 ${(item.seedMoney / 10000).toLocaleString()}만원`
   const periodLabel = `${item.periodMonths}개월`
   const isPositive = item.profitRate >= 0
-  const profitColor = isPositive ? 'text-wefin-red' : 'text-blue-400'
+  const profitColor = isPositive ? 'text-wefin-red' : 'text-wefin-blue'
   const profitSign = isPositive ? '+' : ''
   const rankLabel = item.finalRank != null ? `${item.finalRank}등` : '-'
   const finishedDate = item.finishedAt.split('T')[0]

@@ -273,7 +273,7 @@ function RankChangePopup({ changes, onClose }: RankChangePopupProps) {
         <div className="space-y-2">
           {changes.map((c) => {
             const isUp = c.delta > 0
-            const color = isUp ? 'text-wefin-red' : 'text-blue-400'
+            const color = isUp ? 'text-wefin-red' : 'text-wefin-blue'
             const arrow = isUp ? 'UP' : 'DOWN'
             return (
               <div key={c.userName} className="flex items-center gap-2 text-xs">

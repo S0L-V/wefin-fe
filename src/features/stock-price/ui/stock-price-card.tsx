@@ -39,7 +39,7 @@ function ChangeBadge({ changeRate }: { changeRate: number }) {
   const colorClass = isUp
     ? 'bg-wefin-red-soft text-wefin-red'
     : isDown
-      ? 'bg-wefin-surface-2 text-blue-400'
+      ? 'bg-wefin-surface-2 text-wefin-blue'
       : 'bg-wefin-bg text-wefin-subtle'
   const sign = isUp ? '+' : ''
   return (

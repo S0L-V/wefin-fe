@@ -46,7 +46,7 @@ export default function PendingOrdersPanel({
         <div className="divide-y divide-wefin-line">
           {orders.map((order) => {
             const isBuy = order.side === 'BUY'
-            const sideColor = isBuy ? 'text-wefin-red' : 'text-blue-400'
+            const sideColor = isBuy ? 'text-wefin-red' : 'text-wefin-blue'
             const sideLabel = isBuy ? '매수' : '매도'
             const stockCode = order.stockCode ?? ''
             const stockName = order.stockName ?? stockCode

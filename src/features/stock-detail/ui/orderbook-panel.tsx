@@ -63,18 +63,18 @@ export default function OrderbookPanel({ code, onPriceClick }: OrderbookPanelPro
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="text-wefin-subtle">체결강도</span>
             <span
-              className={`font-semibold ${tradeStrength >= 100 ? 'text-wefin-red' : 'text-blue-400'}`}
+              className={`font-semibold ${tradeStrength >= 100 ? 'text-wefin-red' : 'text-wefin-blue'}`}
             >
               {tradeStrength.toFixed(2)}%
             </span>
           </div>
         )}
         <div className="flex items-center justify-between text-xs">
-          <span className="text-blue-400">판매대기 {totalAskQuantity.toLocaleString()}</span>
+          <span className="text-wefin-blue">판매대기 {totalAskQuantity.toLocaleString()}</span>
           <span className="text-wefin-red">구매대기 {totalBidQuantity.toLocaleString()}</span>
         </div>
         <div className="mt-1 flex h-1 overflow-hidden rounded-full bg-wefin-surface-2">
-          <div className="bg-blue-400" style={{ width: `${askRatio}%` }} />
+          <div className="bg-wefin-blue" style={{ width: `${askRatio}%` }} />
           <div className="bg-red-400" style={{ width: `${100 - askRatio}%` }} />
         </div>
       </div>
@@ -129,13 +129,13 @@ function AskRow({ entry, maxQuantity, basePrice, isCurrent, onClick }: RowProps)
         className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-200/70 to-transparent"
         style={{ width: `${barWidth}%` }}
       />
-      <span className="relative z-10 pl-2 text-left font-semibold text-blue-400 tabular-nums">
+      <span className="relative z-10 pl-2 text-left font-semibold text-wefin-blue tabular-nums">
         {entry.quantity.toLocaleString()}
       </span>
       <span className="relative z-10 text-center font-medium text-wefin-text tabular-nums">
         {entry.price.toLocaleString()}
       </span>
-      <span className="relative z-10 text-right font-semibold text-blue-400 tabular-nums">
+      <span className="relative z-10 text-right font-semibold text-wefin-blue tabular-nums">
         {changeRate >= 0 ? '+' : ''}
         {changeRate.toFixed(2)}%
       </span>

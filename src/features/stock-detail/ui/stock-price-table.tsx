@@ -172,7 +172,7 @@ function RealtimeTab({
         {trades.map((t, i) => {
           const isPositive = t.changeRate > 0
           const isNegative = t.changeRate < 0
-          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-400' : ''
+          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-wefin-blue' : ''
           const timeDisplay = formatTradeTime(t.tradeTime)
 
           return (
@@ -242,7 +242,7 @@ function DailyTab({
           const changeRate = prevClose !== 0 ? ((c.closePrice - prevClose) / prevClose) * 100 : 0
           const isPositive = changeRate > 0
           const isNegative = changeRate < 0
-          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-400' : ''
+          const colorClass = isPositive ? 'text-wefin-red' : isNegative ? 'text-wefin-blue' : ''
 
           return (
             <tr key={c.date} className="border-t border-wefin-line hover:bg-wefin-bg">
@@ -328,7 +328,8 @@ function InvestorTrendTable({
 }
 
 function NetBuyCell({ value }: { value: number }) {
-  const colorClass = value > 0 ? 'text-wefin-red' : value < 0 ? 'text-blue-400' : 'text-wefin-text'
+  const colorClass =
+    value > 0 ? 'text-wefin-red' : value < 0 ? 'text-wefin-blue' : 'text-wefin-text'
   return (
     <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
       {formatNetBuyQty(value)}

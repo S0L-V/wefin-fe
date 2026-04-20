@@ -40,8 +40,8 @@ export function showChatInAppToast(payload: ChatUnreadNotification) {
 
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">
-            <span className="truncate text-sm font-bold text-slate-800">{payload.sender}</span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-wefin-subtle">
+            <span className="truncate text-sm font-bold text-wefin-text">{payload.sender}</span>
+            <span className="rounded-full bg-wefin-surface-2 px-2 py-0.5 text-[11px] font-semibold text-wefin-subtle">
               {chatTypeLabel}
             </span>
           </div>

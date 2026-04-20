@@ -6,7 +6,7 @@ interface MyRankBadgeProps {
 
 export default function MyRankBadge({ myRank }: MyRankBadgeProps) {
   const profit = Math.trunc(myRank.realizedProfit ?? 0)
-  const profitColor = profit >= 0 ? 'text-wefin-red' : 'text-blue-400'
+  const profitColor = profit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
 
   return (
     <div className="rounded-lg border border-wefin-line bg-wefin-surface-2 px-3 py-2">

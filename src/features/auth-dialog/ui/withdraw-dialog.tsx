@@ -174,7 +174,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
         <Dialog.Content className="dialog-content">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2">
-              <Dialog.Title className="text-xl font-semibold text-slate-900">
+              <Dialog.Title className="text-xl font-semibold text-wefin-text">
                 회원 탈퇴
               </Dialog.Title>
               <Dialog.Description className="text-sm text-wefin-subtle">
@@ -185,7 +185,7 @@ function WithdrawDialog({ open, onClose }: WithdrawDialogProps) {
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-slate-100"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-wefin-line text-wefin-subtle transition-colors hover:bg-wefin-surface-2"
                 aria-label="닫기"
               >
                 <X className="size-4" />

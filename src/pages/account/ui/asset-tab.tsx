@@ -27,8 +27,8 @@ export default function AssetTab() {
   )
   const totalAsset = balance + frozenAmount + investedAmount
   const questReward = totalAsset - initialBalance - realizedProfit - totalPnL
-  const profitColor = realizedProfit >= 0 ? 'text-wefin-red' : 'text-blue-400'
-  const pnlColor = totalPnL >= 0 ? 'text-wefin-red' : 'text-blue-400'
+  const profitColor = realizedProfit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
+  const pnlColor = totalPnL >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
 
   return (
     <div className="max-w-md divide-y divide-wefin-line">

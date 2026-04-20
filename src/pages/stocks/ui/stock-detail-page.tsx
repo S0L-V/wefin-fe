@@ -290,7 +290,7 @@ function StockDetailPage() {
             <button
               type="button"
               onClick={() => setMobileTab('order')}
-              className="flex-1 rounded-xl bg-blue-400 py-3 text-[15px] font-bold text-white transition-colors hover:opacity-90"
+              className="flex-1 rounded-xl bg-wefin-blue py-3 text-[15px] font-bold text-white transition-colors hover:opacity-90"
             >
               매도
             </button>

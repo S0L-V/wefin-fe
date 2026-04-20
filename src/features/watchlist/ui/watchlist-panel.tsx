@@ -63,7 +63,7 @@ function WatchlistRow({ item }: { item: WatchlistItem }) {
   const isUp = item.changeRate > 0
   const isDown = item.changeRate < 0
   const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : null
-  const rateColor = isUp ? 'text-wefin-red' : isDown ? 'text-blue-400' : 'text-wefin-subtle'
+  const rateColor = isUp ? 'text-wefin-red' : isDown ? 'text-wefin-blue' : 'text-wefin-subtle'
   const sign = isUp ? '+' : ''
 
   return (

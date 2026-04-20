@@ -31,7 +31,7 @@ function PlayHeader({
   onEndGame
 }: PlayHeaderProps) {
   const profitColor =
-    profitRate > 0 ? 'text-red-400' : profitRate < 0 ? 'text-blue-400' : 'text-white/50'
+    profitRate > 0 ? 'text-red-400' : profitRate < 0 ? 'text-wefin-blue' : 'text-white/50'
   const profitSign = profitRate > 0 ? '+' : ''
   const progress = totalTurns > 0 ? (currentRound / totalTurns) * 100 : 0
 

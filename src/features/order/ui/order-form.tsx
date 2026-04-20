@@ -209,7 +209,7 @@ export default function OrderForm({
                         }`}
                       >
                         <span
-                          className={`text-xs font-bold ${isBuy ? 'text-wefin-red' : 'text-blue-400'}`}
+                          className={`text-xs font-bold ${isBuy ? 'text-wefin-red' : 'text-wefin-blue'}`}
                         >
                           {isBuy ? '매수' : '매도'}
                         </span>

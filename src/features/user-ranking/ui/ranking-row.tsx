@@ -6,7 +6,7 @@ interface RankingRowProps {
 
 export default function RankingRow({ item }: RankingRowProps) {
   const profit = Math.trunc(item.realizedProfit ?? 0)
-  const profitColor = profit >= 0 ? 'text-wefin-red' : 'text-blue-400'
+  const profitColor = profit >= 0 ? 'text-wefin-red' : 'text-wefin-blue'
   const isFirst = item.rank === 1
 
   if (isFirst) {

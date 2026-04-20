@@ -25,7 +25,7 @@ const DIRECTION_COLOR: Record<ChangeDirection, string> = {
 
 function directionTextClass(direction: ChangeDirection): string {
   if (direction === 'UP') return 'text-wefin-red'
-  if (direction === 'DOWN') return 'text-blue-400'
+  if (direction === 'DOWN') return 'text-wefin-blue'
   return 'text-wefin-subtle'
 }
 

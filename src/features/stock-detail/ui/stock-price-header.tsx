@@ -120,7 +120,7 @@ function PriceDisplay({ price }: { price: PriceData }) {
   const pillClass = isPositive
     ? 'bg-wefin-red-soft text-wefin-red'
     : isNegative
-      ? 'bg-wefin-surface-2 text-blue-400'
+      ? 'bg-wefin-surface-2 text-wefin-blue'
       : 'bg-wefin-bg text-wefin-subtle'
   const sign = isPositive ? '+' : ''
   const arrow = isPositive ? '▲' : isNegative ? '▼' : ''

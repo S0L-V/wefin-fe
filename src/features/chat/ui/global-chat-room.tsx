@@ -43,11 +43,11 @@ interface GlobalChatRoomProps {
 function UnreadDivider() {
   return (
     <div className="flex items-center gap-3 py-2">
-      <div className="h-px flex-1 bg-slate-200" />
-      <span className="shrink-0 rounded-full border border-wefin-line bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-wefin-subtle">
+      <div className="h-px flex-1 bg-wefin-line" />
+      <span className="shrink-0 rounded-full border border-wefin-line bg-wefin-surface-2 px-2.5 py-1 text-[11px] font-medium text-wefin-subtle">
         새 메시지
       </span>
-      <div className="h-px flex-1 bg-slate-200" />
+      <div className="h-px flex-1 bg-wefin-line" />
     </div>
   )
 }
