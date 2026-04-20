@@ -44,48 +44,45 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
 
   const handleChange = (field: ChangePasswordFieldName) => (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    const nextFormData = {
+      ...formData,
+      [field]: value
+    }
 
-    setFormData((prev) => {
-      const nextFormData = {
-        ...prev,
-        [field]: value
+    setFormData(nextFormData)
+
+    setFieldErrors((prevErrors) => {
+      const nextErrors = { ...prevErrors }
+
+      if (touchedFields[field]) {
+        const message = validateChangePasswordField(field, value, nextFormData)
+        if (message) nextErrors[field] = message
+        else delete nextErrors[field]
       }
 
-      setFieldErrors((prevErrors) => {
-        const nextErrors = { ...prevErrors }
+      if (field === 'newPassword' && touchedFields.confirmPassword) {
+        const confirmMessage = validateChangePasswordField(
+          'confirmPassword',
+          nextFormData.confirmPassword,
+          nextFormData
+        )
 
-        if (touchedFields[field]) {
-          const message = validateChangePasswordField(field, value, nextFormData)
-          if (message) nextErrors[field] = message
-          else delete nextErrors[field]
-        }
+        if (confirmMessage) nextErrors.confirmPassword = confirmMessage
+        else delete nextErrors.confirmPassword
+      }
 
-        if (field === 'newPassword' && touchedFields.confirmPassword) {
-          const confirmMessage = validateChangePasswordField(
-            'confirmPassword',
-            nextFormData.confirmPassword,
-            nextFormData
-          )
+      if (field === 'currentPassword' && touchedFields.newPassword) {
+        const newPasswordMessage = validateChangePasswordField(
+          'newPassword',
+          nextFormData.newPassword,
+          nextFormData
+        )
 
-          if (confirmMessage) nextErrors.confirmPassword = confirmMessage
-          else delete nextErrors.confirmPassword
-        }
+        if (newPasswordMessage) nextErrors.newPassword = newPasswordMessage
+        else delete nextErrors.newPassword
+      }
 
-        if (field === 'currentPassword' && touchedFields.newPassword) {
-          const newPasswordMessage = validateChangePasswordField(
-            'newPassword',
-            nextFormData.newPassword,
-            nextFormData
-          )
-
-          if (newPasswordMessage) nextErrors.newPassword = newPasswordMessage
-          else delete nextErrors.newPassword
-        }
-
-        return nextErrors
-      })
-
-      return nextFormData
+      return nextErrors
     })
   }
 
@@ -207,7 +204,7 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
             </Dialog.Close>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
             <div>
               <label htmlFor="change-password-current" className="sr-only">
                 현재 비밀번호
@@ -217,13 +214,24 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
                 type="password"
                 placeholder="현재 비밀번호"
                 required
+                autoComplete="current-password"
+                aria-invalid={Boolean(fieldErrors.currentPassword)}
+                aria-describedby={
+                  fieldErrors.currentPassword ? 'change-password-current-error' : undefined
+                }
                 value={formData.currentPassword}
                 onChange={handleChange('currentPassword')}
                 onBlur={handleBlur('currentPassword')}
                 className={inputClassName('currentPassword')}
               />
               {fieldErrors.currentPassword ? (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.currentPassword}</p>
+                <p
+                  id="change-password-current-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-500"
+                >
+                  {fieldErrors.currentPassword}
+                </p>
               ) : null}
             </div>
 
@@ -236,13 +244,22 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
                 type="password"
                 placeholder="새 비밀번호"
                 required
+                autoComplete="new-password"
+                aria-invalid={Boolean(fieldErrors.newPassword)}
+                aria-describedby={fieldErrors.newPassword ? 'change-password-new-error' : undefined}
                 value={formData.newPassword}
                 onChange={handleChange('newPassword')}
                 onBlur={handleBlur('newPassword')}
                 className={inputClassName('newPassword')}
               />
               {fieldErrors.newPassword ? (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.newPassword}</p>
+                <p
+                  id="change-password-new-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-500"
+                >
+                  {fieldErrors.newPassword}
+                </p>
               ) : null}
             </div>
 
@@ -255,13 +272,24 @@ function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
                 type="password"
                 placeholder="새 비밀번호 확인"
                 required
+                autoComplete="new-password"
+                aria-invalid={Boolean(fieldErrors.confirmPassword)}
+                aria-describedby={
+                  fieldErrors.confirmPassword ? 'change-password-confirm-error' : undefined
+                }
                 value={formData.confirmPassword}
                 onChange={handleChange('confirmPassword')}
                 onBlur={handleBlur('confirmPassword')}
                 className={inputClassName('confirmPassword')}
               />
               {fieldErrors.confirmPassword ? (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.confirmPassword}</p>
+                <p
+                  id="change-password-confirm-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-500"
+                >
+                  {fieldErrors.confirmPassword}
+                </p>
               ) : null}
             </div>
 
