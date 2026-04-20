@@ -69,8 +69,8 @@ function ResultPage() {
   }))
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="grid gap-6 lg:grid-cols-[1fr_480px]">
         {/* 좌측: 차트 + 매매내역 */}
         <div className="flex flex-col gap-5">
           {/* 헤더 카드 */}
@@ -313,9 +313,9 @@ function ResultPage() {
                   { title: '투자 패턴', body: reportQuery.data.data.pattern },
                   { title: '제안', body: reportQuery.data.data.suggestion }
                 ].map((s) => (
-                  <div key={s.title} className="rounded-xl bg-wefin-surface-2 p-4">
-                    <h4 className="mb-2 text-xs font-extrabold text-wefin-mint-deep">{s.title}</h4>
-                    <p className="whitespace-pre-wrap text-[13px] font-medium leading-relaxed text-wefin-text-2">
+                  <div key={s.title} className="rounded-xl bg-wefin-surface-2 p-5">
+                    <h4 className="mb-2 text-sm font-extrabold text-wefin-mint-deep">{s.title}</h4>
+                    <p className="whitespace-pre-wrap text-sm font-medium leading-relaxed text-wefin-text-2">
                       {s.body}
                     </p>
                   </div>
