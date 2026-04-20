@@ -69,21 +69,21 @@ function WatchlistRow({ item }: { item: WatchlistItem }) {
   return (
     <button
       onClick={() => navigate(routes.stockDetail(item.stockCode))}
-      className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-wefin-bg"
+      className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-wefin-bg"
     >
-      <StockLogo code={item.stockCode} name={item.stockName || item.stockCode} size={32} />
+      <StockLogo code={item.stockCode} name={item.stockName || item.stockCode} size={36} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-wefin-text">
+        <p className="truncate text-[15px] font-semibold text-wefin-text">
           {item.stockName || item.stockCode}
         </p>
-        <p className="text-xs text-wefin-subtle">{item.stockCode}</p>
+        <p className="text-[11.5px] text-wefin-subtle">{item.stockCode}</p>
       </div>
       <div className="text-right">
-        <p className="text-sm font-semibold text-wefin-text tabular-nums">
+        <p className="font-num text-[15px] font-bold text-wefin-text tabular-nums">
           {item.currentPrice.toLocaleString()}원
         </p>
         <p
-          className={`flex items-center justify-end gap-0.5 text-xs font-medium ${rateColor} tabular-nums`}
+          className={`flex items-center justify-end gap-0.5 text-[12.5px] font-semibold ${rateColor} tabular-nums`}
         >
           {TrendIcon && <TrendIcon className="h-3 w-3" />}
           {sign}

@@ -9,12 +9,12 @@ import { useStockRankingQuery } from '@/features/stock-ranking/model/use-stock-r
 type SidebarTab = 'ranking' | 'chat'
 
 const TABS: { key: SidebarTab; label: string }[] = [
-  { key: 'ranking', label: 'TOP 10' },
+  { key: 'ranking', label: '거래대금' },
   { key: 'chat', label: '채팅' }
 ]
 
 function StockRankingList() {
-  const { data, isLoading, isError } = useStockRankingQuery('amount', 10)
+  const { data, isLoading, isError } = useStockRankingQuery('amount', 20)
 
   if (isLoading) {
     return (
@@ -41,7 +41,7 @@ function StockRankingList() {
   }
 
   return (
-    <div className="overflow-y-auto px-5 pb-4">
+    <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4 scrollbar-thin">
       {items.map((item, idx) => {
         const isTop3 = item.rank <= 3
         const isPositive = item.changeRate > 0
@@ -51,12 +51,12 @@ function StockRankingList() {
         return (
           <div
             key={item.stockCode}
-            className={`group grid grid-cols-[24px_1fr_auto] items-center gap-2.5 py-2.5 ${
+            className={`group grid grid-cols-[28px_1fr_auto] items-center gap-3 py-3 ${
               idx < items.length - 1 ? 'border-b border-dashed border-wefin-line' : ''
             }`}
           >
             <span
-              className={`font-num text-[15px] font-[800] ${
+              className={`font-num text-[16px] font-[800] ${
                 isTop3 ? 'text-wefin-mint' : 'text-wefin-muted'
               }`}
             >
@@ -64,18 +64,18 @@ function StockRankingList() {
             </span>
 
             <div className="min-w-0">
-              <p className="truncate text-[14.5px] font-semibold text-wefin-text transition-colors group-hover:text-wefin-mint-deep">
+              <p className="truncate text-[15px] font-semibold text-wefin-text transition-colors group-hover:text-wefin-mint-deep">
                 {item.stockName}
               </p>
-              <p className="text-[11px] text-wefin-muted">{item.stockCode}</p>
+              <p className="text-[11.5px] text-wefin-muted">{item.stockCode}</p>
             </div>
 
             <div className="text-right">
-              <p className="font-num text-[14px] font-bold text-wefin-text">
+              <p className="font-num text-[15px] font-bold text-wefin-text">
                 {item.currentPrice.toLocaleString('ko-KR')}
               </p>
               <p
-                className={`font-num text-[12px] font-semibold ${
+                className={`font-num text-[12.5px] font-semibold ${
                   isPositive ? 'text-wefin-red' : isNegative ? 'text-blue-500' : 'text-wefin-muted'
                 }`}
               >
@@ -139,7 +139,7 @@ export default function HomeSidebar() {
           )}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {activeTab === 'ranking' && <StockRankingList />}
           {activeTab === 'chat' && <ChatPanel />}
         </div>

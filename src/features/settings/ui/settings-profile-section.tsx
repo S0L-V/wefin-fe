@@ -18,6 +18,7 @@ type SettingsProfileSectionProps = {
 }
 
 function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfileSectionProps) {
+  const nickname = isLoggedIn ? (localStorage.getItem('nickname') ?? '') : ''
   const [selectedColor, setSelectedColor] = useState(
     () => localStorage.getItem('profileColor') ?? 'mint'
   )

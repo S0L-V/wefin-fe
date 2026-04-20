@@ -216,7 +216,9 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
 
   if (isLoading) {
     return (
-      <div className={`${bare ? 'h-full' : 'h-[640px]'} flex items-start justify-center pt-6`}>
+      <div
+        className={`${bare ? 'h-full' : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px]'} flex items-start justify-center pt-6`}
+      >
         <div className="flex gap-1">
           {[0, 1, 2].map((i) => (
             <span
@@ -234,7 +236,9 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
     <>
       <div
         className={`flex min-h-0 flex-col overflow-hidden ${
-          bare ? 'h-full' : 'h-[640px] rounded-2xl border border-wefin-line bg-white shadow-sm'
+          bare
+            ? 'h-full'
+            : 'h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] rounded-2xl border border-wefin-line bg-white shadow-sm'
         }`}
       >
         {errorMessage && (

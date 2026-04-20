@@ -31,7 +31,7 @@ function GameLobby() {
             <div className="card-base h-[280px] animate-pulse" />
             <div className="card-base h-[200px] animate-pulse" />
           </div>
-          <div className="card-base h-[560px] animate-pulse" />
+          <div className="card-base h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse" />
         </div>
       </div>
     )
@@ -39,8 +39,8 @@ function GameLobby() {
 
   return (
     <div className="mx-auto max-w-[1100px] py-8">
-      <h1 className="text-xl font-bold text-wefin-text">타임머신 투자</h1>
-      <p className="mt-1 text-sm text-wefin-subtle">
+      <h1 className="text-2xl font-extrabold text-wefin-text">타임머신 투자</h1>
+      <p className="mt-1.5 text-[15px] text-wefin-subtle">
         과거 시장 데이터로 투자를 학습하고, 함께 전략을 나눠보세요
       </p>
 
@@ -50,7 +50,7 @@ function GameLobby() {
           <GameHistorySection items={recentHistory} />
         </div>
 
-        <div className="card-base flex h-[564px] flex-col overflow-hidden lg:sticky lg:top-20">
+        <div className="card-base flex h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] flex-col overflow-hidden lg:sticky lg:top-20">
           <ChatPanel />
         </div>
       </div>
@@ -79,14 +79,14 @@ function CreateRoomInline() {
 
   return (
     <div className="card-base">
-      <div className="p-[var(--card-pad)]">
-        <h2 className="text-base font-bold text-wefin-text">새 게임</h2>
+      <div className="p-6">
+        <h2 className="text-lg font-extrabold text-wefin-text">새 게임</h2>
 
-        <div className="mt-5 space-y-5">
+        <div className="mt-6 space-y-6">
           <div>
-            <p className="text-xs font-semibold text-wefin-text">얼마로 시작할까요?</p>
-            <p className="mt-0.5 text-[11px] text-wefin-subtle">가상 자본금으로 매매합니다</p>
-            <div className="mt-2 flex gap-1.5">
+            <p className="text-sm font-bold text-wefin-text">얼마로 시작할까요?</p>
+            <p className="mt-1 text-[12px] text-wefin-subtle">가상 자본금으로 매매합니다</p>
+            <div className="mt-3 flex gap-2">
               {seedOptions.map((value) => (
                 <OptionButton
                   key={value}
@@ -100,9 +100,9 @@ function CreateRoomInline() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-wefin-text">어느 기간의 시장을 경험할까요?</p>
-            <p className="mt-0.5 text-[11px] text-wefin-subtle">과거 시장이 랜덤으로 선택됩니다</p>
-            <div className="mt-2 flex gap-1.5">
+            <p className="text-sm font-bold text-wefin-text">어느 기간의 시장을 경험할까요?</p>
+            <p className="mt-1 text-[12px] text-wefin-subtle">과거 시장이 랜덤으로 선택됩니다</p>
+            <div className="mt-3 flex gap-2">
               {periodOptions.map((value) => (
                 <OptionButton
                   key={value}
@@ -117,9 +117,9 @@ function CreateRoomInline() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-wefin-text">한 턴에 며칠씩 이동할까요?</p>
-            <p className="mt-0.5 text-[11px] text-wefin-subtle">턴마다 매매 기회가 주어집니다</p>
-            <div className="mt-2 flex gap-1.5">
+            <p className="text-sm font-bold text-wefin-text">한 턴에 며칠씩 이동할까요?</p>
+            <p className="mt-1 text-[12px] text-wefin-subtle">턴마다 매매 기회가 주어집니다</p>
+            <div className="mt-3 flex gap-2">
               {moveDaysOptions.map((value) => (
                 <OptionButton
                   key={value}
@@ -133,22 +133,22 @@ function CreateRoomInline() {
           </div>
         </div>
 
-        {errorMessage && <p className="mt-3 text-center text-xs text-wefin-red">{errorMessage}</p>}
+        {errorMessage && <p className="mt-4 text-center text-sm text-wefin-red">{errorMessage}</p>}
       </div>
 
-      <div className="flex items-center justify-between border-t border-wefin-line px-[var(--card-pad)] py-3.5">
-        <p className="text-xs text-wefin-subtle">
+      <div className="flex items-center justify-between border-t border-wefin-line px-6 py-4">
+        <p className="text-sm text-wefin-subtle">
           {formatSeedLabel(seedMoney)} · {formatPeriodLabel(periodMonths)} · {moveDays}일마다 ·{' '}
-          <span className="font-semibold text-wefin-mint-deep">{totalTurns}턴</span>
+          <span className="font-bold text-wefin-mint-deep">{totalTurns}턴</span>
         </p>
         <button
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="group relative shrink-0 overflow-hidden rounded-lg bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-5 py-2 text-xs font-bold text-white transition-all hover:shadow-[0_4px_16px_rgba(20,184,166,0.35)] active:scale-[0.97] disabled:opacity-50"
+          className="group relative shrink-0 overflow-hidden rounded-lg bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-6 py-2.5 text-sm font-bold text-white transition-all hover:shadow-[0_4px_16px_rgba(20,184,166,0.35)] active:scale-[0.97] disabled:opacity-50"
         >
-          <span className="relative z-10 flex items-center gap-1.5">
-            <Play size={12} />
+          <span className="relative z-10 flex items-center gap-2">
+            <Play size={14} />
             {isSubmitting ? '생성 중...' : '시작'}
           </span>
           <div className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
@@ -186,26 +186,26 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
       type="button"
       onClick={handleEnter}
       disabled={joinMutation.isPending}
-      className="card-base group flex w-full items-center gap-3.5 p-5 text-left transition-all hover:shadow-[0_8px_24px_-12px_rgba(14,21,18,0.15)] disabled:opacity-60"
+      className="card-base group flex w-full items-center gap-4 p-6 text-left transition-all hover:shadow-[0_8px_24px_-12px_rgba(14,21,18,0.15)] disabled:opacity-60"
     >
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
           isWaiting ? 'bg-amber-50' : 'bg-gradient-to-br from-wefin-mint to-wefin-mint-deep'
         }`}
       >
-        <Play size={16} className={isWaiting ? 'text-amber-500' : 'text-white'} />
+        <Play size={18} className={isWaiting ? 'text-amber-500' : 'text-white'} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-wefin-text">
+        <p className="text-[15px] font-bold text-wefin-text">
           {isWaiting ? '멤버를 기다리는 중' : '게임 진행 중'}
         </p>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-wefin-subtle">
-          <span className="flex items-center gap-0.5">
-            <Users size={11} />
+        <div className="mt-1 flex items-center gap-2.5 text-sm text-wefin-subtle">
+          <span className="flex items-center gap-1">
+            <Users size={13} />
             {room.currentPlayers}명
           </span>
           <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+            className={`rounded px-2 py-0.5 text-[11px] font-bold ${
               isWaiting ? 'bg-amber-50 text-amber-600' : 'bg-wefin-mint-soft text-wefin-mint-deep'
             }`}
           >
@@ -213,7 +213,7 @@ function ActiveRoomCard({ room }: { room: RoomListItem }) {
           </span>
         </div>
       </div>
-      <span className="shrink-0 rounded-lg bg-wefin-mint px-4 py-2 text-xs font-semibold text-white transition-all group-hover:bg-wefin-mint-deep">
+      <span className="shrink-0 rounded-lg bg-wefin-mint px-5 py-2.5 text-sm font-bold text-white transition-all group-hover:bg-wefin-mint-deep">
         {joinMutation.isPending ? '입장 중...' : '입장하기'}
       </span>
     </button>
@@ -235,20 +235,20 @@ function GameHistorySection({ items }: { items: GameHistoryItem[] }) {
 
   return (
     <div className="card-base">
-      <div className="flex items-center justify-between px-[var(--card-pad)] pt-[var(--card-pad)] pb-3">
-        <div className="flex items-center gap-2">
-          <Clock size={14} className="text-wefin-subtle" />
-          <h2 className="text-sm font-bold text-wefin-text">지난 게임</h2>
+      <div className="flex items-center justify-between px-6 pt-6 pb-4">
+        <div className="flex items-center gap-2.5">
+          <Clock size={16} className="text-wefin-subtle" />
+          <h2 className="text-[15px] font-bold text-wefin-text">지난 게임</h2>
         </div>
         <Link
           to="/history/archive"
-          className="flex items-center gap-0.5 text-xs font-medium text-wefin-subtle transition-colors hover:text-wefin-mint-deep"
+          className="flex items-center gap-0.5 text-sm font-medium text-wefin-subtle transition-colors hover:text-wefin-mint-deep"
         >
           전체보기
-          <ChevronRight size={13} />
+          <ChevronRight size={14} />
         </Link>
       </div>
-      <div className="px-3 pb-3">
+      <div className="px-4 pb-4">
         {items.map((item) => (
           <GameHistoryCard key={item.roomId} item={item} />
         ))}
@@ -268,27 +268,27 @@ function GameHistoryCard({ item }: { item: GameHistoryItem }) {
   return (
     <Link
       to={`/history/room/${item.roomId}/result`}
-      className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors hover:bg-wefin-surface-2"
+      className="flex items-center justify-between rounded-xl px-4 py-3.5 transition-colors hover:bg-wefin-surface-2"
     >
-      <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wefin-surface-2">
-          <Trophy size={14} className="text-wefin-subtle" />
+      <div className="flex items-center gap-3.5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-wefin-surface-2">
+          <Trophy size={16} className="text-wefin-subtle" />
         </div>
         <div>
-          <p className="text-sm font-medium text-wefin-text">
+          <p className="text-[15px] font-semibold text-wefin-text">
             {seedLabel} · {periodLabel} · {item.participantCount}명
           </p>
-          <p className="mt-0.5 text-xs text-wefin-subtle">
+          <p className="mt-0.5 text-[12.5px] text-wefin-subtle">
             {item.startDate} ~ {item.endDate}
           </p>
         </div>
       </div>
       <div className="text-right">
-        <p className={`font-num text-sm font-bold ${profitColor}`}>
+        <p className={`font-num text-[15px] font-bold ${profitColor}`}>
           {profitSign}
           {item.profitRate.toFixed(2)}%
         </p>
-        <p className="mt-0.5 text-xs text-wefin-subtle">
+        <p className="mt-0.5 text-[12.5px] text-wefin-subtle">
           {rankLabel} / {item.participantCount}명
         </p>
       </div>
@@ -312,7 +312,7 @@ function OptionButton({
       <button
         type="button"
         disabled
-        className="flex-1 rounded-lg bg-wefin-surface-2 py-2 text-xs text-wefin-muted"
+        className="flex-1 rounded-xl bg-wefin-surface-2 py-3 text-sm text-wefin-muted"
       >
         {children}
       </button>
@@ -323,7 +323,7 @@ function OptionButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
+      className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-all ${
         selected
           ? 'bg-wefin-mint text-white shadow-sm'
           : 'bg-wefin-surface-2 text-wefin-text hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'

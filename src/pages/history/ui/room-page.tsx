@@ -25,7 +25,7 @@ function RoomPage() {
             <div className="h-48 animate-pulse rounded-2xl bg-white shadow-sm" />
             <div className="h-40 animate-pulse rounded-2xl bg-white shadow-sm" />
           </div>
-          <div className="h-[560px] animate-pulse rounded-2xl bg-white shadow-sm" />
+          <div className="h-[calc(100dvh-220px)] min-h-[400px] max-h-[700px] animate-pulse rounded-2xl bg-white shadow-sm" />
         </div>
       </div>
     )

@@ -70,7 +70,7 @@ function ResultPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_480px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(360px,30%)]">
         {/* 좌측: 차트 + 매매내역 */}
         <div className="flex flex-col gap-5">
           {/* 헤더 카드 */}
