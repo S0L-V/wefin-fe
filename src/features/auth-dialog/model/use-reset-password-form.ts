@@ -33,6 +33,7 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
   const [loading, setLoading] = useState(false)
   const [codeCooldown, setCodeCooldown] = useState(0)
   const cooldownRef = useRef<number | null>(null)
+  const resetGenerationRef = useRef(0)
 
   const { mutateAsync: sendEmailVerificationMutateAsync, isPending: isSendingCode } =
     useSendEmailVerificationMutation()
@@ -49,7 +50,10 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
     cooldownRef.current = window.setInterval(() => {
       setCodeCooldown((prev) => {
         if (prev <= 1) {
-          if (cooldownRef.current) window.clearInterval(cooldownRef.current)
+          if (cooldownRef.current) {
+            window.clearInterval(cooldownRef.current)
+            cooldownRef.current = null
+          }
           return 0
         }
         return prev - 1
@@ -57,7 +61,10 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
     }, 1000)
 
     return () => {
-      if (cooldownRef.current) window.clearInterval(cooldownRef.current)
+      if (cooldownRef.current) {
+        window.clearInterval(cooldownRef.current)
+        cooldownRef.current = null
+      }
     }
   }, [isCooldownActive])
 
@@ -67,6 +74,13 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
   })
 
   const resetForm = () => {
+    resetGenerationRef.current += 1
+
+    if (cooldownRef.current) {
+      window.clearInterval(cooldownRef.current)
+      cooldownRef.current = null
+    }
+
     setFormData(initialResetPasswordFormData)
     setFieldErrors({})
     setTouchedFields({})
@@ -74,6 +88,7 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
     setIsCodeSent(false)
     setIsEmailVerified(false)
     setCodeCooldown(0)
+    setLoading(false)
   }
 
   const handleChange = (field: ResetPasswordFieldName) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -166,11 +181,15 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
       return
     }
 
+    const generation = resetGenerationRef.current
+
     try {
       await sendEmailVerificationMutateAsync({
         email: trimmedEmail,
         purpose: 'PASSWORD_RESET'
       })
+
+      if (generation !== resetGenerationRef.current) return
 
       setIsEmailVerified(false)
       setIsCodeSent(true)
@@ -185,6 +204,8 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
       toast.success('인증코드를 이메일로 전송했어요')
       setCodeCooldown(30)
     } catch (error) {
+      if (generation !== resetGenerationRef.current) return
+
       if (error instanceof ApiError) {
         switch (error.code) {
           case 'AUTH_VERIFICATION_TOO_FAST_REQUEST':
@@ -233,12 +254,16 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
       return
     }
 
+    const generation = resetGenerationRef.current
+
     try {
       await confirmEmailVerificationMutateAsync({
         email: trimmedEmail,
         code: trimmedCode,
         purpose: 'PASSWORD_RESET'
       })
+
+      if (generation !== resetGenerationRef.current) return
 
       setIsEmailVerified(true)
 
@@ -250,6 +275,7 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
 
       toast.success('이메일 인증이 완료되었어요')
     } catch (error) {
+      if (generation !== resetGenerationRef.current) return
       if (error instanceof ApiError) {
         switch (error.code) {
           case 'AUTH_VERIFICATION_CODE_INVALID':
@@ -288,16 +314,22 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
 
     setLoading(true)
 
+    const generation = resetGenerationRef.current
+
     try {
       await resetPasswordMutateAsync({
         email: normalizedFormData.email,
         newPassword: normalizedFormData.newPassword
       })
 
+      if (generation !== resetGenerationRef.current) return
+
       toast.success('비밀번호가 재설정되었어요.')
       resetForm()
       onSuccess()
     } catch (error) {
+      if (generation !== resetGenerationRef.current) return
+
       if (error instanceof ApiError) {
         if (
           error.code === 'AUTH_VALIDATION_FAILED' &&
@@ -351,7 +383,9 @@ export function useResetPasswordForm({ onSuccess }: UseResetPasswordFormParams) 
 
       toast.error('서버와 통신 중 오류가 발생했습니다.')
     } finally {
-      setLoading(false)
+      if (generation === resetGenerationRef.current) {
+        setLoading(false)
+      }
     }
   }
 
