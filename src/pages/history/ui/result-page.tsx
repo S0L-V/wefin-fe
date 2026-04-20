@@ -136,24 +136,24 @@ function ResultPage() {
                       dataKey="label"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: '#97A19D' }}
+                      tick={{ fontSize: 12, fill: '#5E6A66', fontWeight: 600 }}
                       minTickGap={30}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: '#97A19D' }}
+                      tick={{ fontSize: 12, fill: '#5E6A66', fontWeight: 600 }}
                       tickFormatter={formatAmountTick}
                       domain={['auto', 'auto']}
-                      width={52}
+                      width={56}
                     />
                     <Tooltip
                       content={({ active, payload }) => {
                         if (!active || !payload?.[0]) return null
                         return (
-                          <div className="card-base px-3 py-2 text-xs">
+                          <div className="card-base px-3.5 py-2.5 text-sm">
                             <p className="font-bold text-wefin-text">{payload[0].payload.label}</p>
-                            <p className="font-num font-bold text-wefin-mint">
+                            <p className="font-num font-extrabold text-wefin-mint">
                               {Math.trunc(Number(payload[0].value)).toLocaleString()}원
                             </p>
                           </div>
