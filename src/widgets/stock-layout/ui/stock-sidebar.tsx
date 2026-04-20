@@ -16,17 +16,12 @@ interface StockSidebarProps {
 
 export default function StockSidebar({ matchHeight }: StockSidebarProps) {
   const [activeTab, setActiveTab] = useState<Tab>('watchlist')
-  const [expanded, setExpanded] = useState(false)
 
   const heightClass = matchHeight ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-120px)]'
 
   return (
     <div
-      className={`flex flex-col rounded-2xl bg-white transition-all duration-300 ${
-        expanded
-          ? 'fixed right-6 bottom-6 z-30 h-[calc(100vh-100px)] w-[420px] shadow-[0_16px_48px_rgba(0,0,0,0.12)]'
-          : heightClass
-      }`}
+      className={`flex flex-col rounded-2xl bg-white transition-all duration-300 ${heightClass}`}
     >
       {/* 탭 헤더 */}
       <div className="flex items-center gap-2 p-2.5">
