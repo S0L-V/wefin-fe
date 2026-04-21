@@ -70,8 +70,8 @@ export default function OrderbookPanel({ code, onPriceClick }: OrderbookPanelPro
           </div>
         )}
         <div className="flex items-center justify-between text-xs">
-          <span className="text-wefin-blue">판매대기 {totalAskQuantity.toLocaleString()}</span>
-          <span className="text-wefin-red">구매대기 {totalBidQuantity.toLocaleString()}</span>
+          <span className="text-wefin-blue">매도대기 {totalAskQuantity.toLocaleString()}</span>
+          <span className="text-wefin-red">매수대기 {totalBidQuantity.toLocaleString()}</span>
         </div>
         <div className="mt-1 flex h-1 overflow-hidden rounded-full bg-wefin-surface-2">
           <div className="bg-wefin-blue" style={{ width: `${askRatio}%` }} />

@@ -41,13 +41,9 @@ function SettingsProfileSection({ isLoggedIn, emailPlaceholder }: SettingsProfil
               title="닉네임"
               description="서비스에서 표시될 이름입니다."
               action={
-                <input
-                  defaultValue={nickname}
-                  placeholder="닉네임 입력"
-                  disabled={!isLoggedIn}
-                  maxLength={12}
-                  className="h-9 w-[200px] rounded-lg border border-wefin-line bg-wefin-surface px-3 text-sm text-wefin-text outline-none transition-colors placeholder:text-wefin-subtle focus:border-wefin-mint disabled:bg-wefin-bg disabled:text-wefin-subtle"
-                />
+                <span className="text-sm font-medium text-wefin-text">
+                  {isLoggedIn ? nickname || '-' : '로그인 후 표시'}
+                </span>
               }
             />
             <SettingRow

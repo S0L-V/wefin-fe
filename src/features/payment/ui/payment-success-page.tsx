@@ -12,11 +12,7 @@ export default function PaymentSuccessPage() {
   const amountParam = searchParams.get('amount')
 
   const handleConfirm = () => {
-    console.log('[payment-success] confirm click', {
-      paymentKey,
-      orderId,
-      amountParam
-    })
+    console.log('[payment-success] confirm click', { paymentKey, orderId, amountParam })
 
     if (!paymentKey || !orderId || !amountParam) {
       alert('결제 승인에 필요한 값이 없습니다.')
