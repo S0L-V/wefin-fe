@@ -1,10 +1,12 @@
 import { Maximize2, Minimize2 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import ChatPanel from '@/features/chat/ui/chat-panel'
 import DailyQuestPanel from '@/features/quest/ui/daily-quest-panel'
 import type { StockRankingItem } from '@/features/stock-ranking/api/fetch-stock-ranking'
 import { useStockRankingQuery } from '@/features/stock-ranking/model/use-stock-ranking-query'
+import { routes } from '@/shared/config/routes'
 
 type SidebarTab = 'ranking' | 'chat'
 
@@ -49,9 +51,11 @@ function StockRankingList() {
         const sign = isPositive ? '+' : ''
 
         return (
-          <div
+          <Link
             key={item.stockCode}
-            className={`group grid grid-cols-[28px_1fr_auto] items-center gap-3 py-3 ${
+            to={routes.stockDetail(item.stockCode)}
+            aria-label={`${item.stockName} 상세 보기`}
+            className={`group grid grid-cols-[28px_1fr_auto] items-center gap-3 py-3 transition-colors hover:bg-wefin-bg ${
               idx < items.length - 1 ? 'border-b border-dashed border-wefin-line' : ''
             }`}
           >
@@ -87,7 +91,7 @@ function StockRankingList() {
                 {item.changeRate.toFixed(2)}%
               </p>
             </div>
-          </div>
+          </Link>
         )
       })}
     </div>
