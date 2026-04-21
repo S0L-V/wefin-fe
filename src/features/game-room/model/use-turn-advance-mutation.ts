@@ -23,6 +23,8 @@ export function useTurnAdvanceMutation(roomId: string) {
       queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
       queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
       queryClient.invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
+      queryClient.invalidateQueries({ queryKey: ['stockSearch', roomId] })
+      queryClient.invalidateQueries({ queryKey: ['sectorStocks', roomId] })
     }
   })
 }

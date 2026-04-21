@@ -73,6 +73,10 @@ export function useTurnChangeSocket(roomId: string) {
               }
             })
 
+            // 종목 검색·브라우징 결과 갱신 (턴 전환 → 가격 변경)
+            queryClient.invalidateQueries({ queryKey: ['stockSearch', roomId] })
+            queryClient.invalidateQueries({ queryKey: ['sectorStocks', roomId] })
+
             // 선택된 종목이 있으면 차트도 갱신 (턴 전환 → 종가 변경)
             const selectedSymbol = useSelectedStockStore.getState().selectedStock?.symbol
             if (selectedSymbol) {
