@@ -288,20 +288,43 @@ function ResultPage() {
                       >
                         이전
                       </button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          type="button"
-                          onClick={() => setOrderPage(page)}
-                          className={`font-num h-8 w-8 rounded-md text-xs font-bold transition-colors ${
-                            page === orderPage
-                              ? 'bg-wefin-mint text-white'
-                              : 'text-wefin-muted hover:bg-wefin-surface-2 hover:text-wefin-text'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
+                      {(() => {
+                        const pages: (number | 'ellipsis-start' | 'ellipsis-end')[] = []
+                        if (totalPages <= 7) {
+                          for (let i = 1; i <= totalPages; i++) pages.push(i)
+                        } else {
+                          pages.push(1)
+                          if (orderPage > 3) pages.push('ellipsis-start')
+                          const start = Math.max(2, orderPage - 1)
+                          const end = Math.min(totalPages - 1, orderPage + 1)
+                          for (let i = start; i <= end; i++) pages.push(i)
+                          if (orderPage < totalPages - 2) pages.push('ellipsis-end')
+                          pages.push(totalPages)
+                        }
+                        return pages.map((page) =>
+                          typeof page === 'string' ? (
+                            <span
+                              key={page}
+                              className="flex h-8 w-8 items-center justify-center text-xs text-wefin-muted"
+                            >
+                              …
+                            </span>
+                          ) : (
+                            <button
+                              key={page}
+                              type="button"
+                              onClick={() => setOrderPage(page)}
+                              className={`font-num h-8 w-8 rounded-md text-xs font-bold transition-colors ${
+                                page === orderPage
+                                  ? 'bg-wefin-mint text-white'
+                                  : 'text-wefin-muted hover:bg-wefin-surface-2 hover:text-wefin-text'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          )
+                        )
+                      })()}
                       <button
                         type="button"
                         onClick={() => setOrderPage((p) => Math.min(totalPages, p + 1))}

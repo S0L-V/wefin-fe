@@ -28,7 +28,7 @@ function StockChart({ roomId }: StockChartProps) {
     if (!selectedStock || !chartData || chartData.length === 0) return
     const latestClose = chartData[chartData.length - 1].closePrice
     if (latestClose !== selectedStock.price) {
-      selectStock({ ...selectedStock, price: latestClose })
+      selectStock({ ...selectedStock, price: latestClose }, 'order')
     }
   }, [chartData, selectedStock, selectStock])
 

@@ -93,12 +93,15 @@ function HoldingRow({ item }: { item: HoldingItem }) {
     <button
       type="button"
       onClick={() =>
-        selectStock({
-          symbol: item.symbol,
-          stockName: item.stockName,
-          market: 'KOSPI',
-          price: Math.floor(item.evalAmount / item.quantity)
-        })
+        selectStock(
+          {
+            symbol: item.symbol,
+            stockName: item.stockName,
+            market: 'KOSPI',
+            price: Math.floor(item.evalAmount / item.quantity)
+          },
+          'holdings'
+        )
       }
       className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-wefin-surface-2"
     >

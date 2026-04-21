@@ -217,6 +217,7 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
   useEffect(() => {
     const unsub = useSelectedStockStore.subscribe((state, prev) => {
       if (
+        state.source === 'holdings' &&
         state.expandedSymbol &&
         state.expandedSymbol !== prev.expandedSymbol &&
         state.selectedStock
@@ -282,7 +283,7 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
       return
     }
     setShowConfirm(false)
-    selectStock(stock)
+    selectStock(stock, 'order')
   }
 
   function handleGoBack() {
