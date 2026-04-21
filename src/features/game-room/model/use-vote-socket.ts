@@ -11,10 +11,13 @@ import { voteEventSchema } from './vote.schema'
  * vote store를 업데이트 → VoteModal이 반응.
  */
 export function useVoteSocket(roomId: string) {
-  const { startVote, updateVote, finishVote } = useVoteStore()
+  const { startVote, updateVote, finishVote, reset } = useVoteStore()
 
   useEffect(() => {
     if (!roomId) return
+
+    // 방 진입 시 이전 게임의 투표 상태 초기화
+    useVoteStore.getState().reset()
 
     let subscription: { unsubscribe: () => void } | null = null
 
@@ -46,6 +49,8 @@ export function useVoteSocket(roomId: string) {
     return () => {
       subscription?.unsubscribe()
       removeListener()
+      // 방 퇴장 시 투표 상태 초기화
+      useVoteStore.getState().reset()
     }
-  }, [roomId, startVote, updateVote, finishVote])
+  }, [roomId, startVote, updateVote, finishVote, reset])
 }

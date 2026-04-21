@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronLeft, ChevronUp, Search, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import StockLogo from '@/shared/ui/stock-logo'
@@ -187,12 +187,11 @@ const SECTOR_IMAGES: Record<string, string> = {
 
 function OrderPanel({ roomId, cash }: OrderPanelProps) {
   const form = useOrderForm({ roomId, cash })
-  const { clearStock, selectStock } = useSelectedStockStore()
+  const { clearStock, selectStock, expandedSymbol } = useSelectedStockStore()
 
   const [stockSearchKeyword, setStockSearchKeyword] = useState('')
   const [selectedSectorName, setSelectedSectorName] = useState<string | null>(null)
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null)
-  const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
 
   const { data: sectors = [] } = useSectors(roomId)
@@ -214,6 +213,32 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
   const isLoading = searchQuery ? isSearchLoading : isSectorStocksLoading
   const isError = searchQuery ? isSearchError : isSectorStocksError
 
+  // 보유 종목 등 외부에서 selectedStock이 바뀌면 검색어를 종목명으로 세팅
+  useEffect(() => {
+    const unsub = useSelectedStockStore.subscribe((state, prev) => {
+      if (
+        state.expandedSymbol &&
+        state.expandedSymbol !== prev.expandedSymbol &&
+        state.selectedStock
+      ) {
+        setStockSearchKeyword(state.selectedStock.stockName)
+        setSelectedSectorName(null)
+        setSelectedKeyword(null)
+      }
+    })
+    return unsub
+  }, [])
+
+  // expandedSymbol에 해당하는 DOM이 렌더되면 스크롤
+  useEffect(() => {
+    if (!expandedSymbol) return
+    requestAnimationFrame(() => {
+      document
+        .getElementById(`stock-${expandedSymbol}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
+  }, [expandedSymbol, stocks])
+
   const step: PanelStep = stockSearchKeyword.trim()
     ? 'stock'
     : selectedKeyword
@@ -226,7 +251,6 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
 
   function resetExpandedSelection() {
     clearStock()
-    setExpandedSymbol(null)
     setShowConfirm(false)
   }
 
@@ -257,14 +281,8 @@ function OrderPanel({ roomId, cash }: OrderPanelProps) {
       resetExpandedSelection()
       return
     }
-    setExpandedSymbol(stock.symbol)
     setShowConfirm(false)
     selectStock(stock)
-    requestAnimationFrame(() => {
-      document
-        .getElementById(`stock-${stock.symbol}`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    })
   }
 
   function handleGoBack() {
