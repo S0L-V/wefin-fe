@@ -15,15 +15,24 @@ function HeroSection() {
   const lastAggregatedAt = data?.lastAggregatedAt ?? null
 
   const [activeIndex, setActiveIndex] = useState(0)
+  // 사용자가 특정 순위를 수동 선택하면 pin — 자동 회전 중단
+  // (매 interval tick 마다 활성 순위가 바뀌어 사용자가 읽던 뉴스를 놓치는 문제 방지)
+  const [isPinned, setIsPinned] = useState(false)
 
-  // 자동 회전 — 아이템이 2개 이상일 때만
+  // 자동 회전 — 아이템이 2개 이상이고 pin 이 아닐 때만. pin 이 true 로 바뀌면
+  // cleanup 에서 clearInterval 이 실행돼 즉시 멈춤.
   useEffect(() => {
-    if (items.length <= 1) return
+    if (items.length <= 1 || isPinned) return
     const id = window.setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % items.length)
     }, ROTATE_INTERVAL_MS)
     return () => window.clearInterval(id)
-  }, [items.length])
+  }, [items.length, isPinned])
+
+  function handleManualSelect(idx: number) {
+    setActiveIndex(idx)
+    setIsPinned(true)
+  }
 
   if (isLoading) return <HeroSkeleton />
   if (items.length === 0) return null
@@ -62,7 +71,7 @@ function HeroSection() {
             items={items}
             activeIndex={safeIndex}
             lastAggregatedAt={lastAggregatedAt}
-            onSelect={setActiveIndex}
+            onSelect={handleManualSelect}
           />
         </div>
       </div>
