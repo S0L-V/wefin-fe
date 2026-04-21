@@ -262,8 +262,43 @@ function PersonalizedTrendButton({ analyzed, loading, onClick }: PersonalizedTre
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="group/btn relative inline-flex items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-[#1a8a8c] to-[#0f6b6d] px-3.5 py-1.5 text-[13px] font-semibold text-white shadow-sm transition-all duration-300 hover:from-[#24a8ab] hover:to-[#1a8a8c] hover:shadow-[0_4px_20px_rgba(36,168,171,0.3)] active:scale-[0.97] disabled:opacity-60"
+        className="group/btn relative inline-flex items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-b from-[#1fa3a5] to-[#0c6063] px-3.5 py-1.5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/10 shadow-[0_2px_6px_rgba(12,96,99,0.30),0_1px_2px_rgba(0,0,0,0.08)] transition-all duration-300 hover:from-[#25b3b6] hover:to-[#0f6b6d] hover:ring-white/15 hover:shadow-[0_5px_16px_rgba(36,168,171,0.35),0_2px_5px_rgba(0,0,0,0.10)] active:scale-[0.97] active:shadow-[0_1px_3px_rgba(12,96,99,0.35)] disabled:opacity-60"
       >
+        {/* 상단 glass highlight — 은은한 상단 gloss (유리 표면 반사감) */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[55%] rounded-t-lg"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0) 100%)'
+          }}
+        />
+        {/* 토스 스타일 유리 반사 shimmer.
+            - narrow(w-60%) × tall(h-200%) 대각선 stripe, top/left 오버행으로 버튼 밖에서 시작
+            - blur-[6px] 로 경계를 부드럽게 흐려 "흰 패치"가 아닌 빛이 스치는 느낌
+            - rotate(20deg) 는 keyframe 내부에서 담당 (translate 와 함께 transform 에 결합)
+            - 두 레이어: 기본 shine + hover 시 활성화되는 부스트 오버레이 (동일 animation 으로 sync)
+            - loading 중엔 스피너와 겹치니 비활성 */}
+        {!loading && (
+          <>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[-30%] top-[-50%] h-[200%] w-[60%] animate-[toss-shine_2.5s_ease-in-out_infinite] blur-[6px]"
+              style={{
+                background:
+                  'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%)'
+              }}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[-30%] top-[-50%] h-[200%] w-[60%] animate-[toss-shine_2.5s_ease-in-out_infinite] blur-[6px] opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100"
+              style={{
+                background:
+                  'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)'
+              }}
+            />
+          </>
+        )}
         {loading ? (
           <WefinLogoIcon
             size={15}

@@ -257,6 +257,29 @@
     }
   }
 
+  /* 토스 스타일 유리 반사 연출.
+     - narrow(w-60%) × tall(h-200%) stripe 를 rotate(20deg) 로 세워 대각선 빛줄기로 만들고
+       translateX 로 좌 → 우로 스치듯 통과
+     - 양 끝에서 opacity 0 → 1 → 0 로 자연스럽게 fade in/out (툭 나타남 방지)
+     - filter: blur 로 경계를 흐려 "흰 패치" 가 아닌 "빛이 스치는" 느낌
+     - single-direction loop. 방향 전환 없이 같은 궤도로 반복 */
+  @keyframes toss-shine {
+    0% {
+      transform: translateX(-150%) rotate(20deg);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(150%) rotate(20deg);
+      opacity: 0;
+    }
+  }
+
   @keyframes draw {
     to {
       stroke-dashoffset: 0;
