@@ -1,34 +1,43 @@
 import { ArrowRight } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useWefiniChatStore } from '@/features/ai-chat/model/use-wefini-chat-store'
+import type { ClusterItem } from '@/features/news-feed/api/fetch-news-clusters'
 import { getTimeAgo } from '@/features/news-feed/lib/get-time-ago'
 import { usePopularNewsQuery } from '@/features/news-feed/model/use-popular-news-query'
 
-import type { SourceCluster } from '../api/fetch-market-trends-overview'
-import { useMarketTrendsOverviewQuery } from '../model/use-market-trends-overview-query'
+const ROTATE_INTERVAL_MS = 5000
 
 function HeroSection() {
-  const { data, isLoading } = useMarketTrendsOverviewQuery()
+  const { data, isLoading } = usePopularNewsQuery(5)
+  const items = data?.items ?? []
+  const lastAggregatedAt = data?.lastAggregatedAt ?? null
+
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  // 자동 회전 — 아이템이 2개 이상일 때만
+  useEffect(() => {
+    if (items.length <= 1) return
+    const id = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % items.length)
+    }, ROTATE_INTERVAL_MS)
+    return () => window.clearInterval(id)
+  }, [items.length])
 
   if (isLoading) return <HeroSkeleton />
-  if (!data?.generated) return null
+  if (items.length === 0) return null
 
-  const { insightCards, summary, updatedAt, sourceClusters, sourceArticleCount } = data
-  const heroCard = insightCards[0] ?? null
-
-  if (!heroCard) {
-    return summary ? <FallbackHero summary={summary} /> : null
-  }
-
-  const heroClusterId = heroCard.relatedClusterIds[0] ?? null
+  // items 가 줄어들어 activeIndex 가 범위 밖이면 안전하게 첫 아이템 사용 (다음 interval tick 에 자연 수렴)
+  const safeIndex = activeIndex < items.length ? activeIndex : 0
+  const active = items[safeIndex]
+  const others = items.filter((_, i) => i !== safeIndex)
 
   return (
     <div
       className="relative overflow-hidden rounded-2xl sm:rounded-[28px] [--hero-cols:1fr] md:[--hero-cols:1.4fr_1fr]"
       style={{ boxShadow: 'var(--shadow-hero)' }}
     >
-      {/* Grain overlay */}
       <div
         className="pointer-events-none absolute inset-0 z-10 mix-blend-overlay"
         style={{
@@ -46,45 +55,52 @@ function HeroSection() {
             'linear-gradient(135deg, var(--color-wefin-mint-deep) 0%, var(--color-wefin-mint) 55%, var(--color-wefin-mint-300) 110%)'
         }}
       >
-        {/* Left side */}
-        <div className="flex flex-col justify-between gap-6">
-          <div className="flex flex-col gap-5">
-            <LiveBadge updatedAt={updatedAt} />
-            <h1
-              className="font-extrabold leading-tight text-white"
-              style={{ fontSize: 'clamp(22px, 3.2vw, 46px)' }}
-            >
-              {heroCard.headline}
-            </h1>
-            <p
-              className="text-[13px] leading-relaxed sm:text-[15.5px]"
-              style={{ color: 'rgba(255,255,255,0.88)' }}
-            >
-              {heroCard.body}
-            </p>
-          </div>
+        <HeroLeft active={active} others={others} />
 
-          <div className="flex flex-col gap-5">
-            <HeroMeta
-              sourceClusters={sourceClusters}
-              updatedAt={updatedAt}
-              articleCount={sourceArticleCount}
-            />
-            <HeroActions clusterId={heroClusterId} />
-          </div>
-        </div>
-
-        {/* Right side — 거래대금 순위 (모바일에서 숨김) */}
         <div className="hidden md:flex">
-          <HeroRanking />
+          <HeroRanking
+            items={items}
+            activeIndex={safeIndex}
+            lastAggregatedAt={lastAggregatedAt}
+            onSelect={setActiveIndex}
+          />
         </div>
       </div>
     </div>
   )
 }
 
-function LiveBadge({ updatedAt }: { updatedAt: string | null }) {
-  const timeLabel = updatedAt ? getTimeAgo(updatedAt) : ''
+function HeroLeft({ active, others }: { active: ClusterItem; others: ClusterItem[] }) {
+  return (
+    <div className="flex flex-col justify-between gap-6">
+      <div className="flex flex-col gap-5">
+        <LiveBadge publishedAt={active.publishedAt} />
+        <h1
+          key={active.clusterId}
+          className="animate-[fade-in_0.4s_ease-out] font-extrabold leading-tight text-white"
+          style={{ fontSize: 'clamp(22px, 3.2vw, 46px)' }}
+        >
+          {active.title}
+        </h1>
+        <p
+          key={`summary-${active.clusterId}`}
+          className="animate-[fade-in_0.4s_ease-out] text-[13px] leading-relaxed sm:text-[15.5px]"
+          style={{ color: 'rgba(255,255,255,0.88)' }}
+        >
+          {active.summary}
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        <HeroMeta active={active} others={others} />
+        <HeroActions clusterId={active.clusterId} />
+      </div>
+    </div>
+  )
+}
+
+function LiveBadge({ publishedAt }: { publishedAt: string | null }) {
+  const timeLabel = publishedAt ? getTimeAgo(publishedAt) : ''
   return (
     <div
       className="inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-medium text-white"
@@ -99,24 +115,17 @@ function LiveBadge({ updatedAt }: { updatedAt: string | null }) {
   )
 }
 
-function HeroMeta({
-  sourceClusters,
-  updatedAt,
-  articleCount
-}: {
-  sourceClusters: SourceCluster[]
-  updatedAt: string | null
-  articleCount: number
-}) {
-  const sourceNames = sourceClusters
+function HeroMeta({ active, others }: { active: ClusterItem; others: ClusterItem[] }) {
+  const contextTitles = others
     .slice(0, 3)
     .map((c) => c.title)
     .join(', ')
-  const timeAgo = updatedAt ? getTimeAgo(updatedAt) : ''
-
-  const parts = [sourceNames, timeAgo, articleCount > 0 ? `기사 ${articleCount}건` : ''].filter(
-    Boolean
-  )
+  const timeAgo = active.publishedAt ? getTimeAgo(active.publishedAt) : ''
+  const parts = [
+    contextTitles,
+    timeAgo,
+    active.sourceCount > 0 ? `기사 ${active.sourceCount}건` : ''
+  ].filter(Boolean)
 
   if (parts.length === 0) return null
 
@@ -127,7 +136,7 @@ function HeroMeta({
   )
 }
 
-function HeroActions({ clusterId }: { clusterId: number | null }) {
+function HeroActions({ clusterId }: { clusterId: number }) {
   const navigate = useNavigate()
   const openChat = useWefiniChatStore((s) => s.open)
 
@@ -135,11 +144,8 @@ function HeroActions({ clusterId }: { clusterId: number | null }) {
     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
       <button
         type="button"
-        onClick={() => {
-          if (clusterId != null) navigate(`/news/${clusterId}`)
-        }}
-        disabled={clusterId == null}
-        className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[13px] font-semibold text-[#053e38] transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 sm:px-5 sm:py-2.5 sm:text-[14px]"
+        onClick={() => navigate(`/news/${clusterId}`)}
+        className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[13px] font-semibold text-[#053e38] transition-all hover:opacity-90 active:scale-[0.97] sm:px-5 sm:py-2.5 sm:text-[14px]"
       >
         기사 전문 보기
         <ArrowRight size={16} />
@@ -156,132 +162,110 @@ function HeroActions({ clusterId }: { clusterId: number | null }) {
   )
 }
 
-function HeroRanking() {
-  const navigate = useNavigate()
-  const { data: items, isLoading } = usePopularNewsQuery(5)
+function HeroRanking({
+  items,
+  activeIndex,
+  lastAggregatedAt,
+  onSelect
+}: {
+  items: ClusterItem[]
+  activeIndex: number
+  lastAggregatedAt: string | null
+  onSelect: (idx: number) => void
+}) {
+  const freshnessLabel = lastAggregatedAt ? getTimeAgo(lastAggregatedAt) : ''
 
   return (
     <div className="flex flex-col self-stretch">
-      <div className="mb-4">
+      <div className="mb-4 flex items-baseline justify-between gap-3">
         <h2
           className="text-[15px] font-extrabold uppercase tracking-widest text-white"
           style={{ textShadow: '0 0 20px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.15)' }}
         >
           인기 뉴스 TOP
         </h2>
+        {freshnessLabel && (
+          <span className="text-[11px] font-medium text-white/60">{freshnessLabel} 집계</span>
+        )}
       </div>
 
-      {isLoading ? (
-        <div className="flex flex-1 items-center justify-center">
-          <div className="flex gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/50"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
-          </div>
-        </div>
-      ) : !items || items.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <p className="text-[13px] font-semibold text-white/60">준비 중</p>
-        </div>
-      ) : (
-        <div className="flex flex-1 flex-col gap-1.5">
-          {items.map((item, idx) => (
-            <button
-              key={item.clusterId}
-              type="button"
-              onClick={() => navigate(`/news/${item.clusterId}`)}
-              className="group relative overflow-hidden rounded-2xl px-5 py-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
-              style={{
-                background: idx === 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.22)'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background =
-                  idx === 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <span
-                  className={`font-num shrink-0 text-[22px] font-black leading-none ${
-                    idx < 3 ? 'text-white' : 'text-white/30'
-                  }`}
-                  style={
-                    idx < 3
-                      ? { textShadow: '0 0 16px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.2)' }
-                      : undefined
-                  }
-                >
-                  {idx + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={`truncate text-[15px] leading-snug ${
-                      idx === 0 ? 'font-bold text-white' : 'font-semibold text-white/90'
-                    }`}
-                    style={{ textShadow: '0 1px 6px rgba(0,0,0,0.2)' }}
-                  >
-                    {item.title}
-                  </p>
-                </div>
-                <svg
-                  className="h-4 w-4 shrink-0 text-white/0 transition-colors duration-300 group-hover:text-white/50"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-1 flex-col gap-1.5">
+        {items.map((item, idx) => (
+          <RankingRow
+            key={item.clusterId}
+            item={item}
+            rank={idx + 1}
+            isActive={idx === activeIndex}
+            onSelect={() => onSelect(idx)}
+          />
+        ))}
+      </div>
     </div>
   )
 }
 
-function FallbackHero({ summary }: { summary: string }) {
+function RankingRow({
+  item,
+  rank,
+  isActive,
+  onSelect
+}: {
+  item: ClusterItem
+  rank: number
+  isActive: boolean
+  onSelect: () => void
+}) {
   return (
-    <div
-      className="relative overflow-hidden rounded-[28px] p-9"
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-current={isActive ? 'true' : undefined}
+      className="group relative overflow-hidden rounded-2xl px-5 py-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
       style={{
-        boxShadow: 'var(--shadow-hero)',
-        background:
-          'linear-gradient(135deg, var(--color-wefin-mint-deep) 0%, var(--color-wefin-mint) 55%, var(--color-wefin-mint-300) 110%)'
+        background: isActive ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.07)',
+        border: `1px solid ${isActive ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)'
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0 z-10 mix-blend-overlay"
-        style={{
-          opacity: 0.12,
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)',
-          backgroundSize: '4px 4px'
-        }}
-      />
-      <div className="relative z-0">
-        <LiveBadge updatedAt={null} />
-        <p
-          className="mt-5 text-[15.5px] leading-relaxed"
-          style={{ color: 'rgba(255,255,255,0.88)' }}
+      <div className="flex items-center gap-4">
+        <span
+          className={`font-num shrink-0 text-[22px] font-black leading-none ${
+            isActive || rank <= 3 ? 'text-white' : 'text-white/30'
+          }`}
+          style={
+            isActive || rank <= 3
+              ? { textShadow: '0 0 16px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.2)' }
+              : undefined
+          }
         >
-          {summary}
-        </p>
+          {rank}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p
+            className={`truncate text-[15px] leading-snug ${
+              isActive ? 'font-bold text-white' : 'font-semibold text-white/90'
+            }`}
+            style={{ textShadow: '0 1px 6px rgba(0,0,0,0.2)' }}
+          >
+            {item.title}
+          </p>
+        </div>
+        <svg
+          className={`h-4 w-4 shrink-0 transition-colors duration-300 ${
+            isActive ? 'text-white/60' : 'text-white/0 group-hover:text-white/50'
+          }`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </div>
-    </div>
+    </button>
   )
 }
 

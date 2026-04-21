@@ -23,13 +23,15 @@ const clusterItemSchema = z.object({
   sources: z.array(sourceSchema),
   relatedStocks: z.array(stockSchema),
   marketTags: z.array(z.string()),
-  isRead: z.boolean()
+  isRead: z.boolean(),
+  recentViewCount: z.number().optional().default(0)
 })
 
 const clusterFeedSchema = z.object({
   items: z.array(clusterItemSchema),
   hasNext: z.boolean(),
-  nextCursor: z.string().nullable()
+  nextCursor: z.string().nullable(),
+  lastAggregatedAt: z.string().nullish()
 })
 
 export type ClusterItem = z.infer<typeof clusterItemSchema>
@@ -71,10 +73,18 @@ export async function fetchNewsClustersWithFilter(
   return parsed.data
 }
 
-export async function fetchPopularNewsClusters(limit = 5): Promise<ClusterItem[]> {
+export interface PopularNewsResult {
+  items: ClusterItem[]
+  lastAggregatedAt: string | null
+}
+
+export async function fetchPopularNewsClusters(limit = 5): Promise<PopularNewsResult> {
   const response = await baseApi.get('/news/clusters', {
     params: { sort: 'view', size: limit }
   })
   const parsed = apiResponseSchema(clusterFeedSchema).parse(response.data)
-  return parsed.data.items
+  return {
+    items: parsed.data.items,
+    lastAggregatedAt: parsed.data.lastAggregatedAt ?? null
+  }
 }
