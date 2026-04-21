@@ -4,6 +4,7 @@ import type { RankingTab } from '@/features/stock-ranking/lib/ranking-data'
 import StockRankingControls from '@/features/stock-ranking/ui/stock-ranking-controls'
 import StockRankingTable from '@/features/stock-ranking/ui/stock-ranking-table'
 import StockSearchModal from '@/features/stock-search/ui/stock-search-modal'
+import SeoHead from '@/shared/ui/seo-head'
 import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
 function StocksPage() {
@@ -24,6 +25,11 @@ function StocksPage() {
 
   return (
     <StockLayout>
+      <SeoHead
+        title="실시간 투자"
+        description="실시간 거래 랭킹과 모의투자를 경험하세요."
+        path="/stocks"
+      />
       <div className="flex h-[calc(100vh-80px)] flex-col gap-2">
         <div className="shrink-0 rounded-2xl bg-wefin-surface p-5">
           <StockRankingControls

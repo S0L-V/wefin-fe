@@ -6,6 +6,7 @@ import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
 import RecommendedNewsSection from '@/features/recommended-news/ui/recommended-news-section'
 import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
+import SeoHead from '@/shared/ui/seo-head'
 import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
 
 const SIDEBAR_WIDTH_STORAGE_KEY = 'home-sidebar-width'
@@ -48,6 +49,7 @@ function HomePage() {
 
   return (
     <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] lg:flex-row">
+      <SeoHead path="/" />
       <section className="min-w-0 flex-1">
         <div className="flex flex-col gap-[var(--gutter)]">
           <HeroSection />
