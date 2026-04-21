@@ -67,27 +67,7 @@ export default function RecommendedNewsSection() {
           </button>
         </div>
 
-        <div>
-          <h3 className="text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">
-            {heroCard.title}
-          </h3>
-          <p className="mt-2 text-[13px] leading-relaxed text-wefin-text-2 sm:mt-2.5 sm:text-sm">
-            <HighlightedText text={heroCard.summary} />
-          </p>
-          {reasons.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-3.5 sm:gap-2">
-              {reasons.map((reason, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-wefin-surface-2 px-2.5 py-0.5 text-[11px] font-semibold text-wefin-text-2 transition-colors hover:border-wefin-mint-100 hover:bg-wefin-mint-soft hover:text-wefin-mint-deep sm:gap-1.5 sm:px-3 sm:py-1 sm:text-[12.5px]"
-                >
-                  <span className="font-extrabold text-wefin-mint-600">#</span>
-                  {reason}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        <HeroCardBody card={heroCard} reasons={reasons} />
       </div>
 
       {subCards.length > 0 && (
@@ -104,6 +84,41 @@ export default function RecommendedNewsSection() {
       )}
     </section>
   )
+}
+
+function HeroCardBody({ card, reasons }: { card: RecommendedCard; reasons: string[] }) {
+  const content = (
+    <div className="group rounded-xl transition-colors">
+      <h3 className="text-xl font-extrabold leading-tight tracking-tight group-hover:text-wefin-mint-deep sm:text-2xl">
+        {card.title}
+      </h3>
+      <p className="mt-2 text-[13px] leading-relaxed text-wefin-text-2 sm:mt-2.5 sm:text-sm">
+        <HighlightedText text={card.summary} />
+      </p>
+      {reasons.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-3.5 sm:gap-2">
+          {reasons.map((reason, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1 rounded-full border border-wefin-line bg-wefin-surface-2 px-2.5 py-0.5 text-[11px] font-semibold text-wefin-text-2 transition-colors hover:border-wefin-mint-100 hover:bg-wefin-mint-soft hover:text-wefin-mint-deep sm:gap-1.5 sm:px-3 sm:py-1 sm:text-[12.5px]"
+            >
+              <span className="font-extrabold text-wefin-mint-600">#</span>
+              {reason}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+
+  if (card.linkedCluster) {
+    return (
+      <Link to={`/news/${card.linkedCluster.clusterId}`} className="cursor-pointer">
+        {content}
+      </Link>
+    )
+  }
+  return content
 }
 
 function SubCardItem({
