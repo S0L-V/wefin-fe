@@ -1,4 +1,5 @@
-﻿import { Outlet, useLocation } from 'react-router-dom'
+﻿import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 
 import WefinyChatWidget from '@/features/ai-chat/ui/wefini-chat-widget'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
@@ -16,6 +17,15 @@ function AppLayout() {
 
   useGlobalChatBoot(userId)
   useChatUnreadBoot(userId)
+
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_location: window.location.href,
+        page_title: document.title
+      })
+    }
+  }, [location.pathname, location.search])
 
   const shouldShowAiChatWidget =
     location.pathname === routes.home ||
