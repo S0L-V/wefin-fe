@@ -30,8 +30,6 @@ export function useTurnChangeSocket(roomId: string) {
           const data = JSON.parse(message.body)
 
           if (data.type === 'TURN_CHANGE') {
-            console.log('[TURN_CHANGE] invalidating queries for roomId:', roomId)
-
             // 랭킹 invalidate 전에 현재 순위 스냅샷 저장
             const prevRankings = queryClient.getQueryData<RankingsResponse>(
               gameRoomKeys.rankings(roomId)
@@ -42,9 +40,7 @@ export function useTurnChangeSocket(roomId: string) {
             queryClient.invalidateQueries({ queryKey: gameTurnKeys.current(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
-            queryClient
-              .invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
-              .then(() => console.log('[TURN_CHANGE] briefing invalidation complete'))
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
 
             // 랭킹 invalidate 후 새 데이터와 비교
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.rankings(roomId) }).then(() => {
@@ -87,7 +83,6 @@ export function useTurnChangeSocket(roomId: string) {
           }
 
           if (data.type === 'GAME_FINISHED') {
-            console.log('[GAME_FINISHED] roomId:', roomId)
             useGameFinishedStore.getState().setGameFinished()
           }
         } catch {
