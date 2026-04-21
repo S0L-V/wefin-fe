@@ -43,7 +43,7 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
   return (
     <div
       onClick={handleRowClick}
-      className="flex cursor-pointer items-center px-4 py-3.5 transition-colors hover:bg-wefin-bg sm:px-7 sm:py-5"
+      className="flex cursor-pointer items-center px-4 py-3 transition-colors hover:bg-wefin-bg sm:px-5 sm:py-3 xl:px-7 xl:py-4"
     >
       <button
         type="button"
@@ -56,43 +56,45 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
         } ${isPending ? 'opacity-50' : ''}`}
         aria-label={isWatchlisted ? '관심종목 해제' : '관심종목 추가'}
       >
-        <Heart className={`h-5.5 w-5.5 ${isWatchlisted ? 'fill-current' : ''}`} />
+        <Heart className={`h-4 w-4 ${isWatchlisted ? 'fill-current' : ''}`} />
       </button>
-      <div className="w-7 text-[14px] font-extrabold text-wefin-text sm:w-10 sm:text-[17px]">
+      <div className="w-7 text-[13px] font-extrabold text-wefin-text sm:w-7 sm:text-[13px] xl:w-9 xl:text-[15px]">
         {stock.rank}
       </div>
-      <div className="mr-2.5 hidden sm:block sm:mr-4">
-        <StockLogo code={stock.stockCode} name={stock.stockName} size={40} />
+      <div className="mr-2 hidden sm:mr-2.5 sm:block xl:mr-3">
+        <StockLogo code={stock.stockCode} name={stock.stockName} size={28} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-[14px] font-bold text-wefin-text sm:text-[16px]">
+        <span className="truncate text-[13px] font-semibold text-wefin-text sm:text-[13px] xl:text-[14.5px]">
           {stock.stockName}
         </span>
-        <span className="hidden text-[13px] text-wefin-subtle sm:block">{stock.stockCode}</span>
+        <span className="hidden text-[11px] text-wefin-subtle sm:block xl:text-[12px]">
+          {stock.stockCode}
+        </span>
       </div>
-      <div className="flex w-auto flex-col items-end sm:w-40">
-        <span className="font-num text-[14px] font-bold text-wefin-text tabular-nums sm:text-[17px]">
+      <div className="flex w-auto flex-col items-end sm:w-28 xl:w-36">
+        <span className="font-num text-[13px] font-bold text-wefin-text tabular-nums sm:text-[13px] xl:text-[15px]">
           {stock.currentPrice.toLocaleString()}원
         </span>
         <span
-          className={`font-num hidden text-[13.5px] font-medium sm:block ${rateTextColor} tabular-nums`}
+          className={`font-num hidden text-[11px] font-medium sm:block xl:text-[12.5px] ${rateTextColor} tabular-nums`}
         >
           {signedChangeAmount}원
         </span>
       </div>
-      <div className="ml-2 flex w-auto justify-end sm:ml-0 sm:w-36">
+      <div className="ml-2 flex w-auto justify-end sm:ml-0 sm:w-24 xl:w-32">
         <span
-          className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-bold tabular-nums sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-[15px] ${rateTextColor} ${rateBgColor}`}
+          className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold tabular-nums sm:text-[12px] xl:gap-1.5 xl:rounded-lg xl:px-2.5 xl:py-1 xl:text-[13.5px] ${rateTextColor} ${rateBgColor}`}
         >
-          {TrendIcon && <TrendIcon className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />}
+          {TrendIcon && <TrendIcon className="h-3 w-3 xl:h-3.5 xl:w-3.5" />}
           {isUp ? '+' : ''}
           {stock.changeRate.toFixed(2)}%
         </span>
       </div>
-      <div className="font-num ml-2 w-auto text-right text-[12px] font-semibold text-wefin-text tabular-nums sm:ml-0 sm:w-40 sm:text-[15px]">
+      <div className="font-num ml-2 w-auto text-right text-[11px] font-semibold text-wefin-text tabular-nums sm:ml-0 sm:w-28 sm:text-[12px] xl:w-36 xl:text-[13.5px]">
         {formatTradingValue(tradingValue)}
       </div>
-      <div className="font-num hidden w-40 text-right text-[15px] text-wefin-subtle tabular-nums sm:block">
+      <div className="font-num hidden w-28 text-right text-[12px] text-wefin-subtle tabular-nums sm:block xl:w-36 xl:text-[13.5px]">
         {stock.volume.toLocaleString()}
       </div>
     </div>

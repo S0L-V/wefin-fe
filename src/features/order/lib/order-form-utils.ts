@@ -26,8 +26,8 @@ export function getSubmitColor(tab: OrderTab): string {
 
 export function getSubmitLabel(tab: OrderTab, isPending: boolean): string {
   if (isPending) return '처리중...'
-  if (tab === 'buy') return '구매하기'
-  if (tab === 'sell') return '판매하기'
+  if (tab === 'buy') return '매수하기'
+  if (tab === 'sell') return '매도하기'
   return '정정하기'
 }
 

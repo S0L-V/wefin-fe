@@ -97,10 +97,12 @@ function SettingsView() {
 
           <div key={active} className="animate-fade-in">
             {active === 'profile' && (
-              <SettingsProfileSection
-                isLoggedIn={isLoggedIn}
-                emailPlaceholder={localStorage.getItem('email') ?? '로그인된 이메일'}
-              />
+              <div className="max-w-lg">
+                <SettingsProfileSection
+                  isLoggedIn={isLoggedIn}
+                  emailPlaceholder={localStorage.getItem('email') ?? '로그인된 이메일'}
+                />
+              </div>
             )}
 
             {active === 'group' && <SettingsGroupSection isLoggedIn={isLoggedIn} />}

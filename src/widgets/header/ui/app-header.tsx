@@ -302,18 +302,31 @@ function UserMenu({
               <Settings size={16} className="text-wefin-subtle" />
               설정
             </button>
-            <button
-              type="button"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-wefin-text transition-colors hover:bg-wefin-surface-2"
-            >
-              {theme === 'dark' ? (
-                <Sun size={16} className="text-wefin-subtle" />
-              ) : (
-                <Moon size={16} className="text-wefin-subtle" />
-              )}
-              {theme === 'dark' ? '라이트 모드' : '다크 모드'}
-            </button>
+            <div className="flex items-center justify-between px-4 py-2.5">
+              <div className="flex items-center gap-3">
+                {theme === 'dark' ? (
+                  <Moon size={16} className="text-wefin-subtle" />
+                ) : (
+                  <Sun size={16} className="text-wefin-subtle" />
+                )}
+                <span className="text-sm font-medium text-wefin-text">다크 모드</span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={theme === 'dark'}
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                  theme === 'dark' ? 'bg-wefin-mint' : 'bg-wefin-line-2'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-transform ${
+                    theme === 'dark' ? 'translate-x-5.5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setShowLogoutConfirm(true)}

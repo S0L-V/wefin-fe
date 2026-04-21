@@ -1,4 +1,5 @@
-﻿import { Outlet, useLocation } from 'react-router-dom'
+﻿import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 
 import WefinyChatWidget from '@/features/ai-chat/ui/wefini-chat-widget'
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
@@ -17,6 +18,15 @@ function AppLayout() {
   useGlobalChatBoot(userId)
   useChatUnreadBoot(userId)
 
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_location: window.location.href,
+        page_title: document.title
+      })
+    }
+  }, [location.pathname, location.search])
+
   const shouldShowAiChatWidget =
     location.pathname === routes.home ||
     location.pathname === routes.news ||
@@ -25,15 +35,18 @@ function AppLayout() {
     location.pathname.startsWith(`${routes.stocks}/`) ||
     location.pathname === routes.chat
 
+  const isStockDetail = location.pathname.startsWith(`${routes.stocks}/`)
   const isFullWidth =
-    location.pathname === routes.stocks ||
-    location.pathname.startsWith(`${routes.stocks}/`) ||
+    isStockDetail ||
     location.pathname === routes.history ||
     location.pathname.startsWith(`${routes.history}/`)
+  const isCappedWide = location.pathname === routes.stocks
 
   const mainClass = isFullWidth
     ? 'w-full px-4 pt-2 pb-2 max-md:px-3'
-    : 'mx-auto w-[min(1440px,calc(100%-72px))] py-[var(--gutter)] max-md:w-[min(100%,calc(100%-24px))] max-md:py-4'
+    : isCappedWide
+      ? 'mx-auto w-full max-w-[1800px] px-4 pt-2 pb-2 max-md:px-3'
+      : 'mx-auto w-[min(1440px,calc(100%-72px))] py-[var(--gutter)] max-md:w-[min(100%,calc(100%-24px))] max-md:py-4'
 
   return (
     <div className="flex min-h-screen flex-col">

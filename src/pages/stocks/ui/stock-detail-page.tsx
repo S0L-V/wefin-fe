@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { useAccountQuery, useBuyingPowerQuery } from '@/features/account/model/use-account-queries'
 import type { OrderHistoryResponse } from '@/features/order/api/fetch-order'
@@ -23,6 +23,7 @@ type MobileTab = 'chart' | 'orderbook' | 'order'
 
 function StockDetailPage() {
   const { code } = useParams<{ code: string }>()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<DetailTab>('chart')
   const [mobileTab, setMobileTab] = useState<MobileTab>('chart')
 
@@ -58,7 +59,11 @@ function StockDetailPage() {
   }, [])
 
   useStockSocket(code)
-  const { data: price } = useStockPriceQuery(code ?? '')
+  const {
+    data: price,
+    isError: isPriceError,
+    isLoading: isPriceLoading
+  } = useStockPriceQuery(code ?? '')
   const { data: account } = useAccountQuery()
   const { data: buyingPower } = useBuyingPowerQuery(price?.currentPrice ?? 0)
   const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolioQuery()
@@ -95,6 +100,53 @@ function StockDetailPage() {
   }, [])
 
   if (!code) return null
+
+  if (isPriceError && !isPriceLoading) {
+    return (
+      <StockLayout sidebarWidth="narrow">
+        <div className="flex min-h-[60dvh] flex-col items-center justify-center px-6 text-center">
+          <svg
+            width="120"
+            height="80"
+            viewBox="0 0 120 80"
+            fill="none"
+            className="mb-4 text-wefin-muted"
+          >
+            <polyline
+              points="10,20 30,30 50,25 70,50 90,45 110,65"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <line
+              x1="60"
+              y1="0"
+              x2="60"
+              y2="80"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeDasharray="4 3"
+              opacity="0.3"
+            />
+          </svg>
+          <h2 className="text-lg font-extrabold text-wefin-text">존재하지 않는 종목입니다</h2>
+          <p className="mt-1.5 text-sm text-wefin-subtle">
+            종목코드 <span className="font-bold text-wefin-text">{code}</span>에 해당하는 종목을
+            찾을 수 없어요.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/stocks')}
+            className="mt-6 rounded-xl bg-wefin-mint px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-wefin-mint-deep"
+          >
+            종목 목록으로
+          </button>
+        </div>
+      </StockLayout>
+    )
+  }
 
   return (
     <StockLayout sidebarWidth="narrow">
