@@ -8,6 +8,10 @@ import { getTimeAgo } from '@/features/news-feed/lib/get-time-ago'
 import { usePopularNewsQuery } from '@/features/news-feed/model/use-popular-news-query'
 
 const ROTATE_INTERVAL_MS = 5000
+// 수동 선택 후 자동 회전 재개까지 기다리는 시간.
+// 사용자가 선택한 뉴스를 충분히 읽을 수 있도록 확보하되, 너무 오래 고정되면
+// 자동 회전 UX 가 유명무실해지므로 15초로 타협.
+const PIN_RESUME_MS = 15000
 
 function HeroSection() {
   const { data, isLoading } = usePopularNewsQuery(5)
@@ -15,8 +19,8 @@ function HeroSection() {
   const lastAggregatedAt = data?.lastAggregatedAt ?? null
 
   const [activeIndex, setActiveIndex] = useState(0)
-  // 사용자가 특정 순위를 수동 선택하면 pin — 자동 회전 중단
-  // (매 interval tick 마다 활성 순위가 바뀌어 사용자가 읽던 뉴스를 놓치는 문제 방지)
+  // 사용자가 특정 순위를 수동 선택하면 pin — 자동 회전 중단 (매 interval tick 마다 활성 순위가
+  // 바뀌어 사용자가 읽던 뉴스를 놓치는 문제 방지). 일정 시간 후 자동 해제돼 회전 복귀.
   const [isPinned, setIsPinned] = useState(false)
 
   // 자동 회전 — 아이템이 2개 이상이고 pin 이 아닐 때만. pin 이 true 로 바뀌면
@@ -28,6 +32,14 @@ function HeroSection() {
     }, ROTATE_INTERVAL_MS)
     return () => window.clearInterval(id)
   }, [items.length, isPinned])
+
+  // pin 이 true 가 되면 PIN_RESUME_MS 뒤 자동 해제. activeIndex 가 바뀌면(= 다른 랭킹 재선택)
+  // 이 effect 가 재실행되면서 이전 타이머를 cleanup 으로 정리하고 새 타이머를 시작 → 타이머 reset 효과.
+  useEffect(() => {
+    if (!isPinned) return
+    const t = window.setTimeout(() => setIsPinned(false), PIN_RESUME_MS)
+    return () => window.clearTimeout(t)
+  }, [isPinned, activeIndex])
 
   function handleManualSelect(idx: number) {
     setActiveIndex(idx)
