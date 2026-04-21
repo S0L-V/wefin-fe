@@ -1,0 +1,121 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b8577"/>
+      <stop offset="55%" stop-color="#14b8a6"/>
+      <stop offset="110%" stop-color="#5fd3be"/>
+    </linearGradient>
+    <linearGradient id="chart-line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0.4)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
+    </linearGradient>
+    <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.12)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Grain overlay -->
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="1200" height="630" filter="url(#grain)" opacity="0.04"/>
+
+  <!-- Grid lines -->
+  <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="430" x2="1200" y2="430"/>
+    <line x1="300" y1="100" x2="300" y2="580"/>
+    <line x1="600" y1="100" x2="600" y2="580"/>
+    <line x1="900" y1="100" x2="900" y2="580"/>
+  </g>
+
+  <!-- Chart line 1 (main) -->
+  <polyline
+    points="80,420 150,400 220,410 300,350 380,370 460,310 540,330 620,280 700,250 780,270 860,220 940,180 1020,200 1100,160"
+    fill="none"
+    stroke="rgba(255,255,255,0.35)"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- Chart area fill -->
+  <polygon
+    points="80,420 150,400 220,410 300,350 380,370 460,310 540,330 620,280 700,250 780,270 860,220 940,180 1020,200 1100,160 1100,530 80,530"
+    fill="url(#chart-fill)"
+  />
+
+  <!-- Chart line 2 (secondary) -->
+  <polyline
+    points="80,380 180,390 280,360 380,380 480,340 580,360 680,320 780,340 880,300 980,280 1080,260"
+    fill="none"
+    stroke="rgba(255,255,255,0.15)"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-dasharray="8 6"
+  />
+
+  <!-- Candlesticks -->
+  <g opacity="0.2">
+    <!-- Green candles (up) -->
+    <rect x="180" y="350" width="8" height="40" rx="1" fill="rgba(52,211,153,0.8)"/>
+    <line x1="184" y1="340" x2="184" y2="395" stroke="rgba(52,211,153,0.6)" stroke-width="1.5"/>
+    <rect x="340" y="320" width="8" height="35" rx="1" fill="rgba(52,211,153,0.8)"/>
+    <line x1="344" y1="310" x2="344" y2="360" stroke="rgba(52,211,153,0.6)" stroke-width="1.5"/>
+    <rect x="660" y="240" width="8" height="30" rx="1" fill="rgba(52,211,153,0.8)"/>
+    <line x1="664" y1="230" x2="664" y2="275" stroke="rgba(52,211,153,0.6)" stroke-width="1.5"/>
+    <rect x="900" y="170" width="8" height="35" rx="1" fill="rgba(52,211,153,0.8)"/>
+    <line x1="904" y1="160" x2="904" y2="210" stroke="rgba(52,211,153,0.6)" stroke-width="1.5"/>
+
+    <!-- Red candles (down) -->
+    <rect x="260" y="370" width="8" height="30" rx="1" fill="rgba(248,113,113,0.7)"/>
+    <line x1="264" y1="360" x2="264" y2="405" stroke="rgba(248,113,113,0.5)" stroke-width="1.5"/>
+    <rect x="500" y="300" width="8" height="25" rx="1" fill="rgba(248,113,113,0.7)"/>
+    <line x1="504" y1="290" x2="504" y2="330" stroke="rgba(248,113,113,0.5)" stroke-width="1.5"/>
+    <rect x="820" y="230" width="8" height="30" rx="1" fill="rgba(248,113,113,0.7)"/>
+    <line x1="824" y1="220" x2="824" y2="265" stroke="rgba(248,113,113,0.5)" stroke-width="1.5"/>
+  </g>
+
+  <!-- Dot on chart end -->
+  <circle cx="1100" cy="160" r="6" fill="white" opacity="0.5"/>
+  <circle cx="1100" cy="160" r="3" fill="white" opacity="0.9"/>
+
+  <!-- Logo W (actual wefin logo) -->
+  <g transform="translate(100, 180) scale(2.5)">
+    <path
+      d="M2 6C2 6 3.5 6 5 13C6.5 20 7.5 20 9 13C10.5 6 11 6 11.5 6C12 6 13 6 14 14C15 22 16.5 20 18 13C19.5 6 22 5 22 5"
+      stroke="white"
+      stroke-width="3"
+      stroke-linecap="round"
+      fill="none"
+    />
+    <circle cx="22" cy="5" r="1.5" fill="white"/>
+  </g>
+
+  <!-- Title -->
+  <text x="155" y="230" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="800" fill="white" letter-spacing="-1">
+    efin
+  </text>
+
+  <!-- Tagline -->
+  <text x="102" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="500" fill="rgba(255,255,255,0.85)" letter-spacing="0.5">
+    과거에서 배우고, 현재에 투자하는
+  </text>
+
+  <!-- Sub description -->
+  <text x="102" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="400" fill="rgba(255,255,255,0.6)">
+    실시간 모의투자 트레이딩 시스템
+  </text>
+
+  <!-- URL -->
+  <text x="102" y="520" font-family="monospace" font-size="16" font-weight="600" fill="rgba(255,255,255,0.4)" letter-spacing="1">
+    www.wefin.ai.kr
+  </text>
+</svg>
