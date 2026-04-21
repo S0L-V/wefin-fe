@@ -20,8 +20,10 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
     let timerId: ReturnType<typeof setTimeout> | null = null
 
     const unsub = useVoteStore.subscribe((state, prev) => {
-      // passed로 바뀌는 순간 → 로딩 시작
+      // passed로 바뀌는 순간 → 로딩 시작 + 이전 타이머 취소
       if (state.result === 'passed' && prev.result !== 'passed') {
+        if (timerId) clearTimeout(timerId)
+        timerId = null
         setShowLoading(true)
       }
       // passed → null (모달 닫힘) → 1초 후 로딩 종료 + 번쩍
