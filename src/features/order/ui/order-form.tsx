@@ -37,8 +37,8 @@ interface OrderFormProps {
 }
 
 const ORDER_TABS: SegmentedTabItem<OrderTab>[] = [
-  { key: 'buy', label: '구매', tone: 'red' },
-  { key: 'sell', label: '판매', tone: 'blue' },
+  { key: 'buy', label: '매수', tone: 'red' },
+  { key: 'sell', label: '매도', tone: 'blue' },
   { key: 'modify', label: '정정', tone: 'gray' }
 ]
 
@@ -287,7 +287,7 @@ export default function OrderForm({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-wefin-text">
-              {activeTab === 'sell' ? '판매 가격' : '구매 가격'}
+              {activeTab === 'sell' ? '매도 가격' : '매수 가격'}
             </span>
             <SegmentedTabs
               items={PRICE_MODE_TABS}
@@ -318,7 +318,7 @@ export default function OrderForm({
         <div className="space-y-1.5 border-t border-wefin-line pt-3 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-wefin-subtle">
-              {activeTab === 'sell' ? '보유 수량' : '구매가능 금액'}
+              {activeTab === 'sell' ? '보유 수량' : '매수가능 금액'}
             </span>
             <span className="font-semibold text-wefin-text">
               {activeTab === 'sell'

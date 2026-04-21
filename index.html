@@ -5,9 +5,8 @@
     <script>
       window.global = window
       ;(function () {
-        var t = localStorage.getItem('theme') || 'system'
-        var d =
-          t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme:dark)').matches)
+        var t = localStorage.getItem('theme') || 'light'
+        var d = t === 'dark'
         if (d) document.documentElement.classList.add('dark')
       })()
     </script>

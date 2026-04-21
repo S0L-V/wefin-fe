@@ -128,10 +128,10 @@
   #root {
     margin: 0;
     min-height: 100%;
-    overflow-x: hidden;
   }
 
   html {
+    overflow-x: hidden;
     scroll-padding-top: calc(var(--app-header-height) + 16px);
   }
 
@@ -243,6 +243,12 @@
     }
     100% {
       box-shadow: 0 0 0 12px rgba(20, 184, 166, 0);
+    }
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
     }
   }
 }
