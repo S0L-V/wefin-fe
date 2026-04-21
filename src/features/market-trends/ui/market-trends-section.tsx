@@ -281,9 +281,11 @@ function PersonalizedTrendButton({ analyzed, loading, onClick }: PersonalizedTre
             - loading 중엔 스피너와 겹치니 비활성 */}
         {!loading && (
           <>
+            {/* motion-reduce: prefers-reduced-motion 환경에선 애니메이션과 opacity 를 함께 죽여
+                블러 blob 이 정지 상태로 얹혀있는 어색함까지 제거 */}
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute left-[-30%] top-[-50%] h-[200%] w-[60%] animate-[toss-shine_2.5s_ease-in-out_infinite] blur-[6px]"
+              className="pointer-events-none absolute left-[-30%] top-[-50%] h-[200%] w-[60%] animate-[toss-shine_2.5s_ease-in-out_infinite] blur-[6px] motion-reduce:animate-none motion-reduce:opacity-0"
               style={{
                 background:
                   'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%)'
@@ -291,7 +293,7 @@ function PersonalizedTrendButton({ analyzed, loading, onClick }: PersonalizedTre
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute left-[-30%] top-[-50%] h-[200%] w-[60%] animate-[toss-shine_2.5s_ease-in-out_infinite] blur-[6px] opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100"
+              className="pointer-events-none absolute left-[-30%] top-[-50%] h-[200%] w-[60%] animate-[toss-shine_2.5s_ease-in-out_infinite] blur-[6px] opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100 motion-reduce:animate-none motion-reduce:group-hover/btn:opacity-0"
               style={{
                 background:
                   'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)'

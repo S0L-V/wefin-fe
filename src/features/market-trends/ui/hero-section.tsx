@@ -108,8 +108,9 @@ function HeroLeft({ active, others }: { active: ClusterItem; others: ClusterItem
   )
 }
 
-function LiveBadge({ publishedAt }: { publishedAt: string | null }) {
-  const timeLabel = publishedAt ? getTimeAgo(publishedAt) : ''
+// publishedAt 은 clusterItemSchema 에서 z.string() 으로 non-null 보장됨
+function LiveBadge({ publishedAt }: { publishedAt: string }) {
+  const timeLabel = getTimeAgo(publishedAt)
   return (
     <div
       className="inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-medium text-white"
@@ -119,7 +120,7 @@ function LiveBadge({ publishedAt }: { publishedAt: string | null }) {
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
         <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-white" />
       </span>
-      AI 요약{timeLabel ? ` \u00B7 ${timeLabel} 기준` : ''} · 이 시각 주요 뉴스
+      AI 요약 · {timeLabel} 기준 · 이 시각 주요 뉴스
     </div>
   )
 }
@@ -129,7 +130,7 @@ function HeroMeta({ active, others }: { active: ClusterItem; others: ClusterItem
     .slice(0, 3)
     .map((c) => c.title)
     .join(', ')
-  const timeAgo = active.publishedAt ? getTimeAgo(active.publishedAt) : ''
+  const timeAgo = getTimeAgo(active.publishedAt)
   const parts = [
     contextTitles,
     timeAgo,
