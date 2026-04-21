@@ -57,7 +57,12 @@ export default function ClusterDetailContent() {
 
   return (
     <div className="overflow-hidden rounded-2xl bg-wefin-surface p-4 sm:rounded-3xl sm:p-8">
-      <SeoHead title={cluster.title} description={cluster.summary} path={`/news/${clusterId}`} />
+      <SeoHead
+        title={cluster.title}
+        description={cluster.summary}
+        path={`/news/${clusterId}`}
+        type="article"
+      />
       <ClusterDetailHeader cluster={cluster} />
       <ClusterDetailSections sections={cluster.sections} articleContent={cluster.articleContent} />
       <ClusterDetailFooter cluster={cluster} />
