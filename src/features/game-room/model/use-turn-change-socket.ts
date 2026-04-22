@@ -41,6 +41,16 @@ export function useTurnChangeSocket(roomId: string) {
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
+            queryClient.invalidateQueries({ queryKey: ['stockSearch', roomId] })
+            queryClient.invalidateQueries({ queryKey: ['sectorStocks', roomId] })
+
+            // 선택된 종목이 있으면 차트도 갱신
+            const selectedSymbol = useSelectedStockStore.getState().selectedStock?.symbol
+            if (selectedSymbol) {
+              queryClient.invalidateQueries({
+                queryKey: gameRoomKeys.stockChart(selectedSymbol, roomId)
+              })
+            }
 
             // 랭킹 invalidate 후 새 데이터와 비교
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.rankings(roomId) }).then(() => {
@@ -67,23 +77,10 @@ export function useTurnChangeSocket(roomId: string) {
               }
 
               if (changes.length > 0) {
-                // 상승(delta 큰 순) 먼저, 같으면 새 순위 낮은 순
                 changes.sort((a, b) => b.delta - a.delta || a.newRank - b.newRank)
                 useRankChangeStore.getState().setRankChanges(changes)
               }
             })
-
-            // 종목 검색·브라우징 결과 갱신 (턴 전환 → 가격 변경)
-            queryClient.invalidateQueries({ queryKey: ['stockSearch', roomId] })
-            queryClient.invalidateQueries({ queryKey: ['sectorStocks', roomId] })
-
-            // 선택된 종목이 있으면 차트도 갱신 (턴 전환 → 종가 변경)
-            const selectedSymbol = useSelectedStockStore.getState().selectedStock?.symbol
-            if (selectedSymbol) {
-              queryClient.invalidateQueries({
-                queryKey: gameRoomKeys.stockChart(selectedSymbol, roomId)
-              })
-            }
           }
 
           if (data.type === 'GAME_FINISHED') {

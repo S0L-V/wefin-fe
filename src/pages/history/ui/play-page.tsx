@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Group, Panel, Separator } from 'react-resizable-panels'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import GroupChatRoom from '@/features/chat/ui/group-chat-room'
@@ -55,6 +56,17 @@ function PlayPage() {
   }, [isGameFinished, roomId, navigate, resetGameFinished])
 
   const [mobileTab, setMobileTab] = useState<'chart' | 'order' | 'chat'>('chart')
+  const [showScanline, setShowScanline] = useState(false)
+
+  // 투표 통과 → 모달 닫힘 시 스캔라인 + 블러 와이프 효과
+  useEffect(() => {
+    const unsub = useVoteStore.subscribe((state, prev) => {
+      if (prev.result === 'passed' && state.result === null) {
+        setShowScanline(true)
+      }
+    })
+    return unsub
+  }, [])
 
   if (!roomId) {
     return <div className="py-20 text-center text-wefin-subtle">잘못된 접근입니다</div>
@@ -91,11 +103,110 @@ function PlayPage() {
 
   return (
     <>
+      {/* 턴 전환 — 타임머신 시계 포탈 */}
+      {showScanline && (
+        <div
+          className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center"
+          onAnimationEnd={(e) => {
+            if ((e.target as HTMLElement).dataset.portalEnd) setShowScanline(false)
+          }}
+        >
+          {/* 어두운 배경 */}
+          <div className="animate-[warp-bg_2.5s_ease-in-out_forwards] absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+          {/* 포탈 글로우 — 시계 뒤 빛 */}
+          <div className="animate-[portal-glow_2.5s_ease-in-out_forwards] absolute h-52 w-52 rounded-full bg-wefin-mint/20 opacity-0 shadow-[0_0_60px_30px_rgba(20,184,166,0.3)]" />
+
+          {/* 시계 본체 */}
+          <svg
+            viewBox="0 0 200 200"
+            className="animate-[portal-clock_2.5s_ease-in-out_forwards] absolute h-44 w-44 opacity-0"
+          >
+            {/* 포탈 외곽 링 */}
+            <circle
+              cx="100"
+              cy="100"
+              r="94"
+              fill="none"
+              stroke="rgba(20,184,166,0.6)"
+              strokeWidth="2.5"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="88"
+              fill="rgba(20,184,166,0.05)"
+              stroke="rgba(20,184,166,0.3)"
+              strokeWidth="1"
+            />
+
+            {/* 12시간 눈금 */}
+            {Array.from({ length: 12 }, (_, i) => {
+              const angle = (i * 30 - 90) * (Math.PI / 180)
+              const isMain = i % 3 === 0
+              const r1 = isMain ? 74 : 78
+              const r2 = 84
+              return (
+                <line
+                  key={i}
+                  x1={100 + r1 * Math.cos(angle)}
+                  y1={100 + r1 * Math.sin(angle)}
+                  x2={100 + r2 * Math.cos(angle)}
+                  y2={100 + r2 * Math.sin(angle)}
+                  stroke="rgba(20,184,166,0.7)"
+                  strokeWidth={isMain ? 2.5 : 1}
+                  strokeLinecap="round"
+                />
+              )
+            })}
+
+            {/* 시침 — 빠르게 회전 */}
+            <line
+              x1="100"
+              y1="100"
+              x2="100"
+              y2="52"
+              stroke="#14b8a6"
+              strokeWidth="3"
+              strokeLinecap="round"
+              style={{
+                transformOrigin: '100px 100px',
+                animation: 'clock-hand-hour 2.5s ease-in-out forwards'
+              }}
+            />
+
+            {/* 분침 — 더 빠르게 회전 */}
+            <line
+              x1="100"
+              y1="100"
+              x2="100"
+              y2="38"
+              stroke="#14b8a6"
+              strokeWidth="2"
+              strokeLinecap="round"
+              style={{
+                transformOrigin: '100px 100px',
+                animation: 'clock-hand-min 2.5s ease-in-out forwards'
+              }}
+            />
+
+            {/* 중앙 점 */}
+            <circle cx="100" cy="100" r="4" fill="#14b8a6" />
+          </svg>
+
+          {/* 종료 감지 */}
+          <div
+            data-portal-end="true"
+            className="animate-[warp-bg_2.5s_ease-in-out_forwards] absolute"
+          />
+        </div>
+      )}
+
       {/* 데스크탑 레이아웃 */}
       <div className="fixed inset-0 top-[56px] z-10 hidden flex-col overflow-hidden bg-wefin-bg xl:flex">
         <div className="flex min-h-0 flex-1 gap-1.5 p-1.5 xl:gap-2 xl:p-2">
           <div className="flex min-w-0 flex-[1] flex-col gap-1.5 xl:gap-2">
-            <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
+            <div className="min-h-0 flex-[1.5] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <StockChart roomId={roomId} />
             </div>
             <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
@@ -103,13 +214,22 @@ function PlayPage() {
             </div>
           </div>
 
-          <div className="flex min-w-[280px] flex-[0.65] flex-col gap-1.5 overflow-hidden xl:min-w-0 xl:flex-[0.7] xl:gap-2">
-            <div className="min-h-0 flex-[1.3] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
-              <OrderPanel roomId={roomId} cash={cash} />
-            </div>
-            <div className="min-h-0 flex-[1] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
-              <HoldingsPanel roomId={roomId} />
-            </div>
+          <div className="min-w-0 flex-[0.7]">
+            <Group orientation="vertical" id="play-order-holdings">
+              <Panel defaultSize={60} minSize={25}>
+                <div className="h-full overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
+                  <OrderPanel roomId={roomId} cash={cash} />
+                </div>
+              </Panel>
+              <Separator className="group flex h-2 items-center justify-center">
+                <div className="h-0.5 w-10 rounded-full bg-wefin-line-2 transition-colors group-hover:bg-wefin-mint group-active:bg-wefin-mint" />
+              </Separator>
+              <Panel defaultSize={40} minSize={20}>
+                <div className="h-full overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
+                  <HoldingsPanel roomId={roomId} />
+                </div>
+              </Panel>
+            </Group>
           </div>
 
           <div className="flex min-w-[240px] max-w-[340px] flex-[0.4] flex-col gap-1.5 xl:min-w-[260px] xl:max-w-[380px] xl:flex-[0.45] xl:gap-2">

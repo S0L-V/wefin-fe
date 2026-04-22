@@ -48,7 +48,7 @@ function StockSearch({ roomId }: StockSearchProps) {
   }, [])
 
   function handleSelect(stock: StockSearchItem) {
-    selectStock(stock)
+    selectStock(stock, 'order')
     setKeyword(stock.stockName)
     setIsOpen(false)
   }
