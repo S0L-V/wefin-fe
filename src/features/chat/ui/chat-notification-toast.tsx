@@ -50,7 +50,8 @@ export function showChatInAppToast(payload: ChatUnreadNotification) {
       </div>
     ),
     {
-      duration: TOAST_DURATION
+      duration: TOAST_DURATION,
+      position: 'bottom-left'
     }
   )
 }

@@ -74,8 +74,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const loadOlderMessages = useGlobalChatStore((state) => state.loadOlderMessages)
   const visibleGlobalUnreadLine = useChatUnreadStore((state) => state.visibleGlobalUnreadLine)
   const visibleGlobalReadMessageId = useChatUnreadStore((state) => state.visibleGlobalReadMessageId)
+  const dismissUnreadLine = useChatUnreadStore((state) => state.dismissUnreadLine)
   const isLoggedIn = !!authUserId
-  const canSendMessage = isLoggedIn && !!client?.connected
+  const canSendMessage = isLoggedIn && !!client?.connected && !!userId
 
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
   const firstUnreadIndex = useMemo(() => {
@@ -153,6 +154,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
     const trimmedMessage = message.trim()
     if (!trimmedMessage || !canSendMessage) return
 
+    dismissUnreadLine('GLOBAL')
     sendMessage(trimmedMessage)
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setMessage('')
@@ -161,6 +163,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const handleSendEmoji = (emojiCode: keyof typeof emojiMap) => {
     if (!canSendMessage) return
 
+    dismissUnreadLine('GLOBAL')
     sendMessage(emojiCode)
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setIsEmojiPickerOpen(false)
@@ -169,7 +172,23 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const handleScroll = async () => {
     const container = scrollContainerRef.current
 
-    if (!container || container.scrollTop > 80 || !hasNext || isLoadingOlder) {
+    if (!container) {
+      return
+    }
+
+    if (visibleGlobalUnreadLine && unreadDividerRef.current) {
+      const containerRect = container.getBoundingClientRect()
+      const dividerRect = unreadDividerRef.current.getBoundingClientRect()
+      const isPastUnreadLine = dividerRect.bottom <= containerRect.top
+      const isNearBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight <= 24
+
+      if (isPastUnreadLine || isNearBottom) {
+        dismissUnreadLine('GLOBAL')
+      }
+    }
+
+    if (container.scrollTop > 80 || !hasNext || isLoadingOlder) {
       return
     }
 
