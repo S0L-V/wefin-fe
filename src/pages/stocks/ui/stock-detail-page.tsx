@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { useAccountQuery, useBuyingPowerQuery } from '@/features/account/model/use-account-queries'
 import type { OrderHistoryResponse } from '@/features/order/api/fetch-order'
+import { usePendingOrdersQuery } from '@/features/order/model/use-order-queries'
 import OrderForm from '@/features/order/ui/order-form'
 import PendingOrdersPanel from '@/features/order/ui/pending-orders-panel'
 import { usePortfolioQuery } from '@/features/portfolio/model/use-portfolio-queries'
@@ -20,15 +21,15 @@ import { routes } from '@/shared/config/routes'
 import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
 type MobileTab = 'chart' | 'orderbook' | 'order' | 'info' | 'news'
+type RightPanelTab = 'holdings' | 'pending'
 
 function StockDetailPage() {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<DetailTab>('chart')
   const [mobileTab, setMobileTab] = useState<MobileTab>('chart')
+  const [rightTab, setRightTab] = useState<RightPanelTab>('holdings')
 
-  const [orderbookW, setOrderbookW] = useState(340)
-  const [orderW, setOrderW] = useState(340)
   const [chartRatio, setChartRatio] = useState(0.55)
   const [chartH, setChartH] = useState(360)
   const chartColumnRef = useRef<HTMLDivElement>(null)
@@ -67,15 +68,8 @@ function StockDetailPage() {
   const { data: account } = useAccountQuery()
   const { data: buyingPower } = useBuyingPowerQuery(price?.currentPrice ?? 0)
   const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolioQuery()
+  const { data: pendingOrders = [] } = usePendingOrdersQuery()
 
-  const handleResize1 = useCallback(
-    (delta: number) => setOrderbookW((w) => Math.max(320, Math.min(440, w - delta))),
-    []
-  )
-  const handleResize2 = useCallback(
-    (delta: number) => setOrderW((w) => Math.max(320, Math.min(440, w - delta))),
-    []
-  )
   useEffect(() => {
     const el = chartColumnRef.current
     if (!el) return
@@ -156,11 +150,14 @@ function StockDetailPage() {
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        <div className="flex min-h-0 flex-1">
-          <div className="flex min-w-0 flex-1">
+        <div className="flex min-h-0 flex-1 gap-2">
+          <div className="flex min-w-0 flex-[1] flex-col">
             {activeTab === 'chart' && (
-              <>
-                <div ref={chartColumnRef} className="flex min-w-0 flex-1 flex-col overflow-hidden">
+              <div className="flex min-h-0 flex-1 gap-2">
+                <div
+                  ref={chartColumnRef}
+                  className="flex min-w-0 flex-[1] flex-col overflow-hidden"
+                >
                   <div
                     className="shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
                     style={{ height: chartH }}
@@ -173,19 +170,14 @@ function StockDetailPage() {
                   </div>
                 </div>
 
-                <ResizeHandle onResize={handleResize1} />
-
-                <div
-                  className="relative shrink-0 overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
-                  style={{ width: orderbookW }}
-                >
+                <div className="relative min-w-0 flex-[0.35] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
                   <OrderbookPanel
                     code={code}
                     onPriceClick={isLoggedIn ? setPriceFromOrderbook : undefined}
                   />
                   {!isLoggedIn && <BlurOverlay />}
                 </div>
-              </>
+              </div>
             )}
 
             {activeTab === 'info' && (
@@ -201,12 +193,7 @@ function StockDetailPage() {
             )}
           </div>
 
-          <ResizeHandle onResize={handleResize2} />
-
-          <div
-            className="relative flex shrink-0 flex-col gap-2 overflow-y-auto"
-            style={{ width: orderW }}
-          >
+          <div className="relative flex min-w-0 flex-[0.3] flex-col gap-2 overflow-y-auto">
             <div className="rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderForm
                 key={`${code}-${modifyTarget?.ts ?? 0}`}
@@ -223,21 +210,51 @@ function StockDetailPage() {
                 modifyTarget={modifyTarget?.order ?? null}
               />
             </div>
-            <div className="flex min-h-0 flex-1 flex-col gap-2">
-              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-wefin-surface">
-                <div className="flex w-full flex-col overflow-y-auto">
+            <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-wefin-line bg-wefin-surface">
+              <div className="flex shrink-0 gap-1 border-b border-wefin-line px-3 pt-2">
+                {[
+                  {
+                    key: 'holdings' as RightPanelTab,
+                    label: '보유',
+                    count: portfolio?.length ?? 0
+                  },
+                  { key: 'pending' as RightPanelTab, label: '미체결', count: pendingOrders.length }
+                ].map(({ key, label, count }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setRightTab(key)}
+                    className={`flex items-center gap-1 border-b-2 px-2 pb-2 text-sm font-bold transition-colors ${
+                      rightTab === key
+                        ? 'border-wefin-mint text-wefin-text'
+                        : 'border-transparent text-wefin-subtle hover:text-wefin-text'
+                    }`}
+                  >
+                    {label}
+                    {count > 0 && (
+                      <span
+                        className={`text-xs font-bold tabular-nums ${
+                          key === 'holdings' ? 'text-wefin-mint-deep' : 'text-amber-500'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                {rightTab === 'holdings' ? (
                   <HoldingsPanel
                     currentStockCode={code}
                     portfolio={portfolio}
                     isLoading={isPortfolioLoading}
                     balance={account?.balance}
+                    hideHeader
                   />
-                </div>
-              </div>
-              <div className="flex min-h-0 flex-1 rounded-xl border border-wefin-line bg-wefin-surface">
-                <div className="flex w-full flex-col overflow-y-auto">
-                  <PendingOrdersPanel currentStockCode={code} onModify={handleModify} />
-                </div>
+                ) : (
+                  <PendingOrdersPanel currentStockCode={code} onModify={handleModify} hideHeader />
+                )}
               </div>
             </div>
             <Link
