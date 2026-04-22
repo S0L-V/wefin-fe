@@ -1,4 +1,4 @@
-import { ChevronRight, Clock, Play, Users } from 'lucide-react'
+import { ChevronRight, Clock, Play, Trophy, Users } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 

@@ -25,7 +25,7 @@ export default function RankBadge({ rank, size = 'md' }: RankBadgeProps) {
   const sizeClass = size === 'sm' ? 'h-6 w-6' : 'h-10 w-10'
   const fontSize = size === 'sm' ? 'text-[11px]' : 'text-[16px]'
 
-  if (rank != null && rank >= 1 && rank <= 3) {
+  if (rank != null && Number.isInteger(rank) && rank >= 1 && rank <= 3) {
     const s = RANK_STYLES[rank - 1]
     return (
       <div

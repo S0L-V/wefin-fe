@@ -29,8 +29,10 @@ jobs:
         run: |
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
             API_URL="${{ secrets.PROD_API_URL }}"
+            TOSS_CLIENT_KEY="${{ secrets.PROD_TOSS_CLIENT_KEY }}"
           else
             API_URL="${{ secrets.DEV_API_URL }}"
+            TOSS_CLIENT_KEY="${{ secrets.DEV_TOSS_CLIENT_KEY }}"
           fi
 
           if [ -z "$API_URL" ]; then
@@ -38,19 +40,18 @@ jobs:
             exit 1
           fi
 
+          if [ -z "$TOSS_CLIENT_KEY" ]; then
+            echo "ERROR: TOSS_CLIENT_KEY secret is missing for branch ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+
           API_URL="${API_URL%/}"
           WS_ORIGIN="${API_URL%/api}"
-
-          if [ "${GITHUB_REF_NAME}" = "main" ]; then
-            TOSS_KEY="${{ secrets.PROD_TOSS_CLIENT_KEY }}"
-          else
-            TOSS_KEY="${{ secrets.DEV_TOSS_CLIENT_KEY }}"
-          fi
 
           {
             echo "VITE_API_BASE_URL=$API_URL"
             echo "VITE_WS_URL=$WS_ORIGIN/ws"
-            echo "VITE_TOSS_CLIENT_KEY=$TOSS_KEY"
+            echo "VITE_TOSS_CLIENT_KEY=$TOSS_CLIENT_KEY"
           } > .env.production
 
       - name: Build
