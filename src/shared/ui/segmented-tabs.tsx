@@ -62,7 +62,7 @@ export default function SegmentedTabs<T extends string>({
   return (
     <div
       ref={containerRef}
-      className={`relative inline-flex items-center bg-wefin-line/50 p-1 ${containerRadius}`}
+      className={`relative inline-flex items-center whitespace-nowrap bg-wefin-line/50 p-1 ${containerRadius}`}
       role="tablist"
     >
       <span

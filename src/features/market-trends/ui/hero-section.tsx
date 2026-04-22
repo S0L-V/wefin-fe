@@ -78,7 +78,7 @@ function HeroSection() {
       >
         <HeroLeft active={active} others={others} />
 
-        <div className="hidden md:flex">
+        <div className="hidden xl:flex">
           <HeroRanking
             items={items}
             activeIndex={safeIndex}

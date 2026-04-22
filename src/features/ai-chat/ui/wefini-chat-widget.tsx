@@ -375,7 +375,7 @@ export default function WefinyChatWidget() {
 
       {isOpen && (
         <div
-          className={`fixed right-6 bottom-[88px] z-30 flex flex-col overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm transition-all duration-300 max-md:right-3 max-md:bottom-[80px] max-md:h-[72vh] max-md:w-[calc(100vw-24px)] ${expanded ? 'h-[80vh] w-[480px]' : 'h-[620px] w-[380px]'}`}
+          className={`fixed right-6 bottom-[88px] z-30 flex max-h-[calc(100dvh-108px)] flex-col overflow-hidden rounded-2xl border border-wefin-line bg-wefin-surface shadow-sm transition-all duration-300 max-md:right-3 max-md:bottom-[80px] max-md:h-[72vh] max-md:w-[calc(100vw-24px)] ${expanded ? 'h-[80vh] w-[480px]' : 'h-[620px] w-[380px]'}`}
         >
           <div className="flex items-center justify-between border-b border-wefin-line bg-gradient-to-r from-wefin-mint-soft/40 to-transparent px-4 py-3">
             <div className="flex items-center gap-2.5">

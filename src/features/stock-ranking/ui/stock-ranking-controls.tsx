@@ -32,7 +32,14 @@ export default function StockRankingControls({
           </span>
         </button>
       </div>
-      <SegmentedTabs items={RANKING_TABS} activeKey={activeTab} onChange={onTabChange} size="md" />
+      <div className="overflow-x-auto scrollbar-thin">
+        <SegmentedTabs
+          items={RANKING_TABS}
+          activeKey={activeTab}
+          onChange={onTabChange}
+          size="md"
+        />
+      </div>
     </div>
   )
 }

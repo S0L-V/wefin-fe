@@ -30,7 +30,7 @@ function GameWaitingRoom({
       <div className="mx-auto max-w-[1100px] py-8">
         <div className="h-6 w-36 animate-pulse rounded-lg bg-wefin-line" />
         <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-wefin-surface-2" />
-        <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <div className="mt-5 grid gap-5 2xl:grid-cols-2">
           <div className="space-y-5">
             <div className="h-48 animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
           </div>
@@ -78,7 +78,7 @@ function GameWaitingRoom({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-2">
+      <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 2xl:grid-cols-2">
         <div className="space-y-5">
           <div className="rounded-2xl bg-wefin-surface p-4 shadow-sm">
             <div className="flex items-center justify-between">
@@ -175,7 +175,7 @@ function GameWaitingRoom({
           </div>
         </div>
 
-        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden lg:sticky lg:top-20 lg:flex">
+        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden 2xl:sticky 2xl:top-20 2xl:flex">
           <ChatPanel />
         </div>
       </div>

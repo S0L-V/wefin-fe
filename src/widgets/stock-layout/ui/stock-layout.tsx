@@ -20,10 +20,10 @@ export default function StockLayout({ children, sidebarWidth = 'default' }: Stoc
   return (
     <div className="flex gap-0">
       <main className="min-w-0 flex-1">{children}</main>
-      <div className="hidden lg:flex">
+      <div className="hidden 2xl:flex">
         <ResizeHandle onResize={handleResize} />
       </div>
-      <aside className="hidden shrink-0 lg:block" style={{ width: sideW }}>
+      <aside className="hidden shrink-0 2xl:block" style={{ width: sideW }}>
         <StockSidebar matchHeight />
       </aside>
     </div>

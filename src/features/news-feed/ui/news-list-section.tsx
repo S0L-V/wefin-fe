@@ -165,7 +165,7 @@ function NewsListItem({ cluster, isHot }: { cluster: ClusterItem; isHot: boolean
   return (
     <Link
       to={`/news/${cluster.clusterId}`}
-      className="group grid grid-cols-[1fr_180px] items-center gap-4 border-b border-wefin-line px-1 py-4 transition-all hover:translate-x-0.5 hover:rounded-xl hover:bg-wefin-surface-2"
+      className="group grid grid-cols-1 items-center gap-3 border-b border-wefin-line px-1 py-4 transition-all hover:translate-x-0.5 hover:rounded-xl hover:bg-wefin-surface-2 sm:grid-cols-[1fr_180px] sm:gap-4"
     >
       <div>
         {isHot && (
@@ -185,7 +185,7 @@ function NewsListItem({ cluster, isHot }: { cluster: ClusterItem; isHot: boolean
         </div>
       </div>
 
-      <div className="h-[104px] w-[180px] overflow-hidden rounded-xl bg-wefin-surface-2">
+      <div className="hidden h-[104px] w-[180px] overflow-hidden rounded-xl bg-wefin-surface-2 sm:block">
         {cluster.thumbnailUrl ? (
           <img src={cluster.thumbnailUrl} alt="" className="h-full w-full object-cover" />
         ) : (
