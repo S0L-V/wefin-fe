@@ -12,7 +12,7 @@ export const routes = {
   interests: '/interests'
 } as const
 
-export type AccountTab = 'asset' | 'trade-history' | 'order-history' | 'profit-analysis'
+export type AccountTab = 'asset' | 'trade-history' | 'order-history' | 'profit-analysis' | 'ranking'
 
 type NavigationItem = {
   to: string

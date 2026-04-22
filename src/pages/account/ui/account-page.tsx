@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom'
 
+import UserRankingTable from '@/features/user-ranking/ui/user-ranking-table'
 import { type AccountTab } from '@/shared/config/routes'
 import AccountLayout from '@/widgets/account-layout/ui/account-layout'
 
@@ -8,7 +9,13 @@ import OrderHistoryTab from './order-history-tab'
 import ProfitAnalysisTab from './profit-analysis-tab'
 import TradeHistoryTab from './trade-history-tab'
 
-const VALID_TABS: AccountTab[] = ['asset', 'trade-history', 'order-history', 'profit-analysis']
+const VALID_TABS: AccountTab[] = [
+  'asset',
+  'trade-history',
+  'order-history',
+  'profit-analysis',
+  'ranking'
+]
 
 function isValidTab(value: string | null): value is AccountTab {
   return !!value && (VALID_TABS as string[]).includes(value)
@@ -29,6 +36,7 @@ function AccountPage() {
       {activeTab === 'trade-history' && <TradeHistoryTab />}
       {activeTab === 'order-history' && <OrderHistoryTab />}
       {activeTab === 'profit-analysis' && <ProfitAnalysisTab />}
+      {activeTab === 'ranking' && <UserRankingTable />}
     </AccountLayout>
   )
 }
