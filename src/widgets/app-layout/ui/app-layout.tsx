@@ -35,23 +35,23 @@ function AppLayout() {
     location.pathname.startsWith(`${routes.stocks}/`) ||
     location.pathname === routes.chat
 
-  const isStockDetail = location.pathname.startsWith(`${routes.stocks}/`)
-  const isFullWidth =
-    isStockDetail ||
-    location.pathname === routes.history ||
-    location.pathname.startsWith(`${routes.history}/`)
-  const isCappedWide = location.pathname === routes.stocks
+  const isStockPage =
+    location.pathname === routes.stocks || location.pathname.startsWith(`${routes.stocks}/`)
+  const isHistoryPage =
+    location.pathname === routes.history || location.pathname.startsWith(`${routes.history}/`)
+  const isFullWidth = isStockPage || isHistoryPage
+  const hideTickerAndFooter = isHistoryPage
 
   const mainClass = isFullWidth
-    ? 'w-full px-4 pt-2 pb-2 max-md:px-3'
-    : isCappedWide
+    ? isStockPage
       ? 'mx-auto w-full max-w-[1800px] px-4 pt-2 pb-2 max-md:px-3'
-      : 'mx-auto w-[min(1440px,calc(100%-72px))] py-[var(--gutter)] max-md:w-[min(100%,calc(100%-24px))] max-md:py-4'
+      : 'w-full px-4 pt-2 pb-2 max-md:px-3'
+    : 'mx-auto w-[min(1440px,calc(100%-72px))] py-[var(--gutter)] max-md:w-[min(100%,calc(100%-24px))] max-md:py-4'
 
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader />
-      {!isFullWidth && <TickerMarquee />}
+      {!hideTickerAndFooter && <TickerMarquee />}
 
       <main className={`flex-1 ${mainClass}`}>
         <Outlet />
