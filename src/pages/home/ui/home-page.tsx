@@ -73,7 +73,7 @@ function HomePage() {
         <ResizeHandle onResize={handleResize} />
       </div>
       <aside
-        className="hidden xl:sticky xl:top-[105px] xl:block 2xl:h-[calc(100dvh-140px)] xl:shrink-0 xl:overflow-hidden"
+        className="hidden xl:sticky xl:top-[105px] xl:block xl:h-[calc(100dvh-140px)] xl:shrink-0 xl:overflow-hidden"
         style={{ width: `${sidebarWidth}px` }}
       >
         <HomeSidebar />
