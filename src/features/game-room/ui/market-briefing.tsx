@@ -63,7 +63,7 @@ function MarketBriefing({ roomId }: MarketBriefingProps) {
         </div>
         {!isLoading && data?.targetDate && (
           <span className="text-sm font-semibold tabular-nums text-wefin-text-2">
-            {data.targetDate.replaceAll('-', '.')}
+            {data.targetDate.slice(5).replaceAll('-', '.')}
           </span>
         )}
       </div>
