@@ -59,6 +59,7 @@ function HeroSection() {
       className="relative overflow-hidden rounded-2xl sm:rounded-[28px] [--hero-cols:1fr] md:[--hero-cols:1.4fr_1fr]"
       style={{ boxShadow: 'var(--shadow-hero)' }}
     >
+      {/* Grain overlay */}
       <div
         className="pointer-events-none absolute inset-0 z-10 mix-blend-overlay"
         style={{
@@ -132,7 +133,7 @@ function LiveBadge({ publishedAt }: { publishedAt: string }) {
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
         <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-white" />
       </span>
-      AI 요약 · {timeLabel} 기준 · 이 시각 주요 뉴스
+      AI 요약 · {timeLabel} 기준
     </div>
   )
 }

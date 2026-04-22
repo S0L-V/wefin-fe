@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import ChatPanel from '@/features/chat/ui/chat-panel'
+import RankBadge from '@/shared/ui/rank-badge'
 
 import type { GameHistoryItem, RoomListItem } from '../model/game-room.schema'
 import { useCreateRoomForm } from '../model/use-create-room-form'
@@ -26,7 +27,7 @@ function GameLobby() {
       <div className="mx-auto max-w-[1100px] py-8">
         <div className="h-6 w-36 animate-pulse rounded-lg bg-wefin-surface-2" />
         <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-wefin-surface-2" />
-        <div className="mt-6 grid gap-5 2xl:grid-cols-2">
+        <div className="mt-6 grid gap-5 xl:grid-cols-2">
           <div className="space-y-5">
             <div className="card-base h-[280px] animate-pulse" />
             <div className="card-base h-[200px] animate-pulse" />
@@ -44,13 +45,13 @@ function GameLobby() {
         과거 시장 데이터로 투자를 학습하고, 함께 전략을 나눠보세요
       </p>
 
-      <div className="mt-5 grid grid-cols-1 items-start gap-5 sm:mt-6 2xl:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 sm:mt-6 xl:grid-cols-2">
         <div className="flex flex-col gap-4 sm:gap-5">
           {activeRoom ? <ActiveRoomCard room={activeRoom} /> : <CreateRoomInline />}
           <GameHistorySection items={recentHistory} />
         </div>
 
-        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden 2xl:sticky 2xl:top-20 2xl:flex">
+        <div className="card-base hidden h-[calc(100dvh-220px)] min-h-[280px] flex-col overflow-hidden xl:sticky xl:top-20 xl:flex">
           <ChatPanel />
         </div>
       </div>
@@ -273,15 +274,13 @@ function GameHistoryCard({ item }: { item: GameHistoryItem }) {
       className="flex items-center justify-between rounded-xl px-4 py-3.5 transition-colors hover:bg-wefin-surface-2"
     >
       <div className="flex items-center gap-3.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-wefin-surface-2">
-          <Trophy size={16} className="text-wefin-subtle" />
-        </div>
+        <RankBadge rank={item.finalRank} />
         <div>
           <p className="text-[15px] font-semibold text-wefin-text">
             {seedLabel} · {periodLabel} · {item.participantCount}명
           </p>
           <p className="mt-0.5 text-[12.5px] text-wefin-subtle">
-            {item.startDate} ~ {item.endDate}
+            {item.startDate.replaceAll('-', '.')} ~ {item.endDate.replaceAll('-', '.')}
           </p>
         </div>
       </div>

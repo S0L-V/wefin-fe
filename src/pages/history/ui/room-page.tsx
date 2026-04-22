@@ -20,7 +20,7 @@ function RoomPage() {
       <div className="mx-auto max-w-[1100px] py-8">
         <div className="h-6 w-36 animate-pulse rounded-lg bg-wefin-line" />
         <div className="mt-2 h-4 w-64 animate-pulse rounded-lg bg-wefin-surface-2" />
-        <div className="mt-5 grid gap-5 2xl:grid-cols-2">
+        <div className="mt-5 grid gap-5 xl:grid-cols-2">
           <div className="space-y-5">
             <div className="h-48 animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />
             <div className="h-40 animate-pulse rounded-2xl bg-wefin-surface shadow-sm" />

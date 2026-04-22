@@ -26,22 +26,29 @@ function AppProviders({ children }: PropsWithChildren) {
             style={{ zIndex: 9999 }}
             toastOptions={{
               style: {
-                borderRadius: '16px',
-                padding: '12px 20px',
+                borderRadius: '14px',
+                padding: '14px 22px',
                 fontSize: '14px',
                 fontWeight: 600,
+                letterSpacing: '-0.01em',
                 background: 'var(--surface)',
                 color: 'var(--text)',
-                boxShadow: '0 8px 32px -8px rgba(0,0,0,0.2)',
-                border: '1px solid var(--line)'
+                boxShadow:
+                  '0 4px 6px -1px rgba(0,0,0,0.05), 0 16px 40px -8px rgba(0,0,0,0.12), 0 0 0 1px var(--line)',
+                border: 'none',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)'
               },
               classNames: {
-                success: '!bg-wefin-mint !text-white !border-wefin-mint-deep/30',
-                error: '!bg-wefin-red !text-white !border-wefin-red/30',
-                warning: '!bg-wefin-amber !text-white !border-wefin-amber/30'
+                success:
+                  '!bg-gradient-to-r !from-wefin-mint-deep !to-wefin-mint !text-white !shadow-[0_4px_6px_-1px_rgba(20,184,166,0.15),0_16px_40px_-8px_rgba(20,184,166,0.2)]',
+                error:
+                  '!bg-gradient-to-r !from-[#dc2626] !to-wefin-red !text-white !shadow-[0_4px_6px_-1px_rgba(229,72,77,0.15),0_16px_40px_-8px_rgba(229,72,77,0.2)]',
+                warning:
+                  '!bg-gradient-to-r !from-[#d97706] !to-wefin-amber !text-white !shadow-[0_4px_6px_-1px_rgba(232,169,58,0.15),0_16px_40px_-8px_rgba(232,169,58,0.2)]'
               }
             }}
-            offset={20}
+            offset={24}
           />
         </QueryClientProvider>
       </HelmetProvider>

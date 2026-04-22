@@ -12,14 +12,16 @@ const TABS: { key: AccountTab; label: string }[] = [
   { key: 'asset', label: '자산' },
   { key: 'trade-history', label: '거래내역' },
   { key: 'order-history', label: '주문내역' },
-  { key: 'profit-analysis', label: '투자현황' }
+  { key: 'profit-analysis', label: '투자현황' },
+  { key: 'ranking', label: '랭킹' }
 ]
 
 const SECTION_DESCRIPTION: Record<AccountTab, string> = {
   asset: '예수금과 보유 자산 현황을 확인할 수 있어요.',
   'trade-history': '체결된 거래 기록을 날짜별로 확인하세요.',
   'order-history': '주문 상태별로 내역을 확인할 수 있어요.',
-  'profit-analysis': '자산 추이와 손익을 한눈에 살펴보세요.'
+  'profit-analysis': '자산 추이와 손익을 한눈에 살펴보세요.',
+  ranking: '일일 수익 랭킹을 확인하세요.'
 }
 
 export default function AccountLayout({ activeTab, onTabChange, children }: AccountLayoutProps) {

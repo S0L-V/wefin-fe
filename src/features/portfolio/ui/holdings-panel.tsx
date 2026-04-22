@@ -6,13 +6,15 @@ interface HoldingsPanelProps {
   portfolio: PortfolioItem[] | undefined
   isLoading: boolean
   balance?: number | null
+  hideHeader?: boolean
 }
 
 export default function HoldingsPanel({
   currentStockCode,
   portfolio,
   isLoading,
-  balance
+  balance,
+  hideHeader
 }: HoldingsPanelProps) {
   const list = portfolio ?? []
   const sorted = [...list].sort((a, b) => {
@@ -25,24 +27,26 @@ export default function HoldingsPanel({
 
   return (
     <div>
-      <div className="flex h-11 items-center justify-between px-3">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-sm font-semibold text-wefin-text">보유</span>
-          {list.length > 0 && (
-            <span
-              className="text-xs font-bold text-wefin-mint-deep tabular-nums"
-              aria-label={`${list.length}종목 보유`}
-            >
-              {list.length}
+      {!hideHeader && (
+        <div className="flex h-11 items-center justify-between px-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-semibold text-wefin-text">보유</span>
+            {list.length > 0 && (
+              <span
+                className="text-xs font-bold text-wefin-mint-deep tabular-nums"
+                aria-label={`${list.length}종목 보유`}
+              >
+                {list.length}
+              </span>
+            )}
+          </div>
+          {totalBalance != null && (
+            <span className="text-xs font-semibold text-wefin-text tabular-nums">
+              {totalBalance.toLocaleString()}원
             </span>
           )}
         </div>
-        {totalBalance != null && (
-          <span className="text-xs font-semibold text-wefin-text tabular-nums">
-            {totalBalance.toLocaleString()}원
-          </span>
-        )}
-      </div>
+      )}
 
       {isLoading ? (
         <p className="py-4 text-center text-xs text-wefin-subtle">불러오는 중...</p>

@@ -17,6 +17,7 @@ import {
   useOrderHistoryQuery,
   useSnapshotsQuery
 } from '@/features/game-room/model/use-game-result-query'
+import RankBadge from '@/shared/ui/rank-badge'
 
 function formatProfit(rate: number): string {
   const sign = rate >= 0 ? '+' : ''
@@ -362,19 +363,7 @@ function ResultPage() {
                     key={`${r.rank}-${r.userName}`}
                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${r.isMine ? 'bg-wefin-mint-soft' : 'hover:bg-wefin-surface-2'}`}
                   >
-                    <span
-                      className={`font-num flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${
-                        r.rank === 1
-                          ? 'bg-amber-400 text-white'
-                          : r.rank === 2
-                            ? 'bg-wefin-muted text-white'
-                            : r.rank === 3
-                              ? 'bg-amber-600 text-white'
-                              : 'bg-wefin-surface-2 text-wefin-muted'
-                      }`}
-                    >
-                      {r.rank}
-                    </span>
+                    <RankBadge rank={r.rank} size="sm" />
                     <span className="flex-1 truncate text-[13px] font-semibold text-wefin-text">
                       {r.userName}
                       {r.isMine && (

@@ -10,18 +10,14 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'chat', label: '채팅' }
 ]
 
-interface StockSidebarProps {
-  matchHeight?: boolean
-}
-
-export default function StockSidebar({ matchHeight }: StockSidebarProps) {
+export default function StockSidebar() {
   const [activeTab, setActiveTab] = useState<Tab>('watchlist')
 
-  const heightClass = matchHeight ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-120px)]'
+  const heightClass = 'h-[calc(100dvh-120px)]'
 
   return (
     <div
-      className={`flex flex-col rounded-2xl bg-wefin-surface transition-all duration-300 ${heightClass}`}
+      className={`flex flex-col overflow-hidden rounded-2xl bg-wefin-surface transition-all duration-300 ${heightClass}`}
     >
       {/* 탭 헤더 */}
       <div className="flex items-center gap-2 p-2.5">
