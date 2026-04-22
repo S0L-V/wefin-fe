@@ -39,7 +39,7 @@ export default function AboutPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-4">
-      <div className="rounded-2xl bg-wefin-surface p-8">
+      <div className="rounded-2xl bg-wefin-surface p-4 sm:p-8">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-wefin-mint to-wefin-mint-deep text-white">
             <WefinLogoIcon size={22} />

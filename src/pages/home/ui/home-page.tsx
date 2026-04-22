@@ -48,7 +48,7 @@ function HomePage() {
   }, [])
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] lg:flex-row">
+    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] 2xl:flex-row">
       <SeoHead path="/" />
       <section className="min-w-0 flex-1">
         <div className="flex flex-col gap-[var(--gutter)]">
@@ -63,11 +63,11 @@ function HomePage() {
           </div>
         </div>
       </section>
-      <div className="hidden px-0.5 lg:flex">
+      <div className="hidden px-0.5 2xl:flex">
         <ResizeHandle onResize={handleResize} />
       </div>
       <aside
-        className="hidden lg:sticky lg:top-[105px] lg:block lg:h-[calc(100dvh-140px)] lg:shrink-0 lg:overflow-hidden"
+        className="hidden 2xl:sticky 2xl:top-[105px] 2xl:block 2xl:h-[calc(100dvh-140px)] 2xl:shrink-0 2xl:overflow-hidden"
         style={{ width: `${sidebarWidth}px` }}
       >
         <HomeSidebar />
