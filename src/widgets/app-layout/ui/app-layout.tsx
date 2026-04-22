@@ -58,7 +58,7 @@ function AppLayout() {
       </main>
       {!isFullWidth && <AppFooter />}
       {shouldShowAiChatWidget && <WefinyChatWidget />}
-      {!shouldShowAiChatWidget && <FloatingChatButton />}
+      {!location.pathname.includes('/play') && <FloatingChatButton />}
     </div>
   )
 }

@@ -258,6 +258,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
     dismissUnreadLine('GROUP')
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setIsEmojiPickerOpen(false)
+    requestAnimationFrame(() => inputRef.current?.focus())
   }
 
   const handleScroll = async () => {

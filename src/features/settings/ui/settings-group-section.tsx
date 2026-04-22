@@ -289,7 +289,7 @@ function SettingsGroupSection({ isLoggedIn }: SettingsGroupSectionProps) {
             </label>
             <span className="group relative inline-flex h-4 w-4 items-center justify-center text-wefin-subtle">
               <Info size={13} />
-              <span className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-1.5 w-[260px] -translate-x-1/2 rounded-lg bg-wefin-text px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
+              <span className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-1.5 w-[260px] -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2.5 text-xs leading-relaxed font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
                 초대 코드는 24시간 동안 사용할 수 있어요. 만료되기 전까지 같은 코드를 다시 사용할 수
                 있어요.
               </span>

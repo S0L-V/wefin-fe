@@ -4,6 +4,7 @@ import HeroSection from '@/features/market-trends/ui/hero-section'
 import MarketTrendsSection from '@/features/market-trends/ui/market-trends-section'
 import NewsFeedSection from '@/features/news-feed/ui/news-feed-section'
 import NewsListSection from '@/features/news-feed/ui/news-list-section'
+import DailyQuestPanel from '@/features/quest/ui/daily-quest-panel'
 import RecommendedNewsSection from '@/features/recommended-news/ui/recommended-news-section'
 import ResizeHandle from '@/features/stock-detail/ui/resize-handle'
 import SeoHead from '@/shared/ui/seo-head'
@@ -50,6 +51,9 @@ function HomePage() {
   return (
     <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] 2xl:flex-row">
       <SeoHead path="/" />
+      <div className="2xl:hidden">
+        <DailyQuestPanel />
+      </div>
       <section className="min-w-0 flex-1">
         <div className="flex flex-col gap-[var(--gutter)]">
           <HeroSection />

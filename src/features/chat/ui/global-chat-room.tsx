@@ -56,6 +56,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const [message, setMessage] = useState('')
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const queryClient = useQueryClient()
+  const inputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const unreadDividerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
@@ -167,6 +168,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
     sendMessage(emojiCode)
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setIsEmojiPickerOpen(false)
+    requestAnimationFrame(() => inputRef.current?.focus())
   }
 
   const handleScroll = async () => {
@@ -258,7 +260,9 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
                 </div>
               )}
 
-              {isSystem ? (
+              {isSystem && msg.content.includes('님이') && msg.content.includes('에서') ? (
+                <ProfitShareCard content={msg.content} />
+              ) : isSystem ? (
                 <div className="flex justify-center">
                   <div className="w-full max-w-[88%] rounded-xl border border-wefin-amber/30 bg-wefin-amber-soft px-4 py-3 text-center text-sm font-semibold leading-6 text-wefin-amber-text shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                     {msg.content}
@@ -349,6 +353,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
 
         <div className="flex items-center gap-1.5 rounded-full bg-wefin-surface-2 py-1.5 pr-1.5 pl-4">
           <input
+            ref={inputRef}
             type="text"
             value={message}
             onChange={(event) => {
@@ -391,6 +396,37 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
             <ArrowUp size={18} strokeWidth={2.5} />
           </button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function ProfitShareCard({ content }: { content: string }) {
+  const match = content.match(/(.+?)님이\s+(.+?)에서\s+(-?[\d,]+)원/)
+  const isLoss = content.includes('잃었') || content.includes('안타깝') || content.includes('손실')
+  const nickname = match?.[1]?.replace('축하합니다! ', '').replace('안타깝네요. ', '') ?? ''
+  const stockName = match?.[2] ?? ''
+  const amountStr = match?.[3] ?? '0'
+  const amountNum = Number(amountStr.replace(/,/g, ''))
+  const isProfit = !isLoss && amountNum >= 0
+  const displayAmount = Math.abs(amountNum).toLocaleString()
+
+  return (
+    <div className="flex justify-center">
+      <div
+        className={`inline-flex items-center gap-2 rounded-full bg-wefin-surface px-4 py-2 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ${isProfit ? 'ring-wefin-red/25' : 'ring-wefin-blue/25'}`}
+      >
+        <span
+          className={`h-1.5 w-1.5 shrink-0 rounded-full ${isProfit ? 'bg-wefin-red' : 'bg-wefin-blue'}`}
+        />
+        <span className="text-[12.5px] font-semibold text-wefin-text">{nickname}</span>
+        <span className="text-[12.5px] font-semibold text-wefin-text">{stockName}</span>
+        <span
+          className={`font-num text-[13px] font-bold tracking-tight ${isProfit ? 'text-wefin-red' : 'text-wefin-blue'}`}
+        >
+          {isProfit ? '+' : '-'}
+          {displayAmount}원
+        </span>
       </div>
     </div>
   )
