@@ -68,7 +68,7 @@ function StockDetailPage() {
   const { data: account } = useAccountQuery()
   const { data: buyingPower } = useBuyingPowerQuery(price?.currentPrice ?? 0)
   const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolioQuery()
-  const { data: pendingOrders = [] } = usePendingOrdersQuery()
+  const { data: pendingOrders = [], isLoading: isPendingLoading } = usePendingOrdersQuery()
 
   useEffect(() => {
     const el = chartColumnRef.current
@@ -216,9 +216,13 @@ function StockDetailPage() {
                   {
                     key: 'holdings' as RightPanelTab,
                     label: '보유',
-                    count: portfolio?.length ?? 0
+                    count: isPortfolioLoading ? null : (portfolio?.length ?? 0)
                   },
-                  { key: 'pending' as RightPanelTab, label: '미체결', count: pendingOrders.length }
+                  {
+                    key: 'pending' as RightPanelTab,
+                    label: '미체결',
+                    count: isPendingLoading ? null : pendingOrders.length
+                  }
                 ].map(({ key, label, count }) => (
                   <button
                     key={key}
@@ -231,7 +235,7 @@ function StockDetailPage() {
                     }`}
                   >
                     {label}
-                    {count > 0 && (
+                    {count != null && count > 0 && (
                       <span
                         className={`text-xs font-bold tabular-nums ${
                           key === 'holdings' ? 'text-wefin-mint-deep' : 'text-amber-500'

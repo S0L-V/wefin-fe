@@ -33,7 +33,7 @@ function ReadingProgressBar() {
 
 function ClusterDetailPage() {
   return (
-    <div className="grid min-w-0 gap-6 xl:grid-cols-[1fr_minmax(320px,30%)]">
+    <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,30%)]">
       <ReadingProgressBar />
       <ClusterDetailContent />
 
