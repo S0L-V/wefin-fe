@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /account/
+Disallow: /settings/
+Disallow: /admin/
+Disallow: /chat/
+Disallow: /payment/
+
+Sitemap: https://www.wefin.ai.kr/sitemap.xml

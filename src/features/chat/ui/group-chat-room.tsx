@@ -94,6 +94,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   const loadOlderMessages = useGroupChatStore((state) => state.loadOlderMessages)
   const visibleGroupUnreadLine = useChatUnreadStore((state) => state.visibleGroupUnreadLine)
   const visibleGroupReadMessageId = useChatUnreadStore((state) => state.visibleGroupReadMessageId)
+  const dismissUnreadLine = useChatUnreadStore((state) => state.dismissUnreadLine)
 
   useGroupChatSocket(userId)
 
@@ -243,6 +244,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
       return
     }
 
+    dismissUnreadLine('GROUP')
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setMessage('')
   }
@@ -253,6 +255,7 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
       return
     }
 
+    dismissUnreadLine('GROUP')
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setIsEmojiPickerOpen(false)
   }
@@ -260,7 +263,23 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   const handleScroll = async () => {
     const container = scrollContainerRef.current
 
-    if (!container || container.scrollTop > 80 || !hasNext || isLoadingOlder) {
+    if (!container) {
+      return
+    }
+
+    if (visibleGroupUnreadLine && unreadDividerRef.current) {
+      const containerRect = container.getBoundingClientRect()
+      const dividerRect = unreadDividerRef.current.getBoundingClientRect()
+      const isPastUnreadLine = dividerRect.bottom <= containerRect.top
+      const isNearBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight <= 24
+
+      if (isPastUnreadLine || isNearBottom) {
+        dismissUnreadLine('GROUP')
+      }
+    }
+
+    if (container.scrollTop > 80 || !hasNext || isLoadingOlder) {
       return
     }
 

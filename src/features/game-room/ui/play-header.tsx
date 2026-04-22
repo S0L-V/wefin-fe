@@ -88,17 +88,15 @@ function PlayHeader({
               <ChevronRight size={14} />
             </button>
           )}
-          {isHost && (
-            <button
-              type="button"
-              onClick={onEndGame}
-              disabled={isEnding}
-              className="hidden rounded-lg bg-white/10 px-4 py-2.5 text-sm font-bold text-white/70 transition-colors hover:bg-white/20 hover:text-white disabled:opacity-50 sm:block"
-            >
-              <Square size={10} className="mr-1 inline fill-current" />
-              {isEnding ? '종료 중…' : '종료'}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onEndGame}
+            disabled={isEnding}
+            className="hidden rounded-lg bg-white/10 px-4 py-2.5 text-sm font-bold text-white/70 transition-colors hover:bg-white/20 hover:text-white disabled:opacity-50 sm:block"
+          >
+            <Square size={10} className="mr-1 inline fill-current" />
+            {isEnding ? '종료 중…' : '종료'}
+          </button>
           <button
             type="button"
             onClick={onLeave}

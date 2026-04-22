@@ -52,7 +52,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
   return (
     <>
       {/* 데스크탑 */}
-      <div ref={containerRef} className="hidden h-full lg:flex">
+      <div ref={containerRef} className="hidden h-full xl:flex">
         <div
           className="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface"
           style={{ width: leftWidth ?? '50%' }}
@@ -87,7 +87,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
       </div>
 
       {/* 모바일: 탭 전환 */}
-      <div className="flex flex-col lg:hidden">
+      <div className="flex flex-col xl:hidden">
         <div className="flex border-b border-wefin-line bg-wefin-surface">
           {[
             { key: 'price' as MobileSubTab, label: '시세' },

@@ -1,5 +1,7 @@
 import { useParams } from 'react-router-dom'
 
+import SeoHead from '@/shared/ui/seo-head'
+
 import { useClusterDetailQuery } from '../model/use-cluster-detail-query'
 import { useMarkClusterRead } from '../model/use-mark-cluster-read'
 import ClusterDetailFooter from './cluster-detail-footer'
@@ -55,6 +57,12 @@ export default function ClusterDetailContent() {
 
   return (
     <div className="overflow-hidden rounded-2xl bg-wefin-surface p-4 sm:rounded-3xl sm:p-8">
+      <SeoHead
+        title={cluster.title}
+        description={cluster.summary}
+        path={`/news/${clusterId}`}
+        type="article"
+      />
       <ClusterDetailHeader cluster={cluster} />
       <ClusterDetailSections sections={cluster.sections} articleContent={cluster.articleContent} />
       <ClusterDetailFooter cluster={cluster} />

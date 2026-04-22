@@ -68,7 +68,7 @@ export default function NewsFeedSection() {
               key={t.value}
               type="button"
               onClick={() => handleTabChange(t.value)}
-              className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-2 py-1 text-[11px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-[13px] ${
                 tab === t.value
                   ? 'bg-wefin-mint text-white shadow-sm'
                   : 'text-wefin-subtle hover:text-wefin-text'
