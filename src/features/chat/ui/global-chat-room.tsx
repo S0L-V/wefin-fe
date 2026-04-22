@@ -76,7 +76,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const visibleGlobalReadMessageId = useChatUnreadStore((state) => state.visibleGlobalReadMessageId)
   const dismissUnreadLine = useChatUnreadStore((state) => state.dismissUnreadLine)
   const isLoggedIn = !!authUserId
-  const canSendMessage = isLoggedIn && !!client?.connected
+  const canSendMessage = isLoggedIn && !!client?.connected && !!userId
 
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
   const firstUnreadIndex = useMemo(() => {
