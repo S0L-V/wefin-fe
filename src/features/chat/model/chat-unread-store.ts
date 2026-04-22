@@ -13,6 +13,7 @@ type ChatUnreadState = ChatUnread & {
   setUnread: (payload: ChatUnread) => void
   setChatPanelState: (isOpen: boolean, activeChatType: ChatType | null) => void
   markChatReadLocally: (chatType: ChatType) => void
+  dismissUnreadLine: (chatType: ChatType) => void
   snapshotUnreadLine: (chatType: ChatType) => void
   reset: () => void
 }
@@ -75,6 +76,18 @@ export const useChatUnreadStore = create<ChatUnreadState>((set) => ({
         hasGroupUnread: false
       }
     }),
+  dismissUnreadLine: (chatType) =>
+    set(
+      chatType === 'GLOBAL'
+        ? {
+            visibleGlobalUnreadLine: false,
+            visibleGlobalReadMessageId: null
+          }
+        : {
+            visibleGroupUnreadLine: false,
+            visibleGroupReadMessageId: null
+          }
+    ),
   snapshotUnreadLine: (chatType) =>
     set((state) => {
       if (chatType === 'GLOBAL') {
