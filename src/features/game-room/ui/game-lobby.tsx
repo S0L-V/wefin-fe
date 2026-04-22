@@ -1,8 +1,9 @@
-import { ChevronRight, Clock, Play, Trophy, Users } from 'lucide-react'
+import { ChevronRight, Clock, Play, Users } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import ChatPanel from '@/features/chat/ui/chat-panel'
+import RankBadge from '@/shared/ui/rank-badge'
 
 import type { GameHistoryItem, RoomListItem } from '../model/game-room.schema'
 import { useCreateRoomForm } from '../model/use-create-room-form'
@@ -273,15 +274,13 @@ function GameHistoryCard({ item }: { item: GameHistoryItem }) {
       className="flex items-center justify-between rounded-xl px-4 py-3.5 transition-colors hover:bg-wefin-surface-2"
     >
       <div className="flex items-center gap-3.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-wefin-surface-2">
-          <Trophy size={16} className="text-wefin-subtle" />
-        </div>
+        <RankBadge rank={item.finalRank} />
         <div>
           <p className="text-[15px] font-semibold text-wefin-text">
             {seedLabel} · {periodLabel} · {item.participantCount}명
           </p>
           <p className="mt-0.5 text-[12.5px] text-wefin-subtle">
-            {item.startDate} ~ {item.endDate}
+            {item.startDate.replaceAll('-', '.')} ~ {item.endDate.replaceAll('-', '.')}
           </p>
         </div>
       </div>

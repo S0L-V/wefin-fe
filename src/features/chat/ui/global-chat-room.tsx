@@ -56,6 +56,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const [message, setMessage] = useState('')
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const queryClient = useQueryClient()
+  const inputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const unreadDividerRef = useRef<HTMLDivElement>(null)
   const previousHeightRef = useRef<number | null>(null)
@@ -167,6 +168,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
     sendMessage(emojiCode)
     refreshTodayQuestsAfterRealtimeAction(queryClient)
     setIsEmojiPickerOpen(false)
+    requestAnimationFrame(() => inputRef.current?.focus())
   }
 
   const handleScroll = async () => {
@@ -349,6 +351,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
 
         <div className="flex items-center gap-1.5 rounded-full bg-wefin-surface-2 py-1.5 pr-1.5 pl-4">
           <input
+            ref={inputRef}
             type="text"
             value={message}
             onChange={(event) => {

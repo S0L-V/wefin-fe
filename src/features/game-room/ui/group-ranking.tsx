@@ -1,3 +1,5 @@
+import RankBadge from '@/shared/ui/rank-badge'
+
 import type { RankingItem } from '../model/ranking.schema'
 import { useRankingQuery } from '../model/use-ranking-query'
 
@@ -59,19 +61,7 @@ function RankingRow({ item, index }: { item: RankingItem; index: number }) {
         isTop3 ? 'bg-wefin-surface-2' : 'hover:bg-wefin-surface-2'
       }`}
     >
-      <span
-        className={`font-num flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold ${
-          index === 0
-            ? 'bg-amber-400 text-white'
-            : index === 1
-              ? 'bg-wefin-muted text-white'
-              : index === 2
-                ? 'bg-amber-600 text-white'
-                : 'bg-wefin-surface-2 text-wefin-muted'
-        }`}
-      >
-        {item.rank}
-      </span>
+      <RankBadge rank={item.rank} size="sm" />
 
       <span
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
