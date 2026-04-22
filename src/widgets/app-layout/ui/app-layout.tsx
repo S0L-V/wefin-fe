@@ -58,7 +58,7 @@ function AppLayout() {
       </main>
       {!isFullWidth && <AppFooter />}
       {shouldShowAiChatWidget && <WefinyChatWidget />}
-      <FloatingChatButton />
+      {!shouldShowAiChatWidget && <FloatingChatButton />}
     </div>
   )
 }

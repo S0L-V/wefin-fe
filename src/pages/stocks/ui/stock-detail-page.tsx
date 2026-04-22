@@ -263,7 +263,7 @@ function StockDetailPage() {
             { key: 'orderbook' as MobileTab, label: '호가' },
             { key: 'order' as MobileTab, label: '주문' },
             { key: 'info' as MobileTab, label: '정보' },
-            { key: 'news' as MobileTab, label: '공시' }
+            { key: 'news' as MobileTab, label: '뉴스·공시' }
           ].map(({ key, label }) => (
             <button
               key={key}
