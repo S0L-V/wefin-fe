@@ -13,7 +13,7 @@ const TABS: { key: Tab; label: string }[] = [
 export default function StockSidebar() {
   const [activeTab, setActiveTab] = useState<Tab>('watchlist')
 
-  const heightClass = 'h-[calc(100dvh-108px)]'
+  const heightClass = 'h-[calc(100dvh-120px)]'
 
   return (
     <div

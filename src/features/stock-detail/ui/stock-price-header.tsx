@@ -98,7 +98,7 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
           ) : price ? (
             <PriceDisplay price={price} />
           ) : null}
-          <div className="hidden xl:block">
+          <div className="hidden min-w-0 flex-1 overflow-hidden xl:block">
             <MarketIndicesStrip />
           </div>
         </div>

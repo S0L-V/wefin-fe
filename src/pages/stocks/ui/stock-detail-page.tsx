@@ -151,7 +151,7 @@ function StockDetailPage() {
   return (
     <StockLayout sidebarWidth="narrow">
       {/* 데스크탑 레이아웃 */}
-      <div className="hidden h-[calc(100dvh-108px)] flex-col gap-2 xl:flex">
+      <div className="hidden h-[calc(100dvh-120px)] flex-col gap-2 xl:flex">
         <div className="shrink-0 rounded-2xl bg-wefin-surface px-3 pt-2 pb-2">
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>

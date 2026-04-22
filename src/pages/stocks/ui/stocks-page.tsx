@@ -30,7 +30,7 @@ function StocksPage() {
         description="실시간 거래 랭킹과 모의투자를 경험하세요."
         path="/stocks"
       />
-      <div className="flex h-[calc(100dvh-108px)] flex-col gap-2">
+      <div className="flex h-[calc(100dvh-120px)] flex-col gap-2">
         <div className="shrink-0 rounded-2xl bg-wefin-surface p-5">
           <StockRankingControls
             activeTab={activeTab}
