@@ -98,7 +98,7 @@ function SettingsSubscriptionSection() {
       </section>
 
       <section>
-        <h3 className="mb-4 text-lg font-bold text-wefin-text">플랜 안내</h3>
+        <h3 className="mb-4 text-base font-bold text-wefin-text sm:text-lg">플랜 안내</h3>
 
         <div className="grid gap-4 md:grid-cols-2">
           {PLAN_CARDS.map((plan) => {
@@ -108,7 +108,7 @@ function SettingsSubscriptionSection() {
             return (
               <div
                 key={plan.id}
-                className={`rounded-2xl border p-6 shadow-sm ${
+                className={`rounded-2xl border p-4 shadow-sm sm:p-6 ${
                   isCurrentPlan
                     ? 'border-wefin-mint bg-wefin-mint text-white'
                     : 'border-wefin-line bg-wefin-surface text-wefin-text'
@@ -117,7 +117,7 @@ function SettingsSubscriptionSection() {
                 <div className="space-y-5">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-2xl font-bold">{plan.title}</p>
+                      <p className="text-xl font-bold sm:text-2xl">{plan.title}</p>
                       {isCurrentPlan && (
                         <span className="rounded-full bg-wefin-surface px-2 py-1 text-xs font-bold text-wefin-mint-deep">
                           현재 이용 중

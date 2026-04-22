@@ -92,7 +92,7 @@ function PlayPage() {
   return (
     <>
       {/* 데스크탑 레이아웃 */}
-      <div className="fixed inset-0 top-[56px] z-10 hidden flex-col overflow-hidden bg-wefin-bg lg:flex">
+      <div className="fixed inset-0 top-[56px] z-10 hidden flex-col overflow-hidden bg-wefin-bg xl:flex">
         <div className="flex min-h-0 flex-1 gap-1.5 p-1.5 xl:gap-2 xl:p-2">
           <div className="flex min-w-0 flex-[1] flex-col gap-1.5 xl:gap-2">
             <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
@@ -147,7 +147,7 @@ function PlayPage() {
       </div>
 
       {/* 모바일 레이아웃 */}
-      <div className="fixed inset-0 top-[56px] z-10 flex flex-col overflow-hidden bg-wefin-bg lg:hidden">
+      <div className="fixed inset-0 top-[56px] z-10 flex flex-col overflow-hidden bg-wefin-bg xl:hidden">
         <div className="flex shrink-0 gap-1 border-b border-wefin-line bg-wefin-surface px-2 py-1.5">
           {[
             { key: 'chart' as const, label: '차트·브리핑' },

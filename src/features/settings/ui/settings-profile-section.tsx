@@ -132,10 +132,10 @@ function SettingRow({
   action: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between gap-6 py-4">
-      <div className="min-w-0 space-y-1">
-        <p className="text-base font-semibold text-wefin-text">{title}</p>
-        <p className="text-sm text-wefin-subtle">{description}</p>
+    <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <div className="min-w-0 space-y-0.5">
+        <p className="text-sm font-semibold text-wefin-text sm:text-base">{title}</p>
+        <p className="text-xs text-wefin-subtle sm:text-sm">{description}</p>
       </div>
       <div className="shrink-0">{action}</div>
     </div>

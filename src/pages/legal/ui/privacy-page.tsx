@@ -7,7 +7,7 @@ export default function PrivacyPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-4">
-      <div className="rounded-2xl bg-wefin-surface p-8">
+      <div className="rounded-2xl bg-wefin-surface p-4 sm:p-8">
         <h1 className="text-2xl font-bold text-wefin-text">개인정보처리방침</h1>
         <p className="mt-2 text-xs text-wefin-subtle">최종 수정일: 2026년 4월 19일</p>
 
@@ -15,27 +15,29 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-base font-bold text-wefin-text">1. 수집하는 개인정보 항목</h2>
             <p className="mt-2">WeFin은 서비스 제공을 위해 아래 최소한의 정보를 수집합니다.</p>
-            <table className="mt-3 w-full text-xs">
-              <thead>
-                <tr className="border-b border-wefin-line text-left">
-                  <th className="py-2 pr-4 font-semibold text-wefin-text">구분</th>
-                  <th className="py-2 pr-4 font-semibold text-wefin-text">수집 항목</th>
-                  <th className="py-2 font-semibold text-wefin-text">수집 시점</th>
-                </tr>
-              </thead>
-              <tbody className="text-wefin-subtle">
-                <tr className="border-b border-wefin-line/50">
-                  <td className="py-2 pr-4">필수</td>
-                  <td className="py-2 pr-4">이메일, 비밀번호(암호화), 닉네임</td>
-                  <td className="py-2">회원가입 시</td>
-                </tr>
-                <tr>
-                  <td className="py-2 pr-4">선택</td>
-                  <td className="py-2 pr-4">초대코드</td>
-                  <td className="py-2">회원가입 시</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-wefin-line text-left">
+                    <th className="py-2 pr-4 font-semibold text-wefin-text">구분</th>
+                    <th className="py-2 pr-4 font-semibold text-wefin-text">수집 항목</th>
+                    <th className="py-2 font-semibold text-wefin-text">수집 시점</th>
+                  </tr>
+                </thead>
+                <tbody className="text-wefin-subtle">
+                  <tr className="border-b border-wefin-line/50">
+                    <td className="py-2 pr-4">필수</td>
+                    <td className="py-2 pr-4">이메일, 비밀번호(암호화), 닉네임</td>
+                    <td className="py-2">회원가입 시</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 pr-4">선택</td>
+                    <td className="py-2 pr-4">초대코드</td>
+                    <td className="py-2">회원가입 시</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section>

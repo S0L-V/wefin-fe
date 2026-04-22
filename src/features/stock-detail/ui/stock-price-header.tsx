@@ -98,13 +98,13 @@ export default function StockPriceHeader({ code, activeTab, onTabChange }: Stock
           ) : price ? (
             <PriceDisplay price={price} />
           ) : null}
-          <div className="hidden md:block">
+          <div className="hidden 2xl:block">
             <MarketIndicesStrip />
           </div>
         </div>
 
         {/* 3행: 탭 (데스크탑만) */}
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <SegmentedTabs items={tabs} activeKey={activeTab} onChange={onTabChange} />
         </div>
       </div>
@@ -126,12 +126,12 @@ function PriceDisplay({ price }: { price: PriceData }) {
   const arrow = isPositive ? '▲' : isNegative ? '▼' : ''
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
-      <span className="text-xl font-bold text-wefin-text tabular-nums sm:text-2xl">
+    <div className="flex items-center gap-1.5 sm:gap-2.5">
+      <span className="shrink-0 whitespace-nowrap text-xl font-bold text-wefin-text tabular-nums sm:text-2xl">
         {price.currentPrice.toLocaleString()}원
       </span>
       <span
-        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums sm:px-2.5 sm:py-1 sm:text-xs ${pillClass}`}
+        className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums sm:px-2.5 sm:py-1 sm:text-xs ${pillClass}`}
       >
         {arrow && <span className="text-[10px]">{arrow}</span>}
         {sign}

@@ -19,7 +19,7 @@ import StockPriceTable from '@/features/stock-detail/ui/stock-price-table'
 import { routes } from '@/shared/config/routes'
 import StockLayout from '@/widgets/stock-layout/ui/stock-layout'
 
-type MobileTab = 'chart' | 'orderbook' | 'order'
+type MobileTab = 'chart' | 'orderbook' | 'order' | 'info' | 'news'
 
 function StockDetailPage() {
   const { code } = useParams<{ code: string }>()
@@ -151,7 +151,7 @@ function StockDetailPage() {
   return (
     <StockLayout sidebarWidth="narrow">
       {/* 데스크탑 레이아웃 */}
-      <div className="hidden h-[calc(100vh-80px)] flex-col gap-2 lg:flex">
+      <div className="hidden h-[calc(100vh-80px)] flex-col gap-2 xl:flex">
         <div className="shrink-0 rounded-2xl bg-wefin-surface px-3 pt-2 pb-2">
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
@@ -252,22 +252,24 @@ function StockDetailPage() {
       </div>
 
       {/* 모바일 레이아웃 */}
-      <div className="flex flex-col lg:hidden" style={{ height: 'calc(100dvh - 56px)' }}>
+      <div className="flex flex-col xl:hidden" style={{ height: 'calc(100dvh - 56px)' }}>
         <div className="shrink-0 bg-wefin-surface px-3 pt-2 pb-2">
           <StockPriceHeader code={code} activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        <div className="flex shrink-0 gap-1 border-b border-wefin-line bg-wefin-surface px-3 pb-2">
+        <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-wefin-line bg-wefin-surface px-3 pb-2 scrollbar-thin">
           {[
             { key: 'chart' as MobileTab, label: '차트' },
             { key: 'orderbook' as MobileTab, label: '호가' },
-            { key: 'order' as MobileTab, label: '주문' }
+            { key: 'order' as MobileTab, label: '주문' },
+            { key: 'info' as MobileTab, label: '정보' },
+            { key: 'news' as MobileTab, label: '공시' }
           ].map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setMobileTab(key)}
-              className={`flex-1 rounded-lg py-2 text-[13px] font-bold transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-bold transition-colors ${
                 mobileTab === key
                   ? 'bg-wefin-mint text-white'
                   : 'text-wefin-subtle hover:text-wefin-text'
@@ -328,9 +330,21 @@ function StockDetailPage() {
               </div>
             </div>
           )}
+
+          {mobileTab === 'info' && (
+            <div className="flex flex-1 overflow-hidden bg-wefin-surface">
+              <StockInfoPanel code={code} enabled={mobileTab === 'info'} />
+            </div>
+          )}
+
+          {mobileTab === 'news' && (
+            <div className="flex flex-1 overflow-hidden bg-wefin-surface">
+              <StockNewsDisclosurePanel code={code} enabled={mobileTab === 'news'} />
+            </div>
+          )}
         </div>
 
-        {mobileTab !== 'order' && (
+        {mobileTab !== 'order' && mobileTab !== 'info' && mobileTab !== 'news' && (
           <div className="flex shrink-0 gap-2 border-t border-wefin-line bg-wefin-surface p-3">
             <button
               type="button"
