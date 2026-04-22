@@ -328,6 +328,9 @@ function StockDetailPage() {
                   balance={account?.balance}
                 />
               </div>
+              <div className="rounded-xl border border-wefin-line bg-wefin-surface">
+                <PendingOrdersPanel currentStockCode={code} onModify={handleModify} />
+              </div>
             </div>
           )}
 
