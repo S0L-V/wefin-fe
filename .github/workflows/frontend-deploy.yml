@@ -41,9 +41,16 @@ jobs:
           API_URL="${API_URL%/}"
           WS_ORIGIN="${API_URL%/api}"
 
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            TOSS_KEY="${{ secrets.PROD_TOSS_CLIENT_KEY }}"
+          else
+            TOSS_KEY="${{ secrets.DEV_TOSS_CLIENT_KEY }}"
+          fi
+
           {
             echo "VITE_API_BASE_URL=$API_URL"
             echo "VITE_WS_URL=$WS_ORIGIN/ws"
+            echo "VITE_TOSS_CLIENT_KEY=$TOSS_KEY"
           } > .env.production
 
       - name: Build
