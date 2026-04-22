@@ -93,8 +93,8 @@ function PlayPage() {
     <>
       {/* 데스크탑 레이아웃 */}
       <div className="fixed inset-0 top-[56px] z-10 hidden flex-col overflow-hidden bg-wefin-bg lg:flex">
-        <div className="flex min-h-0 flex-1 gap-2 p-2">
-          <div className="flex min-w-0 flex-[1] flex-col gap-2">
+        <div className="flex min-h-0 flex-1 gap-1.5 p-1.5 xl:gap-2 xl:p-2">
+          <div className="flex min-w-0 flex-[1] flex-col gap-1.5 xl:gap-2">
             <div className="min-h-0 flex-[1.3] overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <StockChart roomId={roomId} />
             </div>
@@ -103,7 +103,7 @@ function PlayPage() {
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-[0.7] flex-col gap-2">
+          <div className="flex min-w-[280px] flex-[0.65] flex-col gap-1.5 overflow-hidden xl:min-w-0 xl:flex-[0.7] xl:gap-2">
             <div className="min-h-0 flex-[1.3] overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <OrderPanel roomId={roomId} cash={cash} />
             </div>
@@ -112,7 +112,7 @@ function PlayPage() {
             </div>
           </div>
 
-          <div className="flex min-w-[200px] max-w-[380px] flex-[0.45] flex-col gap-2">
+          <div className="flex min-w-[240px] max-w-[340px] flex-[0.4] flex-col gap-1.5 xl:min-w-[260px] xl:max-w-[380px] xl:flex-[0.45] xl:gap-2">
             <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupChatRoom bare />
             </div>
