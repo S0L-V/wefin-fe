@@ -13,9 +13,29 @@ import {
   type LimitSellOrderParams,
   modifyOrder,
   type ModifyOrderParams,
+  type OrderResponse,
   sellOrder,
   type SellOrderParams
 } from '../api/mutate-order'
+import { shareProfitToChat } from '../api/share-profit'
+
+const PROFIT_SHARE_THRESHOLD = 500_000
+
+function tryShareProfit(data: OrderResponse) {
+  if (
+    data.realizedProfit != null &&
+    Math.abs(data.realizedProfit) >= PROFIT_SHARE_THRESHOLD &&
+    data.stockName
+  ) {
+    const nickname = localStorage.getItem('nickname') ?? '익명'
+
+    shareProfitToChat({
+      stockName: data.stockName,
+      profitAmount: data.realizedProfit,
+      userNickname: nickname
+    }).catch(() => {})
+  }
+}
 
 function invalidateOrderSideEffects(queryClient: ReturnType<typeof useQueryClient>) {
   queryClient.invalidateQueries({ queryKey: ['orders'] })
@@ -44,8 +64,9 @@ export function useSellMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (params: SellOrderParams) => sellOrder(params),
-    onSuccess: (_data, params) => {
+    onSuccess: (data, params) => {
       invalidateOrderSideEffects(queryClient)
+      tryShareProfit(data)
       toast(`${params.quantity}주 매도 체결`, {
         style: { background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }
       })
@@ -72,8 +93,9 @@ export function useLimitSellMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (params: LimitSellOrderParams) => limitSellOrder(params),
-    onSuccess: (_data, params) => {
+    onSuccess: (data, params) => {
       invalidateOrderSideEffects(queryClient)
+      tryShareProfit(data)
       toast(`${params.quantity}주 ${params.requestPrice.toLocaleString()}원 매도`, {
         style: { background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }
       })
