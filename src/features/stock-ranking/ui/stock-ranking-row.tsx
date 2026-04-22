@@ -73,11 +73,11 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
         </span>
       </div>
       <div className="flex w-auto flex-col items-end sm:w-28 xl:w-36">
-        <span className="font-num text-[13px] font-bold text-wefin-text tabular-nums sm:text-[13px] xl:text-[15px]">
+        <span className="font-num whitespace-nowrap text-[13px] font-bold text-wefin-text tabular-nums sm:text-[13px] xl:text-[15px]">
           {stock.currentPrice.toLocaleString()}원
         </span>
         <span
-          className={`font-num hidden text-[11px] font-medium sm:block xl:text-[12.5px] ${rateTextColor} tabular-nums`}
+          className={`font-num whitespace-nowrap hidden text-[11px] font-medium sm:block xl:text-[12.5px] ${rateTextColor} tabular-nums`}
         >
           {signedChangeAmount}원
         </span>
@@ -91,10 +91,10 @@ export default function StockRankingRow({ stock }: StockRankingRowProps) {
           {stock.changeRate.toFixed(2)}%
         </span>
       </div>
-      <div className="font-num ml-2 w-auto text-right text-[11px] font-semibold text-wefin-text tabular-nums sm:ml-0 sm:w-28 sm:text-[12px] xl:w-36 xl:text-[13.5px]">
+      <div className="font-num whitespace-nowrap ml-2 w-auto text-right text-[11px] font-semibold text-wefin-text tabular-nums sm:ml-0 sm:w-28 sm:text-[12px] xl:w-36 xl:text-[13.5px]">
         {formatTradingValue(tradingValue)}
       </div>
-      <div className="font-num hidden w-28 text-right text-[12px] text-wefin-subtle tabular-nums sm:block xl:w-36 xl:text-[13.5px]">
+      <div className="font-num whitespace-nowrap hidden w-28 text-right text-[12px] text-wefin-subtle tabular-nums sm:block xl:w-36 xl:text-[13.5px]">
         {stock.volume.toLocaleString()}
       </div>
     </div>

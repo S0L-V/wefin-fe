@@ -9,11 +9,13 @@ import { usePendingOrdersQuery } from '../model/use-order-queries'
 interface PendingOrdersPanelProps {
   currentStockCode?: string
   onModify?: (order: OrderHistoryResponse) => void
+  hideHeader?: boolean
 }
 
 export default function PendingOrdersPanel({
   currentStockCode,
-  onModify
+  onModify,
+  hideHeader
 }: PendingOrdersPanelProps) {
   const navigate = useNavigate()
   const { data: orders = [], isLoading } = usePendingOrdersQuery()
@@ -22,9 +24,11 @@ export default function PendingOrdersPanel({
   if (isLoading) {
     return (
       <div>
-        <div className="flex h-11 items-center px-3">
-          <span className="text-sm font-semibold text-wefin-text">미체결</span>
-        </div>
+        {!hideHeader && (
+          <div className="flex h-11 items-center px-3">
+            <span className="text-sm font-semibold text-wefin-text">미체결</span>
+          </div>
+        )}
         <p className="py-4 text-center text-xs text-wefin-subtle">불러오는 중...</p>
       </div>
     )
@@ -32,14 +36,16 @@ export default function PendingOrdersPanel({
 
   return (
     <div>
-      <div className="flex h-11 items-center justify-between px-3">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-sm font-semibold text-wefin-text">미체결</span>
-          {orders.length > 0 && (
-            <span className="text-xs font-bold text-amber-500 tabular-nums">{orders.length}</span>
-          )}
+      {!hideHeader && (
+        <div className="flex h-11 items-center justify-between px-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-semibold text-wefin-text">미체결</span>
+            {orders.length > 0 && (
+              <span className="text-xs font-bold text-amber-500 tabular-nums">{orders.length}</span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       {orders.length === 0 ? (
         <p className="py-4 text-center text-xs text-wefin-subtle">미체결 주문이 없어요</p>
       ) : (

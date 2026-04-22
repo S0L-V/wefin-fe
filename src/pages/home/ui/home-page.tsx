@@ -11,24 +11,26 @@ import SeoHead from '@/shared/ui/seo-head'
 import HomeSidebar from '@/widgets/home-sidebar/ui/home-sidebar'
 
 const SIDEBAR_WIDTH_STORAGE_KEY = 'home-sidebar-width'
-const DEFAULT_SIDEBAR_WIDTH = 380
-const MIN_SIDEBAR_WIDTH = 340
-const MAX_SIDEBAR_WIDTH = 520
+const SIDEBAR_RATIO = 0.22
+const MIN_SIDEBAR_WIDTH = 260
+const MAX_SIDEBAR_WIDTH = 440
 
 function HomePage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
-    if (typeof window === 'undefined') {
-      return DEFAULT_SIDEBAR_WIDTH
-    }
+    if (typeof window === 'undefined') return 320
 
     const stored = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY)
-    if (!stored) {
-      return DEFAULT_SIDEBAR_WIDTH
+    if (stored) {
+      const parsed = Number(stored)
+      if (Number.isFinite(parsed))
+        return Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, parsed))
     }
 
-    const parsed = Number(stored)
-    return Number.isFinite(parsed) ? parsed : DEFAULT_SIDEBAR_WIDTH
+    return Math.max(
+      MIN_SIDEBAR_WIDTH,
+      Math.min(MAX_SIDEBAR_WIDTH, Math.round(window.innerWidth * SIDEBAR_RATIO))
+    )
   })
 
   useEffect(() => {
@@ -49,9 +51,9 @@ function HomePage() {
   }, [])
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] 2xl:flex-row">
+    <div ref={containerRef} className="flex flex-col gap-[var(--gutter)] xl:flex-row">
       <SeoHead path="/" />
-      <div className="2xl:hidden">
+      <div className="xl:hidden">
         <DailyQuestPanel />
       </div>
       <section className="min-w-0 flex-1">
@@ -67,11 +69,11 @@ function HomePage() {
           </div>
         </div>
       </section>
-      <div className="hidden px-0.5 2xl:flex">
+      <div className="hidden px-0.5 xl:flex">
         <ResizeHandle onResize={handleResize} />
       </div>
       <aside
-        className="hidden 2xl:sticky 2xl:top-[105px] 2xl:block 2xl:h-[calc(100dvh-140px)] 2xl:shrink-0 2xl:overflow-hidden"
+        className="hidden xl:sticky xl:top-[105px] xl:block xl:h-[calc(100dvh-140px)] xl:shrink-0 xl:overflow-hidden"
         style={{ width: `${sidebarWidth}px` }}
       >
         <HomeSidebar />

@@ -33,11 +33,11 @@ function ReadingProgressBar() {
 
 function ClusterDetailPage() {
   return (
-    <div className="grid min-w-0 gap-6 2xl:grid-cols-[1fr_minmax(320px,30%)]">
+    <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,30%)]">
       <ReadingProgressBar />
       <ClusterDetailContent />
 
-      <aside className="hidden 2xl:sticky 2xl:top-[76px] 2xl:block 2xl:self-start">
+      <aside className="hidden xl:sticky xl:top-[76px] xl:block xl:self-start">
         <div className="card-base flex h-[calc(100dvh-120px)] min-h-[280px] flex-col overflow-hidden">
           <ChatPanel />
         </div>

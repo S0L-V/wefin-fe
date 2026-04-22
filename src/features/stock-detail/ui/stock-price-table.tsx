@@ -97,7 +97,7 @@ export default function StockPriceTable({ code }: StockPriceTableProps) {
               key={key}
               type="button"
               onClick={() => setMobileSubTab(key)}
-              className={`flex-1 py-2.5 text-[13px] font-bold transition-colors ${
+              className={`flex-1 py-1.5 text-[12px] font-bold transition-colors ${
                 mobileSubTab === key
                   ? 'border-b-2 border-wefin-mint text-wefin-mint'
                   : 'text-wefin-subtle'
@@ -159,11 +159,11 @@ function RealtimeTab({
   }
 
   return (
-    <table className="table-fixed w-full text-xs">
+    <table className="w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
-        <tr className="text-wefin-subtle">
+        <tr className="whitespace-nowrap text-wefin-subtle">
           <th className="px-2 py-1.5 text-left font-semibold">체결가</th>
-          <th className="px-2 py-1.5 text-right font-semibold">체결량(주)</th>
+          <th className="px-2 py-1.5 text-right font-semibold">체결량</th>
           <th className="px-2 py-1.5 text-right font-semibold">등락률</th>
           <th className="px-2 py-1.5 text-right font-semibold">시간</th>
         </tr>
@@ -180,17 +180,23 @@ function RealtimeTab({
               key={`${t.tradeTime}-${i}`}
               className="border-t border-wefin-line hover:bg-wefin-bg"
             >
-              <td className={`px-2 py-1 font-semibold tabular-nums ${colorClass}`}>
-                {t.price.toLocaleString()}원
+              <td
+                className={`whitespace-nowrap px-2 py-1 font-semibold tabular-nums ${colorClass}`}
+              >
+                {t.price.toLocaleString()}
               </td>
-              <td className={`px-2 py-1 text-right font-medium tabular-nums ${colorClass}`}>
+              <td
+                className={`whitespace-nowrap px-2 py-1 text-right font-medium tabular-nums ${colorClass}`}
+              >
                 {t.volume.toLocaleString()}
               </td>
-              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
+              <td
+                className={`whitespace-nowrap px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}
+              >
                 {isPositive ? '+' : ''}
                 {t.changeRate.toFixed(2)}%
               </td>
-              <td className="px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
+              <td className="whitespace-nowrap px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
                 {timeDisplay}
               </td>
             </tr>
@@ -224,16 +230,16 @@ function DailyTab({
   }
 
   return (
-    <table className="table-fixed w-full text-xs">
+    <table className="w-full text-xs">
       <thead className="sticky top-0 bg-wefin-bg">
-        <tr className="text-wefin-subtle">
+        <tr className="whitespace-nowrap text-wefin-subtle">
           <th className="px-2 py-1.5 text-left font-semibold">일자</th>
           <th className="px-2 py-1.5 text-right font-semibold">종가</th>
           <th className="px-2 py-1.5 text-right font-semibold">등락률</th>
           <th className="px-2 py-1.5 text-right font-semibold">거래량</th>
-          <th className="px-2 py-1.5 text-right font-semibold">시가</th>
-          <th className="px-2 py-1.5 text-right font-semibold">고가</th>
-          <th className="px-2 py-1.5 text-right font-semibold">저가</th>
+          <th className="hidden px-2 py-1.5 text-right font-semibold xl:table-cell">시가</th>
+          <th className="hidden px-2 py-1.5 text-right font-semibold xl:table-cell">고가</th>
+          <th className="hidden px-2 py-1.5 text-right font-semibold xl:table-cell">저가</th>
         </tr>
       </thead>
       <tbody>
@@ -246,20 +252,24 @@ function DailyTab({
 
           return (
             <tr key={c.date} className="border-t border-wefin-line hover:bg-wefin-bg">
-              <td className="px-2 py-1 font-medium text-wefin-subtle tabular-nums">
+              <td className="whitespace-nowrap px-2 py-1 font-medium text-wefin-subtle tabular-nums">
                 {c.date.substring(5, 10).replace('-', '.')}
               </td>
-              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
+              <td
+                className={`whitespace-nowrap px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}
+              >
                 {c.closePrice.toLocaleString()}
               </td>
-              <td className={`px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}>
+              <td
+                className={`whitespace-nowrap px-2 py-1 text-right font-semibold tabular-nums ${colorClass}`}
+              >
                 {isPositive ? '+' : ''}
                 {changeRate.toFixed(2)}%
               </td>
-              <td className="px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
+              <td className="whitespace-nowrap px-2 py-1 text-right font-medium text-wefin-subtle tabular-nums">
                 {c.volume.toLocaleString()}
               </td>
-              <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">
+              <td className="hidden whitespace-nowrap px-2 py-1 text-right font-medium text-wefin-text tabular-nums xl:table-cell">
                 {c.openPrice.toLocaleString()}
               </td>
               <td className="px-2 py-1 text-right font-medium text-wefin-text tabular-nums">

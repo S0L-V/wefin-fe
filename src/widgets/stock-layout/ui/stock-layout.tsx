@@ -9,22 +9,25 @@ interface StockLayoutProps {
 }
 
 export default function StockLayout({ children, sidebarWidth = 'default' }: StockLayoutProps) {
-  const defaultW = sidebarWidth === 'narrow' ? 320 : 420
-  const [sideW, setSideW] = useState(defaultW)
+  const [sideW, setSideW] = useState(() => {
+    const ratio = sidebarWidth === 'narrow' ? 0.18 : 0.22
+    const w = typeof window !== 'undefined' ? Math.round(window.innerWidth * ratio) : 320
+    return Math.max(240, Math.min(440, w))
+  })
 
   const handleResize = useCallback(
-    (delta: number) => setSideW((w) => Math.max(320, Math.min(520, w - delta))),
+    (delta: number) => setSideW((w) => Math.max(240, Math.min(440, w - delta))),
     []
   )
 
   return (
     <div className="flex gap-0">
       <main className="min-w-0 flex-1">{children}</main>
-      <div className="hidden 2xl:flex">
+      <div className="hidden xl:flex">
         <ResizeHandle onResize={handleResize} />
       </div>
-      <aside className="hidden shrink-0 2xl:block" style={{ width: sideW }}>
-        <StockSidebar matchHeight />
+      <aside className="hidden shrink-0 overflow-hidden xl:block" style={{ width: sideW }}>
+        <StockSidebar />
       </aside>
     </div>
   )
