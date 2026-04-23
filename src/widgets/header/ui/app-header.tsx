@@ -135,10 +135,16 @@ function AppHeader() {
             aria-label="wefin 홈"
           >
             <WefinLogoIcon
-              size={38}
-              className="mr-[-6px] translate-y-[6px] text-wefin-mint transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)]"
+              size={28}
+              className="mr-[-4px] translate-y-[4px] text-wefin-mint transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)] sm:hidden"
             />
-            <span className="text-[28px] font-extrabold text-wefin-mint">efin</span>
+            <WefinLogoIcon
+              size={38}
+              className="mr-[-6px] translate-y-[6px] text-wefin-mint transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)] hidden sm:block"
+            />
+            <span className="hidden text-[28px] font-extrabold text-wefin-mint sm:inline">
+              efin
+            </span>
           </NavLink>
 
           <nav
