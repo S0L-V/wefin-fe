@@ -31,6 +31,53 @@ const AI_POLL_MAX_ATTEMPTS = 6
 
 type PendingStatus = 'idle' | 'thinking' | 'syncing'
 
+function stripInlineMarkdown(value: string) {
+  return value
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/`/g, '')
+    .trim()
+}
+
+function AiMessageContent({ message }: { message: AiChatMessage }) {
+  if (message.parsedSections.length === 0) {
+    return <div className="whitespace-pre-wrap">{stripInlineMarkdown(message.content)}</div>
+  }
+
+  return (
+    <div className="space-y-3 whitespace-pre-wrap">
+      {message.parsedSections.map((section, sectionIndex) => (
+        <div key={`${section.title}-${sectionIndex}`}>
+          {section.title !== '답변' && (
+            <div className={sectionIndex === 0 ? '' : 'mt-3'}>
+              {stripInlineMarkdown(section.title)}
+            </div>
+          )}
+          <div className="mt-1 space-y-2">
+            {section.items.map((item, itemIndex) =>
+              section.title === '답변' && itemIndex === 0 ? (
+                <div
+                  key={`${item}-${itemIndex}`}
+                  className="whitespace-pre-wrap [overflow-wrap:anywhere]"
+                >
+                  {stripInlineMarkdown(item)}
+                </div>
+              ) : (
+                <div key={`${item}-${itemIndex}`} className="flex gap-1.5">
+                  <span className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-wefin-mint" />
+                  <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                    {stripInlineMarkdown(item)}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function WefinyChatWidget() {
   const userId = useAuthUserId()
   const queryClient = useQueryClient()
@@ -269,7 +316,8 @@ export default function WefinyChatWidget() {
       userId,
       role: 'USER',
       content: trimmedMessage,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      parsedSections: []
     }
 
     const previousAiMarker = getLatestAiMarker(messages)
@@ -460,7 +508,11 @@ export default function WefinyChatWidget() {
                             : 'rounded-tl-none border border-wefin-line bg-wefin-surface text-wefin-text shadow-sm'
                         }`}
                       >
-                        <div className="whitespace-pre-wrap">{chatMessage.content}</div>
+                        {chatMessage.role === 'AI' ? (
+                          <AiMessageContent message={chatMessage} />
+                        ) : (
+                          <div className="whitespace-pre-wrap">{chatMessage.content}</div>
+                        )}
                       </div>
                     </div>
                   )

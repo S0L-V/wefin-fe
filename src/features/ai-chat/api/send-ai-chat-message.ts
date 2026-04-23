@@ -4,12 +4,18 @@ import { baseApi } from '@/shared/api/base-api'
 
 const isDev = import.meta.env.DEV
 
+const aiChatParsedSectionSchema = z.object({
+  title: z.string(),
+  items: z.array(z.string())
+})
+
 const aiChatMessageSchema = z.object({
   messageId: z.number().nullable().optional(),
   userId: z.string().nullable(),
   role: z.enum(['USER', 'AI']),
   content: z.string(),
-  createdAt: z.string()
+  createdAt: z.string(),
+  parsedSections: z.array(aiChatParsedSectionSchema).optional().default([])
 })
 
 export type AiChatMessage = z.infer<typeof aiChatMessageSchema>

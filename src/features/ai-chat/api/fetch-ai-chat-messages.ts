@@ -5,12 +5,18 @@ import { baseApi } from '@/shared/api/base-api'
 const isDev = import.meta.env.DEV
 const PAGE_SIZE = 30
 
+const aiChatParsedSectionSchema = z.object({
+  title: z.string(),
+  items: z.array(z.string())
+})
+
 export const aiChatMessageSchema = z.object({
   messageId: z.number().nullable().optional(),
   userId: z.string().nullable(),
   role: z.enum(['USER', 'AI']),
   content: z.string(),
-  createdAt: z.string()
+  createdAt: z.string(),
+  parsedSections: z.array(aiChatParsedSectionSchema).optional().default([])
 })
 
 const aiChatMessagesPageSchema = z.object({
