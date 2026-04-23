@@ -2,7 +2,7 @@ import { toast } from 'sonner'
 
 import type { ChatUnreadNotification } from '@/features/chat/api/chat-unread'
 
-const TOAST_DURATION = 4000
+const TOAST_DURATION = 2000
 const CONTENT_MAX_LENGTH = 42
 
 function getChatTypeLabel(chatType: ChatUnreadNotification['chatType']) {

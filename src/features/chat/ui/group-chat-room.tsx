@@ -3,6 +3,7 @@ import { ArrowUp, CornerDownRight, ListChecks, MessageSquareReply, Smile, X } fr
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { fetchChatUnread, markGroupChatRead } from '@/features/chat/api/chat-unread'
 import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
 import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
@@ -42,6 +43,7 @@ function getMessageKey(
 
 interface GroupChatRoomProps {
   bare?: boolean
+  trackUnreadPresence?: boolean
 }
 
 function UnreadDivider() {
@@ -65,7 +67,10 @@ const CHAT_COMMANDS = [
   { command: YOUNG_COMMAND, description: '영차!' }
 ] as const
 
-export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {}) {
+export default function GroupChatRoom({
+  bare = false,
+  trackUnreadPresence = false
+}: GroupChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
@@ -94,9 +99,52 @@ export default function GroupChatRoom({ bare = false }: GroupChatRoomProps = {})
   const loadOlderMessages = useGroupChatStore((state) => state.loadOlderMessages)
   const visibleGroupUnreadLine = useChatUnreadStore((state) => state.visibleGroupUnreadLine)
   const visibleGroupReadMessageId = useChatUnreadStore((state) => state.visibleGroupReadMessageId)
+  const setUnread = useChatUnreadStore((state) => state.setUnread)
+  const setChatPanelState = useChatUnreadStore((state) => state.setChatPanelState)
+  const markChatReadLocally = useChatUnreadStore((state) => state.markChatReadLocally)
+  const snapshotUnreadLine = useChatUnreadStore((state) => state.snapshotUnreadLine)
   const dismissUnreadLine = useChatUnreadStore((state) => state.dismissUnreadLine)
 
   useGroupChatSocket(userId)
+
+  useEffect(() => {
+    if (!trackUnreadPresence || !userId) {
+      return
+    }
+
+    let cancelled = false
+
+    setChatPanelState(true, 'GROUP')
+    snapshotUnreadLine('GROUP')
+    markChatReadLocally('GROUP')
+
+    void markGroupChatRead()
+      .then(() => fetchChatUnread())
+      .then((payload) => {
+        if (cancelled) {
+          return
+        }
+        setUnread(payload)
+      })
+      .catch((error) => {
+        if (cancelled) {
+          return
+        }
+        console.error('Failed to mark group chat as read from embedded chat:', error)
+      })
+
+    return () => {
+      cancelled = true
+      setChatPanelState(false, null)
+    }
+  }, [
+    markChatReadLocally,
+    setChatPanelState,
+    setUnread,
+    snapshotUnreadLine,
+    trackUnreadPresence,
+    userId
+  ])
 
   const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
   const isVoteCommandInput =
