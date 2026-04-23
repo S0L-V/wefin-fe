@@ -49,7 +49,7 @@ function PlayHeader({
           <div className="hidden sm:block">
             <p className="text-xs font-bold uppercase tracking-wide text-white/70">현재 날짜</p>
             <p className="mt-0.5 text-lg font-extrabold tabular-nums">
-              {currentDate.replaceAll('-', '.')}
+              {currentDate.slice(5).replaceAll('-', '.')}
             </p>
           </div>
 

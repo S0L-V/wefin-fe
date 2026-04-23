@@ -5,6 +5,7 @@ export const gameRoomKeys = {
   portfolio: (roomId: string) => ['game-room', 'portfolio', roomId] as const,
   holdings: (roomId: string) => ['game-room', 'holdings', roomId] as const,
   briefing: (roomId: string) => ['game-room', 'briefing', roomId] as const,
+  briefings: (roomId: string) => ['game-room', 'briefings', roomId] as const,
   rankings: (roomId: string) => ['game-room', 'rankings', roomId] as const,
   stockChart: (symbol: string, roomId: string) =>
     ['game-room', 'stockChart', symbol, roomId] as const,
