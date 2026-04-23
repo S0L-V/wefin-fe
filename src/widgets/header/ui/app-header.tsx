@@ -131,18 +131,14 @@ function AppHeader() {
           <NavLink
             to={routes.home}
             onClick={(e) => handleNavClick(e, routes.home)}
-            className={`group/logo font-extrabold tracking-tight text-wefin-mint-600 transition-all duration-300 hover:[text-shadow:0_0_20px_rgba(20,184,166,0.3),0_0_40px_rgba(20,184,166,0.1)] ${
-              scrolled ? 'text-[22px] sm:text-[26px]' : 'text-[26px] sm:text-[32px]'
-            }`}
+            className="group/logo inline-flex items-baseline transition-all hover:[text-shadow:0_0_20px_rgba(20,184,166,0.3),0_0_40px_rgba(20,184,166,0.1)]"
             aria-label="wefin 홈"
           >
-            <span className="inline-flex items-baseline">
-              <WefinLogoIcon
-                size={scrolled ? 24 : 28}
-                className="mr-[-4px] translate-y-[4px] transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)] sm:translate-y-[5px]"
-              />
-              <span className="hidden sm:inline">efin</span>
-            </span>
+            <WefinLogoIcon
+              size={38}
+              className="mr-[-6px] translate-y-[6px] text-wefin-mint transition-all duration-300 group-hover/logo:drop-shadow-[0_0_12px_rgba(20,184,166,0.4)]"
+            />
+            <span className="text-[28px] font-extrabold text-wefin-mint">efin</span>
           </NavLink>
 
           <nav
