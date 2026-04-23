@@ -41,7 +41,7 @@ export function useOrderForm({ roomId, cash }: UseOrderFormArgs) {
   const maxQuantity = useMemo(() => {
     if (!selectedStock || currentPrice <= 0) return 0
     if (side === 'sell') return holdingQuantity
-    return Math.floor(cash / currentPrice)
+    return Math.floor(cash / (currentPrice * 1.00015))
   }, [selectedStock, currentPrice, cash, side, holdingQuantity])
 
   const totalAmount = quantity * currentPrice
