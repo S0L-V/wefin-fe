@@ -14,5 +14,13 @@ export const briefingResponseSchema = z.object({
   data: briefingDataSchema
 })
 
+export const briefingsResponseSchema = z.object({
+  status: z.number(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+  data: z.array(briefingDataSchema)
+})
+
 export type BriefingData = z.infer<typeof briefingDataSchema>
 export type BriefingResponse = z.infer<typeof briefingResponseSchema>
+export type BriefingsResponse = z.infer<typeof briefingsResponseSchema>

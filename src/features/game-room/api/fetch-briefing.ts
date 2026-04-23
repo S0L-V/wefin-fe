@@ -1,6 +1,6 @@
 import { baseApi } from '@/shared/api/base-api'
 
-import { briefingResponseSchema } from '../model/briefing.schema'
+import { briefingResponseSchema, briefingsResponseSchema } from '../model/briefing.schema'
 
 // 캐시 미스 시 네이버 크롤링 + OpenAI 호출까지 발생하므로
 // 전역 5초 타임아웃을 120초로 오버라이드한다
@@ -11,4 +11,11 @@ export async function fetchBriefing(roomId: string) {
     timeout: BRIEFING_TIMEOUT_MS
   })
   return briefingResponseSchema.parse(response.data)
+}
+
+export async function fetchBriefings(roomId: string) {
+  const response = await baseApi.get(`/rooms/${roomId}/briefings`, {
+    timeout: BRIEFING_TIMEOUT_MS
+  })
+  return briefingsResponseSchema.parse(response.data)
 }
