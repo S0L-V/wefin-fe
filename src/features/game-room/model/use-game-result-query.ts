@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
-import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
+import { invalidateTodayQuests } from '@/features/quest/model/use-today-quests'
 
 import { fetchGameResult, fetchOrderHistory, fetchSnapshots } from '../api/fetch-game-result'
 import { gameRoomKeys } from './query-keys'
@@ -18,7 +18,7 @@ export function useGameResultQuery(roomId: string) {
 
   useEffect(() => {
     if (query.data) {
-      refreshTodayQuestsAfterRealtimeAction(queryClient)
+      void invalidateTodayQuests(queryClient)
     }
   }, [query.data, queryClient])
 
