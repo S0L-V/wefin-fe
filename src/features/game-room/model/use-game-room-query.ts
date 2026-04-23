@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
+
 import {
   createGameRoom,
   fetchGameHistory,
@@ -46,6 +48,7 @@ export function useCreateGameRoomMutation() {
   return useMutation({
     mutationFn: (request: CreateRoomRequest) => createGameRoom(request),
     onSuccess: () => {
+      refreshTodayQuestsAfterRealtimeAction(queryClient)
       queryClient.invalidateQueries({
         queryKey: gameRoomKeys.list(),
         refetchType: 'none'
@@ -60,6 +63,7 @@ export function useJoinGameRoomMutation() {
   return useMutation({
     mutationFn: (roomId: string) => joinGameRoom(roomId),
     onSuccess: () => {
+      refreshTodayQuestsAfterRealtimeAction(queryClient)
       queryClient.invalidateQueries({ queryKey: gameRoomKeys.all })
     }
   })

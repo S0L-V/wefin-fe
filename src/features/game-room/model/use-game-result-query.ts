@@ -1,15 +1,28 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
+
+import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
 
 import { fetchGameResult, fetchOrderHistory, fetchSnapshots } from '../api/fetch-game-result'
 import { gameRoomKeys } from './query-keys'
 
 // 게임 결과 조회 — 성과 요약 카드용
 export function useGameResultQuery(roomId: string) {
-  return useQuery({
+  const queryClient = useQueryClient()
+
+  const query = useQuery({
     queryKey: gameRoomKeys.result(roomId),
     queryFn: () => fetchGameResult(roomId),
     enabled: !!roomId
   })
+
+  useEffect(() => {
+    if (query.data) {
+      refreshTodayQuestsAfterRealtimeAction(queryClient)
+    }
+  }, [query.data, queryClient])
+
+  return query
 }
 
 // 자산 변동 스냅샷 조회 — 라인 차트용 (본인 데이터만)
