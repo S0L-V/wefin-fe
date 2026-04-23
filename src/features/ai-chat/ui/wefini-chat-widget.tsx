@@ -40,14 +40,18 @@ function stripInlineMarkdown(value: string) {
 }
 
 function AiMessageContent({ message }: { message: AiChatMessage }) {
-  if (message.parsedSections.length === 0) {
+  const renderableSections = message.parsedSections.filter(
+    (section) => section.items.length > 0 || section.title !== '답변'
+  )
+
+  if (renderableSections.length === 0) {
     return <div className="whitespace-pre-wrap">{stripInlineMarkdown(message.content)}</div>
   }
 
   return (
     <div className="space-y-3 whitespace-pre-wrap">
-      {message.parsedSections.map((section, sectionIndex) => (
-        <div key={`${section.title}-${sectionIndex}`}>
+      {renderableSections.map((section, sectionIndex) => (
+        <div key={`section-${sectionIndex}`}>
           {section.title !== '답변' && (
             <div className={sectionIndex === 0 ? '' : 'mt-3'}>
               {stripInlineMarkdown(section.title)}
@@ -57,13 +61,13 @@ function AiMessageContent({ message }: { message: AiChatMessage }) {
             {section.items.map((item, itemIndex) =>
               section.title === '답변' && itemIndex === 0 ? (
                 <div
-                  key={`${item}-${itemIndex}`}
+                  key={`item-${itemIndex}`}
                   className="whitespace-pre-wrap [overflow-wrap:anywhere]"
                 >
                   {stripInlineMarkdown(item)}
                 </div>
               ) : (
-                <div key={`${item}-${itemIndex}`} className="flex gap-1.5">
+                <div key={`item-${itemIndex}`} className="flex gap-1.5">
                   <span className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-wefin-mint" />
                   <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">
                     {stripInlineMarkdown(item)}

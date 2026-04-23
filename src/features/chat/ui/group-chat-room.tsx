@@ -67,6 +67,8 @@ const CHAT_COMMANDS = [
   { command: YOUNG_COMMAND, description: '영차!' }
 ] as const
 
+let embeddedGroupPresenceCount = 0
+
 export default function GroupChatRoom({
   bare = false,
   trackUnreadPresence = false
@@ -113,6 +115,7 @@ export default function GroupChatRoom({
     }
 
     let cancelled = false
+    embeddedGroupPresenceCount += 1
 
     setChatPanelState(true, 'GROUP')
     snapshotUnreadLine('GROUP')
@@ -135,7 +138,15 @@ export default function GroupChatRoom({
 
     return () => {
       cancelled = true
-      setChatPanelState(false, null)
+      embeddedGroupPresenceCount = Math.max(0, embeddedGroupPresenceCount - 1)
+
+      if (embeddedGroupPresenceCount === 0) {
+        const current = useChatUnreadStore.getState()
+
+        if (current.isChatPanelOpen && current.activeChatType === 'GROUP') {
+          setChatPanelState(false, null)
+        }
+      }
     }
   }, [
     markChatReadLocally,
