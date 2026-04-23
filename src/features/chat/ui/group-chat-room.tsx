@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom'
 
 import { fetchChatUnread, markGroupChatRead } from '@/features/chat/api/chat-unread'
 import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
+import {
+  getChatClearBeforeMessageId,
+  removeChatClearBeforeMessageId,
+  setChatClearBeforeMessageId
+} from '@/features/chat/model/chat-message-visibility'
 import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { useGroupChatStore } from '@/features/chat/model/group/group-chat-store'
@@ -61,10 +66,14 @@ function UnreadDivider() {
 const VOTE_COMMAND = '/vote'
 const WEFINI_COMMAND = '/wefini'
 const YOUNG_COMMAND = '/영'
+const CLEAR_COMMAND = '/clear'
+const UNCLEAR_COMMAND = '/unclear'
 const CHAT_COMMANDS = [
   { command: VOTE_COMMAND, description: '투표 만들기' },
   { command: WEFINI_COMMAND, description: '위피니에게 질문하기' },
-  { command: YOUNG_COMMAND, description: '영차!' }
+  { command: YOUNG_COMMAND, description: '영차!' },
+  { command: CLEAR_COMMAND, description: '현재까지 채팅 숨기기' },
+  { command: UNCLEAR_COMMAND, description: '숨긴 채팅 다시 보이기' }
 ] as const
 
 let embeddedGroupPresenceCount = 0
@@ -77,6 +86,9 @@ export default function GroupChatRoom({
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
+  const [clearBeforeMessageIds, setClearBeforeMessageIds] = useState<Record<string, number | null>>(
+    {}
+  )
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -157,7 +169,25 @@ export default function GroupChatRoom({
     userId
   ])
 
-  const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
+  const clearStorageKey = `GROUP:${userId ?? 'anonymous'}:${groupId ?? 'default'}`
+  const clearBeforeMessageId =
+    userId && clearStorageKey in clearBeforeMessageIds
+      ? clearBeforeMessageIds[clearStorageKey]
+      : userId
+        ? getChatClearBeforeMessageId(userId, 'GROUP', groupId)
+        : null
+
+  const visibleMessages = useMemo(
+    () =>
+      chatMessages.filter(
+        (chatMessage) =>
+          clearBeforeMessageId == null ||
+          chatMessage.messageId == null ||
+          chatMessage.messageId > clearBeforeMessageId
+      ),
+    [chatMessages, clearBeforeMessageId]
+  )
+  const lastMessageKey = useMemo(() => getLastMessageKey(visibleMessages), [visibleMessages])
   const isVoteCommandInput =
     message.trim() === VOTE_COMMAND || message.trim().startsWith(`${VOTE_COMMAND} `)
   const commandSuggestions = useMemo(() => {
@@ -182,7 +212,7 @@ export default function GroupChatRoom({
     }
 
     if (visibleGroupReadMessageId == null) {
-      const firstUnreadMessage = chatMessages.find(
+      const firstUnreadMessage = visibleMessages.find(
         (message) => message.userId !== userId || message.messageType === 'SYSTEM'
       )
 
@@ -190,19 +220,19 @@ export default function GroupChatRoom({
         return -1
       }
 
-      return chatMessages.findIndex(
+      return visibleMessages.findIndex(
         (message) => getMessageKey(message) === getMessageKey(firstUnreadMessage)
       )
     }
 
-    return chatMessages.findIndex((message) => {
+    return visibleMessages.findIndex((message) => {
       if (message.messageId <= visibleGroupReadMessageId) {
         return false
       }
 
       return message.userId !== userId || message.messageType === 'SYSTEM'
     })
-  }, [chatMessages, userId, visibleGroupReadMessageId, visibleGroupUnreadLine])
+  }, [userId, visibleGroupReadMessageId, visibleGroupUnreadLine, visibleMessages])
 
   useEffect(() => {
     const shouldScrollToBottom =
@@ -222,7 +252,7 @@ export default function GroupChatRoom({
   }, [firstUnreadIndex, lastMessageKey])
 
   useLayoutEffect(() => {
-    if (isLoading || chatMessages.length === 0 || !scrollContainerRef.current) {
+    if (isLoading || visibleMessages.length === 0 || !scrollContainerRef.current) {
       return
     }
 
@@ -245,7 +275,7 @@ export default function GroupChatRoom({
       return
     }
     container.scrollTop = container.scrollHeight
-  }, [firstUnreadIndex, isLoading, chatMessages.length])
+  }, [firstUnreadIndex, isLoading, visibleMessages.length])
 
   const handleCommandMessage = (trimmedMessage: string) => {
     if (trimmedMessage !== VOTE_COMMAND && !trimmedMessage.startsWith(`${VOTE_COMMAND} `)) {
@@ -293,6 +323,41 @@ export default function GroupChatRoom({
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()
+
+    if (trimmedMessage === CLEAR_COMMAND) {
+      const latestMessageId = chatMessages.reduce<number | null>((latest, chatMessage) => {
+        if (chatMessage.messageId == null) {
+          return latest
+        }
+
+        return latest == null || chatMessage.messageId > latest ? chatMessage.messageId : latest
+      }, null)
+
+      if (latestMessageId != null && userId) {
+        setChatClearBeforeMessageId(userId, 'GROUP', latestMessageId, groupId)
+        setClearBeforeMessageIds((current) => ({
+          ...current,
+          [clearStorageKey]: latestMessageId
+        }))
+      }
+
+      dismissUnreadLine('GROUP')
+      setMessage('')
+      return
+    }
+
+    if (trimmedMessage === UNCLEAR_COMMAND) {
+      if (userId) {
+        removeChatClearBeforeMessageId(userId, 'GROUP', groupId)
+      }
+
+      setClearBeforeMessageIds((current) => ({
+        ...current,
+        [clearStorageKey]: null
+      }))
+      setMessage('')
+      return
+    }
 
     if (handleCommandMessage(trimmedMessage)) {
       return
@@ -400,7 +465,7 @@ export default function GroupChatRoom({
             </div>
           )}
 
-          {chatMessages.map((msg, index) => {
+          {visibleMessages.map((msg, index) => {
             const isMine = msg.userId === userId
             const isSystem = msg.messageType === 'SYSTEM'
             const isNews = msg.messageType === 'NEWS' && !!msg.newsShare

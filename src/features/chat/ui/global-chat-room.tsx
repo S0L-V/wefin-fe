@@ -4,6 +4,11 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuthUserId } from '@/features/auth/model/use-auth-user-id'
 import { emojiList, emojiMap, isEmojiCode } from '@/features/chat/lib/emoji-map'
+import {
+  getChatClearBeforeMessageId,
+  removeChatClearBeforeMessageId,
+  setChatClearBeforeMessageId
+} from '@/features/chat/model/chat-message-visibility'
 import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
 import { refreshTodayQuestsAfterRealtimeAction } from '@/features/quest/model/use-today-quests'
@@ -55,6 +60,9 @@ function UnreadDivider() {
 export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {}) {
   const [message, setMessage] = useState('')
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
+  const [clearBeforeMessageIds, setClearBeforeMessageIds] = useState<Record<string, number | null>>(
+    {}
+  )
   const queryClient = useQueryClient()
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -79,14 +87,32 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   const isLoggedIn = !!authUserId
   const canSendMessage = isLoggedIn && !!client?.connected && !!userId
 
-  const lastMessageKey = useMemo(() => getLastMessageKey(chatMessages), [chatMessages])
+  const clearStorageKey = `GLOBAL:${userId ?? 'anonymous'}`
+  const clearBeforeMessageId =
+    userId && clearStorageKey in clearBeforeMessageIds
+      ? clearBeforeMessageIds[clearStorageKey]
+      : userId
+        ? getChatClearBeforeMessageId(userId, 'GLOBAL')
+        : null
+
+  const visibleMessages = useMemo(
+    () =>
+      chatMessages.filter(
+        (chatMessage) =>
+          clearBeforeMessageId == null ||
+          chatMessage.messageId == null ||
+          chatMessage.messageId > clearBeforeMessageId
+      ),
+    [chatMessages, clearBeforeMessageId]
+  )
+  const lastMessageKey = useMemo(() => getLastMessageKey(visibleMessages), [visibleMessages])
   const firstUnreadIndex = useMemo(() => {
     if (!visibleGlobalUnreadLine) {
       return -1
     }
 
     if (visibleGlobalReadMessageId == null) {
-      const firstUnreadMessage = chatMessages.find(
+      const firstUnreadMessage = visibleMessages.find(
         (message) => message.userId !== userId || message.role === 'SYSTEM'
       )
 
@@ -94,19 +120,19 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
         return -1
       }
 
-      return chatMessages.findIndex(
+      return visibleMessages.findIndex(
         (message) => getMessageKey(message) === getMessageKey(firstUnreadMessage)
       )
     }
 
-    return chatMessages.findIndex((message) => {
+    return visibleMessages.findIndex((message) => {
       if (message.messageId == null || message.messageId <= visibleGlobalReadMessageId) {
         return false
       }
 
       return message.userId !== userId || message.role === 'SYSTEM'
     })
-  }, [chatMessages, userId, visibleGlobalReadMessageId, visibleGlobalUnreadLine])
+  }, [userId, visibleGlobalReadMessageId, visibleGlobalUnreadLine, visibleMessages])
 
   useEffect(() => {
     const shouldScrollToBottom =
@@ -126,7 +152,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   }, [firstUnreadIndex, lastMessageKey])
 
   useLayoutEffect(() => {
-    if (isLoading || chatMessages.length === 0 || !scrollContainerRef.current) {
+    if (isLoading || visibleMessages.length === 0 || !scrollContainerRef.current) {
       return
     }
 
@@ -149,11 +175,48 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       return
     }
     container.scrollTop = container.scrollHeight
-  }, [firstUnreadIndex, isLoading, chatMessages.length])
+  }, [firstUnreadIndex, isLoading, visibleMessages.length])
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()
-    if (!trimmedMessage || !canSendMessage) return
+    if (!trimmedMessage) return
+
+    if (trimmedMessage === '/clear') {
+      const latestMessageId = chatMessages.reduce<number | null>((latest, chatMessage) => {
+        if (chatMessage.messageId == null) {
+          return latest
+        }
+
+        return latest == null || chatMessage.messageId > latest ? chatMessage.messageId : latest
+      }, null)
+
+      if (latestMessageId != null && userId) {
+        setChatClearBeforeMessageId(userId, 'GLOBAL', latestMessageId)
+        setClearBeforeMessageIds((current) => ({
+          ...current,
+          [clearStorageKey]: latestMessageId
+        }))
+      }
+
+      dismissUnreadLine('GLOBAL')
+      setMessage('')
+      return
+    }
+
+    if (trimmedMessage === '/unclear') {
+      if (userId) {
+        removeChatClearBeforeMessageId(userId, 'GLOBAL')
+      }
+
+      setClearBeforeMessageIds((current) => ({
+        ...current,
+        [clearStorageKey]: null
+      }))
+      setMessage('')
+      return
+    }
+
+    if (!canSendMessage) return
 
     dismissUnreadLine('GLOBAL')
     sendMessage(trimmedMessage)
@@ -248,7 +311,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
           <div className="text-center text-xs text-wefin-subtle">이전 메시지를 불러오는 중...</div>
         )}
 
-        {chatMessages.map((msg, index) => {
+        {visibleMessages.map((msg, index) => {
           const isMine = msg.userId === userId
           const isSystem = msg.role === 'SYSTEM'
 
