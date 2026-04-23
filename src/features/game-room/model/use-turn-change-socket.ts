@@ -40,7 +40,7 @@ export function useTurnChangeSocket(roomId: string) {
             queryClient.invalidateQueries({ queryKey: gameTurnKeys.current(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.portfolio(roomId) })
             queryClient.invalidateQueries({ queryKey: gameRoomKeys.holdings(roomId) })
-            queryClient.invalidateQueries({ queryKey: gameRoomKeys.briefing(roomId) })
+            queryClient.invalidateQueries({ queryKey: gameRoomKeys.briefings(roomId) })
             queryClient.invalidateQueries({ queryKey: ['stockSearch', roomId] })
             queryClient.invalidateQueries({ queryKey: ['sectorStocks', roomId] })
 
