@@ -126,7 +126,7 @@ function toUnreadPayload(payload: ChatUnreadNotification): ChatUnread {
   }
 }
 
-async function showBrowserNotification(
+export async function showChatBrowserNotification(
   payload: ChatUnreadNotification,
   baseFaviconHref: string | null
 ) {
@@ -325,7 +325,7 @@ export function useChatUnreadBoot(userId: string) {
           }
 
           if (document.hidden) {
-            void showBrowserNotification(payload, baseFaviconRef.current)
+            void showChatBrowserNotification(payload, baseFaviconRef.current)
           }
         } catch {
           console.error('채팅 unread 알림 처리 실패')

@@ -3,10 +3,21 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import {
+  type ChatUnreadNotification,
+  chatUnreadSchema,
+  fetchChatUnread,
+  markGlobalChatRead
+} from '@/features/chat/api/chat-unread'
+import {
   fetchGlobalChatMessages,
+  type GlobalChatMessage,
   globalChatMessageSchema
 } from '@/features/chat/api/global/fetch-global-chat-messages'
+import { isChatToastEnabled } from '@/features/chat/model/chat-toast-preferences'
+import { useChatUnreadStore } from '@/features/chat/model/chat-unread-store'
 import { useGlobalChatStore } from '@/features/chat/model/global/global-chat-store'
+import { showChatBrowserNotification } from '@/features/chat/model/use-chat-unread-boot'
+import { showChatInAppToast } from '@/features/chat/ui/chat-notification-toast'
 import {
   connectStomp,
   disconnectStomp,
@@ -30,6 +41,37 @@ function getAccessToken(): string {
   return window.localStorage.getItem('accessToken') ?? ''
 }
 
+function toGlobalUnreadNotification(message: GlobalChatMessage): ChatUnreadNotification | null {
+  if (message.messageId == null) {
+    return null
+  }
+
+  const unreadState = useChatUnreadStore.getState()
+
+  const parsedUnreadState = chatUnreadSchema.safeParse({
+    globalUnreadCount: unreadState.globalUnreadCount,
+    groupUnreadCount: unreadState.groupUnreadCount,
+    totalUnreadCount: unreadState.totalUnreadCount,
+    hasGlobalUnread: unreadState.hasGlobalUnread,
+    hasGroupUnread: unreadState.hasGroupUnread,
+    lastReadGlobalMessageId: unreadState.lastReadGlobalMessageId,
+    lastReadGroupMessageId: unreadState.lastReadGroupMessageId
+  })
+
+  if (!parsedUnreadState.success) {
+    return null
+  }
+
+  return {
+    chatType: 'GLOBAL',
+    messageId: message.messageId,
+    groupId: null,
+    sender: message.sender ?? '알 수 없음',
+    content: message.content,
+    ...parsedUnreadState.data
+  }
+}
+
 export function useGlobalChatBoot(userId: string) {
   const setUserId = useGlobalChatStore((state) => state.setUserId)
   const setInitialPage = useGlobalChatStore((state) => state.setInitialPage)
@@ -44,6 +86,7 @@ export function useGlobalChatBoot(userId: string) {
   const hasBootstrappedRef = useRef(false)
   const subscriptionsRef = useRef<{ unsubscribe: () => void }[]>([])
   const errorTimeoutRef = useRef<number | null>(null)
+  const readSyncRef = useRef({ inFlight: false, pending: false })
 
   useEffect(() => {
     setUserId(userId)
@@ -91,6 +134,34 @@ export function useGlobalChatBoot(userId: string) {
 
     const client = stompClient as Client
 
+    const syncGlobalChatRead = () => {
+      const syncState = readSyncRef.current
+
+      if (syncState.inFlight) {
+        syncState.pending = true
+        return
+      }
+
+      syncState.inFlight = true
+
+      void markGlobalChatRead()
+        .then(() => fetchChatUnread())
+        .then((payload) => {
+          useChatUnreadStore.getState().setUnread(payload)
+        })
+        .catch((error) => {
+          console.error('Failed to mark global chat as read from realtime event:', error)
+        })
+        .finally(() => {
+          syncState.inFlight = false
+
+          if (syncState.pending) {
+            syncState.pending = false
+            syncGlobalChatRead()
+          }
+        })
+    }
+
     // 토큰이 있으면 인증 연결, 없으면 익명으로 글로벌 채팅만 구독한다.
     client.connectHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 
@@ -114,6 +185,42 @@ export function useGlobalChatBoot(userId: string) {
             }
 
             appendMessage(parsed.data)
+
+            if (!userId || parsed.data.userId === userId) {
+              return
+            }
+
+            const unreadState = useChatUnreadStore.getState()
+            const isViewingGlobalChat =
+              unreadState.isChatPanelOpen &&
+              unreadState.activeChatType === 'GLOBAL' &&
+              document.visibilityState === 'visible'
+
+            if (isViewingGlobalChat) {
+              unreadState.markChatReadLocally('GLOBAL')
+              syncGlobalChatRead()
+              return
+            }
+
+            unreadState.applyUnreadDelta('GLOBAL')
+            const notificationPayload = toGlobalUnreadNotification(parsed.data)
+
+            if (!notificationPayload) {
+              return
+            }
+
+            const shouldShowInAppNotification =
+              !document.hidden &&
+              document.visibilityState === 'visible' &&
+              isChatToastEnabled(userId, 'GLOBAL')
+
+            if (shouldShowInAppNotification) {
+              showChatInAppToast(notificationPayload)
+            }
+
+            if (document.hidden) {
+              void showChatBrowserNotification(notificationPayload, null)
+            }
           } catch {
             console.error('전체 채팅 메시지 처리 실패')
           }
