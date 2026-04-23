@@ -152,7 +152,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
   }, [firstUnreadIndex, lastMessageKey])
 
   useLayoutEffect(() => {
-    if (isLoading || visibleMessages.length === 0 || !scrollContainerRef.current) {
+    if (isLoading || !scrollContainerRef.current) {
       return
     }
 
@@ -168,6 +168,10 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       return
     }
 
+    if (visibleMessages.length === 0) {
+      return
+    }
+
     if (firstUnreadIndex >= 0 && unreadDividerRef.current) {
       unreadDividerRef.current.scrollIntoView({
         block: 'center'
@@ -175,7 +179,7 @@ export default function GlobalChatRoom({ bare = false }: GlobalChatRoomProps = {
       return
     }
     container.scrollTop = container.scrollHeight
-  }, [firstUnreadIndex, isLoading, visibleMessages.length])
+  }, [chatMessages.length, firstUnreadIndex, isLoading, visibleMessages.length])
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim()

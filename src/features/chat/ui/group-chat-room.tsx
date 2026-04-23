@@ -252,7 +252,7 @@ export default function GroupChatRoom({
   }, [firstUnreadIndex, lastMessageKey])
 
   useLayoutEffect(() => {
-    if (isLoading || visibleMessages.length === 0 || !scrollContainerRef.current) {
+    if (isLoading || !scrollContainerRef.current) {
       return
     }
 
@@ -268,6 +268,10 @@ export default function GroupChatRoom({
       return
     }
 
+    if (visibleMessages.length === 0) {
+      return
+    }
+
     if (firstUnreadIndex >= 0 && unreadDividerRef.current) {
       unreadDividerRef.current.scrollIntoView({
         block: 'center'
@@ -275,7 +279,7 @@ export default function GroupChatRoom({
       return
     }
     container.scrollTop = container.scrollHeight
-  }, [firstUnreadIndex, isLoading, visibleMessages.length])
+  }, [chatMessages.length, firstUnreadIndex, isLoading, visibleMessages.length])
 
   const handleCommandMessage = (trimmedMessage: string) => {
     if (trimmedMessage !== VOTE_COMMAND && !trimmedMessage.startsWith(`${VOTE_COMMAND} `)) {
