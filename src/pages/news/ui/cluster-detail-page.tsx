@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import ChatPanel from '@/features/chat/ui/chat-panel'
 import ClusterDetailContent from '@/features/news-feed/ui/cluster-detail-content'
 
 function ReadingProgressBar() {
-  const [progress, setProgress] = useState(() => {
-    const h = document.documentElement.scrollHeight - window.innerHeight
-    return h > 0 ? Math.min((window.scrollY / h) * 100, 100) : 0
-  })
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     function handleScroll() {
@@ -32,6 +30,12 @@ function ReadingProgressBar() {
 }
 
 function ClusterDetailPage() {
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname])
+
   return (
     <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,30%)]">
       <ReadingProgressBar />

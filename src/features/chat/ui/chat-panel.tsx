@@ -125,7 +125,7 @@ export default function ChatPanel() {
     activeChatType === 'GLOBAL'
       ? chatToastPreferences.globalEnabled
       : chatToastPreferences.groupEnabled
-  const currentToastLabel = activeChatType === 'GLOBAL' ? '전체 채팅 토스트' : '그룹 채팅 토스트'
+  const currentToastLabel = activeChatType === 'GLOBAL' ? '전체 채팅 알림' : '그룹 채팅 알림'
 
   const tabs = useMemo<SegmentedTabItem<ChatInnerTab>[]>(() => {
     const groupLabel = isHomeGroup ? '메모' : '그룹'

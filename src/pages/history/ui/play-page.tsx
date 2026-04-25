@@ -234,7 +234,7 @@ function PlayPage() {
 
           <div className="flex min-w-[240px] max-w-[340px] flex-[0.4] flex-col gap-1.5 xl:min-w-[260px] xl:max-w-[380px] xl:flex-[0.45] xl:gap-2">
             <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
-              <GroupChatRoom bare />
+              <GroupChatRoom bare trackUnreadPresence />
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
               <GroupRanking roomId={roomId} />
@@ -316,7 +316,7 @@ function PlayPage() {
               style={{ height: 'calc(100dvh - 56px - 44px - 80px)' }}
             >
               <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
-                <GroupChatRoom bare />
+                <GroupChatRoom bare trackUnreadPresence />
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-wefin-line bg-wefin-surface">
                 <GroupRanking roomId={roomId} />
