@@ -161,7 +161,7 @@ export default function TutorialPage() {
         </motion.div>
 
         {/* Step Content */}
-        <div className="card-base relative mt-3 overflow-hidden">
+        <div className="card-base relative mt-3 min-h-0 flex-1 overflow-hidden">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={step.id}
@@ -171,7 +171,7 @@ export default function TutorialPage() {
               animate="center"
               exit="exit"
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="h-full"
+              className="h-full overflow-y-auto"
             >
               <step.Component />
             </motion.div>

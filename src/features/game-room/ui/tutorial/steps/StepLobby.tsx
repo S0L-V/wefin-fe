@@ -32,7 +32,7 @@ export default function StepLobby() {
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + i * 0.05 }}
-                        className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-all ${
+                        className={`flex-1 whitespace-nowrap rounded-xl py-3 text-xs font-semibold transition-all sm:text-sm ${
                           i === 2
                             ? 'bg-wefin-mint text-white shadow-sm'
                             : 'bg-wefin-surface-2 text-wefin-text'
@@ -55,7 +55,7 @@ export default function StepLobby() {
                     {['3개월', '6개월', '1년'].map((label, i) => (
                       <button
                         key={label}
-                        className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-all ${
+                        className={`flex-1 whitespace-nowrap rounded-xl py-3 text-xs font-semibold transition-all sm:text-sm ${
                           i === 1
                             ? 'bg-wefin-mint text-white shadow-sm'
                             : 'bg-wefin-surface-2 text-wefin-text hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'
@@ -76,7 +76,7 @@ export default function StepLobby() {
                     {['1일', '3일', '7일', '14일', '30일'].map((label, i) => (
                       <button
                         key={label}
-                        className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-all ${
+                        className={`flex-1 whitespace-nowrap rounded-xl py-3 text-xs font-semibold transition-all sm:text-sm ${
                           i === 2
                             ? 'bg-wefin-mint text-white shadow-sm'
                             : 'bg-wefin-surface-2 text-wefin-text hover:bg-wefin-mint-soft hover:text-wefin-mint-deep'
@@ -91,16 +91,16 @@ export default function StepLobby() {
             </div>
 
             <div className="flex items-center justify-between border-t border-wefin-line px-6 py-4">
-              <p className="text-sm text-wefin-subtle">
+              <p className="min-w-0 text-xs text-wefin-subtle sm:text-sm">
                 5,000만원 · 6개월 · 7일마다 ·{' '}
                 <span className="font-bold text-wefin-mint-deep">27턴</span>
               </p>
               <motion.button
                 animate={{ scale: [1, 1.03, 1] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-6 py-2.5 text-sm font-bold text-white"
+                className="group relative shrink-0 overflow-hidden rounded-lg bg-gradient-to-r from-wefin-mint-deep to-wefin-mint px-6 py-2.5 text-sm font-bold text-white"
               >
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center gap-2 whitespace-nowrap">
                   <Play size={14} /> 시작
                 </span>
               </motion.button>

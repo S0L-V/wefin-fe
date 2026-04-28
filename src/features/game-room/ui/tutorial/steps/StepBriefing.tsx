@@ -7,7 +7,7 @@ export default function StepBriefing() {
   return (
     <div className="flex flex-col">
       {/* Content */}
-      <div className="grid grid-cols-3 gap-3 p-4 sm:p-6">
+      <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 lg:grid-cols-3 lg:gap-3">
         {/* Briefing */}
         <div className="col-span-1">
           <div className="flex h-11 items-center justify-between">

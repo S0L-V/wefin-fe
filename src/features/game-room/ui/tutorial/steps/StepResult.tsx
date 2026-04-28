@@ -155,11 +155,11 @@ export default function StepResult() {
             <h3 className="mb-4 text-[15px] font-bold text-wefin-text">전체 매매 내역</h3>
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-wefin-line text-[13px] font-bold text-wefin-subtle">
-                  <th className="pb-3.5">날짜</th>
-                  <th className="pb-3.5">종목</th>
-                  <th className="pb-3.5">구분</th>
-                  <th className="pb-3.5 text-right">금액</th>
+                <tr className="border-b border-wefin-line text-[11px] font-bold text-wefin-subtle sm:text-[13px]">
+                  <th className="whitespace-nowrap pb-3.5">날짜</th>
+                  <th className="whitespace-nowrap pb-3.5">종목</th>
+                  <th className="whitespace-nowrap pb-3.5">구분</th>
+                  <th className="whitespace-nowrap pb-3.5 text-right">금액</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-wefin-line/50">
@@ -173,13 +173,17 @@ export default function StepResult() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 + i * 0.1 }}
-                    className="text-[14px]"
+                    className="text-[12px] sm:text-[14px]"
                   >
-                    <td className="font-num py-3.5 text-wefin-subtle">{o.date}</td>
-                    <td className="py-3.5 font-semibold text-wefin-text">{o.name}</td>
-                    <td className="py-3.5">
+                    <td className="font-num whitespace-nowrap py-3.5 text-wefin-subtle">
+                      {o.date}
+                    </td>
+                    <td className="whitespace-nowrap py-3.5 font-semibold text-wefin-text">
+                      {o.name}
+                    </td>
+                    <td className="whitespace-nowrap py-3.5">
                       <span
-                        className={`rounded-md px-2.5 py-1 text-[11px] font-bold ${
+                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold sm:px-2.5 sm:py-1 sm:text-[11px] ${
                           o.type === 'BUY'
                             ? 'bg-wefin-red-soft text-wefin-red'
                             : 'bg-wefin-surface-2 text-wefin-blue'
@@ -188,7 +192,7 @@ export default function StepResult() {
                         {o.type === 'BUY' ? '매수' : '매도'}
                       </span>
                     </td>
-                    <td className="font-num py-3.5 text-right font-bold text-wefin-text">
+                    <td className="font-num whitespace-nowrap py-3.5 text-right font-bold text-wefin-text">
                       {o.amount}원
                     </td>
                   </motion.tr>

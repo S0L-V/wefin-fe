@@ -124,7 +124,7 @@ export function KeywordCard({ keyword, delay }: { keyword: string; delay: number
 
 export default function StepOrder() {
   return (
-    <div className="grid grid-cols-2 gap-5 p-5">
+    <div className="grid grid-cols-1 gap-5 p-5 lg:grid-cols-2">
       {/* Order Panel - Sector Step */}
       <div className="flex flex-col overflow-hidden rounded-xl border border-wefin-line bg-wefin-surface">
         <div className="flex h-12 shrink-0 items-center justify-between px-4">
