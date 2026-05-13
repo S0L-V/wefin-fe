@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ChevronLeft, ChevronRight, Play } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Play, Volume2, VolumeOff } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import StepBriefing from './steps/StepBriefing'
@@ -67,6 +67,32 @@ export default function TutorialPage() {
   const navigate = useNavigate()
   const [current, setCurrent] = useState(0)
   const [direction, setDirection] = useState(0)
+  const [muted, setMuted] = useState(false)
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.volume = 0.3
+    audio.play().catch(() => {})
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }, [])
+
+  function toggleMute() {
+    const audio = audioRef.current
+    if (!audio) return
+    // 음소거 해제 시 재생 시도 (autoplay 정책 대응)
+    if (muted) {
+      audio.muted = false
+      audio.play().catch(() => {})
+    } else {
+      audio.muted = true
+    }
+    setMuted(!muted)
+  }
 
   const step = STEPS[current]
 
@@ -107,10 +133,19 @@ export default function TutorialPage() {
             </div>
             <h1 className="text-base font-extrabold text-wefin-text sm:text-lg">게임 방법</h1>
           </div>
-          <span className="font-num text-sm font-semibold text-wefin-muted">
-            {current + 1} / {STEPS.length}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleMute}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-wefin-line bg-wefin-surface text-wefin-subtle transition-all hover:bg-wefin-surface-2"
+            >
+              {muted ? <VolumeOff size={15} /> : <Volume2 size={15} />}
+            </button>
+            <span className="font-num text-sm font-semibold text-wefin-muted">
+              {current + 1} / {STEPS.length}
+            </span>
+          </div>
         </div>
+        <audio ref={audioRef} src="/audio/tutorial-bgm.mp3" loop />
 
         {/* Progress */}
         <div className="mt-3 flex items-center justify-center gap-0">
