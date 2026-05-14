@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
 import ProtectedRoute from '@/app/providers/protected-route'
+import TutorialPage from '@/features/game-room/ui/tutorial/TutorialPage'
 import PaymentFailPage from '@/features/payment/ui/payment-fail-page'
 import PaymentSuccessPage from '@/features/payment/ui/payment-success-page'
 import AccountPage from '@/pages/account/ui/account-page'
@@ -47,6 +48,14 @@ function AppRouter() {
           element={
             <ProtectedRoute>
               <ArchivePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="history/tutorial"
+          element={
+            <ProtectedRoute>
+              <TutorialPage />
             </ProtectedRoute>
           }
         />
