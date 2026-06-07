@@ -6,6 +6,10 @@ on:
       - main
       - dev
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,6 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -57,41 +62,44 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
       - name: Set deploy target
         id: vars
         run: |
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
-            echo "REMOTE_TEMP_DIR=/home/ubuntu/deploy/wefin-fe-prod" >> $GITHUB_OUTPUT
-            echo "REMOTE_TARGET_DIR=/var/www/wefin-fe" >> $GITHUB_OUTPUT
+            echo "S3_BUCKET=wefin-fe-prod" >> $GITHUB_OUTPUT
+            echo "CF_DISTRIBUTION_ID=${{ secrets.CF_DISTRIBUTION_ID_PROD }}" >> $GITHUB_OUTPUT
+            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
           else
-            echo "REMOTE_TEMP_DIR=/home/ubuntu/deploy/wefin-fe-dev" >> $GITHUB_OUTPUT
-            echo "REMOTE_TARGET_DIR=/var/www/wefin-fe-dev" >> $GITHUB_OUTPUT
+            echo "S3_BUCKET=wefin-fe-dev" >> $GITHUB_OUTPUT
+            echo "CF_DISTRIBUTION_ID=${{ secrets.CF_DISTRIBUTION_ID_DEV }}" >> $GITHUB_OUTPUT
+            echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create SSH key
+      - name: Upload to S3
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
+          aws s3 sync dist/ s3://${{ steps.vars.outputs.S3_BUCKET }} \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "index.html"
 
-      - name: Prepare remote temp directory
+          aws s3 cp dist/index.html s3://${{ steps.vars.outputs.S3_BUCKET }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Invalidate CloudFront cache
         run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "mkdir -p ${{ steps.vars.outputs.REMOTE_TEMP_DIR }} && rm -rf ${{ steps.vars.outputs.REMOTE_TEMP_DIR }}/*"
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.vars.outputs.CF_DISTRIBUTION_ID }} \
+            --paths "/*"
 
-      - name: Upload dist to EC2
+      - name: Deploy summary
         run: |
-          scp -i private_key.pem -o StrictHostKeyChecking=no -r dist/* \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ steps.vars.outputs.REMOTE_TEMP_DIR }}/
-
-      - name: Deploy on EC2
-        run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
-            TARGET_DIR="${{ steps.vars.outputs.REMOTE_TARGET_DIR }}"
-            TEMP_DIR="${{ steps.vars.outputs.REMOTE_TEMP_DIR }}"
-
-            mkdir -p "\$TARGET_DIR"
-            rm -rf "\$TARGET_DIR"/*
-            cp -r "\$TEMP_DIR"/* "\$TARGET_DIR"/
-          EOF
+          echo "### Deployed to ${{ steps.vars.outputs.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+          echo "- S3 Bucket: \`${{ steps.vars.outputs.S3_BUCKET }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- CloudFront: \`${{ steps.vars.outputs.CF_DISTRIBUTION_ID }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: \`${GITHUB_REF_NAME}\`" >> $GITHUB_STEP_SUMMARY
